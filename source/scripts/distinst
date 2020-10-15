@@ -943,7 +943,6 @@ if [ $instcommon = true ]; then
                         $DEST_SGE_ROOT/util/sgeCA/*.cnf \
                         $DEST_SGE_ROOT/util/sgeSMF/*.xml \
                         $DEST_SGE_ROOT/util/sgeSMF/sge_smf_support.sh \
-                        $DEST_SGE_ROOT/util/DetectJvmLibrary.jar \
                         $DEST_SGE_ROOT/util/resources/calendars/* \
                         $DEST_SGE_ROOT/util/resources/centry/* \
                         $DEST_SGE_ROOT/util/resources/pe/* \

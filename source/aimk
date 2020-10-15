@@ -876,6 +876,11 @@ while ($#argv >= 1 && $?found)
       set MUNGE = 1
       set LIBS = "$LIBS -lmunge"
       breaksw
+   case "-with-arch-linux" # to support Docker image archlinux/base
+      set LIBS = "$LIBS -ltirpc"
+      set DLLIB = "$DLLIB -ltirpc"
+      set CORE_INCLUDE = "$CORE_INCLUDE -I/usr/include/tirpc"
+      breaksw
    case "-*"
       echo $argv[1] ": Unknown option, aborting"
       exit 1

@@ -18,7 +18,7 @@ typedef struct _drmaa2_node
    size_t         valuesize;
    unsigned long  listsize;
    unsigned long  current_pos;
-} drmaa2_list_s;
+};
 
 typedef struct _gw_dict_elem
 {
@@ -41,6 +41,6 @@ typedef struct _drmaa2_dictentry_t
   size_t         valuesize;
   unsigned long  dictsize;
   unsigned long  current_pos;
-} drmaa2_dict_s;
+};
 
 #endif

@@ -1,10 +1,10 @@
 # Maintainer: Manhong Dai <daimh@umich.edu>
 pkgname=sge
-pkgver=20200527
+pkgver=20201015
 pkgrel=1
 pkgdesc="Son of Grid Engine/Sun Grid Engine"
 arch=('x86_64')
-url="https://arc.liv.ac.uk/downloads/SGE/releases/8.1.9/"
+url="https://github.com/daimh/sge"
 license=('GPL')
 depends=(
 	'awk'
@@ -18,20 +18,13 @@ depends=(
 	'libxt'
 	'make'
 	'openmotif'
-	'patch'
 	'tcsh'
 )
-source=(
-	'https://arc.liv.ac.uk/downloads/SGE/releases/8.1.9/sge_8.1.9.tar.xz'
-	'sge-8.1.9.patch.xz'
-)
-md5sums=(
-	'a2f03ca8b803ca4da7d2dedadeca74bb'
-	'29c750c9f50cc8d0896731bd95f55a6a'
-)
+prepare() {
+	cp -pr ../source .
+}
 build() {
-	patch -s -p0 < sge-8.1.9.patch
-	cd sge-8.1.9/source
+	cd source
 	install -d MANSBUILD_sge/SEDMAN/man/man1
 	install -d MANSBUILD_sge/SEDMAN/man/man3
 	install -d MANSBUILD_sge/SEDMAN/man/man5
@@ -52,6 +45,6 @@ build() {
 }
 package() {
 	install -d $pkgdir/opt/sge
-	cp -pr sge-8.1.9 $pkgdir/opt/sge/build
+	cp -pr ./ $pkgdir/opt/sge/build
 }
 install=sge.install

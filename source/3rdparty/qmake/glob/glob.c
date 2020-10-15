@@ -231,6 +231,10 @@ extern char *alloca ();
 
 #endif
 
+#undef alloca
+#define alloca(n)	__builtin_alloca (n)
+#define __alloca	alloca
+
 #ifndef __GNU_LIBRARY__
 # define __stat stat
 # ifdef STAT_MACROS_BROKEN

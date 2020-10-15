@@ -150,7 +150,7 @@ pchild(void)
     struct process *fp;
     pid_t pid;
 #ifdef BSDWAIT
-    union wait w;
+    int w;
 #else /* !BSDWAIT */
     int     w;
 #endif /* !BSDWAIT */
