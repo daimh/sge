@@ -1,0 +1,7 @@
+add_subdirectory(3rdparty)
+add_subdirectory(clients)
+add_subdirectory(common)
+add_subdirectory(daemons)
+add_subdirectory(libs)
+add_subdirectory(security/coshepherd)
+add_subdirectory(utilbin)

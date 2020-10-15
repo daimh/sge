@@ -1,12 +1,19 @@
 # Maintainer: Manhong Dai <daimh@umich.edu>
 pkgname=sge
-pkgver=20201015
+pkgver=SKIP
+pkgver() {
+	cd ..
+	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git describe  --always --dirty=.dirty)"
+}
 pkgrel=1
 pkgdesc="Son of Grid Engine/Sun Grid Engine"
 arch=('x86_64')
 url="https://github.com/daimh/sge"
 license=('GPL')
+makedepends=(git)
 depends=(
+	'autoconf'
+	'automake'
 	'awk'
 	'fakeroot'
 	'file'
@@ -30,7 +37,7 @@ build() {
 	install -d MANSBUILD_sge/SEDMAN/man/man5
 	install -d MANSBUILD_sge/SEDMAN/man/man8
 	sh scripts/bootstrap.sh -no-java -no-jni
-	./aimk -no-java -no-jni -with-arch-linux
+	./aimk -DGIT_REPO_VERSION=\\\"$pkgver\\\" -no-java -no-jni -with-arch-linux
 	install -d clients/gui-installer/dist
 	touch clients/gui-installer/dist/installer.jar
 	rm -f LINUXAMD64/config.status
@@ -47,4 +54,4 @@ package() {
 	install -d $pkgdir/opt/sge
 	cp -pr ./ $pkgdir/opt/sge/build
 }
-install=sge.install
+install=PKGBUILD.install

@@ -1,0 +1,36 @@
+add_executable(qstat
+	qstat.c
+	qstat_cmdline.c
+	qstat_xml.c
+)
+target_include_directories(qstat PRIVATE
+	../../clients/common
+	../../common
+	../../daemons/qmaster
+	../../libs
+	../../libs/cull
+	../../libs/sgeobj
+	../../libs/uti
+)
+target_link_libraries(qstat PRIVATE
+	comm
+	commlists
+	cull
+	evc
+	gdi
+	parse_job_cull
+	parse_qsub
+	qstat_printing
+	read_defaults
+	sched
+	sge_cqueue_qstat
+	sge_mt_init
+	sge_options
+	sge_qstat
+	sgeobj
+	sgeobjd
+	show_job
+	sig_handlers
+	usage
+	uti
+)

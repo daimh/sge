@@ -1,0 +1,48 @@
+add_executable(sge_shepherd
+	builtin_starter.c
+	setjoblimit.c
+	setrlimits.c
+	sge_fileio.c
+	sge_pset.c
+	sge_shepconf.c
+	sge_shepherd_ijs.c
+	shepherd.c
+	shepherd_binding.c
+	signal_queue.c
+)
+target_include_directories(sge_shepherd PRIVATE
+	../../clients/common
+	../../common
+	../../daemons/execd
+	../../daemons/qmaster
+	../../libs
+	../../libs/cull
+	../../libs/gdi
+	../../libs/japi
+	../../libs/sgeobj
+	../../libs/uti
+	../common
+)
+target_link_libraries(sge_shepherd PRIVATE
+	binding_support
+	comm
+	commlists
+	cull
+	err_trace
+	execution_states
+	gdi
+	hwloc
+	pdc
+	procfs
+	qlogin_starter
+	setosjobid
+	sge_ijs_comm
+	sge_ijs_threads
+	sge_mt_init
+	sge_processes_irix
+	sgeobj
+	sgeobjd
+	sig_handlers
+	uti
+	uti2
+)

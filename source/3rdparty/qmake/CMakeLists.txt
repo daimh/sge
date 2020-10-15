@@ -1,0 +1,72 @@
+add_custom_command(
+	OUTPUT config.h
+	COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/config.h.LINUXAMD64 config.h
+)
+add_executable(qmake
+	ar.c
+	arscan.c
+	commands.c
+	config.h
+	default.c
+	dir.c
+	expand.c
+	file.c
+	function.c
+	getopt.c
+	getopt1.c
+	hash
+	implicit.c
+	job.c
+	main.c
+	misc.c
+	read.c
+	remake.c
+	remote-sge.c
+	rule.c
+	signame.c
+	strcache.c
+	variable.c
+	version.c
+	vpath.c
+)
+target_compile_definitions(qmake PRIVATE
+	LOCALEDIR="/usr/local/share/locale"
+	INCLUDEDIR="/usr/local/include"
+	LIBDIR="/usr/local/lib"
+)
+target_compile_options(qmake PRIVATE
+	-Wno-strict-prototypes
+	-Wno-return-local-addr
+)
+target_include_directories(qmake PRIVATE
+	${CMAKE_CURRENT_BINARY_DIR}
+	${CMAKE_CURRENT_LIST_DIR}
+	../../clients/common
+	../../common
+	../../daemons/qmaster
+	../../libs
+	../../libs/cull
+	../../libs/evm
+	../../libs/sgeobj
+	../../libs/uti
+	../common
+)
+target_link_libraries(qmake PRIVATE
+	comm
+	commlists
+	cull
+	evc
+	gdi
+	japi
+	parse_job_cull
+	parse_qsub
+	read_defaults
+	sge_mt_init
+	sge_options
+	sgeobj
+	sgeobjd
+	show_job
+	sig_handlers
+	usage
+	uti
+)

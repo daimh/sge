@@ -212,7 +212,7 @@ int include;
     _Xconst char *c, *d;
     Boolean instring = False;
 
-    if (l->c == '\0') {
+    if (l->c == 0) {
 	l->token = XmtLexerEndOfString;
 	return XmtLexerEndOfString;
     }

@@ -121,7 +121,7 @@ static struct servent *sge_getservbyname_r(struct servent *se_result, const char
 *     This function returns the TCP/IP port of the qmaster daemon. It returns
 *     a cached value from a previous run. The cached value will be refreshed
 *     every 10 Minutes. The port may come from environment variable
-*     SGE_QMASTER_PORT or the services files entry "sge_qmaster".
+*     SGE_QMASTER_PORT or the services files entry "sge-qmaster".
 *
 *  INPUTS
 *     bool *from_services - Pointer to a boolean which is set to true
@@ -177,7 +177,7 @@ int sge_get_qmaster_port(bool *from_services) {
       struct servent se_result;
       struct servent* se_help = NULL;
 
-      se_help = sge_getservbyname_r(&se_result, "sge_qmaster", buffer, sizeof(buffer));
+      se_help = sge_getservbyname_r(&se_result, "sge-qmaster", buffer, sizeof(buffer));
       if (se_help != NULL) {
          int_port = ntohs(se_help->s_port);
          if (int_port > 0) {
@@ -191,9 +191,9 @@ int sge_get_qmaster_port(bool *from_services) {
    }
 
    if (int_port <= 0 ) {
-      ERROR((SGE_EVENT, MSG_UTI_CANT_GET_ENV_OR_PORT_SS, "SGE_QMASTER_PORT", "sge_qmaster"));
+      ERROR((SGE_EVENT, MSG_UTI_CANT_GET_ENV_OR_PORT_SS, "SGE_QMASTER_PORT", "sge-qmaster"));
       if ( cached_port > 0 ) {
-         WARNING((SGE_EVENT, MSG_UTI_USING_CACHED_PORT_SU, "sge_qmaster", sge_u32c(cached_port) ));
+         WARNING((SGE_EVENT, MSG_UTI_USING_CACHED_PORT_SU, "sge-qmaster", sge_u32c(cached_port) ));
          int_port = cached_port; 
       } else {
          sge_mutex_unlock("get_qmaster_port_mutex", SGE_FUNC, __LINE__, &get_qmaster_port_mutex);
@@ -251,16 +251,16 @@ int sge_get_execd_port(void) {
       struct servent se_result;
       struct servent* se_help = NULL;
 
-      se_help = sge_getservbyname_r(&se_result, "sge_execd", buffer, sizeof(buffer));
+      se_help = sge_getservbyname_r(&se_result, "sge-execd", buffer, sizeof(buffer));
       if (se_help != NULL) {
          int_port = ntohs(se_help->s_port);
       }
    }
 
    if (int_port <= 0 ) {
-      ERROR((SGE_EVENT, MSG_UTI_CANT_GET_ENV_OR_PORT_SS, "SGE_EXECD_PORT" , "sge_execd"));
+      ERROR((SGE_EVENT, MSG_UTI_CANT_GET_ENV_OR_PORT_SS, "SGE_EXECD_PORT" , "sge-execd"));
       if ( cached_port > 0 ) {
-         WARNING((SGE_EVENT, MSG_UTI_USING_CACHED_PORT_SU, "sge_execd", sge_u32c(cached_port) ));
+         WARNING((SGE_EVENT, MSG_UTI_USING_CACHED_PORT_SU, "sge-execd", sge_u32c(cached_port) ));
          int_port = cached_port; 
       } else {
          sge_mutex_unlock("get_execd_port_mutex", SGE_FUNC, __LINE__, &get_execd_port_mutex);

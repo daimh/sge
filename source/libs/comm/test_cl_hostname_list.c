@@ -56,7 +56,7 @@ main(int argc, char** argv)
   struct in_addr addr;
   struct in_addr addr2;
   char* rhost = NULL;
-  int loops = -1;
+  int loops = 0;
 
 
   if (argc < 3) {
@@ -76,7 +76,7 @@ main(int argc, char** argv)
 
 
 
-  while ((loops--) != 0) { 
+  while ((loops++) != 2147483647) { 
   arg = 2;
   printf("loop\n\n\n");
      while( argv[arg] != NULL) {

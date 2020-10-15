@@ -1,0 +1,33 @@
+add_executable(qsub
+	qsub.c
+)
+target_include_directories(qsub PRIVATE
+	../../clients/common
+	../../common
+	../../daemons/qmaster
+	../../libs
+	../../libs/cull
+	../../libs/evm
+	../../libs/sgeobj
+	../../libs/uti
+	../common
+)
+target_link_libraries(qsub PRIVATE
+	comm
+	commlists
+	cull
+	evc
+	gdi
+	japi
+	parse_job_cull
+	parse_qsub
+	read_defaults
+	sge_mt_init
+	sge_options
+	sgeobj
+	sgeobjd
+	show_job
+	sig_handlers
+	usage
+	uti
+)

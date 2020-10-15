@@ -350,8 +350,8 @@ try_connect:
 		(void)signal(SIGTERM, sendsig);
 
    /* Fix for IZ 2986: block the default notification signals */
-   sigignore(SIGUSR1);
-   sigignore(SIGUSR2);
+   signal(SIGUSR1, SIG_IGN);
+   signal(SIGUSR2, SIG_IGN);
 
 	if (!nflag) {
 		pid = fork();

@@ -1,0 +1,33 @@
+add_executable(qconf
+	parse_qconf.c
+	qconf.c
+	sge_client_access.c
+	sge_cuser_qconf.c
+)
+target_include_directories(qconf PRIVATE
+	../../clients/common
+	../../common
+	../../libs
+	../../libs/cull
+	../../libs/sgeobj
+	../../libs/uti
+)
+target_link_libraries(qconf PRIVATE
+	comm
+	commlists
+	cull
+	gdi
+	sched
+	sge_centry_qconf
+	sge_cqueue_qconf
+	sge_hgroup_qconf
+	sge_mt_init
+	sge_options
+	sge_resource_quota_qconf
+	sgeobj
+	sgeobjd
+	sig_handlers
+	spoolc
+	usage
+	uti
+)

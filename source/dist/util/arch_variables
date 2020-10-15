@@ -104,9 +104,9 @@ case $ARCH in
       RC_PREFIX=/etc/init.d
       RC_DIR=unused
    else
-      RC_FILE=sysv_rc
-      RC_PREFIX=/etc/rc.d
-      RC_DIR=rc3.d
+      RC_FILE=systemd
+      RC_PREFIX=/etc/systemd/system
+      RC_DIR=unused
    fi
    XTERM=/usr/bin/xterm
    MAILER=/bin/mail

@@ -1,0 +1,31 @@
+add_executable(qhost
+	qhost.c
+)
+target_include_directories(qhost PRIVATE
+	../../clients/common
+	../../common
+	../../daemons/qmaster
+	../../libs
+	../../libs/cull
+	../../libs/sgeobj
+	../../libs/uti
+)
+target_link_libraries(qhost PRIVATE
+	comm
+	commlists
+	cull
+	gdi
+	qstat_printing
+	sched
+	sge_cqueue_qstat
+	sge_mt_init
+	sge_options
+	sge_qhost
+	sge_qstat
+	sgeobj
+	sgeobjd
+	show_job
+	sig_handlers
+	usage
+	uti
+)

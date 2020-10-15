@@ -340,14 +340,14 @@ int cl_parameter_list_get_param_string(cl_raw_list_t* list_p, char** param_strin
       if (next_elem == NULL) {
          /* this is last elem! */
          /* we need no ":" at the end, because it's the last element*/
-         strncat(*param_string, elem->parameter, strlen(elem->parameter));
-         strncat(*param_string, "=", 1);
-         strncat(*param_string, elem->value, strlen(elem->value));
+         strcat(*param_string, elem->parameter);
+         strcat(*param_string, "=");
+         strcat(*param_string, elem->value);
       } else {
-         strncat(*param_string, elem->parameter, strlen(elem->parameter));
-         strncat(*param_string, "=", 1);
-         strncat(*param_string, elem->value, strlen(elem->value));
-         strncat(*param_string, ":", 1);
+         strcat(*param_string, elem->parameter);
+         strcat(*param_string, "=");
+         strcat(*param_string, elem->value);
+         strcat(*param_string, ":");
       }
       elem = next_elem;
    }

@@ -81,8 +81,8 @@ BasicSettings()
   SGE_SHEPHERD_NAME=sge_shepherd
   SGE_SHADOWD_NAME=sge_shadowd
   SGE_SERVICE=sge_qmaster
-  SGE_QMASTER_SRV=sge_qmaster
-  SGE_EXECD_SRV=sge_execd
+  SGE_QMASTER_SRV=sge-qmaster
+  SGE_EXECD_SRV=sge-execd
 
   unset SGE_NOMSG
 
@@ -1478,9 +1478,9 @@ CheckWhoInstallsSGE()
              "   - Grid Engine still has to be started by user >root<\n\n" \
              "   - this directory should be owned by the Grid Engine administrator\n"
 
-   $INFOTEXT -auto $AUTO -ask "y" "n" -def "y" -n \
+   $INFOTEXT -auto $AUTO -ask "y" "n" -def "n" -n \
              "Do you want to install Grid Engine\n" \
-             "under a user ID other than >root< (y/n) [y] >> "
+             "under a user ID other than >root< (y/n) [n] >> "
 
    if [ $? = 0 ]; then
       done=false
@@ -1992,7 +1992,7 @@ ProcessSGEClusterName()
    fi
 
    if [ "$SGE_QMASTER_PORT" = "" ]; then
-      SGE_QMASTER_PORT=`./utilbin/$SGE_ARCH/getservbyname -number sge_qmaster`
+      SGE_QMASTER_PORT=`./utilbin/$SGE_ARCH/getservbyname -number sge-qmaster`
    fi
 
    done=false
@@ -2136,8 +2136,8 @@ GiveHints()
                 "   - \$SGE_ROOT         (always necessary)\n" \
                 "   - \$SGE_CELL         (if you are using a cell other than >default<)\n" \
                 "   - \$SGE_CLUSTER_NAME (always necessary)\n" \
-                "   - \$SGE_QMASTER_PORT (if you haven't added the service >sge_qmaster<)\n" \
-                "   - \$SGE_EXECD_PORT   (if you haven't added the service >sge_execd<)\n" \
+                "   - \$SGE_QMASTER_PORT (if you haven't added the service >sge-qmaster<)\n" \
+                "   - \$SGE_EXECD_PORT   (if you haven't added the service >sge-execd<)\n" \
                 "   - \$PATH/\$path       (to find the Grid Engine binaries)\n" \
                 "   - \$MANPATH          (to access the manual pages)\n" \
                 "Alternatively use module(1) after installing %s\n" \
@@ -2499,7 +2499,15 @@ InstallRcScript()
          fi
          ;;
        esac
-
+   # If we have SYSTEMD put the startup script to $RC_PREFIX/
+   elif [ "$RC_FILE" = "systemd" ]; then
+      $INFOTEXT "Installing startup script %s" "$RC_PREFIX/" 
+      SYSTEMD_FILE=sge$hosttype.service
+      Execute rm -f $RC_PREFIX/$SYSTEMD_FILE
+      Execute cp util/rctemplates/systemd/$SYSTEMD_FILE $RC_PREFIX/$SYSTEMD_FILE
+      Execute chmod a+x $RC_PREFIX/$SYSTEMD_FILE
+      Execute systemctl enable $SYSTEMD_FILE
+      SGE_ARCH=`$SGE_UTIL/arch`
    elif [ "$RC_FILE" = "insserv-linux" ]; then
       echo  cp $SGE_STARTUP_FILE $RC_PREFIX/$STARTUP_FILE_NAME
       echo /sbin/insserv $RC_PREFIX/$STARTUP_FILE_NAME
@@ -3176,7 +3184,7 @@ CheckPrivate ()
    db_opt=`grep spooling_params "$SGE_ROOT"/$SGE_CELL/common/bootstrap | awk -F '[ 	;]+' '{ print $3 }'`
    QMASTER=`cat "$SGE_ROOT/$SGE_CELL/common/act_qmaster"`
    if [ -z "$SGE_QMASTER_PORT" ]; then
-      ping_port=`$SGE_UTILBIN/getservbyname -number sge_qmaster`
+      ping_port=`$SGE_UTILBIN/getservbyname -number sge-qmaster`
    else
       ping_port=$SGE_QMASTER_PORT
    fi
@@ -4124,11 +4132,11 @@ CheckPortsCollision()
       services_flag=1
    fi
 
-   if [ $check_val = "sge_qmaster" ]; then
+   if [ $check_val = "sge-qmaster" ]; then
       ENV_VAR="$SGE_QMASTER_PORT"
    fi
 
-   if [ $check_val = "sge_execd" ]; then
+   if [ $check_val = "sge-execd" ]; then
       ENV_VAR="$SGE_EXECD_PORT"
    fi
 

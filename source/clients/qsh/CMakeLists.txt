@@ -1,0 +1,35 @@
+add_executable(qsh
+	parse_job_qsh.c
+	qsh.c
+)
+target_include_directories(qsh PRIVATE
+	../../clients/common
+	../../common
+	../../daemons/execd
+	../../daemons/qmaster
+	../../libs
+	../../libs/cull
+	../../libs/sgeobj
+	../../libs/uti
+)
+target_link_libraries(qsh PRIVATE
+	comm
+	commlists
+	cull
+	gdi
+	ijs
+	parse_job_cull
+	parse_qsub
+	read_defaults
+	sge_client_ijs
+	sge_ijs_comm
+	sge_ijs_threads
+	sge_mt_init
+	sgeobj
+	sgeobjd
+	sge_options
+	show_job
+	sig_handlers
+	usage
+	uti
+)

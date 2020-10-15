@@ -1359,11 +1359,11 @@ void block_notification_signals(void)
    }
 
    if (sig1 > 0) {
-      sigignore(sig1);
+      signal(sig1, SIG_IGN);
       DPRINTF(("ignoring signal %d\n", (int)sig1));
    }
    if (sig2 > 0) {
-      sigignore(sig2);
+      signal(sig2, SIG_IGN);
       DPRINTF(("ignoring signal %d\n", (int)sig2));
    }
 

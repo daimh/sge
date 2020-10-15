@@ -571,7 +571,7 @@ void son(const char *childname, char *script_file, int truncate_stderr_out, size
    } else { /* the job itself */
       if (!is_rsh && g_new_interactive_job_support == true) {
          shell_path = strdup(pw->pw_shell);
-         sge_chdir(pw->pw_dir);
+         if (sge_chdir(pw->pw_dir)) {}
       } else {
          shell_path = get_conf_val("shell_path");
       }

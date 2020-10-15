@@ -1,0 +1,57 @@
+add_executable(sge_execd
+	dispatcher.c
+	exec_job.c
+	execd.c
+	execd_ck_to_do.c
+	execd_get_new_conf.c
+	execd_job_exec.c
+	execd_kill_execd.c
+	execd_signal_queue.c
+	execd_ticket.c
+	get_path.c
+	job_report_execd.c
+	load_avg.c
+	ptf.c
+	reaper_execd.c
+	setup_execd.c
+	sge_load_sensor.c
+	sge_report_execd.c
+	tmpdir.c
+)
+target_include_directories(sge_execd PRIVATE
+	${CMAKE_CURRENT_LIST_DIR}
+	../../clients/common
+	../../common
+	../../daemons/qmaster
+	../../libs
+	../../libs/cull
+	../../libs/gdi
+	../../libs/japi
+	../../libs/sgeobj
+	../../libs/uti
+	../common
+)
+target_link_libraries(sge_execd PRIVATE
+	admin_mail
+	binding_support
+	comm
+	commlists
+	cull
+	execution_states
+	gdi
+	hwloc
+	mail
+	pdc
+	procfs
+	read_write_job
+	sge_mt_init
+	sge_options
+	sgeobj
+	sgeobjd
+	shutdown
+	sig_handlers
+	startprog
+	usage
+	uti
+	uti2
+)

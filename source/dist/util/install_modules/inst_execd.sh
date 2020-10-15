@@ -460,7 +460,8 @@ StartExecd()
          exit 1
       fi
    else
-      $SGE_STARTUP_FILE
+#      $SGE_STARTUP_FILE
+      systemctl start sgeexecd
    fi
    $INFOTEXT -wait -auto $AUTO -n "\nHit <RETURN> to continue >> "
    $CLEAR

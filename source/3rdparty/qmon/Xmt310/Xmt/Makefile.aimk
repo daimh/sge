@@ -6,7 +6,7 @@
 
 XMT_SDIR = ../Xmt310/Xmt
 
-XMTFLAGS = $(CFLAGS) -I../Xmt310
+XMTFLAGS = $(CFLAGS) -I../Xmt310 -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast -Wno-incompatible-pointer-types
 
 XMT_SRCS =  \
 	$(XMT_SDIR)/All.c \

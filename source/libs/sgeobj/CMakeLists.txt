@@ -1,0 +1,94 @@
+add_custom_command(
+	OUTPUT sge_sub_object.c
+	COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/sge_sub_object.c.LINUXAMD64 sge_sub_object.c
+)
+add_library(sgeobj STATIC
+	cull_parse_util.c
+	parse.c
+	sge_ack.c
+	sge_advance_reservation.c
+	sge_attr.c
+	sge_binding.c
+	sge_calendar.c
+	sge_centry.c
+	sge_ckpt.c
+	sge_conf.c
+	sge_config.c
+	sge_cqueue.c
+	sge_cqueue_verify.c
+	sge_cull_xml.c
+	sge_cuser.c
+	sge_eval_expression.c
+	sge_event.c
+	sge_hgroup.c
+	sge_host.c
+	sge_href.c
+	sge_id.c
+	sge_ja_task.c
+	sge_job.c
+	sge_jsv.c
+	sge_jsv_script.c
+	sge_load.c
+	sge_mailrec.c
+	sge_manop.c
+	sge_mesobj.c
+	sge_object.c
+	sge_order.c
+	sge_pack.c
+	sge_path_alias.c
+	sge_pe.c
+	sge_pe_task.c
+	sge_proc.c
+	sge_qinstance.c
+	sge_qinstance_state.c
+	sge_qinstance_type.c
+	sge_qref.c
+	sge_range.c
+	sge_report.c
+	sge_resource_quota.c
+	sge_schedd_conf.c
+	sge_sharetree.c
+	sge_str.c
+	sge_sub_object.c
+	sge_subordinate.c
+	sge_suser.c
+	sge_ulong.c
+	sge_usage.c
+	sge_userprj.c
+	sge_userset.c
+	sge_utility.c
+	sge_var.c
+	str2nm_converter.c
+)
+target_compile_definitions(sgeobj PRIVATE
+	_GNU_SOURCE
+)
+target_include_directories(sgeobj PRIVATE
+	${CMAKE_CURRENT_LIST_DIR}
+	..
+	../../clients/common
+	../../common
+	../../daemons/common
+	../../daemons/execd
+	../../daemons/qmaster
+	../../libs/cull
+	../../libs/gdi
+	../../libs/uti
+)
+target_link_libraries(sgeobj PRIVATE
+	cull
+	gdi
+	uti
+)
+add_library(sgeobjd STATIC
+	sge_all_listsL.c
+	sge_answer.c
+	sge_feature.c
+)
+target_include_directories(sgeobjd PRIVATE
+	${CMAKE_CURRENT_LIST_DIR}
+	../../common
+	../../libs
+	../../libs/cull
+	../../libs/uti
+)

@@ -1,0 +1,8 @@
+add_subdirectory(qmake)
+add_subdirectory(qmon/Xbae)
+add_subdirectory(qmon/Xmt310/Xmt)
+add_subdirectory(qmon/iconlist)
+add_subdirectory(qmon/ltree)
+add_subdirectory(qmon/spinbox)
+add_subdirectory(qmon/tab)
+add_subdirectory(qtcsh)

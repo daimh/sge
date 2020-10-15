@@ -2135,7 +2135,7 @@ Cardinal *share
       }
       strncpy(name, name_str, name_len-1);
       name[name_len-1] = '\0';
-      if (share_str && share_str != '\0') {
+      if (share_str && share_str != 0) {
          long l = strtol(qmon_trim(share_str), &rest, 10);
          if (l < 0 || (rest && *rest != '\0')) {
             qmonMessageShow(w, True, "@{Only unsigned integers are allowed !}");

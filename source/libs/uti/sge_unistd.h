@@ -68,7 +68,6 @@
 #define SGE_FSTAT(filename, buffer) fstat(filename, buffer)
 #define SGE_STRUCT_STAT struct stat
 #define SGE_READDIR(directory) readdir(directory)
-#define SGE_READDIR_R(directory, entry, result) readdir_r(directory, entry, result)
 #define SGE_TELLDIR(directory) telldir(directory)
 #define SGE_SEEKDIR(directory, offset) seekdir(directory, offset)
 #define SGE_STRUCT_DIRENT struct dirent

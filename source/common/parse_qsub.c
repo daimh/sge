@@ -1130,7 +1130,7 @@ u_long32 flags
              DRETURN(answer);
          }
 
-         if (*sp == '\0') {
+         if (*sp == 0) {
              answer_list_add_sprintf(&answer, STATUS_ESEMANTIC, ANSWER_QUALITY_ERROR,
                     "%s", MSG_PARSE_EMPTYSTRINGARGUMENTTONOPTIONINVALID);
              DRETURN(answer);

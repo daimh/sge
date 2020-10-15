@@ -1219,7 +1219,8 @@ StartQmaster()
          exit 1
       fi
    else
-      $SGE_STARTUP_FILE -qmaster
+#      $SGE_STARTUP_FILE -qmaster
+      systemctl start sgemaster
       if [ $? -ne 0 ]; then
          $INFOTEXT "sge_qmaster start problem"
          $INFOTEXT -log "sge_qmaster start problem"
@@ -1571,7 +1572,7 @@ GetQmasterPort()
                       export SGE_QMASTER_PORT
                       $INFOTEXT -log "Using SGE_QMASTER_PORT >%s<." $SGE_QMASTER_PORT
          if [ "$collision_flag" = "services_only" -o "$collision_flag" = "services_env" ]; then
-            $INFOTEXT "This overrides the preset TCP/IP service >sge_qmaster<.\n"
+            $INFOTEXT "This overrides the preset TCP/IP service >sge-qmaster<.\n"
          fi
          $INFOTEXT -auto $AUTO -ask "y" "n" -def "n" -n "Do you want to change the port number? (y/n) [n] >> "
          if [ "$?" = 0 ]; then
@@ -1584,14 +1585,14 @@ GetQmasterPort()
                    "   \$SGE_QMASTER_PORT=%s\n\n" \
                    "has an invalid value (it must be in range 1..%s).\n\n" \
                    "Please set the environment variable \$SGE_QMASTER_PORT and restart\n" \
-                   "the installation or configure the service >sge_qmaster<." $SGE_QMASTER_PORT $comm_port_max
+                   "the installation or configure the service >sge-qmaster<." $SGE_QMASTER_PORT $comm_port_max
          $INFOTEXT -log "Your \$SGE_QMASTER_PORT=%s\n\n" \
                    "has an invalid value (it must be in range 1..%s).\n\n" \
                    "Please check your configuration file and restart\n" \
-                   "the installation or configure the service >sge_qmaster<." $SGE_QMASTER_PORT $comm_port_max
+                   "the installation or configure the service >sge-qmaster<." $SGE_QMASTER_PORT $comm_port_max
       fi
    fi
-   $INFOTEXT -u "\nGrid Engine TCP/IP service >sge_qmaster<"
+   $INFOTEXT -u "\nGrid Engine TCP/IP service >sge-qmaster<"
    if [ "$port_source" = "env" ]; then
       EnterPortAndCheck $SGE_QMASTER_SRV
       $CLEAR
@@ -1599,7 +1600,7 @@ GetQmasterPort()
       EnterServiceOrPortAndCheck $SGE_QMASTER_SRV
       if [ "$port_source" = "db" ]; then
          $INFOTEXT "\nUsing the service\n\n" \
-                   "   sge_qmaster\n\n" \
+                   "   sge-qmaster\n\n" \
                    "for communication with Grid Engine.\n"
          qmaster_service="true"
       fi
@@ -1610,11 +1611,11 @@ GetQmasterPort()
 
 EnterServiceOrPortAndCheck()
 {
-   if [ "$1" = "sge_qmaster" ]; then
-      service_name="sge_qmaster"
+   if [ "$1" = "sge-qmaster" ]; then
+      service_name="sge-qmaster"
       port_var_name="SGE_QMASTER_PORT"
    else
-      service_name="sge_execd"
+      service_name="sge-execd"
       port_var_name="SGE_EXECD_PORT"
 
    fi
@@ -1664,11 +1665,11 @@ EnterServiceOrPortAndCheck()
 EnterPortAndCheck()
 {
 
-   if [ "$1" = "sge_qmaster" ]; then
-      service_name="sge_qmaster"
+   if [ "$1" = "sge-qmaster" ]; then
+      service_name="sge-qmaster"
       port_var_name="SGE_QMASTER_PORT"
    else
-      service_name="sge_execd"
+      service_name="sge-execd"
       port_var_name="SGE_EXECD_PORT"
 
    fi
@@ -1691,7 +1692,7 @@ EnterPortAndCheck()
 
 SelectedPortOutput()
 {
-   if [ "$1" = "sge_qmaster" ]; then
+   if [ "$1" = "sge-qmaster" ]; then
       SGE_QMASTER_PORT=$INP
       $INFOTEXT "\nUsing the environment variable\n\n" \
       "   \$SGE_QMASTER_PORT=%s\n\n" \
@@ -1717,7 +1718,7 @@ EnterAndValidatePortNumber()
 
    port_ok="false"
 
-   if [ "$1" = "sge_qmaster" ]; then
+   if [ "$1" = "sge-qmaster" ]; then
       $INFOTEXT -n "Please enter an unused port number >> "
       INP=`Enter $SGE_QMASTER_PORT`
    else
@@ -1725,13 +1726,13 @@ EnterAndValidatePortNumber()
          $INFOTEXT -n "Please enter an unused port number >> "
          INP=`Enter $SGE_EXECD_PORT`
          port_ok="true"
-         if [ "$INP" = "$SGE_QMASTER_PORT" -a $1 = "sge_execd" ]; then
+         if [ "$INP" = "$SGE_QMASTER_PORT" -a $1 = "sge-execd" ]; then
             $INFOTEXT "\nPlease use any other port number!"
-            $INFOTEXT "Port number %s is already used by sge_qmaster\n" $SGE_QMASTER_PORT
+            $INFOTEXT "Port number %s is already used by sge-qmaster\n" $SGE_QMASTER_PORT
             port_ok="false"
             if [ $AUTO = "true" ]; then
                $INFOTEXT -log "Please use any other port number!"
-               $INFOTEXT -log "Port number %s is already used by sge_qmaster" $SGE_QMASTER_PORT
+               $INFOTEXT -log "Port number %s is already used by sge-qmaster" $SGE_QMASTER_PORT
                $INFOTEXT -log "Installation failed!!!"
                MoveLog
                exit 1
@@ -2254,7 +2255,7 @@ GetJMXPort() {
                $INFOTEXT -log "Your \$SGE_JMX_PORT=%s\n\n" \
                          "has an invalid value (it must be in range %s..%s).\n\n" \
                          "Please check your configuration file and restart\n" \
-                         "the installation or configure the service >sge_qmaster<." $SGE_JMX_PORT $jmx_port_min $jmx_port_max
+                         "the installation or configure the service >sge-qmaster<." $SGE_JMX_PORT $jmx_port_min $jmx_port_max
                MoveLog
                exit 1
             fi
@@ -2364,7 +2365,7 @@ GetJMXPort() {
                   if [ "$SGE_QMASTER_PORT" != "" -a "$qmaster_service" = false ]; then
                      ca_port=port$SGE_QMASTER_PORT
                   else
-                     ca_port=sge_qmaster
+                     ca_port=sge-qmaster
                   fi
                   # must be in sync with definitions in sge_ca.cnf
                   euid=`$SGE_UTILBIN/uidgid -euid`
@@ -2451,7 +2452,7 @@ GetExecdPort()
                       export SGE_EXECD_PORT
                       $INFOTEXT -log "Using SGE_EXECD_PORT >%s<." $SGE_EXECD_PORT
          if [ "$collision_flag" = "services_only" -o "$collision_flag" = "services_env" ]; then
-            $INFOTEXT "This overrides the preset TCP/IP service >sge_execd<.\n"
+            $INFOTEXT "This overrides the preset TCP/IP service >sge-execd<.\n"
          fi
          $INFOTEXT -auto $AUTO -ask "y" "n" -def "n" -n "Do you want to change the port number? (y/n) [n] >> "
          if [ "$?" = 0 ]; then
@@ -2464,11 +2465,11 @@ GetExecdPort()
                    "   \$SGE_EXECD_PORT=%s\n\n" \
                    "has an invalid value (it must be in range 1..%s).\n\n" \
                    "Please set the environment variable \$SGE_EXECD_PORT and restart\n" \
-                   "the installation or configure the service >sge_execd<." $SGE_EXECD_PORT $comm_port_max
+                   "the installation or configure the service >sge-execd<." $SGE_EXECD_PORT $comm_port_max
          $INFOTEXT -log "Your \$SGE_EXECD_PORT=%s\n\n" \
                    "has an invalid value (it must be in range 1..%s).\n\n" \
                    "Please check your configuration file and restart\n" \
-                   "the installation or configure the service >sge_execd<." $SGE_EXECD_PORT $comm_port_max
+                   "the installation or configure the service >sge-execd<." $SGE_EXECD_PORT $comm_port_max
       fi
    fi         
       $INFOTEXT -u "\nGrid Engine TCP/IP communication service "
@@ -2478,11 +2479,11 @@ GetExecdPort()
                    "to the qmaster machine\n"
          if [ `$SGE_UTILBIN/getservbyname $SGE_QMASTER_SRV 2>/dev/null | wc -w` = 0 -a "$SGE_QMASTER_PORT" != "" ]; then
             $INFOTEXT "The qmaster port SGE_QMASTER_PORT = %s\n" $SGE_QMASTER_PORT
-         elif [ `$SGE_UTILBIN/getservbyname sge_qmaster 2>/dev/null | wc -w` != 0 -a "$SGE_QMASTER_PORT" = "" ]; then
-            $INFOTEXT "sge_qmaster service set to port %s\n" `$SGE_UTILBIN/getservbyname $SGE_QMASTER_SRV | cut -d" " -f2`
+         elif [ `$SGE_UTILBIN/getservbyname sge-qmaster 2>/dev/null | wc -w` != 0 -a "$SGE_QMASTER_PORT" = "" ]; then
+            $INFOTEXT "sge-qmaster service set to port %s\n" `$SGE_UTILBIN/getservbyname $SGE_QMASTER_SRV | cut -d" " -f2`
          else 
             $INFOTEXT "The qmaster port SGE_QMASTER_PORT = %s" $SGE_QMASTER_PORT
-            $INFOTEXT "sge_qmaster service set to port %s\n" `$SGE_UTILBIN/getservbyname $SGE_QMASTER_SRV | cut -d" " -f2`
+            $INFOTEXT "sge-qmaster service set to port %s\n" `$SGE_UTILBIN/getservbyname $SGE_QMASTER_SRV | cut -d" " -f2`
          fi 
          $INFOTEXT -wait -auto $AUTO -n "Hit <RETURN> to continue >> "
 
@@ -2493,7 +2494,7 @@ GetExecdPort()
       EnterServiceOrPortAndCheck $SGE_EXECD_SRV
       if [ "$service_available" = "true" ]; then
          $INFOTEXT "\nUsing the service\n\n" \
-                   "   sge_execd\n\n" \
+                   "   sge-execd\n\n" \
                    "for communication with Grid Engine.\n"
          execd_service="true"
       fi
@@ -2679,7 +2680,7 @@ PortCollision()
 
       env_only)
          $INFOTEXT "\nThe port for %s is currently set by the shell environment.\n\n" $service
-         if [ "$service" = "sge_qmaster" ]; then
+         if [ "$service" = "sge-qmaster" ]; then
             $INFOTEXT "   SGE_QMASTER_PORT = %s" $SGE_QMASTER_PORT
          else
             $INFOTEXT "   SGE_EXECD_PORT = %s" $SGE_EXECD_PORT
@@ -2689,23 +2690,23 @@ PortCollision()
 
       services_only)
          $INFOTEXT "\nThe port for %s is currently set as service.\n" $service
-         if [ "$service" = "sge_qmaster" ]; then
-            $INFOTEXT "   sge_qmaster service set to port %s" `$SGE_UTILBIN/getservbyname $service | cut -d" " -f2` 
+         if [ "$service" = "sge-qmaster" ]; then
+            $INFOTEXT "   sge-qmaster service set to port %s" `$SGE_UTILBIN/getservbyname $service | cut -d" " -f2` 
          else
-            $INFOTEXT "   sge_execd service set to port %s" `$SGE_UTILBIN/getservbyname $service | cut -d" " -f2` 
+            $INFOTEXT "   sge-execd service set to port %s" `$SGE_UTILBIN/getservbyname $service | cut -d" " -f2` 
          fi
          INP=2
       ;;
 
       services_env)
          $INFOTEXT "\nThe port for %s is currently set BOTH as service and by the\nshell environment\n" $service
-         if [ "$service" = "sge_qmaster" ]; then
+         if [ "$service" = "sge-qmaster" ]; then
             $INFOTEXT "   SGE_QMASTER_PORT = %s" $SGE_QMASTER_PORT
-            $INFOTEXT "   sge_qmaster service set to port %s" `$SGE_UTILBIN/getservbyname $service | cut -d" " -f2` 
+            $INFOTEXT "   sge-qmaster service set to port %s" `$SGE_UTILBIN/getservbyname $service | cut -d" " -f2` 
             $INFOTEXT "\n   Currently SGE_QMASTER_PORT = %s is active!" $SGE_QMASTER_PORT 
          else
             $INFOTEXT "   SGE_EXECD_PORT = %s" $SGE_EXECD_PORT
-            $INFOTEXT "   sge_execd service set to port %s" `$SGE_UTILBIN/getservbyname $service | cut -d" " -f2` 
+            $INFOTEXT "   sge-execd service set to port %s" `$SGE_UTILBIN/getservbyname $service | cut -d" " -f2` 
             $INFOTEXT "\n   Currently SGE_EXECD_PORT = %s is active!" $SGE_EXECD_PORT 
          fi
          INP=1
@@ -2735,7 +2736,7 @@ PortSourceSelect()
       port_source="env"
    elif [ "$INP" = "2" ]; then
       port_source="db"
-      if [ "$1" = "sge_qmaster" ]; then
+      if [ "$1" = "sge-qmaster" ]; then
          unset SGE_QMASTER_PORT
          export SGE_QMASTER_PORT
       else

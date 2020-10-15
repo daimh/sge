@@ -1,0 +1,38 @@
+add_library(sched STATIC
+	debit.c
+	load_correction.c
+	schedd_message.c
+	schedd_monitor.c
+	sge_complex_schedd.c
+	sge_interactive_sched.c
+	sge_job_schedd.c
+	sge_orders.c
+	sge_pe_schedd.c
+	sge_qeti.c
+	sge_range_schedd.c
+	sge_resource_quota_schedd.c
+	sge_resource_utilization.c
+	sge_schedd_text.c
+	sge_select_queue.c
+	sge_serf.c
+	sge_sharetree_printing.c
+	sge_ssi.c
+	sge_support.c
+	sge_urgency.c
+	sgeee.c
+	sort_hosts.c
+	subordinate_schedd.c
+	suspend_thresholds.c
+	valid_queue_user.c
+)
+target_include_directories(sched PRIVATE
+	..
+	../../common
+	../../daemons/qmaster
+	../../libs/cull
+	../../libs/sgeobj
+	../../libs/uti
+)
+target_link_libraries(sched PRIVATE
+	sgeobj
+)
