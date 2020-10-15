@@ -1,0 +1,4 @@
+# Customization of distinst
+
+# May not have built GUI installer, for instance
+exit_on_error=false 

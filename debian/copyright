@@ -1,0 +1,23 @@
+This package was debianized by Dave Love <d.love@liverpool.ac.uk>,
+with some traces from original Debian packaging by Mark Hymers.
+
+It was downloaded from http://arc.liv.ac.uk/downloads/SGE/releases
+
+The main license used within this work is the SISSL, which is included
+in the doc/LICENCES along with the others involved.
+
+Copyright: (c) 2001-2009 Sun Microsystems, Inc.
+and others
+
+Upstream Authors: Sun Microsystems, Inc. and others (see doc/AUTHORS)
+
+On Debian GNU/Linux systems, the complete text of the GNU General
+Public License can be found in `/usr/share/common-licenses/GPL-3'. 
+
+On Debian GNU/Linux systems, the complete text of the GNU Lesser General
+Public License can be found in `/usr/share/common-licenses/LGPL-3'. 
+
+On Debian GNU/Linux systems, the complete text of the Apache License
+can be found in `/usr/share/common-licenses/Apache-2.0'.
+
+The packaging Licence is GPL-3+.

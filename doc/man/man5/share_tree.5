@@ -1,0 +1,145 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH SHARE_TREE 5 2011-05-19 "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+share_tree \- xxQS_NAMExx share tree file format
+.\"
+.SH DESCRIPTION
+The share tree 
+defines the long-term resource entitlements of users/projects and of a 
+hierarchy of arbitrary groups thereof.
+Note that it is normally necessary to maintain users explicitly to use
+a share tree, rather than use automatic creation and (specifically)
+destruction, or at least set
+.B auto_user_delete_time
+to 0; see
+.M user 5 .
+.PP
+The current share tree can be displayed via the
+.M qconf 1
+\fB\-sstree\fP or \fB\-sst\fP options. The
+output follows the \fIshare_tree\fP format description. A share tree can be
+created and an existing one can be modified via the \fB\-astree\fP and
+\fB\-mstree\fP options to
+.M qconf 1 .
+The \fB\-sst\fP option shows a formatted share tree (tree view).
+Individual share tree nodes can be created, modified, deleted, or shown
+via the \fB\-astnode\fP, \fB\-dstnode\fP, \fB\-mstnode\fP, and
+\fB\-sstnode\fP options to
+.M qconf 1 .
+.PP
+Note, xxQS_NAMExx allows backslashes (\\) be used to escape newline
+characters. The backslash and the newline are replaced with a
+space character before any interpretation.
+.\"
+.\"
+.SH FORMAT
+.\"
+The format of a share tree file is defined as follows:
+.IP "\(bu" 3n
+A new node starts with the attribute \fBid\fP, an equal sign and the
+numeric identification number of the node. Further attributes of that
+node follow until another \fBid\fP keyword is encountered.
+.IP "\(bu" 3n
+The attribute \fBtype\fP defines whether a sharetree node references
+a user (type=0), or a project (type=1).
+.IP "\(bu" 3n
+The attribute \fBchildnodes\fP contains a comma-separated list of child
+nodes to this node.
+.IP "\(bu" 3n
+The parameter \fBname\fP refers to an arbitrary name for the node, or to a
+corresponding user (see
+.M user 5 )
+or project (see
+.M project 5 )
+if the
+node is a leaf node of the share tree. The name of the root node of
+the tree is "Root" by convention.
+.IP "\(bu" 3n
+The parameter \fBshares\fP defines the share of the node among the nodes
+with the same parent node.
+.IP "\(bu" 3n
+A user leaf node named 'default' can be defined as a descendant of a
+.M project 5
+node in the share tree. The default node defines the number
+of shares for users who are running in the project, but who do not have
+a user node defined under the project. The default user node is a
+convenient way of specifying a single node for all users which should
+receive an equal share of the project resources. The default node may be
+specified by itself or with other 
+.M user 5
+nodes at the same level below
+a project. All users, whether explicitly specified as a user node or
+those which map to the 'default' user node, must have a corresponding
+.M user 5
+object defined in order to get shares. Do not configure a
+.M user 5
+object named 'default'. 
+
+.\"
+.SH "EXAMPLES"
+Jobs of projects P1 and P2 get 50 shares, all other jobs get 10 shares.
+.sp
+.nf
+id=0
+name=Root
+type=0
+shares=1
+childnodes=1,2,3
+id=1
+name=P1
+type=1
+shares=50
+childnodes=NONE
+id=2
+name=P2
+type=1
+shares=50
+childnodes=NONE
+id=3
+name=default
+type=0
+shares=10
+childnodes=NONE
+.fi
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M qconf 1 ,
+.M qmon 1 ,
+.M sge_share_mon 1 ,
+.M project 5 ,
+.M user 5 .
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

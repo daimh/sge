@@ -1,0 +1,200 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\" $RCSfile: drmaa_session.3,v $     Last Update: $Date: 2008-07-08 09:10:04 $     Revision: $Revision: 1.9 $
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de M    \" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH drmaa_session 3 "$Date: 2008-07-08 09:10:04 $" "xxRELxx" "xxQS_NAMExx DRMAA"
+.\"
+.\"
+.\"
+.SH NAME
+drmaa_init, drmaa_exit \- Start/finish xxQS_NAMExx DRMAA session
+.PP
+.\"
+.\"
+.\"
+.SH SYNOPSIS
+.B #include """drmaa.h"""
+.PP
+.\"
+.\"
+.\"
+.nf
+\fBint drmaa_init(\fP
+.RS
+.BI "const char *" contact ,
+.BI "char *" error_diagnosis ,
+.BI size_t\  error_diag_len
+.RE
+.fi
+\fB);\fP
+.PP
+.nf
+\fBint drmaa_exit(\fP
+.RS
+.BI "char *" error_diagnosis ,
+.BI size_t\  error_diag_len
+.RE
+.fi
+\fB);\fP
+.\"
+.\"
+.\"
+.SH DESCRIPTION
+.SS "drmaa_init()"
+The drmaa_init() function initializes the xxQS_NAMExx DRMAA API library for all threads 
+of the process and creates a new DRMAA session. This routine must be called once before 
+any other DRMAA call, except for 
+.M drmaa_version 3 ,
+.M drmaa_get_DRM_system 3 ,
+and 
+.M drmaa_get_DRMAA_implementation 3 . 
+Except for the above listed functions, no DRMAA functions may be called before
+the drmaa_init() function \fIcompletes\fP.  Any DRMAA function which is called
+before the drmaa_init() function completes will return a DRMAA_ERRNO_NO_ACTIVE_SESSION
+error.
+\fIContact\fP is an implementation dependent string which may be used to 
+specify which xxQS_NAMExx cell to use. If 
+\fIcontact\fP 
+is NULL, the default xxQS_NAMExx cell will be used. In the 1.0 implementation 
+\fIcontact\fP may have the following value: \fBsession=\fIsession_id\fP.  To
+determine the session_id, the
+.M drmaa_get_contact 3
+function should be called after the session has already been initialized.  By
+passing the \fBsession=\fIsession_id\fP string to the drmaa_init() function,
+instead of creating a new session, DRMAA will attempt to reconnect to the
+session indicated by the \fIsession_id\fP.  The result of reconnecting to a
+previous session is that all jobs previously submitted in that session \fBthat
+are still running\fP will be available in the DRMAA session.  Note, however,
+that jobs which ended before the call to drmaa_init() may not be available or
+may have no associated exit information or resource usage data.
+.PP
+.\" 
+.SS "drmaa_exit()"
+The drmaa_exit() function closes the DRMAA session for all threads and must be
+called before process termination.  The drmaa_exit() function may be called only
+once by a single thread in the process and may only be called after the
+drmaa_init() function has completed.  Any DRMAA function, other than
+.M drmaa_init 3 ,
+which is called after the drmaa_exit() function completes
+will return a DRMAA_ERRNO_NO_ACTIVE_SESSION error.
+.PP
+The drmaa_exit() function does necessary clean up of the DRMAA session state,
+including unregistering from the
+.M qmaster 8 .
+If the drmaa_exit() function
+is not called, the qmaster will store events for the DRMAA client until the
+connection times out, causing extra work for the qmaster and consuming system
+resources.
+.PP
+Submitted jobs are not affected by the drmaa_exit() function.
+.PP
+.\"
+.\"
+.SH "ENVIRONMENTAL VARIABLES"
+.\"
+.IP "\fBxxQS_NAME_Sxx_ROOT\fP" 1.5i
+Specifies the location of the xxQS_NAMExx standard configuration files.
+.\"
+.IP "\fBxxQS_NAME_Sxx_CELL\fP" 1.5i
+If set, specifies the default xxQS_NAMExx cell to be used. To address a xxQS_NAMExx
+cell xxQS_NAMExx uses (in the order of precedence):
+.sp 1
+.RS
+.RS
+The name of the cell specified in the environment
+variable xxQS_NAME_Sxx_CELL, if it is set.
+.sp 1
+The name of the default cell, i.e. \fBdefault\fP.
+.sp 1
+.RE
+.RE
+.\"
+.IP "\fBxxQS_NAME_Sxx_DEBUG_LEVEL\fP" 1.5i
+If set, specifies that debug information
+should be written to stderr. In addition the level of
+detail in which debug information is generated is defined.
+.\"
+.IP "\fBxxQS_NAME_Sxx_QMASTER_PORT\fP" 1.5i
+If set, specifies the tcp port on which
+the xxqs_name_sxx_qmaster is
+expected to listen for communication requests.
+Most installations will use a services map entry instead
+to define that port.
+.\"
+.\"
+.\"
+.SH "RETURN VALUES"
+Upon successful completion, drmaa_init() and drmaa_exit() return DRMAA_ERRNO_SUCCESS.
+Other values indicate an error.
+Up to \fIerror_diag_len\fP characters of error related diagnosis 
+information is then provided in the buffer \fIerror_diagnosis\fP.
+.PP
+.\"
+.\"
+.\"
+.SH "ERRORS"
+The drmaa_init() and drmaa_exit() functions can fail with:
+.\"
+.TP
+.B DRMAA_ERRNO_INTERNAL_ERROR
+Unexpected or internal DRMAA error, like system call failure, etc.
+.\" 
+.TP
+.B DRMAA_ERRNO_DRM_COMMUNICATION_FAILURE
+Could not contact DRM system for this request.
+.\" 
+.TP
+.B DRMAA_ERRNO_AUTH_FAILURE
+The specified request is not processed successfully due to authorization failure.
+.\" 
+.TP
+.B DRMAA_ERRNO_INVALID_ARGUMENT
+The input value for an argument is invalid.
+.\" 
+.PP
+The drmaa_init() function can fail with:
+.TP
+.B DRMAA_ERRNO_INVALID_CONTACT_STRING
+Initialization failed due to invalid contact string.
+.\" 
+.TP
+.B DRMAA_ERRNO_DEFAULT_CONTACT_STRING_ERROR
+Could not use the default contact string to connect to DRM system.
+.\" 
+.TP
+.B DRMAA_ERRNO_DRMS_INIT_FAILED
+Initialization failed due to failure to init DRM system.
+.\" 
+.TP
+.B DRMAA_ERRNO_ALREADY_ACTIVE_SESSION
+Initialization failed due to existing DRMAA session.
+.\" 
+.TP
+.B DRMAA_ERRNO_NO_MEMORY
+Failed allocating memory.
+.\" 
+.PP
+The drmaa_exit() function can fail with:
+.TP
+.B DRMAA_ERRNO_NO_ACTIVE_SESSION
+Failed because there is no active session.
+.\" 
+.TP
+.B DRMAA_ERRNO_DRMS_EXIT_ERROR
+DRM system disengagement failed.
+.PP
+.\" 
+.\" 
+.\" 
+.SH "SEE ALSO"
+.M drmaa_submit 3 .

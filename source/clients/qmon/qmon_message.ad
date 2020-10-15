@@ -1,0 +1,58 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Message Box 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_msg_box.xmtChildren:  unmanaged XmtLayout msg_layout;
+
+Qmon*qmon_msg_box.msg_layout.dialogTitle: @{QMON +++ Message}
+
+Qmon*qmon_msg_box.msg_layout.xmtChildren: \
+   XmScrolledText msg_text; \
+   XmPushButton   msg_ok;
+
+Qmon*qmon_msg_box.msg_layout.layout: \
+   Fixed Shadowed Out 4 2 LREvenSpaced Row msgbox_title { \
+      Pixmap "logo" Centered Color "$title_fg" "@{@fBMessage}" \
+   } \
+   # \
+   msg_text \
+   Fixed msg_ok \
+
+Qmon*qmon_msg_box.msg_layout*msg_text.fontList:               $fixed_font
+Qmon*qmon_msg_box.msg_layout*msg_text.rows:                   5
+Qmon*qmon_msg_box.msg_layout*msg_text.columns:                50
+Qmon*qmon_msg_box.msg_layout*msg_text.editable:               False
+Qmon*qmon_msg_box.msg_layout*msg_text.editMode:               MULTI_LINE_EDIT
+Qmon*qmon_msg_box.msg_layout*msg_text.cursorPositionVisible:  False
+
+Qmon*qmon_msg_box.msg_layout.msg_ok.labelString:     @{Ok}

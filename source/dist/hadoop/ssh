@@ -1,0 +1,135 @@
+#!/bin/sh
+##########################################################################
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+# could be ssh or rsh or remsh
+me=`basename $0`
+# just_wrap=1
+
+# remove path to wrapping rsh from path list
+if [ "x$TMPDIR" != "x" ]; then
+   PATH=`echo $PATH|tr : "\012"|grep -v $TMPDIR| tr "\012" :`
+   export PATH
+fi
+
+# rehash 
+hash -r
+
+if [ "x$JOB_ID" = "x" ]; then
+   exec $me $*
+   echo command $me not found in PATH=$PATH 
+fi
+
+# extract target hostname
+if [ $# -lt 1 ]; then 
+   echo $me: missing hostname
+   exit 1
+fi  
+
+# Handle hostname before options
+rhost=
+expr "$1" : "-*" >/dev/null 2>&1
+
+if [ $? -ne 0 ]; then
+   rhost=$1
+   shift
+fi
+
+ruser=
+minus_n=0
+
+# parse other rsh options
+while [ "$1" != "" ]; do
+   case "$1" in
+      -l)
+         shift
+         if [ $# -lt 1 ]; then 
+            echo $me: option -l needs user name as argument
+            exit 1
+         fi  
+         ruser=$1
+         ;;
+      -n)
+         minus_n=1
+         ;;
+      -*)
+         echo $me: Unsupported option - $1
+         exit 1
+         ;;
+      *)
+         break;
+         ;;
+   esac
+   shift
+done
+
+# Handle hostname after options
+if [ "x$rhost" = x ]; then
+   if [ $# -lt 1 ]; then 
+      echo $me: missing hostname
+      exit 1
+   fi  
+   rhost=$1
+   shift
+fi
+
+# should the command to be started preceeded with any starter command
+if [ "x$RCMD_PREFIX" = x ]; then
+   cmd="$*"
+else
+   cmd="$RCMD_PREFIX $*"
+fi
+
+# unset TASK_ID - it might be set if a task starts another tasks 
+#                 and may not be exported in this case
+if [ "x$TASK_ID" = x ]; then
+   unset TASK_ID
+fi
+
+if [ x$just_wrap = x ]; then 
+   if [ $minus_n -eq 1 ]; then
+      echo $SGE_ROOT/bin/$ARC/qrsh -inherit -nostdin $rhost $cmd
+      exec $SGE_ROOT/bin/$ARC/qrsh -inherit -nostdin $rhost $cmd
+   else
+      echo $SGE_ROOT/bin/$ARC/qrsh -inherit $rhost $cmd
+      exec $SGE_ROOT/bin/$ARC/qrsh -inherit $rhost $cmd
+   fi
+else
+   echo $me $rhost $*
+   if [ $minus_n = 1 ]; then
+      exec $me -n $rhost $cmd
+   else
+      exec $me $rhost $cmd
+   fi
+   echo $me not found in PATH=$PATH
+fi

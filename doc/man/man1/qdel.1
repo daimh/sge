@@ -1,0 +1,166 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH QDEL 1 "2011-05-17" "xxRELxx" "xxQS_NAMExx User Commands"
+.SH NAME
+qdel \- delete xxQS_NAMExx jobs from queues
+.SH SYNTAX
+.B qdel
+.RB [ \-f ]
+.RB [ \-help ]
+.RB [ -u
+.IR wc_user_list ]
+.RI [ wc_job_range_list ]
+.RB [ -t
+.IR task_id_range ]
+.\" 
+.SH DESCRIPTION
+.I Qdel
+provides a means for a user/operator/manager to delete
+one or more jobs. A manager/operator can delete jobs belonging to any
+user, while a regular user can only delete his or her own jobs.
+If a manager wants to delete another user's job, the manager can specify
+the job id. A manager using a job name or pattern
+must also specify the user's name via "-u wc_user_list". A 
+"qdel wc_job_name" will delete only the jobs of the 
+calling user by default.
+.I Qdel
+deletes jobs in the order in which their job 
+identifiers are presented. Find additional information concerning
+\fIwc_user_list\fP and \fIwc_job_list\fP in
+.M sge_types 5 .
+.\"
+.\"
+.SH OPTIONS
+.\"
+.IP "\fB\-f\fP"
+Force deletion of job(s). The job(s) are deleted from the list of
+jobs registered at
+.M xxqs_name_sxx_qmaster 8
+even if the
+.M xxqs_name_sxx_execd 8
+controlling the job(s) does not respond to the delete request sent by
+.M xxqs_name_sxx_qmaster 8 .
+.sp 1
+Users who are neither xxQS_NAMExx managers nor operators can only use the
+.B \-f
+option (for their own jobs) if the cluster configuration entry
+.B qmaster_params
+contains the flag ENABLE_FORCED_QDEL (see
+.M xxqs_name_sxx_conf 5 ).
+However, the behavior for administrative and
+non-administrative users differs. Jobs are deleted from the xxQS_NAMExx
+database immediately in the case of administrators. Otherwise, a regular
+deletion is attempted first and a forced cancellation is only executed if
+the regular deletion was unsuccessful.
+.sp 1
+Additionally, regular qdel requests can result in a forced deletion of a
+job if \fBENABLE_FORCED_QDEL_IF_UNKNOWN\fP is set in the \fBqmaster_params\fP
+(see 
+.M xxqs_name_sxx_conf 5 ).
+.\"
+.IP "\fB\-help\fP"
+Prints a listing of all options.
+.\"
+.IP "\fB\-t\fP"
+Deletes specified tasks of an array job. It means tasks created
+by the \fIqsub \-t\fP command. For example, after creating an array
+job with the command
+"qsub \-t 1\-100 $SGE_ROOT/examples/sleeper.sh" it is possible to
+delete tasks 5\-10 from the job array with the command "qdel job_id \-t 5\-10".
+All other tasks (1\-4 and 11\-100) will be executed.
+.\"
+.IP "\fB\-u wc_user_list\fP"
+Deletes only those jobs which were submitted by
+users specified in the list of usernames.
+For managers it is possible to use \fB\qdel -u "*"\fP to delete
+all jobs of all users. If a manager wants to delete a specific
+job of a user, he has to specify the user and the job. If no 
+job is specified, all jobs from that user are deleted.
+.\"
+.IP "\fBwc_job_range_list\fP"
+A list of jobs which should be deleted.
+.\"
+.\"
+.SH "ENVIRONMENT VARIABLES"
+.\" 
+.IP "\fBxxQS_NAME_Sxx_ROOT\fP" 1.5i
+Specifies the location of the xxQS_NAMExx standard configuration
+files.
+.\"
+.IP "\fBxxQS_NAME_Sxx_CELL\fP" 1.5i
+If set, specifies the default xxQS_NAMExx cell. To address a xxQS_NAMExx
+cell
+.I qdel
+uses (in the order of precedence):
+.sp 1
+.RS
+.RS
+The name of the cell specified in the environment 
+variable xxQS_NAME_Sxx_CELL, if it is set.
+.sp 1
+The name of the default cell, i.e. \fBdefault\fP.
+.sp 1
+.RE
+.RE
+.\"
+.IP "\fBxxQS_NAME_Sxx_DEBUG_LEVEL\fP" 1.5i
+If set, specifies that debug information
+should be written to stderr. In addition the level of
+detail in which debug information is generated is defined.
+.\"
+.IP "\fBxxQS_NAME_Sxx_QMASTER_PORT\fP" 1.5i
+If set, specifies the tcp port on which
+.M xxqs_name_sxx_qmaster 8
+is expected to listen for communication requests.
+Most installations will use a services map entry for the
+service "sge_qmaster" instead to define that port.
+.\"
+.\"
+.SH FILES
+.nf
+.ta \w'<xxqs_name_sxx_root>/     'u
+\fI<xxqs_name_sxx_root>/<cell>/common/act_qmaster\fP
+	xxQS_NAMExx master host file
+.fi
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M qstat 1 ,
+.M qsub 1 ,
+.M xxqs_name_sxx_qmaster 8 ,
+.M xxqs_name_sxx_execd 8 .
+.\"
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

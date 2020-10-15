@@ -1,0 +1,160 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Project Configuration
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_project.xmtChildren:  unmanaged XmtLayout project_layout;
+
+Qmon*qmon_project.project_layout.autoUnmanage:  False
+Qmon*qmon_project.project_layout.resizePolicy:  RESIZE_NONE
+Qmon*qmon_project.project_layout.dialogTitle:  @{QMON +++ Project Configuration}
+!! Qmon*qmon_project.project_layout.fontList:     $dialog_font
+
+Qmon*qmon_project.project_layout.xmtChildren: \
+   XmPushButton   project_main_link; \
+   XmScrolledList project_names, project_conf_list; \
+   XmPushButton   project_delete, project_add, project_modify, \
+                  project_done, project_help;
+
+Qmon*qmon_project.project_layout.layout: \
+   Fixed Shadowed Out 4 2 LREvenSpaced Row projectconfig_title { \
+      Fixed Centered project_main_link \
+      Centered Color "$title_fg" "@{@fBProject Configuration}" \
+   } \
+   # \
+   Row { \
+      Caption tl "@{Projects}" 4 in project_names \
+      Caption tl "@{Configuration}" 5 in project_conf_list \
+      Fixed Shadowed Col { \
+         Fixed project_add \
+         Fixed project_modify \
+         Fixed project_delete \
+         Fixed project_done \
+         Fixed project_help \
+      } \
+   }
+
+Qmon*qmon_project.project_layout.project_main_link.labelType:   PIXMAP
+Qmon*qmon_project.project_layout.project_main_link.labelPixmap: logo
+Qmon*qmon_project.project_layout.project_main_link.shadowThickness:    1
+Qmon*qmon_project.project_layout.project_main_link.highlightThickness: 0
+Qmon*qmon_project.project_layout.project_main_link.marginHeight:       0
+Qmon*qmon_project.project_layout.project_main_link.marginWidth:        0
+
+
+Qmon*qmon_project.project_layout.project_delete.labelString:    @{Delete}
+Qmon*qmon_project.project_layout.project_add.labelString:       @{Add}
+Qmon*qmon_project.project_layout.project_modify.labelString:    @{Modify}
+Qmon*qmon_project.project_layout.project_done.labelString:      @{Done}
+Qmon*qmon_project.project_layout.project_help.labelString:      @{Help}
+
+!! We can't directly specify the parent of project_names or project_conf_list
+Qmon*qmon_project.project_layout*scrollBarDisplayPolicy:  AS_NEEDED
+Qmon*qmon_project.project_layout*listSizePolicy:           CONSTANT
+
+Qmon*qmon_project.project_layout*project_names.fontList:         $fixed_font
+Qmon*qmon_project.project_layout*project_names.selectionPolicy:  BROWSE_SELECT
+!Qmon*qmon_project.project_layout*project_names.selectionPolicy:  EXTENDED_SELECT
+Qmon*qmon_project.project_layout*project_names.visibleItemCount: 12
+
+Qmon*qmon_project.project_layout*project_conf_list.fontList:        $fixed_font
+Qmon*qmon_project.project_layout*project_conf_list.selectionPolicy: BROWSE_SELECT
+Qmon*qmon_project.project_layout*project_conf_list.visibleItemCount:   12
+
+
+Qmon*project_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+
+
+Qmon*project_ask_shell.xmtChildren: unmanaged XmtLayout project_ask_layout;
+
+Qmon*project_ask_shell.project_ask_layout.autoUnmanage: False
+Qmon*project_ask_shell.project_ask_layout.resizePolicy: RESIZE_NONE
+Qmon*project_ask_shell.project_ask_layout.dialogTitle:  @{Add/Modify Project}
+Qmon*project_ask_shell.project_ask_layout.fontList:     $dialog_font
+
+Qmon*project_ask_shell.project_ask_layout.XmtInputField.marginWidth:   2
+Qmon*project_ask_shell.project_ask_layout.XmtInputField.marginHeight:  2
+
+
+Qmon*project_ask_shell.project_ask_layout.xmtChildren: \
+   InputField     project_name; \
+   XmScrolledList project_users; \
+   XmScrolledList project_xusers; \
+   XmPushButton   project_ok, project_cancel, \
+                  project_usersPB, project_xusersPB;
+
+Qmon*project_ask_layout.layout: \
+   Row { \
+      Shadowed Col { \
+         Fixed Row { \
+            Centered Caption "@{Name}" project_name \
+         } \
+         Equal Row { \
+            Row { \
+               Stretchable Caption tl "@{User Lists}" 4 in project_users \
+               Fixed Centered project_usersPB \
+            } \
+            Row { \
+               Stretchable Caption tl "@{Xuser Lists}" 4 in project_xusers \
+               Fixed Centered project_xusersPB \
+            } \
+         } \
+      } \
+      Fixed Shadowed Col { \
+         Fixed project_ok \
+         Fixed project_cancel \
+      } \
+   }
+
+Qmon*project_ask_layout.project_ok.labelString:               @{Ok}
+Qmon*project_ask_layout.project_cancel.labelString:           @{Cancel}
+
+Qmon*project_ask_layout*scrollBarDisplayPolicy:       AS_NEEDED
+Qmon*project_ask_layout*listSizePolicy:               CONSTANT
+
+Qmon*project_ask_layout*project_users.fontList:            $fixed_font
+Qmon*project_ask_layout*project_users.selectionPolicy:     BROWSE_SELECT
+Qmon*project_ask_layout*project_users.visibleItemCount:    5
+
+Qmon*project_ask_layout*scrollBarDisplayPolicy:       AS_NEEDED
+Qmon*project_ask_layout*listSizePolicy:               CONSTANT
+
+Qmon*project_ask_layout*project_xusers.fontList:              $fixed_font
+Qmon*project_ask_layout*project_xusers.selectionPolicy:       BROWSE_SELECT
+Qmon*project_ask_layout*project_xusers.visibleItemCount:      5
+
+Qmon*project_ask_layout.project_usersPB.labelType:            PIXMAP
+Qmon*project_ask_layout.project_usersPB.labelPixmap:          aclask
+Qmon*project_ask_layout.project_xusersPB.labelType:           PIXMAP
+Qmon*project_ask_layout.project_xusersPB.labelPixmap:         aclask
+

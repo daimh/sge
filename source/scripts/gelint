@@ -1,0 +1,69 @@
+#!/bin/sh
+exec 2>&1
+
+if [ $# -lt 2 ]; then
+   echo "Usage: gelint <gridengine dir> file(s)"
+   exit 1
+fi
+
+GE=$1
+
+if [ ! -d "$GE/source" -a ! -f "$GE/Changelog" ]; then
+   echo "$GE is not a gridengine source directory!"
+   echo "$GE/Changelog and $GE/source are missing!"
+   exit 1
+fi
+
+shift
+cd $GE/source
+
+ERRSECLEVEL=core        #core security checks printf scanf only
+#ERRSECLEVEL=standard    #standard is core plus strlcpy and so on
+#ERRSECLEVEL=extended    #extended is standard plus getc fgetc, full exec command family, path race conditions,
+                        #reviewing code determining security issues
+
+IGNORE_ERRS="
+ E_EXPR_NULL_EFFECT
+ E_FUNC_ARG_UNUSED
+ E_FUNC_RET_ALWAYS_IGNOR2
+ E_FUNC_RET_MAYBE_IGNORED2
+ E_NAME_DECL_NOT_USED_DEF2
+ E_NAME_DEF_NOT_USED2
+ E_NAME_USED_NOT_DEF2
+ E_NOP_IF_STMT
+ E_CONST_EXPR
+ E_ASSIGMENT_CAUSE_LOSS_PREC
+ E_NOP_ELSE_STMT
+ E_SEC_PRINTF_VAR_FMT
+ E_EQUALITY_NOT_ASSIGNMENT
+ E_SLASH_STAR_IN_CMNT
+ E_UNDEFINED_SYMBOL
+ E_INDISTING_FROM_TRUNC2
+ E_FUNC_DECL_VAR_ARG2
+ E_INCONS_ARG_DECL2
+ E_INCONS_VAL_TYPE_DECL2
+"
+
+for err in $IGNORE_ERRS
+do
+  ERRIGNORE="$ERRIGNORE -erroff=$err"
+done
+
+INC_FLAGS=`cd $GE/source; ./aimk -flags | grep INCLUDES | cut -d: -f2 | sed -e s?"\.\."?"$GE/source"?g`
+C_FLAGS=`cd $GE/source; ./aimk -flags | grep CFLAGS | cut -d: -f2 | sed -e s/"-xarch"/"-Xarch"/g | sed -e s/"-xchip=generic -xcache=generic"//g | sed -e s/"-fast"//g`
+
+ADDITIONAL_INCLUDES=" -I/usr/include/rpc/"
+
+exec lint \
+    -s \
+    $INC_FLAGS \
+    $ADDITIONAL_INCLUDES \
+    $C_FLAGS \
+    -Nlevel=3 \
+    -errtags=yes \
+    -errsecurity=$ERRSECLEVEL \
+    $ERRIGNORE \
+    "$@"
+
+exit 1 
+

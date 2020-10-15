@@ -1,0 +1,21 @@
+# The *opt is to account for "./opt" or "opt"
+
+dir-or-file-in-opt *
+
+extra-license-file *opt/sge/doc/LICENCE.txt
+
+ruby-script-but-no-ruby-dep *
+
+csh-considered-harmful *
+
+script-not-executable *opt/sge/util/install_modules/*
+script-not-executable *opt/sge/util/rctemplates/*
+script-not-executable *opt/sge/util/dl*
+script-not-executable *opt/sge/util/resources/drmaa4ruby/drmaa.rb
+script-not-executable *opt/sge/util/resources/jsv/jsv_include.sh
+
+tclsh-script-but-no-tclsh-dep *
+
+executable-not-elf-or-script *opt/sge/util/dl.sh
+
+jar-not-in-usr-share *

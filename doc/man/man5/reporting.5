@@ -1,0 +1,362 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\" Copyright: 2011 by Dave Love <d.love@liv.ac.uk>
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH REPORTING 5 2011-05-08 "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+reporting \- xxQS_NAMExx reporting file format
+.\"
+.SH DESCRIPTION
+A xxQS_NAMExx system writes a reporting file
+.I $SGE_ROOT/$SGE_CELL/common/reporting
+if
+.B reporting=true
+is specified in the
+.M sge_conf 5
+.BR reporting_params .
+This occurs intervals of the
+.B flush_time
+specified in the same place.
+The reporting file contains data that can be used for accounting, monitoring and analysis purposes.
+It contains information about the cluster (hosts, queues, load values, consumables, etc.), about the jobs running in the cluster and about sharetree configuration and usage.
+All information is time-related and events are dumped to the reporting file in a configurable interval.
+It allows "real time" monitoring of the cluster status as well as historical analysis.
+.\"
+.\"
+.SH FORMAT
+The reporting file is an ASCII file.
+Each line contains one record, and the fields of a record are separated by a delimiter (:).
+The reporting file contains records of different type. Each record type has a specific record structure. 
+.PP
+The first two fields are common to all reporting records:
+.IP "\fBtime\fP"
+The time when the record was created.  All time values described here
+are the number of seconds since the Unix epoch (1970-01-01 00:00:00
+UTC).
+.IP "\fBrecord type\fP"
+Type of the accounting record.
+.PP
+The different types of records and their structure are described
+below, eliding the leading \fBtime\fP and \fBrecord type\fP fields in
+each case.
+.SS new_job
+The new_job record is written whenever a new job enters the system (usually by a submission command). It has the following fields:
+.IP "\fBsubmission_time\fP"
+Time when the job was submitted.
+.IP "\fBjob_number\fP"
+The job number.
+.IP "\fBtask_number\fP"
+The array task id. Always has the value \-1 for new_job records (as
+array tasks haven't been created at that stage).
+.IP "\fBpe_taskid\fP"
+The task id of parallel tasks. Always has the value "none" for new_job records.
+.IP "\fBjob_name\fP"
+The job name (from \fB\-N\fP submission option).
+.IP "\fBowner\fP"
+The job owner.
+.IP "\fBgroup\fP"
+The Unix group of the job owner.
+.IP "\fBproject\fP"
+The project the job is running in.
+.IP "\fBdepartment\fP"
+The department the job owner is in.
+.IP "\fBaccount\fP"
+The account string specified for the job (from the \fB\-A\fP submission option).
+.IP "\fBpriority\fP"
+The job priority (from the \fB\-p\fP submission option).
+.SS job_log
+If
+.B joblog=true
+is specified in the
+.M sge_conf 5
+.BR reporting_params ,
+a job_log record is written whenever a job, an array task or a PE
+task changes status. A status change can be the transition from
+pending to running, but can also be triggered by user actions, like
+suspension of a job.  It has the following fields:
+.IP "\fBevent_time\fP"
+Time when the event was generated.
+.IP "\fBevent\fP"
+A one word description of the event.
+.IP "\fBjob_number\fP"
+The job number.
+.IP "\fBtask_number\fP"
+The PE task id. Always has the value \-1 for new_job records (as
+parallel tasks haven't been created at that stage).
+.IP "\fBpe_taskid\fP"
+The task id of parallel tasks. Always has the value "none" for new_job records.
+.IP "\fBstate\fP"
+The state of the job after the event was processed.
+.IP "\fBuser\fP"
+.\" Fixme:  is "scheduler" still produced?
+The user who initiated the event (or special usernames "qmaster", "scheduler" 
+and "execd" for actions of the system itself like scheduling jobs, executing jobs etc.).
+.IP "\fBhost\fP"
+The host from which the action was initiated (e.g. the submit host, the qmaster host, etc.).
+.IP "\fBstate_time\fP"
+Reserved field for later use.
+.IP "\fBsubmission_time\fP"
+Time when the job was submitted.
+.IP "\fBjob_name\fP"
+The job name (from the \fB\-N\fP submission option).
+.IP "\fBowner\fP"
+The job owner.
+.IP "\fBgroup\fP"
+The Unix group of the job owner.
+.IP "\fBproject\fP"
+The project the job is running in.
+.IP "\fBdepartment\fP"
+The department the job owner is in.
+.IP "\fBaccount\fP"
+The account string specified for the job (from the \fB\-A\fP submission option).
+.IP "\fBpriority\fP"
+The job priority (from the \fB\-p\fP submission option).
+.IP "\fBmessage\fP"
+A message describing the reported action.
+.SS acct
+Records of type acct are accounting records. Normally, they are written whenever a job, a task of an array job, 
+or a task of a parallel job terminates. However, for long running jobs an intermediate acct record is created once a
+day after midnight. This results in multiple accounting records for a particular job and allows for fine-grained
+resource usage monitoring over time. 
+.PP
+Accounting records have the structure described in
+.M accounting 5 ,
+with the addition of leading time and type fields (which are not used
+in the accounting file).
+.SS queue
+Records of type queue contain state information for queues (queue instances).
+A queue record has the following fields:
+.IP "\fBqname\fP"
+The cluster queue name.
+.IP "\fBhostname\fP"
+The hostname of a specific queue instance.
+.IP "\fBreport_time\fP"
+The time when a state change was triggered.
+.IP "\fBstate\fP"
+The new queue state.
+The possible states are single-letter values, as reported
+by
+.M qhost 1
+with the
+.B \-q
+option.
+.SS queue_consumable
+A queue_consumable record contains information about queue consumable values in addition to queue state information:
+.IP "\fBqname\fP"
+The cluster queue name.
+.IP "\fBhostname\fP"
+The hostname of a specific queue instance.
+.IP "\fBreport_time\fP"
+The time when a state change was triggered.
+.IP "\fBstate\fP"
+The new queue state.
+.IP "\fBconsumables\fP"
+Description of consumable values. Information about multiple consumables is separated by space.
+A consumable description has the format
+.IR name = actual_value = configured_value .
+.PP
+Consumables are only logged if
+.B log_consumables=true
+is specified in the
+.M sge_conf 5
+.BR reporting_params ,
+or the consumable is specified in the local or global
+.M host_conf 5
+.BR report_variables .
+.SS host
+A host record contains information about hosts and host load values.
+It contains the following information:
+.IP "\fBhostname\fP"
+The name of the host.
+.IP "\fBreport_time\fP"
+The time when the reported information was generated.
+.IP "\fBstate\fP"
+The new host state.
+Currently, xxQS_NAMExx doesn't track a host state; the field is reserved for
+future use. Always contains the value X.
+.IP "\fBload values\fP"
+Description of load values. Information about multiple load values is separated by space.
+A load value description has the format
+.IR name = actual_value .
+.\"
+.SS host_consumable
+A host_consumable record contains information about hosts and host consumables.
+Host consumables can, for example, be licenses.
+It contains the following information:
+.IP "\fBhostname\fP"
+The name of the host.
+.IP "\fBreport_time\fP"
+The time when the reported information was generated.
+.IP "\fBstate\fP"
+The new host state.
+Currently, xxQS_NAMExx doesn't track a host state; the field is reserved for
+future use. Always contains the value X.
+.IP "\fBconsumables\fP"
+Description of consumable values. Information about multiple consumables is separated by space.
+A consumable description has the format
+.IR name = actual_value = configured_value .
+.PP
+Consumables are only logged if
+.B log_consumables=true
+is specified in the
+.M sge_conf 5
+.BR reporting_params ,
+or the consumable is specified in the local or global
+.M host_conf 5
+.BR report_variables .
+.SS sharelog 
+The xxQS_NAMExx qmaster can dump information about sharetree configuration and use to the reporting file.
+The
+.M sge_conf 5
+.B reporting_params
+can specify \fBsharelog\fP, which sets an interval in which sharetree
+information will be dumped.
+It is set in the format HH:MM:SS. A value of 00:00:00 configures qmaster not to
+dump sharetree information. Intervals of several minutes up to hours are sensible values for this parameter.
+The record contains the following fields
+.IP "\fBcurrent time\fP"
+The present time
+.IP "\fBusage time\fP"
+The  time used so far
+.IP "\fBnode name\fP"
+The node name
+.IP "\fBuser name\fP"
+The user name
+.IP "\fBproject name\fP"
+The project name
+.IP "\fBshares\fP"
+The total shares
+.IP "\fBjob count\fP"
+The job  count
+.IP "\fBlevel\fP"
+The percentage of shares used
+.IP "\fBtotal\fP"
+The adjusted percentage of shares used
+.\" fixme: definition of "long target"
+.IP "\fBlong target share\fP"
+The long target percentage of resource shares used
+.IP "\fBshort target share\fP"
+The short target percentage of resource shares used
+.IP "\fBactual share\fP"
+The actual percentage of resource shares used
+.IP "\fBusage\fP"
+The combined shares used
+.IP "\fBcpu\fP"
+The number of CPU seconds used
+.IP "\fBmem\fP"
+The time integral of memory used (in GB seconds)
+.IP "\fBio\fP"
+The IO done (in GB)
+.IP "\fBlong target cpu\fP"
+The long target cpu used
+.IP "\fBlong target mem\fP"
+The long target memory used
+.IP "\fBlong target io\fP"
+The long target IO used
+.\"
+.SS new_ar
+A new_ar record contains information about advance reservation objects. Entries of this
+type will be added if an advance reservation is created.
+It contains the following information:
+.IP "\fBsubmission_time\fP"
+The time when the advance reservation was created.
+.IP "\fBar_number\fP"
+The advance reservation number identifying the reservation.
+.IP "\fBar_owner\fP"
+The owner of the advance reservation.
+.\"
+.SS ar_attribute
+The ar_attribute record is written whenever a new advance reservation was added or the
+attribute of an existing advance reservation has changed. It has the following fields.
+.IP "\fBevent_time\fP"
+The time when the event was generated.
+.IP "\fBsubmission_time\fP"
+The time when the advance reservation was created.
+.IP "\fBar_number\fP"
+The advance reservation number identifying the reservation.
+.IP "\fBar_name\fP"
+Name of the advance reservation.
+.IP "\fBar_account\fP"
+An account string which was specified during the creation of the advance reservation.
+.IP "\fBar_start_time\fP"
+Start time.
+.IP "\fBar_end_time\fP"
+End time.
+.IP "\fBar_granted_pe\fP"
+The parallel environment which was selected for an advance reservation.
+.IP "\fBar_granted_resources\fP"
+The granted resources which were selected for an advance reservation.
+.\"
+.SS ar_log
+The ar_log record is written whenever an advance reservation changes status. A status
+change can be from pending to active, but can also be triggered by system events like host
+outage. It has the following fields.
+.IP "\fBar_state_change_time\fP"
+The time when the event occurred which caused a state change.
+.IP "\fBsubmission_time\fP"
+The time when the advance reservation was created.
+.IP "\fBar_number\fP"
+The advance reservation number identifying the reservation.
+.IP "\fBar_state\fP"
+The new state.
+.IP "\fBar_event\fP"
+An event id identifying the event which caused the state change.
+.IP "\fBar_message\fP"
+A message describing the event which caused the state change.
+.\"
+.SS ar_acct
+The ar_acct records are accounting records which are written for every queue instance
+whenever an advance reservation terminates. Advance reservation accounting records comprise
+following fields.
+.IP "\fBar_termination_time\fP"
+The time when the advance reservation terminated.
+.IP "\fBsubmission_time\fP"
+The time when the advance reservation was created.
+.IP "\fBar_number\fP"
+The advance reservation number identifying the reservation.
+.IP "\fBar_qname\fP"
+Cluster queue name which the advance reservation reserved.
+.IP "\fBar_hostname\fP"
+The name of the execution host.
+.IP "\fBar_slots\fP"
+The number of slots which were reserved.
+.\"
+.SH FILES
+.I $SGE_ROOT/$SGE_CELL/common/reporting
+.\"
+.SH "SEE ALSO"
+.M accounting 5 ,
+.M sge_conf 5 ,
+.M host_conf 5 .
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

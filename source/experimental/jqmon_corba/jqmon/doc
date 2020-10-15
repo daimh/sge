@@ -1,0 +1,9 @@
+jqmon
+	jqmon    - contains source code of jqmon, it's a package
+   jcodine  - contains source code for the classes who map the references on the server.
+	Codine.Codine - is the package generated from idl files
+
+
+   Copyright: 2001 by Sun Microsystems, Inc.
+ 
+   All Rights Reserved. 

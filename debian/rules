@@ -1,0 +1,71 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+
+# Copyright (C) 2012 Dave Love, The University of Liverpool
+# Licence: GPL-3 or later
+
+#export DH_VERBOSE=1
+export DEB_BUILD_HARDENING=1
+# for qmon, sigh
+export DEB_BUILD_HARDENING_FORMAT=0
+
+ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
+NOOPT=-no-opt
+endif
+ifneq (,$(DEB_PARALLEL_JOBS))
+PARALLEL = -parallel $(DEB_PARALLEL_JOBS)
+endif
+SGE_ROOT=/opt/sge
+
+# we may or may not (e.g. Ubuntu 10.04) have jemalloc
+JEMALLOC=$(shell [ -d /usr/include/jemalloc ] && echo -with-jemalloc)
+
+%:
+	dh $@
+
+override_dh_auto_build: build-stamp
+build-stamp:
+	cd source && \
+	sh scripts/bootstrap.sh && \
+	SGE_INPUT_CFLAGS="$$CFLAGS $$CPPFLAGS" SGE_INPUT_LDFLAGS="$$LDFLAGS" \
+	  ./aimk $(JEMALLOC) -with-munge -no-remote -debug -DDEFAULT_EDITOR='\"sensible-editor\"' $(NOOPT) $(PARALLEL) && \
+	./aimk -man && ant drmaa.javadoc juti.javadoc jgdi.javadoc jjsv.javadoc
+	touch build-stamp
+
+override_dh_auto_install:
+	dh_installdirs
+	mkdir -p debian/tmp$(SGE_ROOT)
+	cd source && /usr/bin/yes | \
+	SGE_ROOT=${CURDIR}/debian/tmp$(SGE_ROOT) \
+	  scripts/distinst -local -allall $(source/dist/util/arch)
+	cd debian/tmp/$(SGE_ROOT) && \
+	rm -rf hadoop dtrace start_gui_installer doc/arc_depend* \
+	  util/gui-installer util/sgeSMF && \
+	rm -f util/resources/scripts/qsched-1.0/COPYING && \
+	rm -f util/resources/scripts/README* && \
+	rm -f util/resources/loadsensors/interix-loadsensor.sh
+	mandb -u -c debian/tmp/$(SGE_ROOT)/man
+# We need the versions of the db utils corresponding to the dev library.
+# They are named like db5.1_load.  The version could be like
+# "1:5.3.21~exp1ubuntu1".
+	db=$$(dpkg-query -W --showformat '$${Version}' libdb-dev) && \
+	  db=$$(expr $$db : '.*\([1-9]\.[0-9]\)\.') && \
+	  cd debian/tmp$(SGE_ROOT)/utilbin/lx* && \
+	  ln -sf /usr/bin/db$${db}_load db_load && \
+	  ln -sf /usr/bin/db$${db}_dump db_dump
+
+override_dh_auto_clean:
+	rm -f build-stamp
+# aimk clean doesn't DTRT
+	cd source && rm -rf CLASSES JAVADOCS MANSBUILD_* dist/qmon/Qmon
+	find source -type d -name "LINUX*" -print0 | xargs --null rm -rf
+	find source -type d -name "build" -print0 | xargs --null rm -rf
+	find source -name "*_dependencies" -print0 | xargs --null rm -f
+
+override_dh_strip:
+	dh_strip --dbg-package=sge-dbg
+
+override_dh_gencontrol:
+# we need to depend on the db utils version corresponding to libdb-dev
+	sed -i debian/sge.substvars -e 's/ lib\(db[^ ,]*\)/ &, \1-util/'
+	dh_gencontrol

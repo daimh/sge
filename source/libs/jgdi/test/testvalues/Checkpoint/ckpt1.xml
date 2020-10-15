@@ -1,0 +1,12 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<CK_Type>
+   <name>${name}</name>
+   <interface>USERDEFINED</interface>
+   <ckptCommand>NONE</ckptCommand>
+   <migrCommand>NONE</migrCommand>
+   <restCommand>NONE</restCommand>
+   <cleanCommand>NONE</cleanCommand>
+   <ckptDir>/tmp</ckptDir>
+   <when>xs</when>
+   <signal>NONE</signal>
+</CK_Type>

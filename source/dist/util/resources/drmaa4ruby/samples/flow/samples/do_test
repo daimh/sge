@@ -1,0 +1,8 @@
+#!/bin/sh
+me=`basename $0`
+echo "# -- args $* -- #"
+echo "# -- starting $me -- #"
+sleep 1
+ret=$?
+echo "# -- finished $me -- #"
+exit $ret

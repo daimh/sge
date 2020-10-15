@@ -1,0 +1,8 @@
+These are trivial example service files for starting SGE daemons with
+the "upstart" init replacement.  You don't actually need them, since
+upstart supports LSB-compliant init files, and they're less
+sophisticated than the templates in the directory above.  Note that
+stopping (re-starting) the execd service will kill running jobs.
+
+They assume that sourcing /etc/default/{sgemaster,sgeexecd} sets
+SGE_ROOT and SGE_CELL.

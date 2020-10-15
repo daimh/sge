@@ -1,0 +1,184 @@
+= Evaluation Expression Support in Grid Engine 6.1 =
+
+== Copyright statement ==
+
+'''Note:''' This document is under Grid Engine project [http://gridengine.sunsource.net/license.html SISSL license].
+
+* Date 2007/01/22
+
+== Introduction ==
+
+Grid Engine 6.0 already supports a RESTRING in a complex configuration allowing to specify an OR delimited "|" list of patterns for limiting the jobs.
+
+This document describes enhanced and more flexible RESTRING expressions (see complex(5)) for Grid Engine 6.1. As a matter of course even more flexible syntax for pattern matching is perceivable.
+
+=== Project Overview ===
+
+Grid Engine 6.0 introduced a new complex type RESTRING that allows logical OR connected regular expressions for string resources. Grid Engine 6.1 will introduce a more flexible syntax for pattern matching. Specifically, the NOT operator ("don't schedule my job to a 'linux' host")
+
+Examples:
+
+   qsub -l arch="!linux"      ... don't schedule my job to a 'linux'
+   qsub -l arch="!linux|hp"   ... would work while you couldn't express "don't 
+                                  schedule my job to a 'linux' but on 'hp' host"
+   qsub -l arch="!(linux|hp)" ... since you need to express it as not this nor this
+
+More or less, this also makes it automatically convenient to support a logical AND.
+
+Examples:
+
+  qsub -l arch="!(lx*|sol*)&*64*"            ... schedule my job on a 64-bit OS, but not on Solaris or Linux
+  qsub -l myos="(rh_3*|suse_[89]*)&!rh_3.1"  ... schedule my job on a host which has the "myos" attribute rh_3*, 
+                                                 suse_8*, or suse_9*, but do not schedule it on a rh_3.1 host
+
+The regular boolean expression definition can be found in the sge_types(1) man page.
+
+=== Project Aim ===
+
+The new feature implementation of the regular boolean expression for the wildcard expressions or patterns should be implemented in the maintrunk.
+
+=== Wildcard Matching Defined in sge_types(1) ===
+
+Any wildcard matching for the following
+
+* wc_project_name [optional]
+* wc_user_list_name [optional]
+* wc_queue
+* wc_cqueue
+* wc_qdoamin
+* wc_qinstance
+* wc_host
+* wc_hostgroup
+* wc_pe [optional]
+
+will support the boolean expression matching function sge_eval_expression().
+
+The optional types will be implemented if some real requirement is identified.
+
+=== Complex String Attributes ===
+
+All the complex string attributes (CSTRING, STRING, RESTRING, HOST) will support boolean wildcard expressions. This wildcard matching will be implemented by the sge_eval_expression() function.
+
+=== RESTRING ===
+
+RESTRING becomes obsolete. RESTRING can be kept for interface compatibility, but STRING and RESTIRNG will use the same matching code. This behavior needs to be documented. The RESTRING becomes deprecated [complex(5)] interface and 
+shall disappear with the next major (7.0) release.
+
+=== Hostname Expression Support ===
+
+Since there is already implemented support of several matching routines for hostnames (IGNORE_FQDN={true|false}, DEFAULT_DOMAIN), the original implementation behavior would not be changed.
+
+=== Support for New qsub -q <expr>@<expr> ===
+Since the queue attribute -l q=XXX and the host attribute -l h=YYY support the new expression/pattern matching the "-q" also should support the new matching.
+
+qsub -q <expr>@<expr>
+
+=== Allowed Character Restriction ===
+A clearer definition of allowed characters for an attribute, in it's definition and in the resource request, should be defined. Currently, everything is allowed, including the (for qacct) dangerous ":".
+
+Allowed characters could be a broad range a-z,A-Z,0-9,_,-,#,=,<,>,.,,(comma)
+
+All characters could be allowed at all positions of the attributes or hostnames. Only valid hostnames will be accepted.
+
+== Project Benefit ==
+The adherence to accepted industry standards of the syntax for wildcard expression matching definitions will provide a wider acceptance amongst Grid Engine users.
+
+= System Enhancement =
+
+The enhancement is targeting whole range of commands in a uniform and consistent way. We add this as a standard feature.
+
+== Enhancement Functions ==
+The new expression syntax will be supported in different commands. The new meaning of some characters requires certain verifications to be done and could introduce some restrictions on attribute values. Reserved characters change the behavior. Characters in range [,],?,*,&,|,! are accounted as an expression reserved words with syntactical meanings in patterns and they are not allowed in the compared values.
+
+=== qsub,qsh,qrsh,qalter,qresub,qlogin ===
+
+An overview of command line option changes:
+
+   -l complex=<expression>     ... support for all string type complexes for wildcard expressions.
+   -q <wc_queue_list>          ... support for hostnames, queuenames, groupnames as the wildcard expression
+   -masterq <wc_queue_list>
+   -pe parallel_environment (optional - see above)
+
+Parallel environment wildcard match
+
+=== qconf ===
+
+   -cq <wc_queue_list>    .... cleans queue
+   -sq <wc_queue>         .... displays one or multiple cluster queues or queue instances
+   -purge <wc_queue>      .... purges a queue instances
+
+=== qselect ===
+
+   -q <wc_queue>          .... wildcard expression queue list to be included in the output
+   -l complex=<expression> ... support for all string type complexes for wildcard expressions
+
+===qstat===
+
+   -q <wc_queue_list>
+   -q <wc_queue_list> -g c
+   -l complex=<expression>
+
+===qacct===
+
+   -q <wc_queue> 
+   -l complex=<expression>
+
+===qmod===
+
+   -e <wc_queue_list>    .... enable queue expression
+   -d <wc_queue_list>    .... disable queue expression
+   -c <wc_queue_list> 
+   -cq <wc_queue_list>    ... clear error status queue expression
+   -rq <wc_queue_list>
+
+Reschedule queue expression
+
+   -sq <wc_queue_list>    .... suspend queue expression
+   -usq <wc_queue_list>   .... 'unsuspend' queue expression
+
+=Documentation Changes=
+==Man Pages==
+=== submit(1) ===
+There is a reference to the new sge_types(1) man page describing the wildcard value. On several places an expression is mentioned instead of a pattern.
+
+=== qalter ===
+There is a reference to the new sge_types(1) man page decribing the wildcard value.
+
+=== sge_types(1) ===
+The general syntax for a wildcard expression would look as:
+
+* expression   = ["!"] ["("] valExp [")"] [ AND_OR expression ]
+* valExp   = pattern | expression
+* AND_OR   = "&" | "|"
+
+    "!"         ... not operator - negate the following pattern or expression
+    "&"         ... and operator - logical and with the following expression
+    "|"         ... or operator - logical or with the following expression
+    "("         ... open bracket - begins the priority evaluated expression. The close bracket is required
+    ")"         ... close bracket - ends the priority evaluated expression.
+    "pattern"   ... see the \fIpattern\fP definition
+
+The wildcard expression itself must be put into '"' to ensure that the clients get the expression.
+
+The 'pattern' can be found in the sge_types(1) man page. It is a pattern expression supported by the standard C-lib fnmatch() function.
+
+Examples:
+
+    "!(lx*|sol*)&*64*"            ... not begin with lx or sol but contain 64
+    "(rh_3*|suse_[89]*)&!rh_3.1"  ... attribute rh_3*, suse_8*, or suse_9* but not rh_3.1
+
+WARNING: Reserved characters change the behavior! Characters in range [,],?,*,&,|,! are accounted as an expression reserved words with syntactical meanings in patterns and they are not allowed in the compared values.
+
+This means that it is not allowed to set the complex for particular queue to the value containing this reserved characters.
+
+=== complex(5) ===
+The general syntax for a wildcard complex expressions is now referenced by sge_types(1) to avoid duplicate declaration
+
+=== qstat(1) ===
+On several places an expression is mentioned instead of a pattern
+
+=== qacct(1) ===
+The general syntax for a wildcard complex expressions is now in sge_types(1), so there is a simplification of some command description.
+
+=== qselect(1) ===
+In one place there is mentioned an expression instead of a pattern

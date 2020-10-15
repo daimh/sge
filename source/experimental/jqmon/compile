@@ -1,0 +1,31 @@
+#!/bin/sh
+#
+#cd jqmon
+#make all
+#
+#cd debug
+#make all
+#
+#cd ../dialogs
+#make all
+#
+#cd ../util
+#make all
+#
+#cd ../views
+#make all
+#
+#cd ../../codine
+#make all
+
+javac jqmon/Jqmon.java
+
+cd ./libapi
+cp ../*.c .
+cp ../*.h .
+
+make 
+
+cp *.so ../jqmon/
+cd ..
+

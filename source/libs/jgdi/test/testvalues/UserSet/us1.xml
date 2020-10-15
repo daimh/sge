@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<US_Type>
+   <name>${name}</name>
+   <type>2</type>
+   <fshare>0</fshare>
+   <oticket>0</oticket>
+</US_Type>

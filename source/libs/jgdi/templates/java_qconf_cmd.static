@@ -1,0 +1,153 @@
+<%
+/*___INFO__MARK_BEGIN__*/
+/*************************************************************************
+ *
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ *
+ *  Sun Microsystems Inc., March, 2001
+ *
+ *
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ *
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ *
+ *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ *
+ *   Copyright: 2001 by Sun Microsystems, Inc.
+ *
+ *   All Rights Reserved.
+ *
+ ************************************************************************/
+/*___INFO__MARK_END__*/
+%>
+   String getKeyAttributeValueFromString(final PrintWriter err, final String type, final String fileName, final String inputText) {
+      String keyAttrValue = null;
+      //Get the key attribute value from the file
+      String keyAttr = EditorUtil.unifyAttrWithClientNames(type, "name");
+      StringReader sr = new StringReader(inputText);
+      LineNumberReader lnr = new LineNumberReader(sr);
+      String keyAttrLine = null;
+      try {
+         while (lnr.ready()) {
+            keyAttrLine = lnr.readLine().trim();
+            if (keyAttrLine.startsWith(keyAttr)) {
+               keyAttrValue = keyAttrLine.substring(keyAttr.length()).trim();
+               break;
+            }
+         }
+         //Exit if the key attribute is missing
+         if (keyAttrValue == null) {
+            err.println("error: required attribute \"" + keyAttr + "\" is missing");
+            err.println(type + " file \"" + fileName + "\" is not correct");
+            err.flush();
+            //TODO LP: Set correct exit code
+         }
+      } catch (IOException ex) {
+         err.println(ex.getMessage());
+         err.flush();
+         setExitCode(1);
+      }
+      return keyAttrValue;
+   }
+
+    String readFile(final OptionInfo oi) throws JGDIException {
+        String msg = "Error messages file not found!";
+        int exitCode = 0;
+        String option = oi.getOd().getOption();
+        if (oi.getArgs().size() == 0) {
+            msg = getErrorMessage("NoArgument", option);
+            //err.println(msg);
+            setExitCode(getCustomExitCode("NoArgument", option));
+            throw new JGDIException(msg, exitCode);
+        }
+        File f = new File(oi.getFirstArg());
+        long fileSize = f.length();
+        FileReader fr;
+        StringBuilder sb = new StringBuilder();
+        try {
+            fr = new FileReader(f);
+            char[] buff = new char[2048];
+            int r;
+            while (fr.ready()) {
+                r = fr.read(buff);
+                if (r > 0) {
+                    sb.append(buff, 0, r);
+                }
+            }
+        } catch (IOException ex) {
+            msg = getErrorMessage("InvalidFile", option);
+            exitCode = getCustomExitCode("InvalidFile", option);
+            throw new JGDIException(msg, exitCode);
+        }
+        //Check we have whole content
+        if (sb.length() != fileSize) {
+            throw new JGDIException("Unable to read whole file content. Filesize is " + fileSize + " got only " + sb.length());
+        }
+        return sb.toString();
+    }
+
+   private String runJavaEditor(final String text) {
+      TextEditor ted = new TextEditor(text);
+      while (!ted.isDone()) {
+         try {
+            Thread.currentThread().sleep(1000);
+         } catch (InterruptedException ex) {
+            ex.printStackTrace();
+         }
+      }
+      return ted.getText();
+   }
+
+   String runEditor(final String text) {
+      String editor;
+      String version = System.getProperty("java.specification.version");
+      //TODO LP <1.5 doesn't list properties like EDITOR...
+      if (Double.parseDouble(version) < 1.5) {
+         editor = System.getProperty("EDITOR");
+      } else {
+         editor = System.getenv("EDITOR");
+      }
+      if (editor == null) {
+         return runJavaEditor(text);
+      }
+      StringBuilder sb = new StringBuilder();
+      try {
+         File f = File.createTempFile("edit", null, new File("/tmp"));
+         FileWriter fw = new FileWriter(f);
+         fw.write(text);
+         fw.flush();
+         fw.close();
+
+         int exitCode = EditorUtil.sgeEdit(f);
+         if (exitCode != 0) {
+            return null;
+         }
+         char[] buff = new char[1024];
+         FileReader fr = new FileReader(f);
+         int readChars = 0;
+         while (fr.ready() && readChars != -1) {
+            readChars = fr.read(buff);
+            if (readChars > 0) {
+               sb.append(buff, 0, readChars);
+            }
+         }
+      } catch (IOException ioe) {
+         ioe.printStackTrace();
+/*
+      } catch (InterruptedException ie) {
+         ie.printStackTrace();
+*/
+      }
+      return sb.toString();
+   }

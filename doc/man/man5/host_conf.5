@@ -1,0 +1,261 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\" $RCSfile: host_conf.5,v $     Last Update: $Date: 2011-06-22 15:24:22 $     Revision: $Revision: 1.15 $
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.de MO		\" other man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH HOST_CONF 5 "$Date: 2011-06-22 15:24:22 $" "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+host_conf \- xxQS_NAMExx execution host configuration file format
+.\"
+.\"
+.SH DESCRIPTION
+.I Host_conf
+reflects the format of the template file for the execution host configuration.
+Via the \fB\-ae\fP and \fB\-me\fP options of the
+.M qconf 1
+command, you can add execution hosts and modify the configuration of
+any execution host in the cluster. Default execution host entries are added
+automatically as soon as a
+.M xxqs_name_sxx_execd 8
+registers to
+.M xxqs_name_sxx_qmaster 8
+for the very first time from a certain host. The
+.M qconf 1
+\fB\-sel\fP switch can be used to display a list of execution hosts
+currently configured in your xxQS_NAMExx system. Via the \fB\-se\fP
+option you can print the execution host configuration of a
+specified host.
+.PP
+The special hostname "global" can be used to define cluster global 
+characteristics.
+.PP
+Note xxQS_NAMExx allows backslashes (\\) be used to escape newline
+characters. The backslash and the newline are replaced with a space
+character before any interpretation.
+.\"
+.\"
+.SH FORMAT
+The format of a
+.I host_conf
+file is defined as follows:
+.SS "\fBhostname\fP"
+The execution host's name in the format for \fIhost_name\fP in
+.M sge_types 5 .
+.SS "\fBload_scaling\fP"
+A comma-separated list of scaling values to be applied to each or part
+of the load values being reported by the
+.M xxqs_name_sxx_execd 8
+on the host.
+The load scaling factors are intended to level hardware or operating
+system-specific differences between execution hosts.
+.sp 1
+The syntax of a load factor specification is as follows: First the name of
+the load value (as defined in the "host" complex) is given and, separated
+by an equal sign, the load scaling value is provided. No blanks are
+allowed in the load_scaling value string.
+.sp 1
+The parameter
+.B load_scaling
+is not meaningful for the definition of the "global" host.
+.SS "\fBcomplex_values\fP"
+.B complex_values
+defines quotas for resource attributes managed via this 
+host. Each complex attribute is followed by an "=" sign and the value 
+specification compliant with the complex attribute type (see
+.M complex 5 ). 
+Quota specifications are separated by commas. 
+.sp 1
+The quotas are related to the resource consumption of all jobs on a host in 
+the case of consumable resources (see
+.M complex 5
+for details on 
+consumable resources), or they are interpreted on a per-job slot basis in the
+case of non-consumable resources. Consumable resource attributes are 
+commonly used to manage free memory, free disk space or available 
+floating software licenses, while non-consumable attributes usually define
+distinctive characteristics like type of hardware installed.
+.sp 1
+For consumable resource attributes, an available resource amount is
+determined by subtracting the current resource consumption of all 
+running jobs on the host from the quota in the
+.B complex_values
+list. Jobs 
+can only be dispatched to a host if no resource requests exceed any
+corresponding resource 
+availability obtained by this scheme. The quota definition in the 
+.B complex_values
+list is automatically replaced by the current load value 
+reported for this attribute, if load is monitored for this resource and if the 
+reported load value is more stringent than the quota. This effectively 
+avoids oversubscription of resources.
+.sp 1
+.B Note:
+Load values replacing the quota specifications may have become 
+more stringent because they have been scaled (see
+.B load_scaling
+above) and/or
+load adjusted (see
+.M sched_conf 5 ).
+The \fI\-F\fP option of
+.M qstat 1
+and the load display in the
+.M qmon 1
+queue control dialog (activated by 
+.\" fixme: ??
+clicking on a queue icon while the "Shift" key is pressed) provide 
+detailed information on the actual availability of consumable 
+resources and on the origin of the values taken into account currently.
+.sp 1
+.B Note also:
+The resource consumption of running jobs (used for the availability 
+calculation) as well as the resource requests of the jobs waiting to be 
+dispatched either may be derived from explicit user requests during 
+job submission (see the \fI\-l\fP option to
+.M qsub 1 )
+or from a "default" value 
+configured for an attribute by the administrator (see
+.M complex 5 ).
+The \fI\-r\fP option to
+.M qstat 1
+can be used for retrieving full detail on the actual 
+resource requests of all jobs in the system.
+.sp 1
+For non-consumable resources xxQS_NAMExx simply compares the 
+job's attribute requests with the corresponding specification in 
+.B complex_values
+taking the relation operator of the complex attribute 
+definition into account (see
+.M complex 5 ).
+If the result of the comparison is 
+"true", the host is suitable for the job with respect to the particular 
+attribute. For parallel jobs each job slot to be occupied by a parallel task is 
+meant to provide the same resource attribute value.
+.sp 1
+.B Note:
+Only numeric complex attributes can be defined as consumable 
+resources and hence non-numeric attributes are always handled on a 
+per job slot basis.
+.sp 1
+The default value for this parameter is NONE, i.e. no administrator 
+defined resource attribute quotas are associated with the host.
+.SS "\fBload_values\fP"
+This entry cannot be configured but is only displayed in case of a
+.M qconf 1
+\fB\-se\fP command. All load values are displayed as reported by the
+.M xxqs_name_sxx_execd 8
+on the host. The load values are shown in a comma-separated list. Each
+load value starts with its name, followed by an equal sign and the reported
+value.
+.SS "\fBprocessors\fP"
+.B Note:
+Deprecated, may be removed in future release.
+.br
+This entry cannot be configured but is only displayed in case of a
+.M qconf 1
+\fB\-se\fP command. Its value is the number of "processors" which has been
+detected by
+.M xxqs_name_sxx_execd 8
+on the corresponding host.  This may include "hardware threads"
+reported by the operating system.
+.SS "\fBusage_scaling\fP"
+The \fBusage_scaling\fP parameter scales the usage figures, but only
+for the purposes of share tree calculations, i.e. a scaling factor of
+0 means that use of the relevant host(s) will be ignored for share
+tree purposes (e.g. if hosts are dedicated for a specific use).
+The format is equivalent to
+.B load_scaling
+(see above).  However, the only valid attributes to be scaled are
+.B cpu
+for CPU time consumption,
+.B mem
+for memory consumption aggregated over the lifetime of jobs and
+.B io
+for data transferred via any I/O devices. The default NONE means
+"no scaling", i.e. all scaling factors are 1.
+.SS "\fBuser_lists\fP"
+The \fBuser_lists\fP parameter contains a comma-separated list of so called
+user access lists as described in
+.M access_list 5 .
+Each user contained in at least one of the listed access lists has
+access to the host. If the \fBuser_lists\fP parameter is set to
+NONE (the default), any user has access if not explicitly excluded
+via the \fBxuser_lists\fP parameter described below.
+If a user is contained both in an access list in \fBxuser_lists\fP
+and \fBuser_lists\fP the user is denied access to the host.
+.SS "\fBxuser_lists\fP"
+The \fBxuser_lists\fP parameter contains a comma-separated list of so called
+user access lists as described in
+.M access_list 5 .
+Each user contained in at least one of the access lists is not
+allowed to access the host. If the \fBxuser_lists\fP parameter is set to
+NONE (the default), any user has access.
+If a user is contained both in \fBxuser_lists\fP
+and \fBuser_lists\fP, the user is denied access to the host.
+.SS "\fBprojects\fP"
+The \fBprojects\fP parameter contains a comma-separated list of projects
+that have access to the host. Any projects not in this list are denied
+access to the host. If set to NONE (the default), any project
+has access if not specifically excluded via the \fBxprojects\fP
+parameter described below. If a project is in both \fBprojects\fP and
+\fBxprojects\fP, the project is denied access to the host.
+.SS "\fBxprojects\fP"
+The \fBxprojects\fP parameter contains a comma-separated list of projects
+that are denied access to the host. If set to NONE (the default), no
+projects are denied access other than those denied access based on the
+\fBprojects\fP parameter described above.  If a project is in both
+\fBprojects\fP and \fBxprojects\fP, the project is denied
+access to the host.
+.\"
+.SS "\fBreport_variables\fP"
+The \fBreport_variables\fP parameter contains a comma-separated list of
+variables that should be written to the reporting file.
+The variables listed here will be written to the reporting file when a load report arrives from an execution host.
+.sp 1
+Default settings can be done in the global host. Host-specific settings for
+report_variables will override settings from the global host.
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M xxqs_name_sxx_types 1 ,
+.M qconf 1 ,
+.MO uptime 1 ,
+.M access_list 5 ,
+.M complex 5 ,
+.M xxqs_name_sxx_execd 8 ,
+.M xxqs_name_sxx_qmaster 8 .
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

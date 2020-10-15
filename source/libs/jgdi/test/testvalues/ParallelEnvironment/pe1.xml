@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PE_Type>
+   <name>${name}</name>
+   <slots>999</slots>
+   <allocationRule>$round_robin</allocationRule>
+   <controlSlaves>true</controlSlaves>
+   <jobIsFirstTask>false</jobIsFirstTask>
+   <urgencySlots>min</urgencySlots>
+</PE_Type>

@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="StarOffice/5.2 (Solaris Sparc)">
+	<META NAME="AUTHOR" CONTENT=" ">
+	<META NAME="CREATED" CONTENT="20010611;14564800">
+	<META NAME="CHANGEDBY" CONTENT=" ">
+	<META NAME="CHANGED" CONTENT="20010716;16471800">
+</HEAD>
+<BODY>
+<H1><FONT SIZE=6 STYLE="font-size: 28pt">DRMAA C binding library for Grid Engine</FONT></H1>
+<H1>Overview</H1>
+<P>The purpose of this library is to provide an implementation of the DRMAA C binding 
+standard based on Grid Engine DRM system. The best way to describe DRMAA is to cite 
+the DRMAA-WG Charter:</P>
+<UL>
+<P>"Develop an API specification for the submission and control of jobs to one or more Distributed Resource
+Management (DRM) systems. The scope of this specification is all the high level functionality which is
+necessary for an application to consign a job to a DRM system including common operations on jobs like
+termination or suspension.</P>
+<P>The objective is to facilitate the direct interfacing of applications to today's DRM systems by
+application's builders, portal builders, and Independent Software Vendors (ISVs)."</P>
+</UL>
+<P>For more details on the 
+<A HREF="http://www.gridforum.org">Global Grid Forum</A>
+standards body working group refer to the page of the
+<A HREF="http://www.drmaa.org">GGF DRMAA working group</A>
+.
+</P>
+<H1>Documentation</H1>
+<P>The following DRMAA related documentation is recommended
+<A HREF="http://www.drmaa.org/docs/ggf-rec-drmaa-1_0.pdf">DRMAA 1.0 language independent specification</A>,
+<A HREF="https://forge.gridforum.org/tracker/?group_id=90&atid=608&aid=214">DRMAA C language binding specification</A>,
+<A HREF="http://arc.liv.ac.uk/repos/darcs/sge/source/libs/japi/jobstates.html">Grid Engine/DRMAA job state mapping table</A> 
+and 
+<A HREF="http://arc.liv.ac.uk/SGE/htmlman/manuals.html">HTML version of Grid Engine DRMAA C binding man pages (only those in section 3 with drmaa_* prefixes)</A> .</P>
+<H1>Example application</H1>
+<P>The C test program 
+<A HREF="http://arc.liv.ac.uk/repos/darcs/sge/source/libs/japi/example.c">example.c</A>
+is a good example of an application that uses the DRMAA C binding interface. 
+It illustrates submission of both single and bulk remote jobs. After submission drmaa_synchronize() call 
+is used to synchronize the remote jobs execution. The call returns after all the jobs have finished 
+executing. Finally, drmaa_wait() call is used to retrieve and print out the remote jobs' execution 
+information.</P>
+<P>A full path for the remote command is passed as the first argument to the test program. 
+That value is directly used as &quot;drmaa_remote_command&quot; job template attribute. The C binding example uses 
+value  &quot;5&quot; as a first argument to the job template vector attribute &quot;drmaa_v_argv&quot;. Passing &quot;/bin/sleep&quot; as 
+a first argument to the test program will for example cause 32 sleep jobs to be run that sleep for &quot;5&quot; 
+seconds each before finishing execution.  Note that we expect to find  &quot;/bin/sleep&quot; command on all of the 
+remote nodes.</P>
+<P>To build this example run
+<UL>
+   aimk -no-mt example
+</UL>
+This is necessary because "example" is not part of the standard build procedure.</P>
+
+<H1>Notes on implementation</H1>
+<P>The Grid Engine implementation of DRMAA bases on Grid Engine 
+<A HREF="http://arc.liv.ac.uk/repos/darcs/sge/source/libs/japi/japi.html">Job API library (JAPI)</A>. As a result DRMAA library inherits MT safety from JAPI library.</P>
+<P>Interfaces operations of Grid Engine JAPI library and DRMAA library have lots in common.
+The big difference amongst them is that JAPI allows any characteristic of the Grid Engine job 
+that is submitted through JAPI be influenced, whereas DRMAA allows only those characteristics be influenced that 
+are interfaced by DRMAA. Note that this ostensible drawback of DRMAA library is not as meaningful as it seems: 
+Firstly DRMAA job template attributes "drmaa_job_category" and "drmaa_native_specification" will allow nearly all 
+of the qsub(1) job characteristics be influenced. Secondly by building an integration upon DRMAA library you 
+don't need to change your application code each time when a new Grid Engine version is released. When using JAPI 
+library interface you must be prepared to change your application code in this case. This is because JAPI directly 
+exports Grid Engine internal data structures that usually are subject of change with new releases.</P>
+<H1>Grid Engine DRMAA library QA</H1>
+<P>The DRMAA application "test_drmaa" is used by Grid Engine testsuite QA tool to ensure quality of DRMAA 
+library. It covers a growing number of tests. There are so-called standalone tests that can
+be accomplished autonomously by the test_drmaa application. To run all these tests standalone "test_drmaa" 
+can be started with the "ALL_AUTOMATED" option plus some option arguments. To run all 
+DRMAA related tests so far implemented choose "api/drmaa" in testsuite and have testsuite do the work for you.</P>
+<P ALIGN=CENTER STYLE="text-decoration: none">Copyright 2003 Sun Microsystems, Inc. All rights reserved.</P>
+</BODY>
+</HTML>

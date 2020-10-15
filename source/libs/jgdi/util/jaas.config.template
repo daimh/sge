@@ -1,0 +1,119 @@
+/*___INFO__MARK_BEGIN__*/
+/*************************************************************************
+ *
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ *
+ *  Sun Microsystems Inc., March, 2001
+ *
+ *
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ *
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ *
+ *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ *
+ *   Copyright: 2006 by Sun Microsystems, Inc
+ *
+ *   All Rights Reserved.
+ *
+ ************************************************************************/
+/*___INFO__MARK_END__*/
+
+/*
+ * Default login configuration for qmaster's jmx server
+ */
+GridwareConfig {
+
+    /**
+     *  Accepts all clients which have a certificate which is signed with
+     *  the CA certificate.
+     */
+    com.sun.grid.security.login.GECATrustManagerLoginModule requisite
+         caTop="${com.sun.grid.jgdi.caTop}";
+
+    /*
+     *  Accepts all clients which has a valid username/password.
+     *
+     *  The username/password validation is done with the authuser binary (included
+     *  in the grid engine distribution, $SGE_ROOT/utilbin/$ARCH/authuser). 
+     *
+     *  ATTENTION: The authuser binary needs the suid bit. It does not work if grid
+     *  engine is installed on a nosuid file system.
+     *
+     */
+    com.sun.grid.security.login.UnixLoginModule requisite
+        sge_root="${com.sun.grid.jgdi.sgeRoot}"
+        auth_method="system";
+
+    /*
+     * Username password authentication against LDAP.
+     *
+     * Alternative username/password authentication if 
+     * com.sun.grid.security.login.UnixLoginModule is not working.
+     *
+     * The LDAP specific parameters have to be adjusted to the local requirements
+     * For details please have a look at the LdapLoginModule javadocs.
+     *
+     * ATTENTION: The LdapLoginModule is only available in java 6. The 
+     * parameter libjvm_path must point to a java 6 jvm 
+     * (qconf -sconf | grep libjvm_path)
+     */
+    /*
+    com.sun.security.auth.module.LdapLoginModule requisite
+        userProvider="ldap://sun-ds/ou=people,dc=sun,dc=com"
+        userFilter="(&(uid={USERNAME})(objectClass=inetOrgPerson))"
+        useSSL=false;
+    */
+
+    /*
+     *  The JGDILoginModule adds a JGDIPrincipal to the subject. The username of 
+     *  the JGDIPrincipal is the name of the first trusted principal. This name
+     *  treated as username for gdi communication.
+     *  For each login a new jgdi session id is created.
+     *
+     *  In the jmxremote.access file users who can access the system are defined
+     *  Any principal matching these entries is given the corresponding role.
+     *  Usually a jmxPrincipal is defined to give a user access to the system.
+     *  (e.g. com.sun.grid.security.login.UserPrincipal = xyz &
+     *        jmxPrincipal="controlRole" gives user xyz access under controlRole
+     *  ) 
+     */
+    com.sun.grid.jgdi.security.JGDILoginModule optional
+        trustedPrincipal="com.sun.grid.security.login.UserPrincipal"
+        trustedPrincipal1="com.sun.security.auth.UserPrincipal"
+        jmxPrincipal="controlRole";
+};
+
+/*
+ *  TestConfig accepts any user. Only for testing
+ */
+TestConfig {
+
+    com.sun.grid.security.login.TestLoginModule requisite;
+
+    com.sun.grid.jgdi.security.JGDILoginModule optional
+        trustedPrincipal="com.sun.grid.security.login.UserPrincipal"
+        jmxPrincipal="controlRole";
+};
+
+/* 
+ *  Mandatory of native jgdi is used with a csp system
+ *  (e.g. jgdish in csp mode)
+ */
+jgdi {
+   com.sun.security.auth.module.KeyStoreLoginModule required 
+                                                    keyStoreURL="file:./keystore"
+                                                    debug=false;
+};
+

@@ -1,0 +1,12 @@
+# Version: Grid Engine 6
+# 
+# DO NOT MODIFY THIS FILE MANUALLY!
+# 
+name        seq_no
+shortcut    seq
+type        INT
+relop       ==
+requestable NO
+consumable  NO
+default     0
+urgency     0

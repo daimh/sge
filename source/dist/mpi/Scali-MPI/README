@@ -1,0 +1,40 @@
+         Scali MPI integration with Grid Engine
+         ======================================
+
+[This refers to what became HP MPI and then Platform MPI.  It may or
+may not still be relevant -- feedback welcome.  HP MPI can be tightly
+integrated via MPI_REMSH in the environment.  See the notes at
+<http://wiki.gridengine.info/wiki/index.php/Tight-HP-MPI-Integration-Notes>,
+though they make rather a meal of it.]
+
+For Scali MPI based parallel jobs the scripts Scali_Suspend.sh 
+and Scali_Resume.sh can be used as suspend_method/resume_method
+as explained in Grid Engine man page queue_conf(5).
+
+These scripts forward the appropriate signals to the controlling Scali
+process.
+
+In the queue configuration use something like
+
+ suspend_method         /sge-root/Scali-MPI/Scali_Suspend.sh $job_pid
+ resume_method         /sge-root/Scali-MPI/Scali_Resume.sh
+
+You can suspend and resume using
+
+ qmod -sj wc_job_range_list
+ qmod -usj wc_job_range_list
+
+It is also possible to set up subordinate queue relationships to cause 
+suspension of jobs.
+
+Note that the suspended job still holds OS resources.
+
+This version (v1.1) is an update by Harvey Richardson to make the scripts
+more robust.
+
+Revisions of these scripts have been tested on various OS (Linux/Solaris) 
+and Scali versions, the most recent being SLES10sp2 with Scali MPI Connect 
+5.6.6.
+
+Feedback (to sge-bugs@liv.ac.uk) and enhancements of this
+integration are highly welcome.

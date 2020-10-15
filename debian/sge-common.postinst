@@ -1,0 +1,36 @@
+#!/bin/sh
+# postinst script for gridengine-common
+#
+# see: dh_installdeb(1)
+
+set -e
+
+#DEBHELPER#
+
+user=sgeadmin
+
+case "$1" in
+  configure)
+
+    # Only create the user if it doesn't exist
+    # We can't rely on adduser to do it as a lot of sites stick the
+    # sgeadmin user in LDAP or something like that...
+    if ! id ${user} >/dev/null 2>&1; then
+      adduser --system --no-create-home --quiet \
+              --disabled-password --disabled-login \
+              --shell /bin/false --group --home /opt/sge ${user}
+    fi
+
+    # Set up the sgeadmin user and basic config on new install
+    if [ -z "$2" ]; then        # not on upgrades
+      chmod -R 755 /opt/sge
+      chown -R ${user}:${user} /opt/sge
+    fi
+  ;;
+
+  *)
+    echo "postinst called with unknown argument \`$1'" >&2
+    exit 1
+  ;;
+esac
+exit 0

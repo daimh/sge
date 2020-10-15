@@ -1,0 +1,250 @@
+'\" t
+.\" Copyright (C), 2012, 2013  Dave Love, University of Liverpool
+.\" You may distribute this file under the terms of the GNU Free
+.\" Documentation License.
+.de M		\" SGE man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH sge_status 5 2013-04-07
+.SH NAME
+sge_status \- xxQS_NAMExx job status values
+.SH DESCRIPTION
+.SS "Job state"
+The following table lists the job states shown by
+.M qstat 1
+and returned by
+.M drmaa_jobcontrol 3 .
+The DRMAA
+.I state
+corresponds to the
+.BI DRMAA_PS_ state
+value that may be returned by
+.M drmaa_job_ps 3 .
+.PP
+.TS
+tab(@), allbox;
+cbcbcbcb
+ltltltlt.
+Category@State@SGE@DRMAA state
+Pending@pending@qw, Rq@QUEUED_ACTIVE
+\^@pending, user hold@hqw@USER_ON_HOLD
+\^@pending, system hold@hqw@SYSTEM_ON_HOLD
+\^@T{
+.na
+pending, user and system hold
+T}@hqw@USER_SYSTEM_ON_HOLD
+\^@T{
+.na
+pending, user hold, re-queue
+T}@hRwq@USER_ON_HOLD
+\^@T{
+.na
+pending, system hold, re-queue
+T}@hRwq@SYSTEM_ON_HOLD
+\^@T{
+.na
+pending, user and system hold, re-queue
+T}@hRwq@USER_SYSTEM_ON_HOLD
+T{
+.na
+Running / transferring
+T}@running, transferring@r, hr, t@RUNNING
+\^@T{
+.na
+running, re-run / transferring
+T}@Rr, Rt@RUNNING
+Suspended@job suspended@s, ts@USER_SUSPENDED
+\^@queue suspended@S, tS@SYSTEM_SUSPENDED
+\^@T{
+.na
+queue suspended by alarm
+T}@T, tT@SYSTEM_SUSPENDED
+\^@T{
+.na
+all suspended with re-run
+T}@T{
+.na
+Rs, Rts, RS, RtS, RT, RtT
+T}@SYSTEM_SUSPENDED
+Error@T{
+.na
+all pending states with error
+T}@T{
+Eqw, Ehqw, EhRqw
+T}@FAILED
+Deleting@T{
+.na
+all running and suspended states with deletion
+T}@T{
+.na
+dr, dt, dRr, dRt, ds, dS, dT, dRs, dRS, dRT
+T}@T{
+.na
+same as equivalent DRMAA states without the "d"
+T}
+Finished@T{
+.na
+job finished normally
+T}@z@DONE
+Unkown@T{
+.na
+status cannot be determined
+T}@@UNDETERMINED
+.TE
+.SS "\"Failed\" states"
+The following table lists the "failed" values reported by
+.M qacct 1
+(see 
+.M accounting 5 ),
+their description, also reported by
+.IR qacct ,
+whether the resource usage accounting data are valid for the job
+("OK"), and an explanation.  The host's messages file or the shepherd
+trace file (preserved with
+.B execd_params
+.B KEEP_ACTIVE
+in
+.M sge_conf 5 )
+may provide more information about errors.
+.\" See execution_states.c
+.TS
+tab(@), allbox;
+lblblblb
+ltltltlt.
+Code@Description@OK@Explanation
+0@no failure@Y@ran and exited normally
+1@assumedly before job@N@failed early in execd
+3@before writing config@N@failed before execd set up local spool
+4@before writing PID@N@shepherd failed to record its pid \- filesystem problem?
+.\" 5@on reading config file@N@
+6@setting processor set@N@failed setting up processor set (obsolete)
+7@before prolog@N@failed before prolog
+8@in prolog@N@failed in prolog
+9@before pestart@N@failed before starting PE
+10@in pestart@N@failed in PE starter
+11@before job@N@T{
+.na
+failed in shepherd before starting job
+T}
+12@before pestop@Y@T{
+.na
+ran, but failed before calling PE stop procedure
+T}
+13@in pestop@Y@T{
+.na
+ran, but PE stop procedure failed
+T}
+14@before epilog@Y@T{
+.na
+ran, but failed before calling epilog
+T}
+15@in epilog@Y@T{
+.na
+ran, but failed in epilog
+T}
+16@releasing processor set@Y@T{
+.na
+ran, but processor set could not be released (obsolete)
+T}
+17@through signal@Y@T{
+.na
+job killed by signal (possibly qdel)
+T}
+18@shepherd returned error@N@shepherd died somehow
+19@before writing exit_status@N@T{
+.na
+shepherd didn't write reports correctly \- probably program or machine crash
+T}
+20@found unexpected error file@?@T{
+.na
+shepherd encountered a problem
+T}
+21@in recognizing job@N@T{
+.na
+qmaster asked about an unknown job (not in accounting?)
+T}
+24@T{
+.na
+migrating (checkpointing jobs)
+T}@Y@ran, will be migrated
+25@rescheduling@Y@T{
+.na
+ran, will be rescheduled
+T}
+26@opening output file@N@T{
+.na
+failed opening stderr/stdout file
+T}
+27@searching requested shell@N@failed finding specified shell
+28@T{
+.na
+changing to working directory
+T}@N@T{
+.na
+failed changing to start directory
+T}
+29@AFS setup@N@failed setting up AFS security
+30@application error returned@Y@T{
+.na
+ran and exited 100 \- maybe re-scheduled
+T}
+31@accessing sgepasswd file@N@T{
+.na
+failed because sgepasswd not readable (MS Windows)
+T}
+32@T{
+.na
+entry is missing in password file
+T}@N@T{
+.na
+failed because user not in sgepasswd (MS Windows)
+T}
+33@wrong password@N@T{
+.na
+failed because of wrong password against sgepasswd (MS Windows)
+T}
+34@T{
+.na
+communicating with Grid Engine Helper Service
+T}@N@T{
+.na
+failed because of failure of helper service (MS Windows)
+T}
+35@T{
+.na
+before job in Grid Engine Helper Service
+T}@N@T{
+.na
+failed because of failure running helper service (MS Windows)
+T}
+36@checking configured daemons@N@T{
+.na
+failed because of configured remote startup daemon
+T}
+37@T{
+.na
+qmaster enforced h_rt, h_cpu, or h_vmem limit
+T}@Y@T{
+.na
+ran, but killed due to exceeding run time limit
+T}
+38@adding supplementary group@N@T{
+.na
+failed adding supplementary gid to job
+T}
+100@assumedly after job@Y@T{
+.na
+ran, but killed by a signal (perhaps due to exceeding resources), task
+died, shepherd died (e.g. node crash), etc.
+T}
+.TE
+.PP
+See
+.M sge_shepherd 8
+for the effect of non-zero return codes from the various methods
+(prolog etc.) executed by the shepherd.
+.SH "SEE ALSO"
+.M drmaa_jobcontrol 3 ,
+.M qstat 1 ,
+.M sge_shepherd 8 ,
+.M accounting 5 .

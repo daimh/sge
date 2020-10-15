@@ -1,0 +1,459 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.de MO                  \" other man page
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH QPING 1 "2011-05-20" "xxRELxx" "xxQS_NAMExx User Commands"
+.SH NAME
+qping \- check application status of xxQS_NAMExx daemons.
+.PP
+.SH SYNTAX
+.B qping
+.RB [ \-help ]
+.RB [ \-noalias ]
+.RB [ \-ssl | \-tcp ]
+.RB [[[ \-i
+.IR  interval ]
+.RB [ \-info ]
+.RB [ \-f ]]
+| [[
+.B \-dump_tag
+.I tag
+.RI [ param ]]
+.RB [ \-dump ]
+.RB [ \-nonewline ]]]
+.I host port name id
+.\"
+.\"
+.PP
+.SH DESCRIPTION
+.I Qping
+is used to validate the runtime status of a xxQS_NAMExx service daemon. The current
+xxQS_NAMExx implementation allows one to query the xxQS_NAME_Sxx_QMASTER daemon and any
+running xxQS_NAME_Sxx_EXECD daemon. The command is used to send a SIM (Status
+Information Message) to the destination daemon. The communication layer of the 
+specified daemon will respond with a SIRM (Status Information Response Message) which
+contains status information about that daemon.
+It also has options allow an administrator to observe the communication
+protocol data flow of a xxQS_NAMExx service daemon.
+.PP
+.\"
+.\"
+.SH OPTIONS
+.\"
+.SS "\fB\-f\fP"
+Show full status information on each ping interval.
+
+\fIFirst output line:\fP
+The first output line shows the date and time of the request.
+
+\fISIRM version:\fP
+Internal version number of the SIRM (Status Information Response Message)
+
+\fISIRM message id:\fP
+Current message id for this connection
+
+\fIstart time:\fP
+Start time of daemon. The format is as follows:
+
+MM/DD/YYYY HH:MM:SS (seconds since 01.01.1970)
+
+\fIrun time [s]:\fP
+Run time in seconds since start time
+
+\fImessages in read buffer:\fP
+Number of buffered messages in the communication read buffer. The messages are buffered
+for the application (daemon). When this number grows too large the daemon is not able
+to handle all messages sent to it. 
+
+\fImessages in write buffer:\fP
+Number of buffered messages in the communication write buffer. The messages are sent
+from the application (daemon) to the connected clients, but the communication 
+layer wasn't able to send the messages yet. If this number grows too large, the
+communication layer isn't able to send them as fast as the application (daemon) wants
+the messages to be sent.
+
+\fInumber of connected clients:\fP
+This is the number of clients actually connected to this daemon, including the
+current qping connection.
+
+\fIstatus:\fP
+The status value of the daemon. This value depends on the application which replies to
+the qping request.
+If the application does not provide any information, the status is 99999.
+Here are the possible status information values for the xxQS_NAMExx daemons:
+
+.in +3
+qmaster:
+
+.in +3
+\fI0\fP
+There is no unusual timing situation.
+.in -3
+
+.in +3
+\fI1\fP
+One or more threads has reached warning timeout. This may happen when 
+at least one thread does not increment its time stamp for an usually long
+time. A possible reason for this is a high workload for this thread.
+.in -3
+    
+.in +3
+\fI2\fP
+One or more threads has reached error timeout. This may happen when 
+at least one thread has not incremented its time stamp for longer than
+10 minutes.
+.in -3
+
+.in +3
+\fI3\fP
+The time measurement is not initialized.
+.in -3
+
+execd:
+
+.in +3
+\fI0\fP
+There is no unusual timing situation.
+.in -3
+
+.in +3
+\fI1\fP
+Dispatcher has reached warning timeout. This may happen when 
+the dispatcher does not increment its time stamp for an unusually long
+time. A possible reason for this is a high workload.
+.in -3
+    
+.in +3
+\fI2\fP
+Dispatcher has reached error timeout. This may happen when 
+the dispatcher has not incremented its time stamp for longer than
+10 minutes.
+.in -3
+
+.in +3
+\fI3\fP
+The time measurement is not initialized.
+.in -3
+.in -3
+
+
+\fIinfo:\fP
+Status message of the daemon. This value depends on the application which replies to
+the qping request.
+If the application does not provide any information the info message is "not available".
+Here are the possible status information values for the xxQS_NAMExx daemons:
+
+.in +3
+
+qmaster:
+
+.in +3
+The info message contains information about the qmaster threads, followed by a thread
+state and time information. Each time one of the known threads passes through its
+main loop the time information is updated. Since the qmaster has two message threads,
+every message thread updates the time. This means the timeout for the message
+thread (MT) can only occur when no message thread is active anymore:
+
+.in +3
+THREAD_NAME: THREAD_STATE (THREAD_TIME)
+.in -3 
+
+.in +3
+THREAD_NAME:
+.in +3
+.nf
+MAIN: Main thread 
+signaler: Signal thread 
+event_master: Event master thread 
+timer: Timer thread 
+worker: Worker thread
+listener: Listener thread
+scheduler: Scheduler thread
+jvm: Java thread 
+.fi
+.in -3
+The thread names above (other than MAIN) will be followed by a 3 digit number.
+
+THREAD_STATE:
+.in +3
+.nf
+R: Running
+W: Warning
+E: Error
+.fi
+.in -3
+
+THREAD_TIME:
+.in +3
+.nf
+Time since last timestamp updating.
+.fi
+.in -3
+.in -3
+
+After the dispatcher information comes an additional information string which describes the
+complete application status.
+.in -3
+
+execd:
+
+.in +3
+The info message contains information for the execd job dispatcher:
+.in +3
+dispatcher: STATE (TIME)
+.in -3
+
+STATE:
+.in +3
+.nf
+R: Running
+W: Warning
+E: Error
+.fi
+.in -3
+
+TIME:
+.in +3
+.nf
+Time since last timestamp updating.
+.fi
+.in -3
+.in -3
+
+After the thread information comes statistics on the
+.MO malloc 3
+state, if available, e.g. using
+.MO mallinfo 3 .
+If xxQS_NAMExx is built with the
+.M jemalloc 3
+allocator, the statistics are not printed by default because they are
+in a different, verbose format.  See
+.B print_malloc_info
+in
+.M sge_conf 5 .
+
+.in -3
+.in -3
+\fIMonitor:\fP
+If available (see
+.B MONITOR_TIME
+In
+.B qmaster_params
+in
+.M xxqs_name_sxx_conf 5 ),
+displays statistics on threads. The data for each thread are
+displayed in one line. The format of this line can be changed at any time. Only the
+master implements monitoring.
+.\"
+.SS "\fB\-help\fP"
+Prints a list of all options.
+.\"
+.SS "\fB\-i interval\fP"
+Set qping interval.
+.\"
+The default interval is one second. Qping will send a SIM (Status Information Message)
+after each interval.
+.\"
+.SS "\fB\-info\fP"
+Show full status information (see \fB\-f\fP for more information) and exit. The exit
+value 0 indicates no error. On errors qping returns with 1.
+.\"
+.SS "\fB\-noalias\fP"
+Ignore host_aliases file, which is located at 
+\fI<xxqs_name_sxx_root>/<cell>/common/host_aliases.\fP
+If this option is used it is not necessary to set any xxQS_NAMExx environment
+variable. 
+.\"
+.SS "\fB\-ssl\fP"
+This option can be used to specify
+an SSL (Secure Socket Layer) configuration. qping will use the configuration
+to connect to services running SSL. If the xxQS_NAMExx settings file is not sourced, you
+have to use the
+.B \-noalias
+option to bypass the need for the SGE_ROOT environment
+variable.
+The following environment variables are used to specify your certificates:
+  SSL_CA_CERT_FILE \- CA certificate file
+  SSL_CERT_FILE    \- certificates file
+  SSL_KEY_FILE     \- key file
+  SSL_RAND_FILE    \- rand file
+.\"
+.SS "\fB\-tcp\fP"
+This option is used to select TCP/IP as the protocol used to connect to other services.
+.\"
+.SS "\fB\-nonewline\fP"
+Dump output will not have a linebreak within a message, and binary messages are
+not unpacked.
+.\"
+.SS "\fB\-dump\fP"
+This option allows an administrator to observe the communication protocol
+data flow of a xxQS_NAMExx service daemon. The command must be started
+as root, and on the host where the daemon to be observed is running.
+.PP
+The output is written to stdout. The environment variable "SGE_QPING_OUTPUT_FORMAT"
+can be set to hide columns, set a default column width, or to set a hostname output
+format. The value of the environment variable can be set to any combination of
+the following specifiers separated by a space character:
+.in +3
+.RS
+.nf
+"h:X"   \-> hide column X
+"s:X"   \-> show column X
+"w:X:Y" \-> set width of column X to Y
+"hn:X"  \-> set hostname output parameter X. 
+           X values are "long" or "short"
+.fi
+.RE
+Run
+.B qping \-help
+to see which columns are available.
+.in -3
+.\"
+.SS "\fB\-dump_tag\fP \fItag\fP \fR[\fP\fIparam\fP\fR]\fP"
+This option has the same meaning as \-dump, but can provide more information by
+specifying the debug level and message types
+.I qping
+should print:
+.in +3
+.B \-dump_tag ALL
+.I debug level 
+.in +3
+This option shows all possible debug messages (APP+MSG) for the debug levels, ERROR, WARNING,
+INFO, DEBUG and DPRINTF. The contacted service must support this kind of debugging. 
+This option is not currently implemented.
+.in -3
+.in -3    
+.in +3
+.B \-dump_tag APP
+.I debug level 
+.in +3
+This option shows only application debug messages for the debug levels, ERROR, WARNING, INFO,
+DEBUG and DPRINTF. The contacted service must support this kind of debugging.
+This option is not currently implemented.
+.in -3
+.in -3    
+.in +3
+.B \-dump_tag MSG
+.in +3
+This option has the same behavior as the
+.B \-dump
+option. 
+.in -3
+.in -3    
+.\"
+.SS "\fIhost\fP"
+Host where daemon is running.
+.\"
+.SS "\fIport\fP"
+Port which daemon has bound (used xxqs_name_sxx_qmaster/xxqs_name_sxx_execd port number).
+.\"
+.SS "\fIname\fP"
+Name of communication endpoint ("qmaster" or "execd"). A communication endpoint is a 
+triplet of hostname/endpoint name/endpoint id (e.g. hostA/qmaster/1 or subhost/qstat/4).
+.\"
+.SS "\fBid\fP"
+Id of communication endpoint ("1" for daemons)
+.\"
+.\"
+.SH "EXAMPLES"
+.nf
+>qping master_host 31116 qmaster
+08/24/2004 16:41:15 endpoint master_host/qmaster/1 at port 31116 is up since 365761 seconds
+08/24/2004 16:41:16 endpoint master_host/qmaster/1 at port 31116 is up since 365762 seconds
+08/24/2004 16:41:17 endpoint master_host/qmaster/1 at port 31116 is up since 365763 seconds
+.fi
+.PP
+.nf
+> qping \-info master_host 31116 qmaster 1
+08/24/2004 16:42:47:
+SIRM version:             0.1
+SIRM message id:          1
+start time:               08/20/2004 11:05:14 (1092992714)
+run time [s]:             365853
+messages in read buffer:  0
+messages in write buffer: 0
+no. of connected clients: 4
+status:                   0
+info:                     ok
+.fi
+.PP
+.nf
+> qping \-info execd_host 31117 execd 1
+08/24/2004 16:43:45:
+SIRM version:             0.1
+SIRM message id:          1
+start time:               08/20/2004 11:06:13 (1092992773)
+run time [s]:             365852
+messages in read buffer:  0
+messages in write buffer: 0
+no. of connected clients: 2
+status:                   0
+info:                     ok
+.fi
+.\"
+.\"
+.SH "ENVIRONMENT VARIABLES"
+.\" 
+.IP "\fBxxQS_NAME_Sxx_ROOT\fP" 1.5i
+Specifies the location of the xxQS_NAMExx standard configuration
+files.
+.\"
+.IP "\fBxxQS_NAME_Sxx_CELL\fP" 1.5i
+If set, specifies the default xxQS_NAMExx cell.
+.\"
+.IP \fBSGE_QPING_OUTPUT_FORMAT\fP 1.5i
+See
+.B \-dump
+option above.
+.PP
+The following apply when CSP security is used and can override the
+values deduced from the bootstrap file.
+.IP \fBSSL_CA_CERT_FILE\fP 1.5i
+CA certificate file
+.IP \fBSSL_CERT_FILE\fP 1.5i
+Certificates file
+.IP \fBSSL_KEY_FILE\fP 1.5i
+Key file
+.IP \fBSSL_RAND_FILE\fP 1.5i
+Random seed file
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M host_aliases 5 ,
+.M xxqs_name_sxx_qmaster 8 ,
+.M xxqs_name_sxx_conf 5 ,
+.M xxqs_name_sxx_execd 8 .
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

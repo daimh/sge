@@ -1,0 +1,169 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\"
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH QRLS 1 "2007-01-05" "xxRELxx" "xxQS_NAMExx User Commands"
+.SH NAME
+qrls \- release xxQS_NAMExx jobs from previous hold states
+.SH SYNTAX
+.B qrls
+[
+\fB\-h\fP {\fBu\fP|\fBo\fP|\fBs\fP},...
+] [
+.B \-help
+] [
+.B job/task_id_list
+]
+.PP
+.B qrls
+[
+\fB\-h\fP {\fBu\fP|\fBo\fP|\fBs\fP},...
+] [
+.B \-help
+] 
+.B -u user_list
+.\"
+.SH DESCRIPTION
+.I Qrls
+provides a means for a user/operator/manager to release so called
+.I holds
+from one or more jobs pending to be scheduled for execution.
+As long as any type of hold is assigned to a job, the
+job is not eligible for scheduling.
+.PP
+Holds can be assigned to jobs with the
+.M qhold 1 ,
+.M qsub 1
+or the
+.M qalter 1
+command.
+.PP
+There are three different types of holds:
+.IP "\fBuser\fP"
+User holds can be assigned and removed by managers, operators and the
+owner of the jobs.
+.IP "\fBoperator\fP"
+Operator holds can be assigned and removed by managers and operators.
+.IP "\fBsystem\fP"
+System holds can be assigned and removed by managers only.
+.PP
+If no hold type is specified with the \fB\-h\fP option (see below)
+the user hold is assumed by default.
+.PP
+An alternate way to release holds is the
+.M qalter 1
+command (see the \fI\-h\fP option).
+.\"
+.\"
+.SH OPTIONS
+.\"
+.IP "\fB\-h\fP {\fBu\fP|\fBo\fP|\fBs\fP},..."
+Releases a u(ser), o(perator) or s(system) hold or a combination thereof
+from one or more jobs.
+.\"
+.IP "\fB\-help\fP"
+Prints a listing of all options.
+.\"
+.IP "\fB\-u username,...\fP"
+Modifies the hold state of those jobs which were submitted by
+users specified in the list of usernames.
+Managers are allowed to use the \fB\qrls -u "*"\fP command
+to modify the hold state for jobs of all users.
+.sp 1
+If a user uses the \fB\-u\fP switch, the user may
+specify an additional \fI\job/task_id_list\fP. 
+.\"
+.IP "\fBjob/task_id_list\fP"
+Specified by the following form:
+.sp 1
+.ta 0.5i
+    \fIjob_id[.task_range][,job_id[.task_range],...]\fP
+.ta 0.0i
+.sp 1
+If present, the \fItask_range\fP restricts the effect of the
+operation to the array job task range specified as suffix to the job id
+(see the \fB\-t\fP option to
+.M qsub 1
+for further details on array jobs).
+.sp 1
+The task range specifier has the
+form n[-m[:s]]. The range may be a single number, a  simple
+range  of the form n-m or a range with a step size.
+.sp 1
+Instead of \fIjob/task_id_list\fP it is possible to
+use the keyword 'all' to modify all jobs of the
+current user.       
+.\"
+.\"
+.SH "ENVIRONMENT VARIABLES"
+.\" 
+.IP "\fBxxQS_NAME_Sxx_ROOT\fP" 1.5i
+Specifies the location of the xxQS_NAMExx standard configuration
+files.
+.\"
+.IP "\fBxxQS_NAME_Sxx_CELL\fP" 1.5i
+If set, specifies the default xxQS_NAMExx cell. To address a xxQS_NAMExx
+cell
+.I qrls
+uses (in the order of precedence):
+.sp 1
+.RS
+.RS
+The name of the cell specified in the environment 
+variable xxQS_NAME_Sxx_CELL, if it is set.
+.sp 1
+The name of the default cell, i.e. \fBdefault\fP.
+.sp 1
+.RE
+.RE
+.\"
+.IP "\fBxxQS_NAME_Sxx_DEBUG_LEVEL\fP" 1.5i
+If set, specifies that debug information
+should be written to stderr. In addition the level of
+detail in which debug information is generated is defined.
+.\"
+.IP "\fBxxQS_NAME_Sxx_QMASTER_PORT\fP" 1.5i
+If set, specifies the tcp port on which
+.M xxqs_name_sxx_qmaster 8
+is expected to listen for communication requests.
+Most installations will use a services map entry for the
+service "sge_qmaster" instead to define that port.
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M qalter 1 ,
+.M qhold 1 ,
+.M qsub 1 .
+.\"
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

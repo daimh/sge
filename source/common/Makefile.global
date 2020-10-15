@@ -1,0 +1,58 @@
+###############################################################################
+# Variable definitions for binaries called by make
+###############################################################################
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+SHELL  = /bin/sh
+RM     = rm -f 
+DEPEND = ../3rdparty/sge_depend/$(COMPILE_ARCH)/sge_depend -l -S -Y $(DEPEND_FLAGS)
+LEX    = flex
+###############################################################################
+# global rules: all, clean, depend, messages
+###############################################################################
+common_all: $(SECTARGETS) common libs daemons clients utilbin coshepherd $(PERLGUI)
+
+clean:  common_clean libs_clean clients_clean daemons_clean utilbin_clean coshepherd_clean $(SECCLEAN) $(KRBCLEAN) $(GSSCLEAN) $(PERLGUI_CLEAN)
+
+depend: common_depend libs_depend clients_depend daemons_depend utilbin_depend $(SECDEPEND) $(KRBDEPEND) $(GSSDEPEND)
+
+messages: common_messages libs_messages clients_messages daemons_messages utilbin_messages coshepherd_messages sec_messages
+###############################################################################
+# include sub Makefiles
+###############################################################################
+include  $(SDIR)/common/Makefile
+include  $(SDIR)/security/gss/Makefile
+include  $(SDIR)/libs/Makefile
+include  $(SDIR)/security/coshepherd/Makefile
+include  $(SDIR)/daemons/Makefile
+include  $(SDIR)/clients/Makefile
+include  $(SDIR)/utilbin/Makefile

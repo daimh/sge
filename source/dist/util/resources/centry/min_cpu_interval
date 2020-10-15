@@ -1,0 +1,12 @@
+# Version: Grid Engine 6
+# 
+# DO NOT MODIFY THIS FILE MANUALLY!
+# 
+name        min_cpu_interval
+shortcut    mci
+type        TIME
+relop       <=
+requestable NO
+consumable  NO
+default     0:0:0
+urgency     0

@@ -1,0 +1,12 @@
+# Version: Grid Engine 6
+# 
+# DO NOT MODIFY THIS FILE MANUALLY!
+# 
+name        load_avg
+shortcut    la
+type        DOUBLE
+relop       >=
+requestable NO
+consumable  NO
+default     0
+urgency     0

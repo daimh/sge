@@ -1,0 +1,181 @@
+                                 MPI 
+                                 ---
+                 Grid Engine Parallel Support for MPI
+                 ------------------------------------
+
+Content
+-------
+
+1) Content of this directory hierarchy
+2) MPICH/GM
+3) mpi.template 
+4) mpich.template
+5) startmpi.sh
+6) stopmpi.sh
+7) 'mpi.sh' job example
+8) 'cpi' wrapper for MPICH
+9) 'orte.template'
+10) Copyright
+
+
+1) Content of this directory hierarchy
+--------------------------------------
+
+This directory contains the following files and directories:
+
+   README           this file 
+   startmpi.sh      startup script for MPI
+   stopmpi.sh       shutdown script for MPI
+   mpi.template     a MPI PE template configuration for Grid Engine
+   mpich.template   a MPICH PE template configuration for Grid Engine
+                    (tight integration)
+   mpi.sh           a sample MPI job
+   mpi_cpi.sh       another MPI job
+   hostname         a wrapper for the hostname command (see README.atm)
+   myrinet          setup for MPICH with Myrinet/GM
+
+Please refer to the "Installation and Administration Guide" Chapter "Support
+of Parallel Environments" for a general introduction to the Parallel
+Environment Interface of Grid Engine.
+
+
+2) myrinet
+----------
+
+   This setup for MPICH with Myrinet/GM is probably obsolete.
+
+
+3) mpi.template
+---------------
+
+   Use this template as a starting point when establishing a parallel
+   environment (PE) for MPI without tight integration. You need to replace
+   <a_list_of_parallel_queues> and <the_number_of_slots>
+   with the appropriate information. The PE then must be added to all
+   queues in the "pe_list" line where it should be made available.
+
+   Note that modern MPIs will not normally be run this way.
+   Grid Engine offers an additional interface which allows a tight
+   integration with MPICH MPI. Tight integration means
+   that all tasks of your MPICH application are under full control of
+   Grid Engine. This is precondition for some additional benefits:
+
+   - full accounting also for all tasks of MPI jobs
+   - resource limits are effective for all tasks
+   - all tasks are started with the appropriate nice value which was
+     configured as 'priority' in the queues configuration
+
+
+4) mpich.template
+-----------------
+
+   Use this template as a starting point when establishing a parallel
+   environment for MPICH with tight integration. You need to replace
+   <the_number_of_slots> and <your_sge_root> with the appropriate
+   information. The PE then must be added to all queues in the "pe_list"
+   line where it should be made available.
+
+   Here is a list of problems for which tight integration provides
+   solutions
+
+   - resource limits are enforced also for tasks at slave hosts
+   - resource consumption at slave hosts can be accounted
+   - no need to write a customized terminate method to ensure
+     that whole job is finished on qdel
+ 
+   Here is a list of problems which are not solved by the tight integration
+
+   - can't trigger job finish if application finishes partially
+
+   There are two samples included. You should use these samples to verify
+   that your integration of Grid Engine with MPI/MPICH works correctly.
+
+
+5) startmpi.sh
+--------------
+
+   The starter script 'startmpi.sh' needs some command line arguments, to 
+   be configured by use of either qmon or qconf. The first one is the path
+   to the "$pe_hostfile" that gets transformed by startmpi.sh into a
+   MPI machine file. On successful completion startmpi.sh creates a
+   machine file in $TMPDIR/machines to be passed to "mpirun" at job
+   start.
+
+   $TMPDIR is a temporary directory created and removed by the Grid Engine
+   execution daemon.
+
+
+6) stopmpi.sh
+-------------
+
+   The stopper 'stopmpi.sh' just removes $TMPDIR/machines.  
+
+
+7) 'mpi.sh' job example
+-----------------------
+
+   The first job example 'mpi.sh' starts the 'life' program from the mpich
+   distribution using mpirun. Since this program needs the problem dimension
+   to be entered interactively, necessary parameters get piped into 'life'.
+
+   Please note that a MPI job that has to start 'mpirun' with the option
+   
+      -np $NSLOTS
+
+   to start the job with the correct number of slots ($NSLOTS is set by
+   Grid Engine). To pass information where to start the MPI tasks one has to
+   pass
+
+      -machinefile $TMPDIR/machines
+
+   as the second argument.  
+  
+
+8) 'cpi' wrapper for MPICH
+--------------------------
+
+   The second example is a wrapper to start 'cpi' from the mpich
+   distribution.
+
+
+9) 'orte.template'
+------------------
+
+   This is an example template for MPIs which have built-in support
+   for SGE, such as Open MPI and MPICH2 with Hydra startup.  It is not
+   necessary for jobs to supply arguments to mpirun to specify the
+   number of processes r the host file -- these are derived from the
+   SGE $NSLOTS and $pe_hostfile values.
+
+
+10) Copyright
+------------
+___INFO__MARK_BEGIN__
+
+
+The Contents of this file are made available subject to the terms of
+the Sun Industry Standards Source License Version 1.2
+
+Sun Microsystems Inc., March, 2001
+
+
+Sun Industry Standards Source License Version 1.2
+=================================================
+The contents of this file are subject to the Sun Industry Standards
+Source License Version 1.2 (the "License"); You may not use this file
+except in compliance with the License. You may obtain a copy of the
+License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+
+Software provided under this License is provided on an "AS IS" basis,
+WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS, 
+MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+See the License for the specific provisions governing your rights and
+obligations concerning the Software.
+
+The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+
+Copyright: 2001 by Sun Microsystems, Inc.
+
+All Rights Reserved.
+___INFO__MARK_END__

@@ -1,0 +1,15 @@
+# ------------------------------------------------------------------------------------------
+ALL = ALLFLOWS | REPORT
+# ------------------------------------------------------------------------------------------
+ALLFLOWS = FLOW($arch=darwin) & FLOW($arch=linux) & FLOW($arch=irix) & FLOW($arch=solaris)
+FLOW = BUILD | INST | TESTS | FINAL
+TESTS = T1 & T2 & T3 & T4
+# ------------------------------------------------------------------------------------------
+BUILD = { cmd=do_make, nat=-q $arch.q, args=5 }
+INST = { cmd=do_inst, nat=-q gridware.q, args=1 -local -bin $arch, name=I$arch }
+FINAL = { cmd=do_uninst, nat=-q $arch.q, args=1, name=FIN$arch }
+T1 = { cmd=do_test, nat = -q $arch.q, args = 1 }
+T2 = { cmd=do_test, nat = -q $arch.q, args = 2 }
+T3 = { cmd=do_test, nat = -q $arch.q, args = 3 }
+T4 = { cmd=do_test, nat = -q $arch.q, args = 4 }
+REPORT = { cmd=do_report }

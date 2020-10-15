@@ -1,0 +1,34 @@
+== A DRMAA binding for Ruby
+
+   DRMAA is an interface standard for job submission and control
+   to Distributed Resource Manager (DRM) systems such as Condor, 
+   PBS/OpenPBS/Torque, Platform LSF, Sun's N1 Grid Engine and 
+   others. Please see drmaa.org/wiki for more detailed information 
+   about DRMAA itself, available implementations, language bindings 
+   etc.
+
+=== Requirements
+
+   The binding requires Ruby/DL module, as available in Ruby 1.8.4,
+   and a Distributed Resource Manager with shared DRMAA library
+   v0.95 or above. If both are available the binding should work if
+     * DRMAA library is in LD_LIBRARY_PATH 
+     * drmaa.rb found by ruby interpreter
+
+=== License 
+
+   The project uses SISSL software license.
+
+=== Sample applications
+
+   Please see example.rb, array.rb, sig.rb, stream_and_trap.rb,
+   attributes.rb and threads.rb
+
+=== Feedback
+
+   Conceptual feedback should be sent to DRMAA mailing list
+
+=== Todo
+   * complete documentation in drmaa.rb
+   * complete DRMAA::JobTemplate setters/getters according
+     to DRMAA standard

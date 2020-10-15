@@ -1,0 +1,627 @@
+
+options {
+  LOOKAHEAD = 1;
+  CHOICE_AMBIGUITY_CHECK = 2;
+  OTHER_AMBIGUITY_CHECK = 1;
+  STATIC = true;
+  DEBUG_PARSER = false;
+  DEBUG_LOOKAHEAD = false;
+  DEBUG_TOKEN_MANAGER = false;
+  ERROR_REPORTING = true;
+  JAVA_UNICODE_ESCAPE = false;
+  UNICODE_INPUT = false;
+  IGNORE_CASE = false;
+  USER_TOKEN_MANAGER = false;
+  USER_CHAR_STREAM = false;
+  BUILD_PARSER = true;
+  BUILD_TOKEN_MANAGER = true;
+  SANITY_CHECK = true;
+  FORCE_LA_CHECK = false;
+}
+
+PARSER_BEGIN(Cull)
+
+package com.sun.grid.cull;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.util.logging.Logger;
+
+public class Cull {
+
+  static Logger logger = Logger.getLogger("cullconv");
+  
+  public static void main(String args[]) throws ParseException, java.io.IOException {
+    java.io.InputStream in = new java.io.FileInputStream(args[0]);
+    CullFile cullFile = parse(in);
+    System.out.println( "Found " + cullFile.getCullObjectCount() + " cull objects");
+  }
+
+  private static Cull parser;
+  public static CullFile parse( java.io.InputStream in )
+      throws ParseException, java.io.IOException
+  {
+    if( parser == null ) {
+       parser = new Cull(in);
+    } else {
+       parser.ReInit(in);
+    }
+    return parser.CullFile();
+  }
+}
+
+
+PARSER_END(Cull)
+
+SKIP :
+{
+      " "
+    | "^"
+    | "%"
+    | "\t"
+    | "\n"
+    | "\r"
+    | <"//" (~["\n","\r"])* ("\n" | "\r" | "\r\n")>
+    | <"/*" (~["*"])* "*" ("*" | ~["*","/"] (~["*"])* "*")* "/">
+    | <"#" (~["\n","\r"])* ("\n" | "\r" | "\r\n")>
+}
+
+
+TOKEN : 
+{
+  <INTEGER_LITERAL: <DECIMAL_LITERAL> (["l","L"])? | <HEX_LITERAL> (["l","L"])? | <OCTAL_LITERAL> (["l","L"])?>
+|  <#DECIMAL_LITERAL: ["1"-"9"] (["0"-"9"])*>
+|  <#HEX_LITERAL: "0" ["x","X"] (["0"-"9","a"-"f","A"-"F"])+>
+|  <#OCTAL_LITERAL: "0" (["0"-"7"])*>
+|  <BOOLEAN_LITERAL: "TRUE" | "FALSE" >
+|  <FLOATING_POINT_LITERAL: (["0"-"9"])+ "." (["0"-"9"])* (<EXPONENT>)? (["f","F","d","D"])? | "." (["0"-"9"])+ (<EXPONENT>)? (["f","F","d","D"])? | (["0"-"9"])+ <EXPONENT> (["f","F","d","D"])? | (["0"-"9"])+ (<EXPONENT>)? ["f","F","d","D"]>
+|  <#EXPONENT: ["e","E"] (["+","-"])? (["0"-"9"])+>
+|  <STRING_LITERAL: "\"" (~["\"","\\","\n","\r"] | "\\" (["n","t","b","r","f","\\","\'","\""] | ["0"-"7"] (["0"-"7"])? | ["0"-"3"] ["0"-"7"] ["0"-"7"]))* "\"">
+|
+    < LISTDEF: "LISTDEF" | "SLISTDEF" >
+|
+    < JGDI_ROOT_OBJ : "JGDI_ROOT_OBJ" >
+|
+    < JGDI_OBJ : "JGDI_OBJ" | "JGDI_OBJ_P" >
+|
+    < JGDI_EVENT_OBJ : "JGDI_EVENT_OBJ">
+|
+    < JGDI_PRIMITIVE_ROOT_OBJ : "JGDI_PRIMITIVE_ROOT_OBJ" >
+|
+    < JGDI_PRIMITIVE_OBJ : "JGDI_PRIMITIVE_OBJ" >
+|
+    < JGDI_MAP_OBJ : "JGDI_MAP_OBJ" >
+|
+    < JGDI_MAPPED_OBJ : "JGDI_MAPPED_OBJ" >
+|
+    <LISTEND: "LISTEND">
+|
+   <DERIVED_LISTDEF : "DERIVED_LISTDEF" >
+|
+   <DERIVED_LISTEND : "DERIVED_LISTEND" >
+|
+    < NAMEDEF:  "NAMEDEF" >
+|
+    < NAMEEND: "NAMEEND" >
+|
+    < NAME:    "NAME" >
+|
+    < SGE_LIST: "SGE_LIST" | "SGE_LIST_D" >
+|
+    < SGE_MAP: "SGE_MAP" | "SGE_MAP_D" >
+|
+    < SGE_MAPLIST: "SGE_MAPLIST" | "SGE_MAPLIST_D" >
+|
+    < SGE_REF: "SGE_REF" | "SGE_REF_D" >
+|
+    < SGE_OBJ: "SGE_OBJECT" | "SGE_OBJECT_D" >
+|
+    < ADD : "ADD" >
+|
+    < MODIFY : "MODIFY" >
+|
+    < DELETE : "DELETE" >
+|
+    < GET : "GET" >
+|
+    < GET_LIST : "GET_LIST" >
+|
+  < ID: ["a"-"z","A"-"Z","_"] ( ["a"-"z","A"-"Z","_","0"-"9","."] )* >
+}
+
+
+
+CullFile CullFile() :
+{
+   CullFile ret = new CullFile();
+   CullObject     obj = null;
+   CullNameSpace  namespace = null;
+}
+{
+   ( Misc() 
+     | obj = CullObject()          { ret.addCullObject(obj); }
+     | obj = DervivedCullObject()  { ret.addCullObject(obj); }       
+     | namespace = CullNameSpace() {  ret.addNameSpace(namespace); }
+   )+ <EOF> 
+   {
+     return ret;
+   }
+}
+
+void Misc() : 
+{}
+{
+  ( <INTEGER_LITERAL> | <FLOATING_POINT_LITERAL> | <STRING_LITERAL> | "\""| "{" | "}" | "=" | "," | ";" | "(" | ")"
+    | "&" | "[" | "]" | "|" | "~" | "\\"
+    | "<" | ">" | "'" | "?" | ":" | "*" | "/" | "+" | "-" | "." | "!"
+    | <ID>  )
+}
+
+String Literal() : {
+    Token token = null;
+}
+{
+  token = <INTEGER_LITERAL> 
+  {
+     return token.image;
+  }
+  | token = <FLOATING_POINT_LITERAL> 
+  {
+     return token.image;
+  }
+  | token = <STRING_LITERAL>
+  {
+     return token.image.substring(1,token.image.length()-1);
+  }
+  | token = <BOOLEAN_LITERAL>
+  {
+     if (token.image.equalsIgnoreCase("true")) {
+        return "true";
+     } else {
+        return "false";
+     }
+  }
+}
+
+CullNameSpace CullNameSpace() :
+{
+  CullNameSpace ret;
+  Token  nameSpaceToken;
+}
+{
+   <NAMEDEF> "(" nameSpaceToken=<ID> ")"
+   {
+     ret = new CullNameSpace();
+     ret.setNameSpace( nameSpaceToken.image );
+   }
+   ( NameAttr(ret) ) + <NAMEEND>
+   {
+     return ret;
+   }
+}
+
+void NameAttr(CullNameSpace obj) :
+{
+   Token nameToken;
+}
+{
+   <NAME> "(" nameToken = <STRING_LITERAL>  ")"  
+   {
+     obj.addName(nameToken.image.substring(1,nameToken.image.length()-1));
+   }
+}
+
+
+CullObject CullObject() :
+{
+  CullObject ret = new CullObject();
+  Token nameToken;
+  Token paramToken;
+  List  params = new ArrayList();
+}
+{
+  <LISTDEF> "(" nameToken=<ID> 
+  {
+     ret.setName(nameToken.image);
+  }
+  ("," paramToken = <ID>
+  {
+    params.add( paramToken.image );
+  }
+  )* ")" 
+  {
+    for(int i = 0; i < params.size(); i++) {
+       ret.addParam((String)params.get(i));
+    }
+  }
+  ( JGDIObject(ret) ) ?
+  (CullAttr(ret))* <LISTEND>
+  {
+     return ret;
+  }  
+}
+
+CullObject DervivedCullObject() :
+{
+  CullObject ret = new CullObject();
+  Token nameToken;
+  Token parentToken;
+}
+{
+  <DERIVED_LISTDEF> "(" 
+  nameToken=<ID>           { ret.setName(nameToken.image); }
+  "," parentToken = <ID>   { ret.setParentName(parentToken.image); }
+  ")" 
+  ( JGDIObject(ret) ) ?
+  <DERIVED_LISTEND>
+  {
+     return ret;
+  }  
+}
+
+void JGDIObject(CullObject obj) : 
+{
+}
+{
+  (JGDIPrimitiveRootObject(obj) 
+  | JGDIRootObject(obj) 
+  | JGDINamedObject(obj) 
+  | JGDIPrimitiveSimpleObject(obj) 
+  | JGDIMapObject(obj)
+  | CullMappedObject(obj))
+  (JGDIEventObject(obj))?
+}
+
+void JGDIEventObject(CullObject obj) :
+{
+}
+{
+  <JGDI_EVENT_OBJ> "(" (JGDIEvent(obj) ( "|" JGDIEvent(obj) )* )? ")"
+}
+
+void JGDIEvent(CullObject obj) :
+{
+   Token evtNameToken;
+}
+{
+   (<ADD>      JGDIEventName(obj, "ADD")       { obj.setHasAddEvent(true);     }  )
+ | (<MODIFY>   JGDIEventName(obj, "MODIFY")    { obj.setHasModifyEvent(true);  }  )
+ | (<DELETE>   JGDIEventName(obj, "DELETE")    { obj.setHasDeleteEvent(true);  }  )
+ | (<GET_LIST> JGDIEventName(obj, "GET_LIST")  { obj.setHasGetListEvent(true); }  )
+}
+
+void JGDIEventName(CullObject obj, String name) :
+{
+   Token evtNameToken;
+}
+{
+   "(" evtNameToken = <ID> ")" 
+   { 
+       if(name.equals("ADD")) {
+            obj.setAddEventName(evtNameToken.image);
+       } else if (name.equals("MODIFY")) {
+            obj.setModifyEventName(evtNameToken.image);
+       } else if (name.equals("DELETE")) {
+            obj.setDeleteEventName(evtNameToken.image);
+       } else if (name.equals("GET_LIST")) {
+            obj.setGetListEventName(evtNameToken.image);
+       } else {
+            throw new IllegalStateException("unknown event name " + name);
+       }
+   }
+}
+
+void JGDIRootObject(CullObject obj) :
+{
+  Token nameToken;
+  Token listNameToken;
+}
+{
+  <JGDI_ROOT_OBJ>          { obj.setRootObject(true); }
+  "(" nameToken=<ID>       { obj.setIdlName( nameToken.image ); }
+  "," listNameToken = <ID> { obj.setListName(listNameToken.image); }
+  ( "," JGDIOperation(obj) ( "|" JGDIOperation(obj) )* )?
+  ")"
+}
+
+void JGDIOperation(CullObject obj) :
+{
+}
+{
+   <ADD>      { obj.setHasAddOperation(true);     } 
+ | <MODIFY>   { obj.setHasModifyOperation(true);  }  
+ | <DELETE>   { obj.setHasDeleteOperation(true);  }
+ | <GET>      { obj.setHasGetOperation(true);     } 
+ | <GET_LIST> { obj.setHasGetListOperation(true); }
+}
+
+
+void JGDINamedObject(CullObject obj) :
+{
+  Token nameToken;
+}
+{
+  <JGDI_OBJ>          { obj.setType(CullObject.TYPE_SIMPLE); }
+  "(" nameToken=<ID>  { obj.setIdlName( nameToken.image ); }
+  ( "," JGDIOperation(obj) ( "|" JGDIOperation(obj) )* )?
+  ")"
+}
+
+void JGDIMapObject(CullObject obj):
+{
+   Token keyToken;
+   Token valueToken;
+}
+{
+  <JGDI_MAP_OBJ>       { obj.setType(CullObject.TYPE_MAP); }
+  "(" 
+  keyToken=<ID>        { obj.setKeyAttrName(keyToken.image); }
+  "," 
+  valueToken = <ID>    { obj.setValueAttrName(valueToken.image); }
+  ")"
+}
+
+void JGDIPrimitiveSimpleObject(CullObject obj) :
+{
+  Token contentAttributeToken;
+}
+{
+  <JGDI_PRIMITIVE_OBJ>        { obj.setType(CullObject.TYPE_PRIMITIVE); }
+  "(" 
+  contentAttributeToken=<ID>  { obj.setContentAttrName(contentAttributeToken.image); }
+  ")"
+}
+
+void CullMappedObject(CullObject obj) :
+{
+  Token implClassToken;
+}
+{
+  <JGDI_MAPPED_OBJ>     { obj.setType(CullObject.TYPE_MAPPED); } 
+  "(" 
+  implClassToken=<ID>   { obj.setImplClass(implClassToken.image); }
+  ")"
+}
+
+void JGDIPrimitiveRootObject(CullObject obj) :
+{
+  Token contentAttributeToken;
+  Token nameToken;
+  Token listNameToken;
+}
+{
+  <JGDI_PRIMITIVE_ROOT_OBJ>      { obj.setRootObject(true); obj.setType(CullObject.TYPE_PRIMITIVE); }
+  "(" 
+  nameToken=<ID>                 { obj.setIdlName( nameToken.image ); }
+  "," 
+  contentAttributeToken=<ID>     { obj.setContentAttrName(contentAttributeToken.image); }
+  "," 
+  listNameToken = <ID>           { obj.setListName(listNameToken.image); }
+  ( "," JGDIOperation(obj) ( "|" JGDIOperation(obj) )* )?
+  ")"
+}
+
+void CullAttr(CullObject obj) : 
+{
+   
+}
+{
+    CullSimpleAttr(obj) | CullListAttr(obj) | CullMapAttr(obj) | CullMapListAttr(obj) |
+    CullRefAttr(obj) | CullObjectAttr(obj)
+}
+
+void CullListAttr(CullObject obj) : 
+{
+   Token typeToken;
+   Token nameToken;
+   String defaultValue = null;
+   CullListAttr attr;
+}
+{
+   <SGE_LIST> "(" nameToken = <ID> 
+   {
+     attr = new CullListAttr();
+     attr.setName( nameToken.image );
+   }
+   "," typeToken = <ID> 
+   {
+     attr.setType( typeToken.image );
+   }
+   "," CullParam(attr)   
+   [ "," defaultValue = Literal() ] ")"
+   {
+     if (defaultValue != null) {    
+        attr.setDefault( defaultValue );
+     }
+     obj.addAttr(attr);
+   }
+}
+
+void CullMapAttr(CullObject obj) : 
+{
+   Token typeToken;
+   Token nameToken;
+   String defaultKey = null;
+   String defaultValue = null;
+   String keyName = null; 
+   String  valueName = null;
+   CullMapAttr attr;
+}
+{
+   <SGE_MAP> "(" nameToken = <ID> 
+   {
+     attr = new CullMapAttr();
+     attr.setName( nameToken.image );
+   }
+   "," typeToken = <ID> 
+   {
+     attr.setType( typeToken.image );
+   }
+   "," CullParam(attr)   
+   [ "," defaultKey = Literal() "," defaultValue = Literal() 
+     [ "," keyName = StringLiteral(false) "," valueName = StringLiteral(false) ]
+   ] ")"
+   {
+     if (defaultKey != null ) {
+        attr.setDefaultKey(defaultKey);
+     }
+     if (defaultValue != null) {    
+        attr.setDefault( defaultValue );
+     }
+     if(keyName != null) {
+        attr.setKeyName(keyName);
+     }
+     if(valueName != null) {
+        attr.setValueName(valueName);
+     }
+     obj.addAttr(attr);
+   }
+}
+
+void CullMapListAttr(CullObject obj) : 
+{
+   Token typeToken;
+   Token nameToken;
+   String defaultKey = null;
+   String defaultValue = null;
+   String keyName = null;
+   String valueName = null;
+   CullMapListAttr attr;
+}
+{
+   <SGE_MAPLIST> "(" nameToken = <ID> 
+   {
+     attr = new CullMapListAttr();
+     attr.setName( nameToken.image );
+   }
+   "," typeToken = <ID> 
+   {
+     attr.setType( typeToken.image );
+   }
+   "," CullParam(attr)   
+   [ "," defaultKey = Literal()
+     "," defaultValue = Literal()
+     [ "," keyName = StringLiteral(false) "," valueName = StringLiteral(false) ]
+   ] ")"
+   {
+     if (defaultKey != null) {
+        attr.setDefaultKey( defaultKey );
+     }
+     if (defaultValue != null) {    
+        attr.setDefault( defaultValue );
+     }
+     if (keyName != null) {
+        attr.setKeyName(keyName);
+     }
+     if (valueName != null) {
+        attr.setValueName(valueName);
+     }
+     obj.addAttr(attr);
+   }
+}
+
+String StringLiteral(boolean withQuotes) :
+{
+   Token token = null;
+}
+{
+   token = <STRING_LITERAL>
+   {
+     String ret = null;
+     if(withQuotes) {
+       ret = token.image;
+     } else {
+       ret = token.image.substring(1, token.image.length() - 1);
+     }
+     return ret;
+   }
+}
+void CullRefAttr(CullObject obj) : 
+{
+   Token typeToken;
+   Token nameToken;
+   String defaultValue = null;
+   CullRefAttr attr;
+}
+{
+   <SGE_REF> "(" nameToken = <ID> 
+   {
+     attr = new CullRefAttr();
+     attr.setName( nameToken.image );
+   }
+   "," typeToken = <ID> 
+   {
+     attr.setType( typeToken.image );
+   }
+   "," CullParam(attr)   
+   [ "," defaultValue = Literal() ] ")"
+   {
+     if (defaultValue != null) {    
+        attr.setDefault( defaultValue );
+     }
+     obj.addAttr(attr);
+   }
+}
+
+void CullObjectAttr(CullObject obj) : 
+{
+   Token typeToken;
+   Token nameToken;
+   String defaultValue = null;
+   CullObjectAttr attr;
+}
+{
+   <SGE_OBJ> "(" nameToken = <ID> 
+   {
+     attr = new CullObjectAttr();
+     attr.setName( nameToken.image );
+   }
+   "," typeToken = <ID> 
+   {
+     attr.setType( typeToken.image );
+   }
+   "," CullParam(attr)   
+   [ "," defaultValue = Literal() ] ")"
+   {
+     if (defaultValue != null) {    
+        attr.setDefault( defaultValue );
+     }
+     obj.addAttr(attr);
+   }
+}
+
+
+void CullSimpleAttr(CullObject obj) :
+{
+   Token typeToken;
+   Token nameToken;
+   String defaultValue = null;
+   CullAttr attr;
+}
+{
+   typeToken = <ID> "(" nameToken = <ID> 
+   {
+     attr = new CullAttr();
+     attr.setName( nameToken.image );
+     attr.setType( typeToken.image );
+   }
+   ( "," CullParam(attr) )
+   [ "," defaultValue = Literal() ] ")"
+   {
+     if (defaultValue != null) {    
+        attr.setDefault( defaultValue );
+     }
+     obj.addAttr(attr);
+   }   
+}
+
+void CullParam(CullAttr attr) :
+{
+   Token t;
+}
+{
+   t = <ID>  { attr.addParam( t.image );  }
+   ( "|" t = <ID>  { attr.addParam( t.image );  }
+   )* 
+}
+

@@ -1,0 +1,96 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\" $RCSfile: user.5,v $     Last Update: $Date: 2011-05-17 21:18:42 $     Revision: $Revision: 1.10 $
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH USER 5 "$Date: 2011-05-17 21:18:42 $" "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+user \- xxQS_NAMExx user entry file format
+.\"
+.SH DESCRIPTION
+A user entry is used to store ticket and usage information on a
+per-user basis. Maintaining user entries for all users participating in a
+xxQS_NAMExx system is required if xxQS_NAMExx is operated under a user share tree policy.
+.PP
+If the \fBenforce_user\fP cluster configuration parameter is set to \fIauto\fP,
+a user object for the submitting user will be created automatically during
+job submission, if one does not already exist. The \fBauto_user_oticket\fP,
+\fBauto_user_fshare\fP, \fBauto_user_default_project\fP, and
+\fBauto_user_delete_time\fP cluster configuration parameters will be used as
+default attributes of the new user object.
+.PP
+A list of currently configured user entries can be displayed via the
+.M qconf 1
+\fB\-suserl\fP option. The contents of each listed user entry can be
+shown via the \fB\-suser\fP switch. The output follows the
+.I user
+format description. New user entries can be created, and existing ones can be
+modified, via the \fB\-auser\fP, \fB\-muser\fP and \fB\-duser\fP options to
+.M qconf 1 .
+.PP
+Note, xxQS_NAMExx allows backslashes (\\) be used to escape newline
+characters. The backslash and the newline are replaced with a space
+character before any interpretation.
+.\"
+.\"
+.SH FORMAT
+A user entry contains four parameters:
+.SS "\fBname\fP"
+The user name in the format for \fIuser_name\fP in
+.M sge_types 5 .
+.SS "\fBoticket\fP"
+The number of override tickets currently assigned to the user.
+.SS "\fBfshare\fP"
+The current functional share of the user.
+.SS "\fBdefault_project\fP"
+The default project of the user.
+.SS "\fBdelete_time\fP"
+.B Note:
+Deprecated, may be removed in future release.
+.br
+The wall-clock time when this user will be deleted, expressed as the number of
+seconds elapsed since January 1, 1970. If set to zero, the affected user is
+a permanent user. If set to one, the user currently has active jobs.
+For additional information about automatically created
+users, see the \fBenforce_user\fP and \fBauto_user_delete_time\fP parameters
+in 
+.M sge_conf 5 .
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M xxqs_name_sxx_types 1 ,
+.M qconf 1 .
+.M sge_conf 5 .
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

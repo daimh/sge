@@ -1,0 +1,1762 @@
+                        Specification of Cluster Queues
+
+                              Andreas Haas
+                              25 July 2002
+
+
+0. Introduction
+
+   This document specifies the extent of the projected cluster queues 
+   enhancement. In Grid Engine 5.3 the queue object as the fundamental 
+   container hosting running jobs can be located only at one single
+   Grid Engine execution host. The cluster queue enhancment will allow
+   specifying multiple hosts for a single queue. 
+
+   The main objective of doing so is to significantly reduce the number 
+   of queues not only for mostly homegenous clusters with similar machines
+   but for virtually all types of setups. This follows the overall ojective 
+   to ease installation and administration of Grid Engine clusters grids. 
+   Other objectives are the provision of a more condensed view in CLI and 
+   GUI for large clusters and provision of new possiblities for optimizations 
+   in the Grid Engine scheduler.
+
+1. Acknowledgements
+
+   I gratefully acknowledge useful conversations and input in other 
+   forms with Andre Alefeld, Ernst Bablick, Fritz Ferstl, Christian 
+   Reissmann and Andy Schwierskott.
+
+2. Discussion
+
+   The enhancements presented within this document cover three design 
+   steps. Having understood each of these steps means one has also 
+   understood the enhancement and the new possibilities created for 
+   efficient management of Grid Engine cluster grids:
+
+   a) The first step is to support in Grid Engines queue configuration 
+      not only a single hostname but also a list of hostnames. This 
+      makes the queue a cluster queue, since it allows managing a cluster 
+      of execution hosts by means of a single queue configuration. 
+
+   b) The next step is to allow for a differentiation of each queue 
+      attribute separately for each execution host. This significantly
+      broadens the applicability of cluster queues as it allows for 
+      managing also fairly heterogeneous clusters my means of a single
+      queue configuration.
+
+   c) The next step is to introduce host groups into the standard build
+      of Grid Engine and allow host groups to be used for expressing 
+      differentiation of queue attributes as with execution hosts in
+      the step before. 
+
+   d) The last step covered in this specification is to allow for 
+      hostgroups with a non-static set of associated hostgroups. 
+      Allowsing dynamic hostgroups to be used within a cluster queue 
+      confiugration raises new problems concerning data integrity. 
+      The solutions adressing these problems are the states 
+      c(onfiguration ambiguous) and o(rphaned). 
+
+   It is important to understand that the new queue configuration
+   object - the cluster queue - just describes a list of queue instances 
+   and that each of these queue instances in essence is identical with 
+   a 5.3 queue object. For example a job always runs in a particular 
+   queue instance, not in a cluster queue. Another example is that each 
+   single queue instance will continue to have counters for consumable 
+   resources, if configured for the queue instance. So in many respects 
+   the queue instance should be seen as the successor of the former queue 
+   object, while the cluster queue is an additional umbrella for similar 
+   queue instances at different hosts.
+
+   Though these enhancments target mostly on simplifying management 
+   of Grid Engine objects needed by an administrator to describe the 
+   resource landscape represented by the cluster grid it can also 
+   reduce the number of cases in which such objects are needed:
+   The new capabilities of the '-q' submit option effectively enhance
+   Grid Engines job description syntax as they allow jobs to be sent 
+   to a group of similar queue instances in a natural way. This will
+   save administrators work in all cases, when it was with Grid Engine 
+   5.3 necessary to define a static boolean complex attribute and to 
+   attach this attribute to all queues to achieve a queue grouping 
+   (familiy) adressable with job submission. 
+
+3. Changes with command line interface and configuration file formats
+
+!  This syntax will be used below to describe the changes   
+!
+!  cluster_queue     := <name of queue configuration object>
+!  queue_instance    := cluster_queue@exec_host
+!  queue_domain      := cluster_queue@@host_group
+!  host_identifier   := @host_group | exec_host
+!
+!  cluster_queue_wc  := a wild card expression without an '@', eg "q*"
+!  queue_instance_wc := two wild card expressions separated by a '@', e.g. q*@*.sun.com
+!  queue_domain_wc   := two wild card expressions separated by two '@', e.g. q*@@solaris*
+!
+
+   COMMANDS
+
+   qsub(1)
+   qsh(1)
+   qlogin(1)
+   qrsh(1)
+   qalter(1)
+
+      -masterq queue,...
+      -q queue,...
+
+!     for both options 'queue' will be defined as
+!        queue := cluster_queue_wc | queue_domain_wc | queue_instance_wc
+!     wildcard expressions can be used to match arbitrary cluster 
+!     queues, queue domains and queue instances. 
+
+       
+     QUEUE          The name of the queue in  which  the  job  is
+                    running.
+!    .. the name of the cluster queue in which ..
+
+   qstat(1)
+
+     -alarm
+          Displays the reason(s) for queue alarm states.  Outputs
+          one  line  per reason containing the resource value and
+          threshold. For details about the resource value  please
+          refer to the description of the Full Format in section
+          OUTPUT FORMATS below.
+
+!         Note: -alarm is a deprecated switch, use -explain aA instead
+!
+!    -explain c|a|A,...
+!
+!         New switch:
+!         c: Displays the reasons(s) for c(onfiguration ambigous) state.
+!         a: Displays the reasons(s) for the load alarm state.
+!         A: Displays the reasons(s) for the suspend alarm state.
+!
+!  Store 'c' reason in QU_Type structure (new field!) or generate it 
+!  dynamically in qstat based on data fetched from qmaster.
+
+      -f Specifies a "full" format display of information.   The
+         -f option causes summary information on all queues to
+         be displayed along with the queued job list.
+
+       Full Format (with -f and -F)
+
+       o  the queue name,
+! this changes into
+!      o  the queue instance name
+       o  the  queue  type  -  one   of   B(atch),   I(nteractive),
+          C(heckpointing),  P(arallel),  T(ransfer) or combinations
+          thereof,
+! this changes into
+!      o  the  queue  type  -  one   of   B(atch),   I(nteractive),
+!         C(heckpointing),  P(arallel),  T(ransfer), combinations
+!         thereof or N(one),
+       o  the load average of the queue host,
+! this changes into
+       o  the normalized load average (np_load_avg) of the queue host,
+!
+!         Remark: If no load value np_load_avg is available --- is printed
+!                 instead of the value from the complex attribute definition.
+
+      If an E(rror) state is displayed for a  queue,  sge_execd(8)
+      on  that  host was unable to locate the sge_shepherd(8) exe-
+      cutable on that host in order to start a job.  Please  check
+      the  error  logfile of that sge_execd(8) for leads on how to
+      resolve the problem. Please enable the queue afterwards  via
+      the -c option of the qmod(1) command manually.
+
+! Following this text is added
+!
+!     If the c(onfiguration ambiguous) state is displayed for a queue
+!     instance this indicates that the configuration specified for this 
+!     queue instance in sge_conf(5) is ambigous. The state vanishes when 
+!     the configuration becomes un-ambigous again. This state prevents from 
+!     scheduling further jobs to that queue instance. Detailed reasons why 
+!     a queue instance entered the c(onfiguration ambiguous) state can
+!     be found in the sge_qmaster(8) messages file and are shown by the 
+!     qstat -explain switch. For queue instances in this state the cluster 
+!     queue's default settings are used for the ambigous attribute. 
+!
+!     If an o(rphaned) state is displayed for a queue instance this 
+!     indicates that the current cluster queue's configuration and
+!     host group configuration does not any longer forsee this queue 
+!     instance. The queue instance is kept because not yet finished 
+!     jobs are still associated and it will vanish from qstat output 
+!     when these jobs are finished. To quicken vanishing of an orphaned 
+!     queue instance associated job(s) can be deleted using qdel(1). A 
+!     a queue instance in (o)rphaned state can be revived by changing 
+!     the cluster queue configuration accordingly to cover that queue 
+!     instance. This state prevents from scheduling further jobs to that 
+!     queue instance.
+
+     o  a second one letter specifier indicating the  source  for
+        the current resource availability value, being one of
+        `l' - a load value reported for the resource,
+        `L' - a load value for the resource  after  administrator
+        defined load scaling has been applied,
+        `c' - availability derived from the consumable  resources
+        facility (see complexes(5)),
+        `v' -  a  default  complexes  configuration  value  never
+        overwritten by a load report or a consumable update or
+! The 'v' source indicator is no longer needed. 
+        `f' - a fixed  availability  definition  derived  from  a
+        non-consumable  complex  attribute  or  a  fixed resource
+        limit.
+
+
+
+     -g d Displays array jobs verbosely in a  one  line  per  job
+          task  fashion.  By  default, array jobs are grouped and
+          all tasks with the same status (for pending tasks only)
+          are  displayed  in a single line. The array job task id
+          range field in the output (see section OUTPUT  FORMATS)
+          specifies the corresponding set of tasks.
+
+          The -g switch currently  has  only  the  single  option
+          argument  d.  Other  option  arguments are reserved for
+          future extensions.
+
+! This is replaced by the following text:
+!
+!    -g   c|d,... 
+!
+!         This option is used to control grouping of the qstat output.
+!         Depending on the option arguments different groupings is
+!         applied:
+!
+!         d  Displays array jobs verbosely in a  one  line  per  job
+!            task  fashion.  By  default, array jobs are grouped and
+!            all tasks with the same status (for pending tasks only)
+!            are  displayed  in a single line. The array job task id
+!            range field in the output (see section OUTPUT  FORMATS)
+!            specifies the corresponding set of tasks.
+!
+!         c  Specifies a "Cluster Format" display of information. This
+!            format causes summary information on all cluster queues
+!            to be displayed along with the queued job list. 
+!
+!       Remark: For implementing the -g c option qstat should always 
+!               fetch the minimum of data from qmaster using GDI.
+!
+
+!     Cluster Format (with -g c)
+!
+!     Following the header line a section for each cluster queue 
+!     is provided. When queue instances selections are applied (-l, -pe, 
+!     -q, -U) the Cluster format contains only cluster queues of the 
+!     corresponding queue instances. 
+!
+!    o  the cluster queue name,
+!
+!       Remark: The standard qstat -g c output format will not exceed 
+!               80 chars. When long cluster queue names are used 80 chars 
+!               can be exceeded because cluster queue names will never be 
+!               truncated.
+!
+!
+!    o an average of the normalized load average of all queue hosts 
+!
+!        each load_avg gets normalized e.g.
+!        load_avg_np.cluster = sum( np_load_avg  * 
+!        available slots at host) / (all available slots) 
+!
+!       Remark: Only hosts with a load value are considered in this formula.
+!       Remark: When queue selection is applied only data about selected queues 
+!               is considered in this formula.
+!       Remark: If the np_load_avg load value is not available at any of the 
+!               hosts --- is printed instead of the value from the complex 
+!               attribute definition.
+!
+!    o  the number of job slots 
+!           * used 
+!           * not available (queue error)
+!           * not available (unknown state)
+!           * not available (suspend alarm)
+!           * not available (load alarm)
+!           * not available (suspended)
+!           * not available (disabled)
+!           * available
+!
+!       Remark: For the slot amounts the output format foresees 
+!               5-digit numbers. For higher slot numbers all significant 
+!               digits will be printed but this will destroy formatting.
+!       Remark: When queue selection is applied only data about selected 
+!               queues is considered in this summary.
+!
+      -q queue,...
+!        for this option 'queue' will be defined as
+!        queue := cluster_queue_wc | queue_domain_wc | queue_instance_wc
+!
+!      Remark: If possible the wildcard based -q selection should base 
+!              on a wild-card-lWhere("p=") condition.
+
+   qselect(1)
+ 
+!     prints the list of queue instance names specified in the qselect
+!     arguments.
+ 
+      -q queue,...
+
+!     for this option 'queue' will be defined as
+!        queue := cluster_queue_wc | queue_domain_wc | queue_instance_wc
+!
+!      Remark: If possible the wildcard based -q selection should base 
+!              on a wild-card-lWhere("p=") condition.
+
+   qmod(1)
+
+      The queue_list is specified by  one  of  the  following
+      forms:
+              queue[,queue ...]
+              queue[ queue ...]
+!     for this option 'queue' will be defined as
+!        queue := cluster_queue_wc | queue_domain_wc | queue_instance_wc
+
+   qhost(1)
+
+      -q   Show  information  about  the  queues  hosted  by   the
+           displayed hosts.
+!     in this output queue instances are shown
+!
+!        Remark: In this output hostnames would be printed double.
+!                Thus only the cluster queue part of the queue instance
+!                will be printed here.
+!
+
+     o  a second one letter specifier indicating the  source  for
+        the current resource availability value, being one of
+        `l' - a load value reported for the resource,
+        `L' - a load value for the resource  after  administrator
+        defined load scaling has been applied,
+        `c' - availability derived from the consumable  resources
+        facility (see complexes(5)),
+        `v' -  a  default  complexes  configuration  value  never
+        overwritten by a load report or a consumable update or
+! The 'v' source indicator is no longer needed. 
+        `f' - a fixed  availability  definition  derived  from  a
+        non-consumable  complex  attribute  or  a  fixed resource
+        limit.
+
+   qconf(1)
+
+     -Ac complex_name fname        <add complex>
+! This option will be removed.
+     -ac complex_name              <add complex>
+! This option will be removed.
+     -dc complex_name,...          <delete complex>
+! This option will be removed.
+     -scl                          <show complex list names>
+! This option will be removed.
+
+     -Mc complex_name fname        <modify complex>
+          Overwrites the specified complex  by  the  contents  of
+          fname.  The  argument  file  must  comply to the format
+          specified in  complex(5).   Requires  root  or  manager
+          privilege.
+
+!    -Mc fname                     <modify complex>
+! 
+!         Overwrites the complex configuration by the contents of 
+!         fname. The argument file must comply to the format 
+!         specified in complex(5). Requires root or manager privilege.
+!
+
+     -mc complex_name              <modify complex>
+
+          The specified complex configuration (see complex(5)) is
+          retrieved,  an  editor is executed (either vi(1) or the
+          editor indicated by $EDITOR) and  the  changed  complex
+          configuration  is  registered  with sge_qmaster(8) upon
+          exit  of  the  editor.   Requires   root   or   manager
+          privilege.
+
+!    -mc                           <modify complex>
+!
+!         The complex configuration (see complex(5)) is retrieved,  
+!         an editor is executed (either vi(1) or the editor indicated 
+!         by $EDITOR) and the changed complex configuration is registered  
+!         with sge_qmaster(8) upon exit of the editor. Requires root or 
+!         manager privileges.
+
+     -sc complex_name,...          <show complexes>
+          Display the configuration of one or more complexes.
+!    -sc                           <show complexes>
+!         Display the configuration of the complex.
+
+
+
+
+
+!
+!     -Ahgrp file <add host group configuration>
+!
+!         Add the host group configuration defined in  file.  The
+!         file format of file must comply to the format specified
+!         in hostgroup(5).
+!
+!     -Mhgrp file <modify host group configuration>
+!
+!         Allows changing of host group configuration with a sin-
+!         gle  command. All host group configuration entries con-
+!         tained in file will be applied.  Configuration  entries
+!         not  contained in file will be deleted. The file format
+!         of file must comply to the format  specified  in  host-
+!         group(5).
+!
+!     -ahgrp group   <add host group configuration>
+!         Adds a new host group with the name specified in group.
+!         This  command  invokes  an  editor (either vi(1) or the
+!         editor indicated by the EDITOR  environment  variable).
+!         The  new  host group entry is registered after changing
+!         the entry and exiting  the  editor.  Requires  root  or
+!         manager privileges.
+!
+!    -dhgrp group  <delete host group configuration>
+!         Deletes host group configuration with the  name  speci-
+!         fied in group. Requires root or manager privileges.
+!
+!    -mhgrp group <modify host group configuration>
+!         The host group entries for the host group specified  in
+!         group  are retrieved and an editor (either vi(1) or the
+!         editor indicated by the EDITOR environment variable) is
+!         invoked  for modifying the host group configuration. By
+!         closing the editor, the modified  data  is  registered.
+!         The format of the host group configuration is described
+!         in hostgroup(5).  Requires root or manager privileges.
+!
+!    -shgrp group  <show host group configuration>
+!         Displays the host group entries for the group specified
+!         in group.
+!
+!    -shgrpl <show host group lists>
+!         Displays a name list  of  all  currently  defined  host
+!         groups which have a valid host group configuration.
+!
+
+      -Aattr obj_spec fname obj_instance,...
+      -aattr obj_spec attr_name val obj_instance,...
+
+!     as obj_spec also 'hostgroup' can be specified
+!
+!     for the obj_spec 'queue' the obj_instance can be one of 
+!        obj_instance := cluster_queue | queue_domain | queue_instance
+!
+!     Depending on the type of obj_instance this adds to the attribute
+!     sublist the value for
+!            - cluster queues implicit 'default' configuration
+!            - queue domain configuration 
+!            - queue instance
+
+
+      -Dattr obj_spec fname obj_instance,...
+      -dattr obj_spec attr_name val obj_instance,...
+
+!     as obj_spec also 'hostgroup' can be specified
+!
+!     for the obj_spec 'queue' the obj_instance can be one of
+!        obj_instance := cluster_queue | queue_domain | queue_instance
+!
+!     Depending on the type of obj_instance this deletes from the attribute
+!     sublist the value for 
+!            - cluster queues implicit 'default' configuration
+!            - queue domain configuration 
+!            - queue instance
+
+      -Mattr obj_spec fname obj_instance,...
+      -mattr obj_spec attr_name val obj_instance,...
+
+!     as obj_spec also 'hostgroup' can be specified
+!
+!     for the obj_spec 'queue' the obj_instance can be one of
+!        obj_instance := cluster_queue | queue_domain | queue_instance
+!
+!     Depending on the type of obj_instance this modifies in the attribute
+!     sublist the value for 
+!            - cluster queues implicit 'default' configuration
+!            - queue domain configuration 
+!            - queue instance
+
+      -Rattr obj_spec fname obj_instance,...
+      -rattr obj_spec attr_name val obj_instance,...
+      -Mqattr fname obj_instance,...
+      -mqattr attr_name obj_instance,...  
+
+!     as obj_spec also 'hostgroup' can be specified
+!
+!     queue := cluster_queue
+!     all these options can be used to change a complete
+!     line in the cluster queue configuration queue_conf(5).
+
+      -aq [queue_template]             
+      -dq queue,...            
+      -mq queue
+      -Mq fname
+
+!     queue := cluster_queue
+!     These options operate on cluster queues.
+
+      -sq queue[,queue,...]
+
+!     queue := cluster_queue | queue_instance
+!
+!     Shows the configuration of the cluster queue 
+!     or of the specified queue instance
+
+      -sql
+
+!     Shows a list of all existing cluster queues.
+
+      -cq queue,...
+
+!     queue := cluster_queue | queue_domain | queue_instance
+
+! New switch:
+!
+!    -sobjl <obj_spec> <attr_name> <val>
+!     Shows a list of all Grid Engine configuration objects for which val 
+!     matches with at least one configuration value of the attributes whose 
+!     name matches with attr_name.
+!
+!     <obj_spec>  can be "queue" or "exechost".
+!
+!                 Note: When "queue_domain" or "queue_instance" is specified
+!                 as obj_spec matching is only done with the attribute 
+!                 overridings concerning the host group or the execution 
+!                 host. In this case queue domain names (queue@@hostgroup)
+!                 resp. queue instances (queue@hostname) are returned.
+!
+!     <attr_name> Can be any of the configuration file keywords enlisted
+!                 in queue_conf(5), host_conf(5). Also wildcards can be
+!                 used to match multiple attributes. E.g. *log will match
+!                 prolog and epilog of queue configuration or h_* will 
+!                 match all hard resource limits in the queue configuration.
+!
+!     <val>       Can be an arbitrary string or a wildcard expression.
+!
+
+   qacct(1)
+      -q [queue]
+
+!     queue := cluster_queue_wc | queue_domain_wc | queue_instance_wc
+!
+!     If no queue is specified accounting data is listed for each 
+!     cluster queue separately. Also if anything is specified 
+!     accounting data is always listed separately for cluster 
+!     queues, but jobs usage will be considered if they ran in one 
+!     of the queue instances summarized with the option.
+
+     -history HistoryPath
+          The directory path where the historical queue and  com-
+          plexes configuration data is located, which is used for
+          resource requirement matching in conjunction  with  the
+          -l  switch.   If  the latter is not set, this option is
+          ignored.
+! This option is removed. Information retrieved via GDI will be
+! always used by qacct to interpret -l switches.
+
+     -nohist
+          Only useful together with  the  -l  option.  It  forces
+          qacct  not to use historical queue and complexes confi-
+          guration data for  resource  requirement  matching  but
+          instead  retrieve actual queue and complexes configura-
+          tion from sge_qmaster(8).  Note, that this may lead  to
+          confusing statistical results, as the current queue and
+          complexes configuration may differ  significantly  from
+          the  situation  being  valid for past jobs.  Note also,
+          that all hosts being referenced in the accounting  file
+          have to be up and running in order to get results.
+! This option is removed. Information retrieved via GDI will be
+! always used by qacct to interpret -l switches.
+
+FILES
+     <sge_root>/<cell>/common/history
+                     Sun Grid Engine default history database
+! This file dependency is removed. Information retrieved via GDI will 
+! be always used to interpret -l switches.
+
+   Sun Grid Engine GDI
+
+   sge_gdi(3)
+
+!  A section enlisting the 6.0 GDI operations as described under
+!  "8. GDI Changes" for cluster queues and host groups will be added.
+
+   FILE FORMATS
+
+! access_list(5)
+! calendar_conf(5)
+! checkpoint(5)
+! complex(5)
+! host_conf(5)
+! hostgroup(5)
+! project(5)
+! queue_conf(5)
+! sched_conf(5)
+! sge_pe(5)
+! sge_conf(5)
+! share_tree(5)
+! user(5)
+!   FORMAT
+! The file format description for all configuration objects above is enhanced
+! with: The "\" can be used as continuation character at the end of a configuration
+! line. The "\" is also used after 80 characters in configuration files prepared by 
+! qconf(1) for editing when using options (e.g. qconf -mq queue or qconf -ap pe). 
+! The "\" is not used however when qconf prints a configuration (e.g. qconf -sq queue, 
+!  qconf -sprj).
+
+! complex(5)
+
+  value
+     The value field is a pre-defined value setting for an attri-
+     bute,  which  only  has  an  effect if it is not overwritten
+     while attempting to  determine  a  concrete  value  for  the
+     attribute  with  respect  to a queue, a host or the Sun Grid
+     Engine cluster. The value field can be overwritten by
+ 
+     o  the queue configuration values of a referenced queue.
+ 
+     o  host specific and cluster related load values.
+ 
+     o  explicit specification of a value via the  complex_values
+        parameter   in  the  queue  or  host  configuration  (see
+        queue_conf(5) and host_conf(5) for details.
+ 
+     If none of above is applicable, value is set for the  attri-
+     bute.
+! The 'value' column is removed from the complex configuration.
+
+  requestable
+     The entry can be used in a qsub(1) resource request if  this
+     field  is  set  to 'y' or 'yes'.  If set to 'n' or 'no' this
+     entry cannot be used by a user in order to request  a  queue
+     or  a  class  of queues.  If the entry is set to 'forced' or
+     'f' the attribute has to be requested by  a  job  or  it  is
+     rejected.
+! There is no need to change the interface description about forced 
+! atttributes. Nevertheless there is a change in how forced attributes 
+! are configured. In 6.0 it will be necessary to specify also 
+! non-consumable forced attributes under 'complex_values' of
+! queue/exechost. This is necessary to allow the 5.3 'complex_list' 
+! queue/exechost attribute be removed.
+
+  requestable
+     The entry can be used in a qsub(1) resource request if  this
+     field  is  set  to 'y' or 'yes'.  If set to 'n' or 'no' this
+     entry cannot be used by a user in order to request  a  queue
+     or  a  class  of queues.  If the entry is set to 'forced' or
+     'f' the attribute has to be requested by  a  job  or  it  is
+     rejected.
+! following this a paragraph is added 
+!
+!    To enable resource request enforcement the existence of the 
+!    resource has to be defined. This can be done on a cluster 
+!    global, per host and per queue basis. The definition of resource  
+!    availability is performed with the complex_values entry in 
+!    host_conf(5) and queue_conf(5).
+
+   hostgroup(5)
+
+     A host group entry is used to merge host names to groups.
+     Each  host  group  entry  file defines one group. A group is
+     referenced by the sign "@" as first character of  the  name.
+     At  this  point of implementation you can use host groups in
+     the usermapping(5) configuration. Inside a group  definition
+     file  you  can  also  reference  to  groups. This groups are
+     called subgroups.
+
+! The paragraph above will change into
+!
+!    A host group entry is used to merge host names to groups.
+!    Each  host  group  entry  file defines one group. Inside a 
+!    group definition file you can also reference to groups. These
+!    groups are called subgroups. A subgroup is referenced by the 
+!    sign "@" as first character of the name.
+
+     Each line in the host group entry file specifies a host name
+     or a group which belongs to this group.
+
+! This sentence is removed.
+
+FORMAT
+     A host group entry contains at least two parameters:
+
+     group_name keyword
+          The group_name keyword defines the host group name. The
+          rest  of  the  textline  after the keyword "group_name"
+          will be taken as host group name value.
+
+
+     hostname
+          The name of the host which is now member of  the  group
+          specified  with  group_name.  If The first character of
+          the hostname is a "@" sign the name is used  to  refer-
+          ence a hostgroup(5) which is taken as sub group of this
+          group.
+
+! Changes into
+!
+! FORMAT
+!      A host group entry contains at least two parameters:
+! 
+!      group_name 
+!           The name of the host group.  
+! 
+!      hostname
+!           A list of host names and host group names. Host group names 
+!           must begin with an "@" sign. The default value for this parameter 
+!           NONE, is accepted and can be used to specifiy an empty hostgroup.
+
+   sge_pe(5)
+
+     queue_list
+        A comma separated list of  queues  to  which  parallel  jobs
+        belonging to this parallel environment have access to.
+
+!    The queue_list configuration will be removed from sge_pe(5)
+
+
+     start_proc_args
+
+        The following special variables being  expanded  at  runtime
+        can  be  used  (besides  any  other strings which have to be
+        interpreted by the start and stop procedures) to  constitute
+        a command line:
+
+        $queue
+           The master queue, i.e. the queue in which the start-up
+           and stop procedures are started.
+
+! contains the cluster queue name of the master queue instance
+
+   sge_conf(5) 
+
+      prolog/epilog
+
+         The following special variables being  expanded  at  runtime
+         can  be  used  (besides  any  other strings which have to be
+         interpreted by the procedure) to constitute a command line:
+     
+         $queue
+           The master queue, i.e. the queue in  which  the  prolog
+           and epilog procedures are started.
+
+! contains the cluster queue name of the master queue instance
+
+   queue_conf(5)
+
+     The queue_conf parameters take as  values  strings,  integer
+     decimal  numbers  or  boolean, time and memory specifiers as
+     well as comma separated lists. A time specifier either  con-
+     sists  of  a  positive decimal, hexadecimal or octal integer
+     constant, in which case the value is interpreted  to  be  in
+     seconds,  or is built by 3 decimal integer numbers separated
+     by colon signs where the first number counts the hours,  the
+     second  the  minutes  and the third the seconds. If a number
+     would be zero it can be left out but  the  separating  colon
+     must remain (e.g. 1:0:1 = 1::1 means 1 hours and 1 second).
+
+! Following this paragraph another paragraph is added     
+!
+!    If more than one host is specified under 'hostname' (by means of a 
+!    list of hosts or with host groups) it can be desirable to specify 
+!    divergences from the setting used for each host. These divergences 
+!    can be expressed using the enhanced queue_conf specifier syntax. 
+!    This syntax builds upon the regular parameter specifier syntax as 
+!    described below under 'FORMAT' separately for each parameter and 
+!    in the paragraph above:
+!
+!      "["host_identifier=<parameters_specifier_syntax>"]"
+!      [,"["host_identifier=<parameters_specifier_syntax>"]" ]
+!
+!    Even in the enhanced queue_conf specifier syntax an entry 
+!
+!           <current_attribute_syntax> 
+!           
+!    without brackets denoting the default setting is required and 
+!    used for all queue instances where no divergences are specified. 
+!    Tuples with a host group @host_identifier override the default 
+!    setting. Tuples with a host name host_identifier override both 
+!    the default and the host group setting. Note that also with the 
+!    enhanced queue_conf specifier syntax a default setting is always 
+!    needed for all configuration attributes. 
+!
+!    Integrity verifications will be applied on the configuration.
+!
+!    * Configurations without default setting are rejected. 
+!    * Ambigous configurations with more than one attribute setting for 
+!      a particular host are always rejected.
+!    * Configurations containing override values for hosts not enlisted 
+!      under 'hostname' are accepted but are indicated (message file + warning).
+!    * The cluster queue should contain a non-ambigous specification 
+!      for each configuration attribute of each queue instance specified 
+!      under hostname in queue_conf(5). Ambigous configurations with more 
+!      than one attribute setting resulting from overlapping host groups 
+!      are indicated (messages file + warning) and cause the queue instance 
+!      with ambigous configurations to enter the c(onfiguration ambibous) 
+!      state 
+!
+!    The following configuration snippets are examples are to illustrate cases
+!    of the enhanced queue configuration specifier syntax that are accepted, 
+!    rejected and when a queue instance enters the c(ambibous configuration)
+!    state. In all examples it is assumed that '@linux' and '@solaris' are 
+!    host groups covering the hosts 'linux1' and 'linux2' resp. 'solaris1' and 
+!    'solaris2'. A host group @linuxsolaris contains @linux and @solaris as 
+!    subhostgroups.
+!
+!    Examples #1
+!
+!       hostname        @linux @solaris
+!          :
+!       seq_no          0,[solaris1=1],[linux=2]
+!          :
+!
+!      This example is accepted.
+!
+!    Examples #2
+!
+!       hostname        @linux @solaris
+!          :
+!       load_thresholds [@solaris=np_load_avg=1.75],[@linux=np_load_avg=2.0]
+!          :
+! 
+!      This example is rejected because it lacks a default setting.
+!
+!    Examples #3
+!
+!       hostname        @linux @solaris
+!          :
+!       user_lists NONE,[@linux=mathlab_users],[linux1=mathlab_users mpi_users]
+!          :
+!
+!      This configuration will be accepted.
+!
+!    Examples #4
+!
+!       hostname        @linux @solaris
+!          :
+!       user_lists NONE,[@linux=mathlab_users],[@linuxsolaris=mathlab_users mpi_users]
+!          :
+!
+!      This configuration will be accepted. However it will cause the queue instances
+!      for the hosts linux1 and linux2 to enter the c(onfiguration ambigious) state. 
+!      The 'user_list' setting for both queue instances is not ambigous because the
+!      hosts linux1 and linux2 are referenced with both hostgroups @linux and @linuxsolaris.
+!
+
+      hostname
+         The fully-qualified host name of the node (type string; tem-
+         plate default: host.dom.dom.dom).
+
+!      hostname 
+!        A list of host names and host group names. Host group names must 
+!        begin with an "@" sign. If multiple hosts are specified the queue_conf 
+!        constitutes multiple queue instances. Each host may be specified only 
+!        once in this list.
+!
+
+  qtype
+     The type of queue.  Currently  one  of  batch,  interactive,
+     parallel  or  checkpointing  or  any  combination in a comma
+     separated list.
+
+     (type string; default: batch interactive parallel ).
+! qtype
+!    The type of queue.  Currently batch or interactive or a combination 
+!    in a comma separated list. The formerly supported types parallel and 
+!    checkpointing are deprecated. A queue instance is implicitely of type
+!    parallel/checkpointing if there is a parallel environment or a checkpointing
+!    interface specified for this queue instance in pe_list/ckpt_list.
+!    Formerly possible settings e.g.
+!
+!        qtype   parallel
+!
+!    could be transfered into 
+!
+!        qtype   NONE
+!        pe_list make
+!
+!    (type string; default: batch interactive ).
+
+      subordinate_list
+         A list of Sun Grid Engine queues, residing on the same  host
+         as  the  configured queue, to suspend when a specified count
+         of jobs is running in this queue.  The list specification is
+         the  same  as  that  of the load_thresholds parameter above,
+         e.g. low_pri_q=5,small_q. The numbers denote the  job  slots
+         of  the  queue that have to be filled to trigger the suspen-
+         sion of the subordinated queue. If no value  is  assigned  a
+         suspension  is  triggered  if  all  slots  of  the queue are
+         filled.
+ 
+         On nodes which host more than one queue, you might  wish  to
+         accord  better  service  to  certain  classes of jobs (e.g.,
+         queues that are dedicated to parallel processing might  need
+         priority  over  low  priority  production  queues;  default:
+         NONE).
+
+! A queue in the subordinate list can be 
+!     queue_list := cluster_queue
+! subordinate relationships however are in effect only between 
+! queue instances residing at the same host. If there is a queue
+! instance (be it the sub- or superordinated one) on only one 
+! particular host this relationship is ignored.
+
+  complex_list
+     The comma separated list of administrator defined  complexes
+     (see  complex(5)  for  details)  to  be  associated with the
+     queue.  Only complex attributes contained  in  the  enlisted
+     complexes  and  those  from the "global", "host" and "queue"
+     complex, which are implicitly attached to each queue, can be
+     used in the complex_values list below.
+
+     The default value  for  this  parameter  is  NONE,  i.e.  no
+     administrator  defined  complexes  are  associated  with the
+     queue.
+! This configuration attribute is removed.
+
+!  New configuration attribute:
+!  pe_list
+!    The list of administrator defined parallel environments
+!    to be associated with the queue instances of the cluster queue. 
+!    The default is NONE.
+!
+!  New configuration attribute:
+!  ckpt_list
+!    The list of administrator defined checkpoint interfaces 
+!    to be associated with the queue instances of the cluster queue. 
+!    The default is NONE.
+
+host_conf(5)
+
+     complex_list
+          The comma separated list of administrator defined  com-
+          plexes  (see  complex(5)  for details) to be associated
+          with the host. Only complex attributes contained in the
+          enlisted  complexes  and  those  from  the "global" and
+          "host" complex, which are implicitly attached  to  each
+          host,  can be used in the complex_values list below. In
+          case of the "global" host, the "host"  complex  is  not
+          attached  and  only  "global"  complex  attributes  are
+          allowed per default in the complex_values list  of  the
+          "global" host.
+
+          The default value for this parameter is NONE,  i.e.  no
+          administrator defined complexes are associated with the
+          host.
+! This configuration attribute is removed.
+
+
+
+   checkpoint(5)
+
+      queue_list
+         A comma separated list of  queues  to  which  parallel  jobs
+         belonging to this parallel environment have access to.
+!    The queue_list configuration will be removed from checkpoint(5)
+ 
+   accounting(5)
+
+      qname
+         Name of the queue in which the job has run.
+
+!     Name of the cluster queue in which the job has run.
+
+sge_qmaster(8)
+
+     -nohist
+          During usual operation sge_qmaster dumps a  history  of
+          queue, complex and host configuration changes to a his-
+          tory database. This database is primarily used with the
+          qacct(1)  command to allow for qsub(1) like -l resource
+          requests in  the  qacct(1)  command-line.  This  switch
+          suppresses writing to this database.
+! This option is removed. Information retrieved via GDI will be
+! always used by qacct to interpret -l switches.
+
+FILES
+     <sge_root>/<cell>/common/history
+                     History database
+! The history database will no longer be written by qmaster.
+
+
+4. Changes with the graphical user interface
+
+   The cluster queue development project will also affect Grid Engines
+   graphical user interface qmon. Major changes are to be expected for
+   existing dialogues to be changed and for new dialogues to be added:
+   
+   a) A new dialogue is to be added to qmon for managing hierarchical 
+      host groups. Currently host groups can only be managed via qconf 
+      interface. A hierarchical view is considered, might not be possible
+      however because hierarchical host groups allow to define the shape 
+      of a directed cyclic graph, thus a simple tree is not sufficient.
+      The new dialog must also cover a means to clone from existing host 
+      groups when creating new host group.
+
+   b) The family of the "Queue configuration" dialogues "Add" and "Modifiy" 
+      must allow for creating and changing cluster queues and provide means
+      to differentiate cluster queue attributes on a per host and per host 
+      group basis. A hierarchical view dialogue is asipred. Cloning of 
+      cluster queues will be supported as with the current queue configuration 
+      dialogue. The queue configuration dialogue must provide a view to show
+      the resulting settings for each host of a cluster queue
+  
+   c) Beneath the existing queue instance related "Queue control" dialogue,
+      qmon should offer second view reflecting the state of a cluster queue
+      similar to what qstat -g c (see above under qstat(1)) shows.
+    
+   Minor changes are
+
+   d) The "Job Submission" dialogue must be enhanced to reflect the new 
+      possiblities with submitting jobs as described above under qsub(1).
+      
+   e) The "Queue Control" dialogue must be enhanced to reflect the new 
+      possiblities for suspend/resume/disable/enable operation on queues 
+      as described under qmod(1).
+   
+   f) The "Add/Modify PE" and the "Queue configuration" dialogue 
+      must be enhanced to reflect the move of the queue_list sge_pe(5) 
+      to pe_list in queue_conf(5). Also the "parallel" qtype must be 
+      removed from "Queue configuration".
+
+   g) The "Change Checkpoint Object" and the "Queue configuration" dialogue 
+      must be enhanced to reflect the move of the queue_list checkpoint(5) 
+      to ckpt_list in queue_conf(5). Also the "parallel" qtype must be 
+      removed from "Queue configuration".
+
+   h) The "Complex configuration" dialogue must be changed to reflect the 
+      changes described under qconf(5). The "Host Configuration" dialogue 
+      and the "Queue configuration" dialogue must be changed, because 
+      configuring a 'complex_list' is no longer needed.
+
+5. Changes with the installation procedure
+
+   The installation procedure for 5.3 execution hosts offers creating 
+   a queue during installation. If this installation procudure were 
+   not reworked at all the resulting cluster setup (one cluster queue 
+   per host) would not be adequate. 
+
+   There are lots of possibilities and variations of these possiblities
+   for what the installation procedure could offer 
+   
+   a) Creation of a new cluster queue covering only that execution host
+
+   b) Extension of existing cluster queues to that host. In analogy
+      to 5.3 standard queues installation could offer joining a 
+      standard cluster queue. However also joining multiple existing
+      cluster queues is conceivable.
+
+   c) Likewise creating/joining an execution host to a cluster 
+      queue also creating/joining host groups would be preceived as 
+      a convenient enhancement to the installation procedure. Creation
+      of both user defined and system provided host groups ('all' host 
+      group, OS arch specific ones?) could be arranged and controlled. 
+
+   Discussion so far about necessary changes in the installation procedure 
+   have shown that the 'make' PE object must be associated with at least
+   one queue instance per host that is installed. This is necessary because
+   the means to associate a PE with all queues will no longer be available.
+
+6. Changes in the test suite
+
+   The changes to be done as a result from the cluster queue project 
+   development are
+
+   a) Any test relying on the interfaces affected from changes
+      must be adopted to use the changed interface.
+   
+   b) New tests are to be added to verify creation and changing of 
+      cluster queue configurations covering per host and per host group
+      differentiations work correctly. Other tests are to be added
+      to ensure invalid cluster queue configurations are rejected and 
+      to verify the new queue states (o)rphaned and (c)onfiguration 
+      diabled work properly.
+
+   c) New tests will be needed to verify the enhanced capabilities on  
+      resource selection of the submit options 
+
+         -soft -q queue,...
+         -hard -q queue,...
+         -masterq queue,...
+
+      work properly.
+
+   d) New tests will be needed to verify the enhanced capabilities 
+      of qmod(1) work properly.
+
+   e) New tests will be needed to verify the enhanced capabilities 
+      on defining queue list of parallel environment and checkpoint
+      interface work properly.
+
+   f) New tests will be needed to verify the capabilities of qconf(1)
+      for host groups work properly.
+   
+7. Documentation changes
+
+   Documentation must be treated as an integral part of Grid Engine
+   software. The changes with Grid Engine interfaces as described in 
+   this specification will require a comprehensive rework of the 
+   documentation. Major tasks to be finished are 
+
+   a) With Grid Engine 5.3 everything was a queue. This document 
+      introduces new terms such as cluster queue, queue instance 
+      and queue domains. A uniform terminology for evolved/new Grid 
+      Engine objects must be agreed. This terminology is to be used
+      generally to ensure uniform appearance for the end user.
+
+   b) The messages printed by Grid Engine components need to be
+      reworked to reflect the new terminology.
+
+   c) The Unix man pages delivered with Grid Engine must reflect all 
+      changes with Grid Engine interfaces and the new terminology 
+      must be applied.
+
+   d) The Grid Engine manual must be reworked comprehensively to 
+      reflect interface changes and for applying the new terminology.
+      Furthermore existing sections about cluster grid managment 
+      must be reworked to reflect the enhanced capabilities for 
+      cluster grid managment.
+
+   e) The existing HOWTOs must be enhanced to reflect how things
+      are done with 6.0 compared with 5.3. Also the new terminology
+      must be applied where appropriate.
+
+8. Data structures
+
+   a) For host groups the GRP_Type sublists GRP_member_list, 
+      GRP_subgroup_list and GRP_supergroup must contain elements of type 
+      SGE_HOST(). To ensure hostgroups are treated correclty by CULL 
+      mechanisms a host group name must always be stored together with 
+      a "@" character. The CULL mechanisms in question are the CULL host 
+      compare operation (lWhere "h=" operator) expressions and hashing. Also 
+      the CULL wildcard compare operation (lWhere "p=" operator) must reflect 
+      this change.
+
+   b) To reflect the changes that are related to the removal of the 
+      queue_conf(5) attribute complex_list the QU_complex_list field
+      is removed as well as the CX_Type structure. The new Master_complex_list 
+      will contain CE_Type entries each one describing a single complex 
+      attribute. To reflect the removal of the 'value' column in complex(5) 
+      the CE_stringval will be removed.
+
+   c) To reflect the changes that are related to the new queue_conf(5) 
+      attributes pe_list and ckpt_list in the data structure new SGE_LIST() 
+      fields QU_pe_list and QU_ckpt_list are added and SGE_LIST() fields 
+      PE_queue_list and CKPT_queue_list are removed.
+  
+   d) For the cluster queue object a new CULL structure CQ_Type will be 
+      created. The main key for the cluster queue will be the name of 
+      the cluster queue 
+
+         SGE_STRING(CQ_name)
+        
+      The list of execution hosts in 'hostname' of queue_conf(5) will
+      be kept in the sublist 
+
+         SGE_LIST(CQ_qhostname)
+
+      consisting of SGE_HOST()-type elements. 
+     
+      To ensure host group names are treated correclty by CULL mechanisms
+      such as compare/hashing a host group name is always stored together
+      with the "@" sign in SGE_HOST()-type elements. 
+      
+      All remaining attributes specifying the Grid Engine queue configuration 
+      (see Appendix List 1) and the Enterprise Edition configuration attributes 
+      (see Appendix List 2) will become a list equivalent containing tuples of 
+
+      * an optional host-type host identifier 
+
+      * the configuration attribute 
+            
+      the host identifier can be an execution host name, a host group 
+      and it can be empty (NULL) which stands for the default setting of a 
+      cluster queue. The configuration attribute will be of the same data 
+      type as the former queue configuration attribute. 
+
+      For illustration are two examples for the existing queue 
+      attributes 'slots' and 'load_thresholds':
+
+      * in 5.3 source code 'slots' configuration is kept in the QU_Type
+        structure in a 
+
+           SGE_ULONG(QU_job_slots) 
+
+        field. In the 6.0 CQ_Type data structure this field will become a
+
+           SGE_LIST(CQ_job_slots, <slots>_Type)
+        
+        with <slots>_Type being a tuple of 
+          
+           SGE_HOST(<slots>_host_identifier)
+           SGE_ULONG(<slots>_job_slots)
+
+        the term <slots> stands here for a not yet used two/three letter 
+        CULL abbreviation.
+
+      * in 5.3 source code 'load_thresholds' configuration is kept in 
+        the QU_Type structure 
+
+         SGE_LIST(QU_load_thresholds, CE_Type) 
+
+        field. In the 6.0 CQ_Type data structure this field will become a 
+
+         SGE_LIST(CQ_load_thresholds, <load_thresholds>_Type)
+        
+        with <load_thresholds>_Type being a tuple of 
+          
+         SGE_HOST(<load_thresholds>_host_identifier)
+         SGE_LIST(<load_thresholds>_load_thresholds, CE_Type)
+
+        the term <load_thresholds> stands here for a not yet used 
+        two/three letter CULL abbreviation.
+
+      for hosting queue instances there will be a cluster queue
+      sublist 
+
+         SGE_LIST(CQ_queue_instances, QU_Type) 
+
+      containing all queue instances managed by means of the  
+      cluster queue controllers. 
+
+      For the queue instances object the existing CULL data structure 
+      QU_Type will be reused. The QU_qname field will contain the cluster 
+      queue name while the QU_qhostname field contains the hostname where 
+      the queue instance is located. All internal state fields of the 5.3 
+      queue will have the same meaning for 6.0 queue instances. Also all 
+      configuration fields specifying the Grid Engine queue configuration 
+      (see Appendix List 1) and the Enterprise Edition configuration 
+      attributes (see Appendix List 2) will have the same meaning as in 
+      5.3 and will contain the attributes as specified in the controlling 
+      cluster queue. Qmaster keeps these fields for caching purposes and
+      updates them each time when cluster queue configuration changes.
+
+9. GDI Changes
+
+   The cluster queue project will require major changes with the GDI 
+   request interface. Being the projects main subject changes with 
+   the queues request interfaces will be fundamental compared with
+   the changes of other Grid Engine objects whose request interface 
+   will also change. These are host groups and execution hosts, the 
+   parallel environment and the checkpointing interface. Finally also 
+   jobs request interface will be subject of change.
+
+   a) Cluster queues and queue instance
+      
+      The 6.0 GDI request interface for cluster queues is the further 
+      stage of the 5.3 GDI request interface for queues. The cluster queue 
+      object is used as a controller object for queue instance objects. 
+      Controller object means that any GDI change with the controlling 
+      cluster queue object directly impacts the corresponding queue 
+      instance(s), i.e. depending on the cluster queue GDI change request the 
+      impact can be creation/deletion of queue instance(s) or configuration 
+      changes with the queue instance(s). Likewise 5.3 change requests on 
+      queues are verified to ensure data integrity, also any cluster queue 
+      change requests are verified from the perspective of the affected queue 
+      instances to ensure data integrity before processing the request. In 
+      addition to these verifications on data integrity already in effect 
+      the verifications as documented in queue_conf(5) will be applied.
+      Invalid requests must be denied before processing them, warnings must 
+      be logged/provided to the GDI client and the conditions for the queue 
+      instance states (c)onfiguration disabled and o(rphaned) are checked and 
+      where necessary state changes are triggered.
+
+      The 6.0 SGE_GDI_GET request allows for retrieving a list of cluster 
+      queues configurations and/or queue instances. The change requests 
+      (SGE_GDI_DEL, SGE_GDI_ADD and SGE_GDI_MOD and the subcommands SGE_GDI_SET, 
+      SGE_GDI_CHANGE, SGE_GDI_APPEND, SGE_GDI_REMOVE) adressing cluster 
+      queues allow for adding, modifying, deleting cluster queue 
+      configuration, for manipulating sublists and influencing the internal 
+      state of queues instances. Since configuration changes are done via the 
+      cluster queue object, the only GDI operation required for queue instances 
+      is SGE_GDI_GET. Being a sublist of the cluster queue structure the 
+      variations of the SGE_GDI_GET operations are described under 
+      SGE_GDI_GET(CQ.where.what). All GDI requests are enlisted below:
+
+      * SGE_GDI_ADD(CQ.cluster_queue)
+
+        This request allows for adding a new cluster queue. It contains the 
+        complete cluster queue configuration and is for example used for 
+        implementing qconf option '-aq'.
+
+      * SGE_GDI_MOD(CQ.cluster_queue)
+
+        This request allows for changing the complete cluster queue 
+        configuration. It contains a full cluster queue configuration 
+        and is for example used for implementing qconf option '-mq'.
+
+      * SGE_GDI_DEL(CQ.cluster_queue)
+
+        This request allows for removing a complete cluster queue. It 
+        contains only the name of the cluster queue to be removed and 
+        is for example used for implementing qconf option '-dq'.
+
+      * SGE_GDI_GET(CQ.where.what)
+
+        This request allows for retrieving cluster queue elements. CULL 
+        'where' expressions can be used for selecting particular cluster 
+        queues, CULL 'what' expressions can be used for selecting particular 
+        queue fields. Since the queue instances list is kept as a sublist 
+        within qmaster a 'what' expression masking the CQ_queue_instances 
+        field is to be used to retrieve cluster queue configuration entries 
+        without queue instance information. 
+
+        To retrieve a list of all queue instances a 'what' expression is 
+        used for selecting only the CQ_queue_instances field. To retrieve 
+        only queue instances of particular cluster queues the same operation 
+        is used except that a CULL 'where' expression is used to select the 
+        cluster queues from where queue instances are to be retrieved. To 
+        retrieve a list of the queue instances representing a particular
+        queue domain the host group GDI interface is to be used to resolve
+        the host group name into a list of hosts. Together with the cluster 
+        queue name this host list can be used to form a CULL 'where' expression
+        selecting the queue instances within the queue domain. The SGE_GDI_GET 
+        request is used for example for implementing qconf option '-sq'.
+
+      * SGE_GDI_MOD(CQ.cluster_queue.fields)
+      * SGE_GDI_MOD(CQ.cluster_queue.fields) + SGE_GDI_SET()
+
+        These requests are a SGE_GDI_MOD(QU.queue) variation and allow for 
+        changing the complete selected fields within the cluster queue 
+        configuration, with each field corresponding a complete line of the 
+        cluster queue configuration. Field selection is done by means of an 
+        incomplete cluster queue configuration structure, with each field 
+        containing a sublist of 'default' configration and host and host 
+        group specific configuration. The requests are for example used for 
+        implementing qconf options '-mqattr' resp. '-rattr' when it is applied 
+        with a 'queue' object specifier.
+
+      * SGE_GDI_MOD(CQ.cluster_queue.fields) + SGE_GDI_APPEND(host_identifiers, list_elements) 
+
+        This request allows for adding one or more list elements 
+        regarding to one or more host identifiers to each of the selected 
+        list fields within the cluster queue configuration. Field selections
+        are done by means of an incomplete cluster queue configuration 
+        structure. The host_identifiers of each tuple below each selected 
+        cluster queue field are used to decide if the list elements are to be
+        added to either the default configration, the per host configuration or the 
+        per host group configuration. All list elements belonging to each
+        tuple are added. Already existing list elements are silently 
+        overwritten, also if the selected queue configuration is not a list
+        field this silently overwrites the current setting. The request is for 
+        example used for implementing qconf option '-aattr' when it is 
+        applied with a 'queue' object specifier.
+
+      * SGE_GDI_MOD(CQ.cluster_queue.fields) + SGE_GDI_CHANGE(host_identifiers, list_elements)
+
+        This request allows for replacing one or more list elements 
+        regarding of one or more host identifiers with each of the selected 
+        list fields within the cluster queue configuration. Field selections
+        are done by means of an incomplete cluster queue configuration 
+        structure. The host_identifiers of each tuple below each selected 
+        cluster queue field are used to decide if the list elements are to be
+        replaced with either the default configration, the per host configuration 
+        or the per host group configuration. All list elements belonging to each
+        tuple replace the former setting. Not yet existing list elements are 
+        silently added, also if the selected queue configuration is not a list
+        field this silently overwrites the current setting. The request is for 
+        example used for implementing qconf option '-mattr' when it is applied 
+        with a 'queue' object specifier.
+
+      * SGE_GDI_MOD(CQ.cluster_queue.fields) + SGE_GDI_REMOVE(host_identifiers, list_elements)
+
+        This request allows for removing one or more list elements regarding of 
+        one or more host identifiers with each of the selected list fields within 
+        the cluster queue configuration. Field selections are done by means of an 
+        incomplete cluster queue configuration structure. The host_identifiers of 
+        each tuple below each selected cluster queue field are used to decide if 
+        the list elements are to be removed with either the default configration, 
+        the per host configuration or the per host group configuration. All list 
+        elements belonging to each tuple are removed from the former setting. Not 
+        existing list elements are silently ignored, also if the selected queue 
+        configuration is not a list field this is silently ignored. The request is 
+        for example used for implementing qconf option '-drattr' when it is applied 
+        with a 'queue' object specifier.
+
+      * SGE_GDI_TRIGGER(CQ.cluster_queue|queue_domain|queue_instance) + QDISABLED()
+
+        This request allows for setting the disabled state of queue instances.
+        Queue instance selection can be based on a cluster queue, a queue domain,
+        a queue instance or wildcards, depending on what is provided with the 
+        request. The request is for example used for implementing qmod option '-d'.
+
+      * SGE_GDI_TRIGGER(CQ.cluster_queue|queue_domain|queue_instance) + QENABLED()
+
+        This request allows for releasing the disabled state of queue instances. 
+        Queue instance selection can be based on a cluster queue, a queue domain,
+        a queue instance or wildcards, depending on what is provided with the 
+        request. The request is for example used for implementing qmod option '-e'.
+
+      * SGE_GDI_TRIGGER(CQ.cluster_queue|queue_domain|queue_instance) + QSUSPENDED()
+
+        This request allows for setting the suspend state of queue instances. 
+        Queue instance selection can be based on a cluster queue, a queue domain,
+        a queue instance or wildcards, depending on what is provided with the 
+        request. The request is for example used for implementing qmod option '-s'.  
+
+      * SGE_GDI_TRIGGER(CQ.cluster_queue|queue_domain|queue_instance) + QRUNNING()
+
+        This request allows for releasing the suspend state of queue instances. 
+        Queue instance selection can be based on a cluster queue, a queue domain,
+        a queue instance or wildcards, depending on what is provided with the 
+        request. The request is for example used for implementing qmod option '-us'.
+
+      * SGE_GDI_TRIGGER(CQ.cluster_queue|queue_domain|queue_instance) + QERROR()
+
+        This request allows for releasing the error state of a queue instances. 
+        Queue instance selection can be based on a cluster queue, a queue domain,
+        a queue instance or wildcards, depending on what is provided with the request.
+        The request is for example used for implementing qmod option '-c'.
+
+      * SGE_GDI_TRIGGER(CQ.cluster_queue|queue_domain|queue_instance) + QRESCHEDULED()
+
+        This request allows causing all job hosted by the queue instances 
+        being rescheduled. Queue instance selection can be based on a
+        cluster queue, a queue domain, a queue instance or wildcards, depending 
+        on what is provided with the request. The request is for example used for 
+        implementing qmod option '-r'.
+
+      * SGE_GDI_TRIGGER(CQ.cluster_queue|queue_domain|queue_instance) + QCLEAN()
+
+        This request allows causing all job hosted by the queue instance being
+        deleted. Queue instance selection can be based on a cluster queue, a 
+        queue domain, a queue instance or wildcards, depending on what is provided 
+        with the request. The request is for example used for implementing qconf 
+        option '-cq'.
+
+   b) Host groups, execution hosts and other hosts.
+
+      There are some changes necessary with GDI interface of execution 
+      host object and host groups:
+
+      * any GDI request changing a host group configuration can have
+        an impact on queue instance. If the host group is used in the 
+        'hostname' list of queue_conf(5) this request can cause queue 
+        instances being added/removed. If this host group is used as 
+        'host_identifier' to differentiate cluster queue configuration 
+        on a per host group basis the request can cause changes with 
+        existing queue instance configuration. 
+        
+      * Likewise cluster queue GDI change requests are verified to ensure 
+        data integrity of queue instances (see above), also GDI requests 
+        changing a host group configuration must be verified from the 
+        perspective of all affected queue instances to ensure data 
+        integrity. Invalid requests must be denied before processing them,
+        warnings must be logged/provided to the GDI client and the 
+        conditions for the queue instance states (c)onfiguration disabled 
+        and o(rphaned) are checked and where necessary state changes are 
+        triggered.
+
+      The host group related GDI requests added to 6.0 are:
+
+      * SGE_GDI_ADD(GRP.host_group)
+
+        This request allows for adding a new host group. It contains the 
+        complete host group configuration and is for example used for 
+        implementing qconf option '-ahgrp'.
+
+      * SGE_GDI_MOD(GRP.host_group)
+
+        This request allows for changing a host group configuration. 
+        It contains a complete host group configuration and is for example 
+        used for implementing qconf option '-mhgrp'.
+
+      * SGE_GDI_DEL(GRP.host_group)
+
+        This request allows for removing a complete host group. It 
+        contains only the name of the host group to be removed and 
+        is for example used for implementing qconf option '-dhgrp'.
+
+      * SGE_GDI_GET(GRP.where.what)
+
+        This request allows for retrieving host group elements. CULL 
+        'where' expressions can be used for selecting particular host 
+        groups, CULL 'what' expressions can be used for selecting 
+        particular fields.
+
+   c) Parallel environment and the checkpointing interface
+
+      Since the queue_list configuration will be removed from 
+      sge_pe(5) all GDI functionality related to PE_queue_list 
+      must be available with the cluster queue configuration
+      field QU_pe_list.
+      
+      Since the queue_list configuration will be removed from 
+      sge_ckpt(5) all GDI functionality related to CK_queue_list 
+      must be available with the cluster queue configuration
+      field QU_ckpt_list.
+
+   d) Job
+
+      The GDI requests SGE_GDI_ADD and SGE_GDI_MOD affecting jobs
+      
+         -soft -q queue,...
+         -hard -q queue,...
+         -masterq queue,...
+
+      configuration must be rejected if they refer to non-existing 
+      cluster queues, queue domains or queue instances.
+
+      Necessary changes with existing verifications are
+
+      * any of the change requests (see above) refering to a queue 
+        instance, a cluster queue or a queue domain must be verified
+        to ensure valid references
+      * when wildcard expressions are passed it must be verified that
+        at least one valid queue instance/cluster queue/queue domain
+        is referenced.
+
+   e) Complex
+
+      To implement the changes that are related to removal the complex_list from 
+      queue_conf(5) and of the value column from complex(5) handling of change 
+      requests related to QU_complex_list is removed and GDI requests used for 
+      complex management are changed.
+
+      * SGE_GDI_ADD(CE.complex_attribute)
+      * SGE_GDI_MOD(CE.complex_attribute)
+
+        These request allows for adding/changing a complex attribute. 
+        The request contains the complex attribute and a series of these requests 
+        can be used for implementing qconf option -mc. If a SGE_GDI_ADD(CE) request 
+        tries to add an existing complex attribute it is implicitely handled as a 
+        SGE_GDI_MOD(CE). If a SGE_GDI_MOD(CE) request tries to change a not yet 
+        existing complex attribute it is implicitely handled as a SGE_GDI_ADD(CE). 
+
+      * SGE_GDI_DEL(CE.complex_attribute)
+
+        This request allows for deleting a complex attribute from the complex 
+        configuration. It contains only the name of the complex attribute to
+        be deleted.
+
+      * SGE_GDI_GET(CE.where.what)
+
+        This request allows for retrieving the complex configuration. 
+       
+10. Qmaster spooling
+ 
+   It has turned out that qmasters spooling format plays an important 
+   role for Grid Engines scalability. In 5.3 each queue configuration and 
+   the state to be preserved is spooled together into one file separately 
+   for each queue. In 6.0 major changes with queue spooling format are
+
+   * with cluster queues it will be no longer possible to 
+     spool cluster queue configuration divided into per queue 
+     instance pieces without loosing information. Thus the complete 
+     cluster queue configuration needs to be spooled into a single file.
+     All cluster queue configurations will be kept in the already existing
+     directory 
+
+		$SGE_ROOT/$SGE_CELL/spool/qmaster/queues
+
+     the file names will be identical with the name of each cluster queue.
+
+   * only a minimum of queue instance state information requires 
+     spooling to ensure states information is retained after qmaster 
+     restart (disabled/suspend/error/version/pending signal). To 
+     prevent qmaster having to spool very large cluster queue state 
+     files again and again each time when a state changes (e.g. qmod -d 
+     cluster_queue) the state information must be spooled separately 
+     from the cluster queue configuration and into separate per queue 
+     instance files. The per queue instance files will be kept in the
+     directory 
+
+		$SGE_ROOT/$SGE_CELL/spool/qmaster/queue_instances
+
+     the file names will be identical with the name of each queue instance.
+
+11. Event client interface
+
+   The structure of the events being used by qmaster to update event client's  
+   and in special schedd's data significantly impacts Grid Engine scalability.
+   In 5.3 event clients which were interested in queue related events the event 
+   portfolio enlisted below could be ordered from qmaster. A direct transformation 
+   of 5.3 queue events into 6.0 cluster queue events is not sufficient, since 
+   6.0 cluster queue objects can be many times bigger than 5.3 queue objects 
+   were. Making a differentiation between configuration related cluster queue 
+   events and events targetting mostly on changing the state of particular queue 
+   instances allows definition of more fine grained events:
+
+   * sgeE_CLUSTERQUEUE_LIST
+
+     This event is sent once directly after event client registration to 
+     initialize the cluster queue list and contains the complete list of all 
+     cluster queues with all configuration and state information. 
+
+   * sgeE_CLUSTERQUEUE_ADD(cluster_queue)
+
+     This event is sent each time when a new cluster queue configuration 
+     has been created. It contains the full cluster queue configuration, 
+     but no per queue instance information.
+
+   * sgeE_CLUSTERQUEUE_DEL(cluster_queue)
+
+     This event is sent each time when an existing cluster queue configuration 
+     is removed and contains only the name of the cluster queue to be removed.
+     It implicitly removes also the queue instances belonging to the cluster 
+     queue.
+
+   * sgeE_CLUSTERQUEUE_MOD(cluster_queue)
+
+     This event is sent each time when an existing cluster queue configuration 
+     changes. It contains only the full cluster queues configuration, but no 
+     per queue instance information.
+
+   * sgeE_QUEUEINSTANCE_ADD(cluster_queue, queue_instances)
+
+     This event is sent each time when new queue instances are added to an
+     existing cluster queue and supplements the corresponding 
+     events sgeE_CLUSTERQUEUE_ADD() and sgeE_CLUSTERQUEUE_MOD(). It contains 
+     a list of the queue instances that were added to a particular cluster 
+     queue and covers the queue instances configuration and state information.
+
+   * sgeE_QUEUEINSTANCE_DEL(cluster_queue, queue_instances)
+
+     This event is sent each time when an existing queue instance is removed
+     from a cluster queue and supplements the corresponding 
+     sgeE_CLUSTERQUEUE_MOD(cluster_queue) event. It contains only the names 
+     of the queue instance to be removed.
+
+   * sgeE_QUEUEINSTANCE_MOD(cluster_queue, queue_instances)
+
+     This event is sent for a selective queue instance update in two cases.
+     Firstly it is sent each time when the configuration of an existing queue 
+     instance changes as supplement to the corresponding 
+     sgeE_CLUSTERQUEUE_MOD(cluster_queue) event. Secondly it is sent each time 
+     when the state information of an existing queue instances changes. It 
+     contains a list of the changing queue instances of a particular cluster 
+     queue and covers the queue instances configuration and state information.
+
+   * sgeE_QUEUEINSTANCE_SUSPEND_ON_SUB(queue_instance) 
+   * sgeE_QUEUEINSTANCE_UNSUSPEND_ON_SUB(queue_instance) 
+
+     These events are sent by qmaster to notify about a suspension on 
+     subordinate and a release of a suspension on subordinate for a particular 
+     queue instance.
+
+   Further changes required with the events updating the complexes
+
+   * sgeE_COMPLEX_LIST
+
+     This event is sent once directly after event client registration to 
+     initialize the complex list and contains the complete list of all 
+     complex attributes with all configuration and state information. 
+
+   * sgeE_COMPLEX_ADD(complex_attribute)
+
+     This event is sent each time when a new complex attribute has been 
+     created. It contains full description of the new complex attribute.
+
+   * sgeE_COMPLEX_DEL(complex_attribute)
+
+     This event is sent each time when an existing complex attribute is 
+     removed and contains only the name of the complex attribute to be 
+     removed. 
+
+   * sgeE_COMPLEX_MOD(complex_attribute)
+
+     This event is sent each time when an existing complex attribute 
+     changes. It contains a full description of the new complex attribute.
+
+   New events for updating host group configuration
+
+   * sgeE_HOST_GROUP_LIST
+
+     This event is sent once directly after event client registration to 
+     initialize the host group list and contains the complete list of all 
+     host groups. 
+
+   * sgeE_HOST_GROUP_ADD(host_group)
+
+     This event is sent each time when a new host group has been created. 
+     It contains full description of the new host group.
+
+   * sgeE_HOST_GROUP_DEL(complex_attribute)
+
+     This event is sent each time when an existing host group is removed 
+     and contains only the name of the host group to be removed. 
+
+   * sgeE_HOST_GROUP_MOD(complex_attribute)
+
+     This event is sent each time when an existing host group changes. 
+     It contains a full description of the new host group.
+
+Appendix:
+
+       
+    List 1 
+       { QU_seq_no
+         QU_load_thresholds, 
+         QU_suspend_thresholds,
+         QU_nsuspend, 
+         QU_suspend_interval, 
+         QU_priority, 
+         QU_min_cpu_interval, 
+         QU_processors, 
+         QU_qtype, 
+         QU_rerun, 
+         QU_job_slots, 
+         QU_tmpdir, 
+         QU_shell, 
+         QU_notify, 
+         QU_owner_list,
+         QU_acl,
+         QU_xacl,
+         QU_pe_list,
+         QU_ckpt_list,
+         QU_subordinate_list,
+         QU_consumable_config_list,
+         QU_calendar,
+         QU_prolog,
+         QU_epilog,
+         QU_starter_method,
+         QU_suspend_method,
+         QU_resume_method,
+         QU_terminate_method,
+         QU_shell_start_mode,
+         QU_initial_state,
+         QU_s_rt,
+         QU_h_rt,
+         QU_s_cpu,
+         QU_h_cpu,
+         QU_s_fsize,
+         QU_h_fsize,
+         QU_s_data,
+         QU_h_data,
+         QU_s_stack,
+         QU_h_stack,
+         QU_s_core,
+         QU_h_core,
+         QU_s_rss,
+         QU_h_rss,
+         QU_s_vmem,
+         QU_h_vmem }
+
+    List 2 
+       { QU_fshare, 
+         QU_oticket, 
+         QU_projects, 
+         QU_xprojects }
+
+Open Questions:
+
+   -------------------------------------------------------------------------------
+   Q1: What can we expect from a 5.3 to 6.0 upgrade procedure? Is it possible
+       to transform a 5.3 configuration basing on queue instances into a cluster 
+       queue based configuration?
+
+   A1: For an automatic transformation of a group of 5.3 queues into a 6.0 cluster 
+       queue we lack information about which queues belongs to a group. It might be 
+       possible however to provide a semi-automatic upgrade procedure.
+   -------------------------------------------------------------------------------
+   Q2: Shouldn't it be possible to provide some system host groups which
+       contain all hosts automatically which have a certain set of attributes?
+
+   A2: The specification allows automated host groups. Automated host groups 
+       are not covered in this specification.
+   -------------------------------------------------------------------------------
+   Q3: It should be possible to use 'all' host group as hostname attribute
+       for queue_conf(5).
+   
+   A3: The specification allows automated host groups. Automated host groups 
+       are not covered in this specification.

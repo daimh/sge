@@ -1,0 +1,75 @@
+/* XPM */
+/*___INFO__MARK_BEGIN__*/
+/*************************************************************************
+ * 
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ * 
+ *  Sun Microsystems Inc., March, 2001
+ * 
+ * 
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ * 
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ * 
+ *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ * 
+ *   Copyright: 2001 by Sun Microsystems, Inc.
+ * 
+ *   All Rights Reserved.
+ * 
+ ************************************************************************/
+/*___INFO__MARK_END__*/
+static char *stdinput[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 22 1",
+"  c black",
+". c #34DC38",
+"X c #3FDF43",
+"o c #40DE44",
+"O c #4BE14F",
+"+ c #4DE151",
+"@ c #5AE45E",
+"# c #5AE260",
+"$ c #67E56A",
+"% c #75E775",
+"& c #75E778",
+"* c #818181",
+"= c #959595",
+"- c gray60",
+"; c #84EA87",
+": c #8FED92",
+"> c #91ED93",
+", c #9EEEA0",
+"< c #ACF0AE",
+"1 c #BAF2BC",
+"2 c gray100",
+"3 s mask c None",
+/* pixels */
+"-*************33",
+"*2222222222222*3",
+"*222 22 22 222*3",
+"*222 22  2 222*3",
+"*222 22 2  222*3",
+"*222 22 22 222*3",
+"*222 22 22 222*3",
+"*2222222222222*3",
+"*2.o+#$&;>,<12*3",
+"*2.XO@$%;>,<12*3",
+"*2.XO@$&;>*****3",
+"*2.XO@$&;:*222*3",
+"*2.X+@$%;>*22*33",
+"*222222222*2*333",
+"=***********3333",
+"3333333333333333"
+};

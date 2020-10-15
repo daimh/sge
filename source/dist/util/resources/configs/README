@@ -1,0 +1,8 @@
+Configuration files to help SGE fit into other infrastructure.
+
+logcheck.sge:  Filter information and warning syslog messages with
+               logcheck(8), which appear at execd startup even if
+               USE_SYSLOG is false.  Install it, for instance, as
+               /etc/logcheck/ignore.d.server/sge
+
+logrotate.sge:  Rotate log files with logrotate(1)

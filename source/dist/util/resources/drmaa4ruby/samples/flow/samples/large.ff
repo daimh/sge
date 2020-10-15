@@ -1,0 +1,21 @@
+# ------------------------------------------------------------------------------------------
+ALL = FLOW($arch=solaris) & FLOW($arch=linux) & FLOW($arch=irix) & FLOW($arch=darwin)
+FLOW = BUILD | INST | TESTS | FINAL
+TESTS = T & T & T & T
+T = S1 & S2 & S3 & S4
+S1 = TT1 | TT2 | TT3
+S2 = TT1 | TT2 | TT3
+S3 = TT1 | TT2 | TT3
+S4 = TT1 | TT2 | TT3
+TT1 = T1 & T2 & T3 & T4
+TT2 = T1 & T2 & T3 & T4
+TT3 = T1 & T2 & T3 & T4
+# ------------------------------------------------------------------------------------------
+BUILD = { cmd=do_make, nat=-q $arch.q, args=5 }
+INST = { cmd=do_inst, nat = -q gridware.q, args=1 -local -bin $arch, name=I$arch }
+FINAL = { cmd=do_final, name=FIN$arch, args=1 }
+T1 = { cmd=do_test, nat= -q $arch.q, args=1 }
+T2 = { cmd=do_test, nat= -q $arch.q, args=2 }
+T3 = { cmd=do_test, nat= -q $arch.q, args=3 }
+T4 = { cmd=do_test, nat= -q $arch.q, args=4 }
+# ------------------------------------------------------------------------------------------

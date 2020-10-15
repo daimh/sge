@@ -1,0 +1,17 @@
+To gain a high level of quality and to ensure bugs will not turn up again in 
+future releases, we'll use the following procedure when fixing bugs.
+
+1. Create a testsuite scenario that will recognize the bug.
+   This can be a new testsuite check (under checktree/bugs/issuezilla/<id>).
+   Or you create an addition to an existing testsuite check. In this case, please
+   create a file checktree/bugs/issuezilla/<id>.txt referencing the extended 
+   testsuite check. Use checktree/bugs/issuezilla/template.txt as template.
+2. Fix the bug.
+3. Verify bug fix with testsuite.
+4. Review. Use the review form doc/devel/review.txt, follow the steps listed in
+   doc/devel/review_help.txt.
+5. Merge the fix to other branches as necessary, repeat steps 3 (testsuite) 
+   and 4 (review).
+
+All testsuite development is done in maintrunk.
+The maintrunk testsuite can test both 5.3 and 6.0 systems.

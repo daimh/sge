@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<AR_Type>
+   <name>test_ar</name>
+   <account>sge</account>
+   <submissionTime>0</submissionTime>
+   <startTime>1273814500</startTime>
+   <endTime>1273821700</endTime>
+   <duration>7200</duration>
+   <verify>0</verify>
+   <errorHandling>0</errorHandling>
+   <resource>NONE</resource>
+   <queue>NONE</queue>
+   <mailOptions>0</mailOptions>
+   <mail>NONE</mail>
+   <peRange>NONE</peRange>
+   <acl>NONE</acl>
+   <xacl>NONE</xacl>
+   <type>0</type>
+</AR_Type>

@@ -1,0 +1,204 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_tov.xmtType:   TopLevelShell
+Qmon*qmon_tov.allowShellResize: True
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Ticket Overview Layout 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*tov_layout.autoUnmanage:   False
+Qmon*tov_layout.dialogTitle:    @{QMON +++ Policy Configuration}
+!Qmon*tov_layout.fontList:       $dialog_font
+
+Qmon*tov_layout.xmtChildren: \
+   XmPushButton      tov_main_link; \
+   InputField        weight_deadline=weight_deadline, \
+                     weight_urgency=weight_urgency, \
+                     weight_priority=weight_priority, \
+                     weight_ticket=weight_ticket, \
+                     weight_waiting_time=weight_waiting_time, \
+                     policy_hierarchy = policy_hierarchy; \
+   Ulong32Field      share_tree_tickets_field = total_share_tree_tickets, \
+                     functional_tickets_field = total_functional_tickets; \
+   Label             share_tree_tickets_label = label_share_tree_tickets, \
+                     functional_tickets_label = label_functional_tickets, \
+                     override_tickets_label = override_tickets; \
+   XmPushButton      tov_users_for_deadline, tov_share_tree_policy, \
+                     tov_functional_policy, tov_override_policy, \
+                     tov_done, tov_apply, tov_update, tov_help; \
+   XmtMsgLine        tov_message;\
+   XmToggleButton    share_override_ticket = share_override_ticket, \
+                     report_pjob_tickets = report_pjob_tickets, \
+                     share_functional_ticket = share_functional_ticket; \
+   Spinbox           max_pending_tasks_per_job = max_pending_tasks_per_job, \
+                     max_functional_jobs = max_functional_jobs;
+
+Qmon*tov_layout.layout: \
+   Fixed Shadowed Out 4 2 LREvenSpaced Row tovcontrol_title { \
+      Fixed Centered tov_main_link \
+      Centered Color "$title_fg" "@{@fBPolicy Configuration}" \
+   } \
+   # \
+   Row { \
+      Shadowed Out Col { \
+         FlushLeft Color "blue" "@{@fBPolicy Importance Factor}" \
+         Row { \
+            Col { \
+               Caption tl "@{Priority}" weight_priority \
+            } \
+            Col { \
+               Caption tl "@{Urgency}" weight_urgency \
+            } \
+            Col { \
+               Caption tl "@{Ticket}" weight_ticket \
+            } \
+         } \
+         = \
+         = \
+         Col { \
+            FlushLeft Color "blue" "@{@fBUrgency Policy}" \
+            Caption tl "@{Weight Deadline}" \
+               weight_deadline \
+            Caption tl "@{Weight Waiting Time}" \
+               weight_waiting_time \
+         } \
+         = \
+         Col { \
+            FlushLeft Color "blue" "@{@fBTicket Policy}" \
+            # \
+            Row { \
+               Col { \
+                  FlushLeft "@{Current Active Tickets}" \
+                  ## \
+                  Caption tl "@{@fIShare Tree Tickets}" share_tree_tickets_label \
+                  Caption tl "@{@fIFunctional Tickets}" functional_tickets_label \
+                  Caption tl "@{@fIOverride Tickets}" override_tickets_label \
+                  <>\
+               } \
+               | \
+               Col { \
+                  FlushLeft "@{Edit Tickets}" \
+                  <>\
+                  Caption tl "@{@fITotal Share Tree Tickets}" share_tree_tickets_field \
+                  Caption tl "@{@fITotal Functional Tickets}" functional_tickets_field \
+               } \
+            } \
+            = \
+            share_override_ticket \
+            share_functional_ticket \
+            report_pjob_tickets \
+            Caption tl "@{Maximum Functional Jobs}" \
+               Row { max_functional_jobs <> } \
+            Caption tl "@{Maximum Pending Tasks Per Job}" \
+               Row { max_pending_tasks_per_job <> }\
+            Caption tl "@{Ticket Policy Hierarchy}" \
+               policy_hierarchy \
+         } \
+         = \
+         Equal Even Row { \
+            tov_users_for_deadline \
+            tov_share_tree_policy \
+            tov_functional_policy \
+            tov_override_policy \
+         } \
+      } \
+      Fixed Shadowed Out Col { \
+         tov_update \
+         # \
+         tov_apply \
+         tov_done \
+         tov_help \
+         <> \
+         Fixed tov_message \
+      } \
+   }
+
+Qmon*tov_layout.tov_main_link.labelType:   PIXMAP
+Qmon*tov_layout.tov_main_link.labelPixmap: logo
+Qmon*tov_layout.tov_main_link.shadowThickness:    1
+Qmon*tov_layout.tov_main_link.highlightThickness: 0
+Qmon*tov_layout.tov_main_link.marginHeight:       0
+Qmon*tov_layout.tov_main_link.marginWidth:        0
+
+Qmon*tov_layout*share_tree_tickets_label.recomputeSize:    False
+Qmon*tov_layout*share_tree_tickets_label.background:       $stree_share
+Qmon*tov_layout*share_tree_tickets_label.alignment:        ALIGNMENT_BEGINNING
+
+Qmon*tov_layout*functional_tickets_label.recomputeSize:    False
+Qmon*tov_layout*functional_tickets_label.background:       $stree_functional
+Qmon*tov_layout*functional_tickets_label.alignment:        ALIGNMENT_BEGINNING
+
+Qmon*tov_layout*override_tickets_label.recomputeSize:      False
+Qmon*tov_layout*override_tickets_label.background:         $stree_override
+Qmon*tov_layout*override_tickets_label.alignment:          ALIGNMENT_BEGINNING
+
+Qmon*tov_layout*share_tree_tickets_field.background:       $stree_share
+Qmon*tov_layout*functional_tickets_field.background:       $stree_functional
+
+Qmon*tov_layout*tov_users_for_deadline.labelString:     @{tov.deadline.Users Allowed\nTo Submit\nDeadline Jobs}
+Qmon*tov_layout*tov_share_tree_policy.labelString:      @{tov.sharetree.Share Tree\nPolicy}
+Qmon*tov_layout*tov_functional_policy.labelString:      @{tov.functional.Functional\nPolicy}
+Qmon*tov_layout*tov_override_policy.labelString:        @{tov.override.Override\nPolicy}
+Qmon*tov_layout*tov_update.labelString:                 @{Refresh}
+Qmon*tov_layout*tov_apply.labelString:                  @{Apply}
+Qmon*tov_layout*tov_done.labelString:                   @{Done}
+Qmon*tov_layout*tov_help.labelString:                   @{Help}
+
+Qmon*tov_layout*share_override_ticket.labelString:    @{Share Override Tickets}
+Qmon*tov_layout*share_override_ticket.alignment:      ALIGNMENT_BEGINNING
+
+Qmon*tov_layout*report_pjob_tickets.labelString:    @{Report Pending Job Tickets}
+Qmon*tov_layout*report_pjob_tickets.alignment:      ALIGNMENT_BEGINNING
+
+Qmon*tov_layout*share_functional_ticket.labelString:  @{Share Functional Shares}
+Qmon*tov_layout*share_functional_ticket.alignment:    ALIGNMENT_BEGINNING
+
+Qmon*tov_layout*max_functional_jobs.minimum: 0
+Qmon*tov_layout*max_functional_jobs.spinboxStyle: SPINBOX_STACKED_RIGHT
+Qmon*tov_layout*max_functional_jobs.buttonSizeFixed: True
+Qmon*tov_layout*max_functional_jobs.columns: 5
+Qmon*tov_layout*max_functional_jobs.spinboxUseClosestValue: True
+Qmon*tov_layout*max_functional_jobs.value: 0
+Qmon*tov_layout*max_functional_jobs.incrementLarge: 10
+
+Qmon*tov_layout*max_pending_tasks_per_job.minimum: 0
+Qmon*tov_layout*max_pending_tasks_per_job.spinboxStyle: SPINBOX_STACKED_RIGHT
+Qmon*tov_layout*max_pending_tasks_per_job.buttonSizeFixed: True
+Qmon*tov_layout*max_pending_tasks_per_job.columns: 5
+Qmon*tov_layout*max_pending_tasks_per_job.spinboxUseClosestValue: True
+Qmon*tov_layout*max_pending_tasks_per_job.value: 0
+Qmon*tov_layout*max_pending_tasks_per_job.incrementLarge: 10
+
+Qmon*tov_message*columns:         15
+Qmon*tov_help.activateCallback:   XmtHelpDisplayContextHelp(self);

@@ -1,0 +1,202 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+Qmon*qmon_ar.xmtChildren:   XmtLayout ar_main_layout;
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! AR Main Layout 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*ar_main_layout.dialogTitle: @{QMON +++ AR Control}
+!Qmon*ar_main_layout*fontList:  $dialog_font
+Qmon*ar_main_layout.ar_form*fontList:  $dialog_font
+
+Qmon*ar_main_layout.xmtChildren: \
+   XmPushButton   ar_main_link; \
+   XmForm         ar_form; \
+   XmToggleButton ar_force; \
+   XmPushButton   ar_delete, ar_submit, ar_update, \
+                  ar_customize, ar_done, ar_help, \
+                  ar_select_all;
+
+Qmon*ar_main_layout.layout: \
+   Fixed Shadowed Out 4 2 LREvenSpaced Row arcontrol_title { \
+      Fixed Centered ar_main_link \
+      Centered Color "$title_fg" "@{@fBAdvance Reservation}" \
+   } \
+   # \
+   Row { \
+      ar_form \
+      Fixed Shadowed Col { \
+         ar_update \
+         ar_submit \
+         Etched Col { \
+            ar_force \
+            ar_delete \
+            ar_select_all \
+         } \
+         ar_customize \
+         ar_done \
+         ar_help \
+         <>\
+      } \
+   }
+
+Qmon*ar_form.xmtChildren: \
+   Folder         ar_folder;
+
+Qmon*ar_main_layout.ar_main_link.labelType:   PIXMAP
+Qmon*ar_main_layout.ar_main_link.labelPixmap: logo
+Qmon*ar_main_layout.ar_main_link.shadowThickness:    1
+Qmon*ar_main_layout.ar_main_link.highlightThickness: 0
+Qmon*ar_main_layout.ar_main_link.marginHeight:       0
+Qmon*ar_main_layout.ar_main_link.marginWidth:        0
+
+Qmon*ar_main_layout*ar_done.labelString:      @{Done}
+Qmon*ar_main_layout*ar_submit.labelString:    @{Submit}
+Qmon*ar_main_layout*ar_update.labelString:    @{Refresh}
+Qmon*ar_main_layout*ar_delete.labelString:    @{Delete}
+Qmon*ar_main_layout*ar_select_all.labelString: @{Select All}
+Qmon*ar_main_layout*ar_customize.labelString: @{Customize}
+Qmon*ar_main_layout*ar_help.labelString:      @{Help}
+
+Qmon*ar_main_layout*ar_force.labelString:     @{Force}
+
+Qmon*ar_main_layout*ar_folder.resizeChildren: True
+
+Qmon*ar_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! ar_folder
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!Qmon*ar_main_layout*ar_folder.xmtChildren: \
+!   XmtLayout ar_pending, ar_running;
+
+Qmon*ar_main_layout*ar_folder.xmtChildren: \
+   XmtLayout ar_running;
+
+
+Qmon*ar_running.xmtChildren: \
+   CE_TypeMatrix  ar_running_ars;
+
+Qmon*ar_pending.xmtChildren: \
+   CE_TypeMatrix  ar_pending_ars;
+
+Qmon*ar_running.layout: \
+   Stretchable ar_running_ars
+
+Qmon*ar_pending.layout: \
+   Stretchable ar_pending_ars
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! ar_running
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!Qmon*ar_running.tabLabel: @{@fBRunning ARs}
+Qmon*ar_running.tabLabel: @{@fBAvailable ARs}
+
+Qmon*ar_running_ars.allowColumnResize:    True
+Qmon*ar_running_ars.fill:                 False
+Qmon*ar_running_ars.reverseSelect:        True
+Qmon*ar_running_ars.fontList:             $matrix_font
+!!Qmon*ar_running_ars.fixedColumns:     7
+Qmon*ar_running_ars.columns:          7
+Qmon*ar_running_ars.columnMaxLengths: 40,20,50,50,50,50,50
+Qmon*ar_running_ars.rows:             20
+Qmon*ar_running_ars.visibleRows:      17
+Qmon*ar_running_ars.evenRowBackground: $matrix_even_bg
+Qmon*ar_running_ars.oddRowBackground:  $matrix_odd_bg
+!! Qmon*ar_running_ars.gridType:            GRID_CELL_SHADOW
+!! Qmon*ar_running_ars.cellShadowType:      SHADOW_IN
+!! Qmon*ar_running_ars.cellShadowThickness: 1
+Qmon*ar_running_ars.gridType:            GRID_NONE
+
+Qmon*ar_running_ars.boldLabels:             True
+Qmon*ar_running_ars.buttonLabels:           True
+Qmon*ar_running_ars.columnLabelColor:       $matrix_label
+Qmon*ar_running_ars.columnLabels:           @{ARId}, @{ARName}, @{Owner}, @{State}, @{StartTime}, @{EndTime}, @{Duration}
+
+Qmon*ar_running_ars*horizontalScrollBarDisplayPolicy: DISPLAY_STATIC
+
+Qmon*ar_running_ars.translations:   #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:   SelectCell(begin)\n\
+         <Btn1Up>(2):  SelectCell(edit)\n\
+         Ctrl<Btn2Down>:  ResizeColumns()
+Qmon*ar_running_ars.clip.translations: #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:   SelectCell(begin)\n\
+         <Btn1Up>(2):  SelectCell(edit)\n\
+         Ctrl<Btn2Down>:  ResizeColumns()
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! ar_pending
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*ar_pending.tabLabel: @{@fBPending ARs}
+
+Qmon*ar_pending_ars.allowColumnResize:    True
+Qmon*ar_pending_ars.fill:                 False
+Qmon*ar_pending_ars.reverseSelect:        True
+Qmon*ar_pending_ars.fontList:             $matrix_font
+!!Qmon*ar_pending_ars.fixedColumns:       7
+Qmon*ar_pending_ars.columns:              7
+Qmon*ar_pending_ars.columnMaxLengths: 40,20,50,50,50,50,50
+Qmon*ar_pending_ars.rows:        20
+Qmon*ar_pending_ars.visibleRows: 17
+Qmon*ar_pending_ars.evenRowBackground: $matrix_even_bg
+Qmon*ar_pending_ars.oddRowBackground:  $matrix_odd_bg
+!! Qmon*ar_pending_ars.gridType:      GRID_CELL_SHADOW
+!! Qmon*ar_pending_ars.cellShadowType:      SHADOW_IN
+!! Qmon*ar_pending_ars.cellShadowThickness: 1
+Qmon*ar_pending_ars.gridType:      GRID_NONE
+
+Qmon*ar_pending_ars.columnLabels:           @{ARId}, @{ARName}, @{Owner}, @{State}, @{StartTime}, @{EndTime}, @{Duration}
+Qmon*ar_pending_ars.boldLabels: True
+Qmon*ar_pending_ars.buttonLabels:        True
+Qmon*ar_pending_ars.columnLabelColor:    $matrix_label
+
+Qmon*ar_pending_ars*horizontalScrollBarDisplayPolicy: DISPLAY_STATIC
+
+Qmon*ar_pending_ars.translations:   #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:   SelectCell(begin)\n\
+         <Btn1Up>(2):  SelectCell(edit)\n\
+         Ctrl<Btn2Down>:  ResizeColumns()
+Qmon*ar_pending_ars.clip.translations: #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:   SelectCell(begin)\n\
+         <Btn1Up>(2):  SelectCell(edit)\n\
+         Ctrl<Btn2Down>:  ResizeColumns()
+

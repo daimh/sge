@@ -1,0 +1,812 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Joachim Gabler">
+   <meta name="GENERATOR" content="Mozilla/4.76C-CCK-MCD  [en] (X11; U; SunOS 5.8 sun4u) [Netscape]">
+</head>
+<body>
+
+<h1>
+Source code documentation using adoc</h1>
+An essential characteristic of high quality source code is a comprehensive
+documentation.
+<p>For the Grid Engine development, we started some time ago to use so
+called Autodoc Headers that are interpreted by the adoc utility.
+<p>Adoc was originally written by Tobias Ferber and published unter the
+GPL.
+<br>It can create ASCII and Texinfo output, Texinfo can be&nbsp; used to
+publish the documentation in a lot of different output formats including
+HTML, PDF, GNU Info, DVI etc.
+<p>It's functionality is a little bit rudimentory and can not really compete
+with tools like doxygen or the javadoc tool, but it has the advantage,
+that it can be used to parse not only C or Java source code, but also any
+scripting languages like tcl, shell etc.&nbsp; using the same syntax.
+<p>The source code of adoc can be found in the directory <tt>source/3rdparty/adoc</tt>.
+<br>We modified it to support 3 levels of chapters/sections instead of
+only 2.
+<br>&nbsp;
+<h2>
+Generating the documentation</h2>
+The documentation can be generated automatically using the aimk script
+(<tt>source/aimk</tt>).
+<br>Calling <tt>aimk -adoc</tt> will
+<ul>
+<li>
+compile the adoc tool</li>
+
+<li>
+generate 3 texinfo files:</li>
+
+<ul>
+<li>
+documentation of the library functions (<tt>libs.texi</tt>)</li>
+
+<li>
+documentation of the core system (<tt>core.texi</tt>)</li>
+
+<li>
+documentation of the testsuite (<tt>testsuite.texi</tt>)</li>
+</ul>
+</ul>
+The texinfo files can be used to generate a readable documentation in different
+output formats.
+<p>Examples:
+<ul>
+<li>
+Generate HTML-Documentation:</li>
+
+<br><tt>texi2html libs.texi</tt>
+<br>Writes a file <tt>libs.html</tt> containing the documentation and a
+file <tt>libs_toc.html</tt> containing a table of contents with links to
+<tt>libs.html</tt>
+<li>
+Generate Documentation in PDF Format:</li>
+
+<br><tt>texi2pdf libs.texi</tt>
+<br>Creates a file <tt>libs.pdf</tt></ul>
+
+<h2>
+Writing documentation</h2>
+Each function of C, TCL or shell code should have an autodoc header, especially
+these in function libraries.
+<br>The header can be inserted from a template (see<tt><font color="#000000">doc/devel/c-header</font></tt>for
+C-Syntax, <tt><font color="#000000">doc/devel/sh-header</font></tt>for
+TCL and shell syntax) or by using a tcl script defined as editor macro.
+<h3>
+Macro for automated insertion of autodoc headers</h3>
+The&nbsp; distribution contains a small tcl script that may be used to
+automatically insert an autodoc header into a source file (see <tt>doc/testsuite/adoc/doc_tool.tcl</tt>).
+<br>It creates an autodoc header and automatically enters data for the
+category and function name, and the autodoc sections <tt>NAME</tt>, <tt>SYNOPSIS</tt>,
+<tt>INPUTS</tt>
+and <tt>RESULT</tt>.
+<p>It can be called as macro from the editor, if the editor has some means
+to include macros and the call of external programs.
+<p>The doc_tool.tcl has a variety of options to parse and modify source
+code for source code documentation purposes.
+<h4>
+Insertion of autodoc headers in the vim editor</h4>
+To install such a macro in the vim editor, edit the .vimrc file in your
+homedirectory and add the following line:
+<p><tt>map ^P :-r !doc_tool mode C output stdout no_warnings func &lt;cword>
+%:p^M</tt>
+<p>To enter the ^P and ^M, in vi press CTRL-V CTRL-p / CTRL-V CTRL-m.
+<p>If you place the cursor on a C function prototype&nbsp; and press F11,
+a new partly filled out autodoc header for the function will be inserted
+into the source file.
+<p>Newer vim versions (beginning with 6.0?) seem to use another syntax
+in the .vimrc file. Add the following line to your .vimrc file (install
+macro on F9, F11 as in the previous example didn't work for some reason:
+<p><tt>map &lt;unique> &lt;F9> :-r !doc_tool mode C output stdout no_warnings
+func &lt;cword> %:p^M</tt>
+<h3>
+Choosing a function identifier</h3>
+The current structure of the source code documentation provides 3 individual
+files - documentation of libraries, the core system binaries and the testsuite.
+<br>Within each document, we have 3 hiearchical levels of sections - in
+texinfo: chapter, section and subsection.
+<p>The current documentation is structured not to reflext strictly the
+directory structure of the code in the section hierarchy, but the structure
+reflects categories of code within a certain directory based structure.
+<p>Each source file contains functions belonging to exactly one function
+category.
+<p>Example:
+<br>The module qsh has the function category <tt>Interactive/qsh</tt>:
+It is a tool to create an interactive job in Grid Engine, its name is qsh.
+<p>Possible function identifiers then are
+<br><tt>Interactive/qsh/--Interactive</tt>
+<br><tt>Interactive/qsh/add2env()</tt>
+<br><tt>...</tt>
+<p>To enable the doc_tool.tcl to insert adoc headers with the correct function
+categoriy filled in automatically, there exists a file doc/devel/doc_tool.cat
+that maps directories and optionally filenames to function categories.
+One line contains one mapping.
+<p>Example:
+<br><tt>source/clients/qsh Interactive/qsh</tt>
+<br><tt>source/clients/qrsh Interactive/qrsh</tt>
+<br><tt>source/daemons/execd execd</tt>
+<br><tt>source/daemons/execd/load_avg.* execd/load</tt>
+<br><tt>source/daemons/execd/sge_load_sensor.* execd/load</tt>
+<br><tt>...</tt>
+<br>&nbsp;
+<h4>
+Function categories for the library documentation</h4>
+
+<ul>
+<li>
+Eventclient</li>
+
+<ul>
+<li>
+Client</li>
+</ul>
+
+<li>
+commd</li>
+
+<ul>
+<li>
+commlib</li>
+</ul>
+
+<li>
+cull</li>
+
+<ul>
+<li>
+hash - cull specific hash table extensions, based on uti/hash</li>
+
+<li>
+list</li>
+
+<li>
+multitype</li>
+</ul>
+
+<li>
+gdi</li>
+
+<ul>
+<li>
+feature</li>
+
+<li>
+job_jatask</li>
+
+<li>
+queue</li>
+
+<li>
+range</li>
+
+<li>
+request</li>
+
+<li>
+security</li>
+
+<li>
+setup</li>
+
+<li>
+sge</li>
+
+<li>
+suser</li>
+
+<li>
+usermap</li>
+</ul>
+
+<li>
+rmon</li>
+
+<li>
+sched</li>
+
+<li>
+uti</li>
+
+<ul>
+<li>
+afsutil</li>
+
+<li>
+bitop</li>
+
+<li>
+dstring</li>
+
+<li>
+hostname</li>
+
+<li>
+htable - generic hash table implementation</li>
+
+<li>
+io</li>
+
+<li>
+language</li>
+
+<li>
+log</li>
+
+<li>
+os</li>
+
+<li>
+prog</li>
+
+<li>
+signal</li>
+
+<li>
+spool</li>
+
+<li>
+stdio</li>
+
+<li>
+stdlib</li>
+
+<li>
+string- string parsing functions</li>
+
+<li>
+time</li>
+
+<li>
+uidgid</li>
+
+<li>
+unistd</li>
+</ul>
+</ul>
+
+<h4>
+Function categories for the core system documentation</h4>
+
+<ul>
+<li>
+commd</li>
+
+<li>
+common</li>
+
+<ul>
+<li>
+General</li>
+
+<li>
+Clients</li>
+
+<li>
+Daemons</li>
+</ul>
+
+<li>
+execd</li>
+
+<li>
+qacct</li>
+
+<li>
+qalter</li>
+
+<li>
+qconf</li>
+
+<li>
+qdel</li>
+
+<li>
+qhost</li>
+
+<li>
+qmaster</li>
+
+<li>
+qmod</li>
+
+<li>
+qmod</li>
+
+<li>
+qstat</li>
+
+<li>
+qsub</li>
+
+<li>
+schedd</li>
+
+<li>
+schadowd</li>
+
+<li>
+shepherd</li>
+
+<li>
+Interactive</li>
+
+<ul>
+<li>
+qsh</li>
+</ul>
+
+<ul>
+<li>
+qlogin</li>
+
+<li>
+qmake</li>
+
+<li>
+qrsh</li>
+
+<li>
+qtcsh</li>
+</ul>
+
+<li>
+Eventclient</li>
+
+<ul>
+<li>
+Server</li>
+</ul>
+</ul>
+
+<h4>
+Function categories for the testsuite documentation</h4>
+
+<ul>
+<li>
+checks</li>
+
+<ul>
+<li>
+install</li>
+
+<li>
+loadcheck</li>
+
+<li>
+migration</li>
+
+<li>
+performance</li>
+
+<li>
+performance_cluster</li>
+
+<li>
+performance_scheduler</li>
+
+<li>
+qalter</li>
+
+<li>
+qconf</li>
+
+<li>
+qdel</li>
+
+<li>
+qmaster_size</li>
+
+<li>
+qmod</li>
+
+<li>
+qrsh</li>
+
+<li>
+qstat</li>
+
+<li>
+qsub</li>
+
+<li>
+shadowd_migrate</li>
+</ul>
+
+<li>
+library</li>
+
+<ul>
+<li>
+control</li>
+
+<li>
+file</li>
+
+<li>
+parser</li>
+
+<li>
+remote</li>
+
+<li>
+sge</li>
+</ul>
+
+<li>
+scripts</li>
+</ul>
+
+<h3>
+Filling out the autodoc header</h3>
+The following sections of an autodoc header should always be filled out:
+<ul>
+<li>
+<b><tt>NAME</tt></b></li>
+
+<br>The function name and a short (one line) description
+<li>
+<b><tt>SYNOPSIS</tt></b></li>
+
+<br>The function prototype, optionally preceeded by an include statement,
+if needed and compiler/linker options, see&nbsp; <a href="#Examples for adoc headers">Examples
+for adoc headers</a>
+<li>
+<b><tt>FUNCTION</tt></b></li>
+
+<br>A complete function description.
+<li>
+<b><tt>INPUTS</tt></b></li>
+
+<br>Description of all input parameters
+<li>
+<b><tt>RESULT</tt></b></li>
+
+<br>Description of the result</ul>
+
+<p><br>These sections are optional :
+<ul>
+<li>
+<b><tt>EXAMPLE</tt></b></li>
+
+<br>How to use the function
+<li>
+<b><tt>NOTES</tt></b></li>
+
+<br>Notes for further development, hints for the usage etc.
+<li>
+<b><tt>BUGS</tt></b></li>
+
+<br>adoc provides a BUGS section to document known bugs - please do not
+create BUGS sections - use IssueZilla instead.
+<li>
+<b><tt>SEE ALSO</tt></b></li>
+
+<br>References to other functions, man pages etc.</ul>
+
+<br>&nbsp;
+<h3>
+Introduction pages for Categories</h3>
+A category usually reflects some hierarchy in the source code tree, often
+an individual binary, and deserves to have an introductory autodoc header
+before the detailed function descriptions.
+<p>Therefor an autodoc header should be written for each category that
+gives a short overview of the category and may refer to other autodoc headers
+giving more details.
+<p>The header of such an introductory page has the form
+<br><tt>/****** chapter/section/--topic *****************</tt>
+<p>The hyphens (-) before the topic influence autodoc's sorting algorithm:
+The introductory page will always be the the first page of a section.
+<br>&nbsp;
+<br>&nbsp;
+<h3>
+Documentation of defines, global variables etc.</h3>
+It is desirable to have documentation also for constants/defines, global
+variables, structures, typedefs etc.
+<p>The following special function identifiers are used for this type of
+documentation:
+<br>-topic-Defines
+<br>-topic-Global_Variables
+<br>-topic-Templates
+<br>-topic-Typedefs
+<br>-topic-Misc
+<p>Again, the hyphen before the identifiers name influence adoc's sorting
+algorithm.
+<br>&nbsp;
+<h2>
+<a NAME="Examples for adoc headers"></a>Examples for adoc headers</h2>
+
+<h3>
+An introduction header</h3>
+<tt>/****** Interactive/qmake/--qmake ***************************************</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp; NAME</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; qmake -- Scheduled parallel distributed
+make</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp; SYNOPSIS</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; qmake &lt;sge options> -- &lt;gmake options></tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp; FUNCTION</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; Scheduled, parallel, distributed make.</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; qmake is implemented based on GNU make
+3.78.1 using the remote stub</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; mechanism of gmake.</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; qmake will start a parallel job and run
+make tasks as task in the</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; parallel job using the Grid Engine qrsh
+-inherit command.</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp; INPUTS</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; sge options - all options that can be
+specified with qsub command</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gmake options&nbsp; - all possible gmake
+options</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp; RESULT</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; returncode from gmake or EXIT_FAILURE,
+if remote mechanism fails.</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; On error, an appropriate error description
+is written to stderr.</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp; EXAMPLE</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; qmake -cwd -v PATH -- -j 5</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; Build sge system: aimk -qmake -parallel
+10</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp; NOTES</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; not yet internationalized</tt>
+<br><tt>*</tt>
+<br><tt>****************************************************************************</tt>
+<br><tt>*/</tt>
+<br>&nbsp;
+<h3>
+A header describing defines</h3>
+<tt>/****** Interactive/qmake/-qmake-Defines ***************************************</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp; NAME</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; Defines -- constant and macro definitions</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp; SYNOPSIS</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; #define LOCK_SLEEP_TIME 500</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; #define WAIT_SLOT_TIME&nbsp;&nbsp;&nbsp;
+5</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp; FUNCTION</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; LOCK_SLEEP_TIME - Defines how long qmake
+should (u)sleep</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+after an unsuccessful try to get a lock to the</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+hostfile</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; WAIT_SLOT_TIME&nbsp; - Time to wait,
+if no slot is free in hostfile</tt>
+<br><tt>*</tt>
+<br><tt>****************************************************************************</tt>
+<br><tt>*/</tt>
+<br>&nbsp;
+<h3>
+A function description</h3>
+<tt>/****** Interactive/qmake/remote_exit() ***************************************</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp; NAME</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; remote_exit() -- exit qmake</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp; SYNOPSIS</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; static void remote_exit(int code, const
+char *message,</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+const char *reason);</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp; FUNCTION</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; Outputs the error messages passed as
+parameters to stderr</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; and then exits with the error code passed
+as parameter.</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp; INPUTS</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; code&nbsp;&nbsp;&nbsp; - exit code</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; message - message to output before exit,
+should describe the</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+situation when error occurs</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; reason&nbsp; - description of the error
+reason, e.g. result from</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+system call strerror(errno)</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp; RESULT</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; program exits</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp; EXAMPLE</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; #include &lt;stdlib.h></tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; #include &lt;string.h></tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; #include &lt;errno.h></tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; ...</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; if(write(filehandle, buffer, size) !=
+size) {</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; remote_exit(EXIT_FAILURE,
+"writing to file failed", strerror(errno));</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; }*</tt>
+<br><tt>****************************************************************************</tt>
+<br><tt>*/</tt>
+<br>&nbsp;
+<h3>
+Description of a Cull object/class</h3>
+<tt>/****** gdi/range/--RN_Type ***************************************************</tt>
+<br><tt>*&nbsp; NAME</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; RN_Type - CULL range element</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp; ELEMENTS</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; SGE_ULONG(RN_min)</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; minimum or start value
+of an id range (e.g. 1)</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; SGE_ULONG(RN_max)</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; maximum or end value
+of an id range (e.g. 9)</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; SGE_ULONG(RN_step)</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; stepsize (e.g. 2)</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp; FUNCTION</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; CULL element holding values which define
+a id range</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; (e.g. 1-9:2 => 1, 3, 5, 7, 9).</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; Lists of this CULL element are hold within
+a CULL job element</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; (JB_Type) to hold job array task ids.</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; Several functions may be used to access/modify/delete
+range</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; elements and range lists. You may find
+them in the 'SEE ALSO'</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; section. It is highly advised to use
+these access functions</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; because they assure and require a defined
+structure of</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; elements and lists.</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; Range elements and lists stored in other
+CULL elements fullfill</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; following conditions:</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - min &lt;= max</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - step >= 1</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - real range elements
+(e.g. 1-9:2 instead of 1-10:2)</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - min-ids within range
+elements part of the same</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; list are
+in ascending order: min_id(n) &lt; min_id(n+1)</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (e.g. NOT
+11-20:1; 1-9:2)</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; - ids within range
+elements part of the same</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; list are
+non-overlapping: max_id(n) &lt; min_id(n+1)</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (e.g. 1-9:2;
+11-20:1; 25-28:3)</tt>
+<br><tt>*</tt>
+<br><tt>*&nbsp; SEE ALSO</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/range/RN_Type</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/range/range_list_calculate_union_set()</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/range/range_list_calculate_difference_set()</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/range/range_list_calculate_intersection_set()</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/range/range_list_compress()</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/range/range_list_get_first_id()</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/range/range_list_get_last_id()</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/range/range_list_get_number_of_ids()</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/range/range_list_initialize()</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/range/range_list_insert_id()</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/range/range_list_is_id_within()</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/range/range_list_move_first_n_ids()</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/range/range_list_print_to_string()</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/range/range_list_remove_id()</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/range/range_correct_end()</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/range/range_get_all_ids()</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/range/range_get_number_of_ids()</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/range/range_is_overlapping()</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/range/range_is_id_within()</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/range/range_set_all_ids()</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/range/range_sort_uniq_compress()</tt>
+<br><tt>*&nbsp;&nbsp;&nbsp;&nbsp; gdi/job/JB_Type</tt>
+<br><tt>******************************************************************************/</tt>
+<h3>
+Documentation of a TCL function</h3>
+#<tt>****** library/control/ps_grep() ******</tt>
+<br><tt>#</tt>
+<br><tt>#&nbsp; NAME</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; ps_grep -- call get_ps_info and return
+only expected ps information</tt>
+<br><tt>#</tt>
+<br><tt>#&nbsp; SYNOPSIS</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; ps_grep { forwhat { host "local" } {
+variable ps_info } }</tt>
+<br><tt>#</tt>
+<br><tt>#&nbsp; FUNCTION</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; This procedure will call the get_ps_info
+procedure. It will parse the</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; get_ps_info result for the given strings
+and return only those process</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; ids which match.</tt>
+<br><tt>#</tt>
+<br><tt>#&nbsp; INPUTS</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; forwhat&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- search string (e.g. binary name)</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; { host "local" }&nbsp;&nbsp;&nbsp;&nbsp;
+- host on which the ps command should be called</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; { variable ps_info } - variable name
+to store the result (default ps_info)</tt>
+<br><tt>#</tt>
+<br><tt>#&nbsp; RESULT</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; returns a list of indexes where the search
+string matches the ps output.</tt>
+<br><tt>#</tt>
+<br><tt>#&nbsp; EXAMPLE</tt>
+<br><tt>#</tt>
+<br><tt>#&nbsp;&nbsp; set myprocs [ ps_grep "execd" "fangorn" ]</tt>
+<br><tt>#</tt>
+<br><tt>#&nbsp;&nbsp; puts "execd's on fangorn index list: $myprocs"</tt>
+<br><tt>#</tt>
+<br><tt>#&nbsp;&nbsp; foreach elem $myprocs {</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; puts $ps_info(string,$elem)</tt>
+<br><tt>#&nbsp;&nbsp; }</tt>
+<br><tt>#</tt>
+<br><tt>#&nbsp;&nbsp; output of example:</tt>
+<br><tt>#</tt>
+<br><tt>#&nbsp;&nbsp; execd's on fangorn index list: 34 39 50 59 61</tt>
+<br><tt>#&nbsp;&nbsp; 2530&nbsp;&nbsp; 140&nbsp;&nbsp;&nbsp;&nbsp; 1&nbsp;&nbsp;
+259 S Sep12&nbsp; 1916 00:00:14 /sge_s/glinux/sge_execd</tt>
+<br><tt>#&nbsp;&nbsp; 7700&nbsp;&nbsp; 142&nbsp;&nbsp;&nbsp;&nbsp; 1&nbsp;&nbsp;
+339 S Sep13&nbsp; 2024 00:03:49 /vol2/bin/glinux/sge_execd</tt>
+<br><tt>#&nbsp;&nbsp; 19159&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;
+1&nbsp;&nbsp;&nbsp;&nbsp; 0 S Sep14&nbsp; 1772 00:31:09 /vol/bin/glinux/sgeee_execd</tt>
+<br><tt>#&nbsp;&nbsp; 24148&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;
+1&nbsp;&nbsp;&nbsp;&nbsp; 0 S Sep14&nbsp; 2088 00:06:23 bin/glinux/sge_execd</tt>
+<br><tt>#&nbsp;&nbsp; 15085&nbsp;&nbsp;&nbsp;&nbsp; 0&nbsp;&nbsp;&nbsp;&nbsp;
+1&nbsp;&nbsp;&nbsp;&nbsp; 0 S Sep14&nbsp; 1904 00:27:04 /vol2/glinux/sgeee_execd</tt>
+<br><tt>#</tt>
+<br><tt>#&nbsp; NOTES</tt>
+<br><tt>#&nbsp;&nbsp; look at get_ps_info procedure for more information!</tt>
+<br><tt>#</tt>
+<br><tt>#&nbsp; SEE ALSO</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; library/control/get_ps_info()</tt>
+<br><tt>#*******************************</tt>
+<h3>
+Documentation of a shell script</h3>
+<tt>#****** utilities/preemption/high_prolog.sh ***************************************</tt>
+<br><tt>#</tt>
+<br><tt>#&nbsp; NAME</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; high_prolog.sh -- prolog for high priority
+queues</tt>
+<br><tt>#</tt>
+<br><tt>#&nbsp; SYNOPSIS</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; high_prolog.sh</tt>
+<br><tt>#</tt>
+<br><tt>#&nbsp; FUNCTION</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; If the number of slots occupied in queues
+belonging to the preemption</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; mechanism exceeds the number of slots
+reserved, an appropriate number</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; of low priority jobs/tasks are suspended.</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; The jobid's of the jobs suspended are
+written to a job context variable</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; "suspended" separated by a colon (:).</tt>
+<br><tt>#</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; If the number of slots occupied is equal
+or exceeds the number of</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; reserved slots, the low priority queues
+are disabled.</tt>
+<br><tt>#</tt>
+<br><tt>#&nbsp; SEE ALSO</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; utilities/preemption/--Preemption</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; utilities/preemption/high_epilog.sh</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; utilities/preemption/low_prolog.sh</tt>
+<br><tt>#&nbsp;&nbsp;&nbsp;&nbsp; utilities/preemption/low_epilog.sh</tt>
+<br><tt>#</tt>
+<br><tt>#***************************************************************************</tt>
+<br>&nbsp;
+</body>
+</html>

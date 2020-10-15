@@ -1,0 +1,71 @@
+#!/bin/sh
+
+# Set up or take down filesystems for cgroups, cpusets etc. according
+# to the argument ("start" or "stop").  This is intended to be run
+# by the execd rc script.
+
+# We have an "sge" level under the cgroup and cpuset mount points, and
+# SGE will only firkle with such resource-control mechanisms if the
+# relevant directory exists.  The sge directories are owned by the
+# admin user for convenience of execd.
+
+# Fixme:  Do something about /sys/fs/cgroup with prefixed files.
+
+[ "$(uname -s)" = Linux -a $# -eq 1 ] || exit 0
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+
+adminuser=$(awk '/^admin_user/ {print $2}' $SGE_ROOT/$SGE_CELL/common/bootstrap)
+
+cpuset_mnt=/dev/cpuset
+sge_cpuset=$cpuset_mnt/sge
+cgroup_mnt=/cgroups
+sge_cgroup=$cgroup_mnt/sge
+
+# There's probably no point in reporting errors.
+# Would the directories be better owned by sgeadmin than root, when
+# we use sgeadmin?
+
+if [ "$1" != stop ]; then
+    # We can use cpusets under older Linux versions (fixme: from
+    # when?), specifically in Red Hat 5, where we don't have cgroups.
+    # The documented recipe with cgroups is
+    #   mount -t cgroup -ocpuset cpuset /dev/cpuset
+    # but the cpuset filesystem type still works.
+    if [ -f /proc/self/cpuset ]; then
+        # We may already be set up, but just plough on and maybe re-do
+        # things or ignore failure when they've been done.'
+        mkdir -p $cpuset_mnt
+        mount -t cpuset none $cpuset_mnt >/dev/null 2>&1
+        mount | grep -q cpuset || rmdir $cpuset_mnt
+        if [ ! -d $sge_cpuset ]; then
+            mkdir $sge_cpuset 2>/dev/null
+            # These aren't inherited, and mems needs to be set to add
+            # a task anywhere below.
+            /bin/cp $cpuset_mnt/mems $cpuset_mnt/cpus $sge_cpuset
+            # Avoid a release agent for now
+#             if ! /usr/bin/test -x /sbin/cpuset_release_agent; then
+#                 cat <<EOF >/sbin/cpuset_release_agent
+# #!/bin/sh
+# exec rmdir $cpuset_mnt$1
+# EOF
+#                 chmod +x /sbin/cpuset_release_agent
+#             fi
+            chown -R $adminuser $sge_cpuset
+        fi
+    fi
+
+    false &&                    # not yet
+    if [ -f /proc/self/cgroup ]; then
+        mkdir -p $cgroup_mnt
+        for type in cpuacct memory freezer; do
+            mount -t cgroup -o$type none $cgroup_mnt
+        done
+        mount | grep -q "none on $cgroup_mnt type cgroup" &&
+        mkdir $sge_cgroup 2>/dev/null ||
+        rmdir $cgroup_mnt 2>/dev/null
+        [  -d $sge_cgroup ] && chown -R $adminuser $sge_cgroup
+    fi
+else
+    : # no take down yet
+fi

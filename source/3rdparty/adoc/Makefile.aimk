@@ -1,0 +1,68 @@
+###############################################################################
+# Variable definitions for targets to build
+###############################################################################
+ADOC_DIR = ..
+
+ADOC_TARGETS = adoc
+
+ADOC_OBJS = \
+            args.o    \
+            flist.o   \
+            gencode.o \
+            lex.yy.o  \
+            libfun.o  \
+            mactab.o  \
+            main.o    \
+            strarg.o  \
+            strexpand.o
+
+###############################################################################
+# global rules: all, clean, depend, messages
+###############################################################################
+all: $(ADOC_TARGETS)
+
+depend:
+	@echo No dependencies for 3rd_party adoc 
+
+clean: 
+	$(RM) $(ADOC_TARGETS) $(ADOC_OBJS) lex.yy.c
+
+messages:
+
+###############################################################################
+# rules to build object codes and binaries
+###############################################################################
+adoc:   $(ADOC_OBJS)
+	$(CC) -o $@ $(ADOC_OBJS) $(LFLAGS) $(LIBS)
+
+args.o: $(ADOC_DIR)/args.c
+		$(CC) $(CFLAGS) -I.. -c $(ADOC_DIR)/args.c
+
+flist.o: $(ADOC_DIR)/flist.c
+		$(CC) $(CFLAGS) -I.. -c $(ADOC_DIR)/flist.c
+
+gencode.o: $(ADOC_DIR)/gencode.c
+		$(CC) $(CFLAGS) -I.. -c $(ADOC_DIR)/gencode.c
+
+lex.yy.c: $(ADOC_DIR)/adoc.yy
+	flex -8 -f $(ADOC_DIR)/adoc.yy
+
+lex.yy.o: lex.yy.c
+		$(CC) $(CFLAGS) -I.. -c lex.yy.c
+
+libfun.o: $(ADOC_DIR)/libfun.c
+		$(CC) $(CFLAGS) -I.. -c $(ADOC_DIR)/libfun.c
+
+mactab.o: $(ADOC_DIR)/mactab.c
+		$(CC) $(CFLAGS) -I.. -c $(ADOC_DIR)/mactab.c
+
+main.o: $(ADOC_DIR)/main.c
+		$(CC) $(CFLAGS) -I.. -c $(ADOC_DIR)/main.c
+
+strarg.o: $(ADOC_DIR)/strarg.c
+		$(CC) $(CFLAGS) -I.. -c $(ADOC_DIR)/strarg.c
+
+strexpand.o: $(ADOC_DIR)/strexpand.c
+		$(CC) $(CFLAGS) -I.. -c $(ADOC_DIR)/strexpand.c
+
+

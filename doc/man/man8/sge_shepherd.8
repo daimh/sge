@@ -1,0 +1,218 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\" Copyright (C), 2013  Dave Love, University of Liverpool
+.\"
+.\"___INFO__MARK_END__
+.\" $RCSfile: sge_shepherd.8,v $     Last Update: $Date: 2007-07-19 09:04:33 $     Revision: $Revision: 1.12 $
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH xxQS_NAME_Sxx_SHEPHERD 8 "$Date: 2007-07-19 09:04:33 $" "xxRELxx" "xxQS_NAMExx Administrative Commands"
+.SH NAME
+xxqs_name_sxx_shepherd \- xxQS_NAMExx single job-controlling agent
+.\"
+.\"
+.SH SYNOPSIS
+.B xxqs_name_sxx_shepherd
+.\"
+.\"
+.SH DESCRIPTION
+.PP
+.I xxqs_name_sxx_shepherd
+provides the parent process functionality for a single xxQS_NAMExx job.
+The parent functionality is necessary on UNIX systems to retrieve
+resource usage information (see
+.M getrusage 2 )
+after a job has finished. In addition, the
+.I xxqs_name_sxx_shepherd
+forwards signals to the job, such for suspension,
+enabling, termination, and the xxQS_NAMExx checkpointing signal (see
+.M xxqs_name_sxx_ckpt 1
+and
+.M queue_conf 5
+for details).
+.PP
+The
+.I xxqs_name_sxx_shepherd
+receives information about the job to be started from the
+.M xxqs_name_sxx_execd 8 .
+During the execution of the job it actually starts up to 5 child
+processes. First a prolog script is run if this feature is enabled by
+the \fBprolog\fP parameter in the cluster configuration. (See
+.M xxqs_name_sxx_conf 5 .)
+Next a parallel environment startup procedure is run if the job is a parallel
+job. (See
+.M sge_pe 5
+for more information.)
+After that, the job itself is run, followed by a parallel environment shutdown
+procedure for parallel jobs,
+and finally an epilog script if requested by
+the \fBepilog\fP parameter in the cluster configuration. The prolog
+and epilog scripts, as well as the parallel environment startup and shutdown
+procedures, are to be provided by the xxQS_NAMExx administrator
+and are intended for site-specific actions to be taken before and
+after execution of the actual user job.
+.PP
+After the job has finished and the epilog script is processed,
+.I xxqs_name_sxx_shepherd
+retrieves resource usage statistics about
+the job, places them in a job-specific subdirectory of the
+.M xxqs_name_sxx_execd 8
+spool directory for reporting through
+.M xxqs_name_sxx_execd 8 ,
+and finishes.
+
+.I xxqs_name_sxx_shepherd
+also places an exit status file in the spool directory. This exit status can
+be viewed with qacct \-j JobId (see
+.M qacct 1 );
+it is not the exit status of 
+.I xxqs_name_sxx_shepherd
+itself but of one of the methods executed by 
+.I xxqs_name_sxx_shepherd.
+This exit status can have several meanings, depending on the method in which
+an error occurred (if any).
+The possible methods are: prolog, parallel start, job, parallel stop,
+epilog, suspend, restart, terminate, clean, migrate, and checkpoint.
+
+The following exit values are returned:
+.IP "0" 0.7i
+All methods: Operation was executed successfully.
+.IP "99" 0.7i
+Job script, prolog and epilog: When
+.I
+FORBID_RESCHEDULE 
+is not set in the configuration
+(see 
+.M xxqs_name_sxx_conf 5 ),
+the job gets re-queued.
+Otherwise see "Other".
+.IP "100" 0.7i
+Job script, prolog and epilog: When
+.I
+FORBID_APPERROR
+is not set in the configuration
+(see
+.M xxqs_name_sxx_conf 5 ),
+the job gets re-queued.
+Otherwise see "Other".
+.IP "Other" 0.7i
+Job script: This is the exit status of the job itself. No action is taken upon
+this exit status because the meaning of this exit status is not known.
+.br
+Prolog, epilog and parallel start: The queue is set to error state and the job is
+re-queued.
+.br
+Parallel stop: The queue is set to error state, but the job is not re-queued. It
+is assumed that the job itself ran successfully and only the clean up script failed.
+.br
+Suspend, restart, terminate, clean, and migrate: Always successful.
+.br
+Checkpoint: Success, except for kernel checkpointing: checkpoint was not 
+successful, did not happen (but migration will happen).
+.PP
+For the meaning of the return codes of the shepherd itself (which are
+interpreted by
+.M qacct 1 )
+see
+.M xxqs_name_sxx_status 5 .
+.\"
+.\"
+.SH RESTRICTIONS
+.I xxqs_name_sxx_shepherd
+should not be invoked manually, but only by
+.M xxqs_name_sxx_execd 8 .
+.\"
+.SH "ENVIRONMENT VARIABLES"
+.IP "\fBxxQS_NAME_Sxx_ROOT\fP" 1.5i
+Specifies the location of the xxQS_NAMExx standard configuration
+files.
+.\"
+.IP "\fBxxQS_NAME_Sxx_CELL\fP" 1.5i
+If set, specifies the default xxQS_NAMExx cell. To address a xxQS_NAMExx
+cell
+.I xxqs_name_sxx_execd
+uses (in the order of precedence):
+.sp 1
+.RS
+.RS
+The name of the cell specified in the environment
+variable xxQS_NAME_Sxx_CELL, if it is set.
+.sp 1
+The name of the default cell, i.e. \fBdefault\fP.
+.sp 1
+.RE
+.RE
+.\"
+.IP "\fBSGE_ENABLE_COREDUMP\fP" 1.5i
+If set, enable core dumps on Linux when the admin_user is not root.
+Linux normally disables core dumps when the daemon has changed uid or
+gid.  Setting SGE_ENABLE_COREDUMP in xxqs_name_sxx_execd's environment
+defeats that to enable core dumps for debugging if they are otherwise
+allowed.  This is typically not a big hazard with xxQS_NAME_Sxx, since
+most information is exposed in the spool area anyhow.  Dumps will
+appear in the qmaster spool directory, which need not be
+world-readable.
+.br
+On Solaris,
+.M coreadm 1
+may be used to enable such dumps.
+.\"
+.IP \fBSGE_CGROUP_DIR\fP 1.5i
+If Linux cgroups handling is enabled, this variable names a directory
+under the cgroup mount point in which to create job-specific
+directories.  The default is
+\fBsge.\fP\fISGE_CELL\fP so, for instance, the cpuset cgroup for a job
+might be
+.BR /sys/fs/cgroup/cpuset/sge.default/123 .
+.\"
+.SH FILES
+\fBsgepasswd\fP contains a list of user names and their corresponding
+encrypted passwords. If available, the password file will be used by
+\fBsge_shepherd\fB. To change the contents of this file please use the
+\fBsgepasswd\fB command. It is not advised to change that file
+manually.
+.nf
+.ta \w'<execd_spool>/job_dir/<job_id>     'u
+\fI<execd_spool>/job_dir/<job_id>\fR	job specific directory
+\fI<xxqs_name_sxx_root>/<cell>/common/sgepasswd\fP
+	Password information used on Microsoft Windows hosts.  See
+.M sgepasswd 5 .
+.fi
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M xxqs_name_sxx_conf 5 ,
+.M xxqs_name_sxx_status 5 ,
+.M remote_startup 5 ,
+.M sgepasswd 5 ,
+.M xxqs_name_sxx_execd 8 .
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

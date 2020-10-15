@@ -1,0 +1,19 @@
+#!/bin/sh
+# postrm script for gridengine-common
+#
+# see: dh_installdeb(1)
+
+set -e
+
+#DEBHELPER#
+
+user=sgeadmin
+
+case "$1" in
+    purge)
+        rm -rf /opt/sge
+        delgroup ${user}
+        deluser ${user} ;;
+esac
+exit 0
+

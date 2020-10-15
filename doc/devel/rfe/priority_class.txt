@@ -1,0 +1,121 @@
+                            Proposal on Priority Classes (v2)
+
+                                    Andreas Haas
+
+1. Objective
+
+   The purpose of the priority class work package is to provide one consistent
+   priority concept (GE and GEEE) that allows enforcing a strict hierarchy of 
+   job priority classes. Strict means that higher privileged jobs are started 
+   before less privileged jobs if appropriate resources are available.
+
+2. Current GE priority concept
+
+   With GE we do have such a priority class concept allowing any user to 
+   assign any priority to a job in the range between -1023 and 0 at submission 
+   time, whereas higher numbers correspond with higher priorities. For assigning 
+   priorities the POSIX switch "-p <priority>" switch is used. The same switch 
+   can be used after job submission for lowering the initial job priority. 
+   The default job class is 0. Priviledged users (i.e. GE operators/managers) 
+   can assign priorities to any job at any time in the range between -1023 and 
+   1024.
+
+3. Current GEEE priority concept
+
+   In GEEE the "-p <priority>" switch also exists, but unfortunately it's effect
+   on scheduling is less clear: Depending on the setup of GEEE policies it can 
+   be used to 
+
+   (1) weight the ticket distribution resulting from GEEE share tree/functional 
+       policy and thus prioritize jobs among each other of the same user or project (?)
+
+   (2) use the functional policy to implement simple job based strict priority 
+       dispatching similar to GE priority 
+
+   (3) achieve various combinations of (1) and (2)
+
+   unfortunately none of these GEEE options satisfies the requirements as fulfilled
+   with GE. The priority concept with (1) is completely different, since it 
+   adresses a different problem apparently. The priority concept with (2) is close to 
+   GE priority concept but this approach has some drawbacks and negative implications
+
+   - being just an emulation of GE priorty concept certain scheduler optimizations
+     in effect with original GE priority can't take place
+   - since the functional policy is used to implement this priority concept the 
+     functional policy can't be used in conjunction with strict job based priorties 
+   - in opposite to GE the priority of running jobs can't be changed 
+     this is a constrain resulting from certain needs of option (1) 
+   - in opposite to GE this priority concept is not available out-of-the-box,
+     but instead must be implemented explicitly
+
+   option (3) is a combination of (1) and (2).
+
+4. Conclusions
+
+   There is a difference with the priority concepts provided by the two products
+   GE and GEEE. This is of some practice significance as GEEE is considered to be
+   a superset of GE. Thus sites upgrading from GE to GEEE will expect that 
+   any feature they had with GE will available in the same manner with GEEE. This 
+   can be achieved by implementing (2), though by doing so these sites looses
+   functional policy as an important configuration option. Besides the share tree 
+   policy the functional policy is the main reason for sites to decide for GEEE 
+   instead of GE.
+   
+3. WP1: Implement GE priority classes concept as native GEEE feature
+
+   It is obvious that it is necessary to bring both priority concepts in on line.
+   The GE priority is clear and easy enough to be implemented also in GEEE as a 
+   native feature.
+
+   In the GEEE scheduler the GE priority must have absolute precedence compared with 
+   the GEEE internal ticket concept. That means jobs with higher GE priority will be 
+   considered first for dispatching regardless of the ticket amount the job gained from 
+   different GEEE policies. Only for jobs with the same GE priority the GEEE tickets 
+   are considered to decide with job is dispatched first.
+
+   Open questions:
+
+   1. The decision to be taken is about the GEEE -p submit option. Currently it is 
+      overcharged with two priority concepts. Since both of these priority concepts do 
+      make sense there must be means for the user to differ which priority concept is 
+      meant. One possible solution is to introduce a new GEEE-only option to be used 
+      for controlling GEEE intra-user/intra-project priority concept e.g. 
+      "-ip <priority>". By doing so the "-p <priority>" can be used exclusively for 
+      controlling GE priority also with GEEE.
+
+   2. Shannon: It should be very easy to replace the use of "job priority" in GEEE 
+      with a concept of "user job tickets" which would simply be the number of 
+      tickets each user associates with his job. The GEEE policies would then 
+      directly use this "user job tickets" value instead of job priority. I would 
+      also prefer using the tickets terminology instead of priority to be consistent
+      with the rest of GEEE.
+
+5. WP2: Finer-grained control on privileged priority classes
+
+   Having the GE priority concept available in GEEE provides the basic prerequisite 
+   for further improvements with priority classes. One major deficiency of the GE priority 
+   is that priorities higher than 0 can be only assigned to jobs by privileged users. This 
+   can make frequent manual intervention by GE managers/operator necessary. It is possible 
+   to reduce the amount of cases in which manual interventions by managers/operators becomes 
+   necessary by adding trusted users to the operators ACL. However operators are allowed to 
+   assign *any* priority to their jobs. Also they could be attempted to misuse their operator 
+   privileges in other respect. Thus a more fine grained instruments for controlling access 
+   to high job priorities might be desirable at sites where users are not disciplined enough. 
+
+   To adress this it is conceivable to provide more fine-grained means for controlling 
+   access to privileged priority classes. With the 'command_line' setting the job class 
+   design provides the administrator with a possibility to assign privileged and 
+   unprivileged priority classes to certain job classes. Since the access to the job class 
+   object is controlled by (x)user_lists job classes can be used for this purpose. 
+  
+   To make the specification complete it is necessary to describe the relation between
+   -p <priority> option specified by the user at command line and the -p <priority> option
+   contained in the JC 'command_line'. A reasonable relation could be to use the JC priority
+   as the default and highest priority allowed when overriding JC priority by the job 
+   priority. 
+   
+   Open questions:
+
+   1. Further investigation on the relation between JC priority and job priority 
+      is required to figure out what appears to be a reasonable behaviour in case 
+      the JC priority changes. 

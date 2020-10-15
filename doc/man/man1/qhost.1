@@ -1,0 +1,298 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\" $RCSfile: qhost.1,v $ 
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH QHOST 1 "2011-12-04" "xxRELxx" "xxQS_NAMExx User Commands"
+.SH NAME
+qhost \- show the status of xxQS_NAMExx hosts, queues, jobs
+.\"
+.\"
+.SH SYNTAX
+.B qhost
+.RB [ \-F
+.RI [ resource_name \fB,\fP...]]
+.RB [ \-help ]
+.RB [ \-h
+.IR host_list ]
+.RB [ \-j ]
+.RB [ \-l
+.IR resource [\fB=\fP val ]\fB,\fP...]
+.RB [ \-ncb ]
+.RB [ \-u
+.IR user \fB,\fP...]
+.RB [ \-xml ]
+.\"
+.SH DESCRIPTION
+.I qhost
+shows the current status of the available xxQS_NAMExx hosts, queues and the
+jobs associated with the queues. Selection options allow you
+to get information about specific hosts, queues, jobs or users.
+If multiple selections are done a host is only displayed if all
+selection criteria for a host are met.
+Without any options
+.I qhost
+will display a list of all hosts without queue or job
+information.
+.PP
+.\"
+.SH OPTIONS
+.\"
+.IP "\fB\-F\fP [\fIresource_name\fP\fB,\fP...]"
+.I qhost
+will present a detailed listing of the current 
+resource availability per host with respect to all resources (if the option 
+argument is omitted) or with respect to those resources contained in the 
+resource_name list. Please refer to the description of the
+\fBFull Format\fP in 
+section \fBOUTPUT FORMATS\fP below for further detail.
+.\"
+.IP "\fB\-help\fP"
+Prints a listing of all options.
+.\"
+.IP "\fB\-h \fP\fIhost_list\fP"
+Prints a list of all hosts contained in host_list.
+.\"
+.IP "\fB\-j\fP"
+Prints all jobs running on the queues hosted by the shown hosts. This 
+switch calls \fB\-q\fP implicitly.
+.\"
+.IP "\fB\-l \fP\fIresource\fP[\fB=\fP\fIvalue\fP]\fB,\fP..."
+Defines the resources to be granted by the hosts which should be 
+included in the host list output. Matching is performed on 
+hosts based on non-mutable resource availability information only. 
+That means load values are always ignored except the so-called static 
+load values listed in
+.M load_parameters 5 .
+Also consumable utilization is ignored.
+If there are multiple \-l resource requests they will be concatenated by
+a logical AND: a host needs to match all resources to be displayed.
+.\"
+.IP "\fB\-ncb\fP"
+This command line switch can be used in order to get 6.2u5 compatible
+output with other
+.M qhost 1
+command line switches. In that case the output
+of the corresponding command will suppress information concerning the
+execution host topology. Note that this option will be removed in the
+next major version.
+.\"
+.IP "\fB\-q\fP"
+Show information about the queues instances hosted by the displayed hosts.
+.\"
+.IP "\fB\-u \fP\fIuser\fP\fB,\fP..."
+Display information only on those jobs and queues
+being associated with the users from the given user list.
+.\"
+.IP "\fB\-xml\fP"
+This option can be used with all other options and changes the output to XML. The used
+schemas are referenced in the XML output. The output is printed to stdout.
+.sp
+If the \fB\-xml\fP parameter is combined with \fB\-ncb\fP then the XML output will
+contain 6.2u5 compatible output.
+.br
+.\"
+.\"
+.SH "OUTPUT FORMATS"
+Depending on the presence or absence of the \fB\-q\fP or \fB\-F\fP and
+\fB\-j\fP option three output formats need to be differentiated.
+.\"
+.SS "\fBDefault Format (without \-q, \-F and \-j)\fP"
+For each host one line is printed. The output consists of
+consisting of
+.IP "\(bu" 3n
+the Hostname 
+.IP "\(bu" 3n
+the Architecture.
+.IP "\(bu" 3n
+the  Number of processors.
+.IP "\(bu" 3n
+the Load.
+.IP "\(bu" 3n
+the Total Memory.
+.IP "\(bu" 3n
+the Used Memory.
+.IP "\(bu" 3n
+the Total Swapspace.
+.IP "\(bu" 3n
+the Used Swapspace.
+.PP
+More details can be found in
+.M load_parameters 5 .
+.\"
+.PP
+If the \fB\-q\fP option is supplied, each host status line also contains
+extra lines for every queue hosted by the host consisting of,
+.IP "\(bu" 3n
+the queue name,
+.IP "\(bu" 3n
+the queue type \- one of B(atch), I(nteractive), or a combination thereof,
+.IP "\(bu" 3n
+the number of reserved (by advance reservation, not resource
+reservation), used and, available (according to the queue's
+.BR slots
+parameter) job slots,
+.IP "\(bu" 3n
+the state of the queue \- one of
+u(nknown), a(larm), A(larm), C(alendar suspended), s(uspended),
+S(ubordinate), d(isabled), D(isabled), E(rror), (c)configuration
+ambiguous, (o)rphaned, (P)reempted, or some combinations thereof.
+See section "Full Format" in
+.M qstat 1
+for explanation of the status flags.
+.PP
+If the \fB\-F\fP option was used, resource availability information is printed 
+following the host status line. For each resource (as selected in an option 
+argument to \fB\-F\fP or for all resources if the option argument was
+omitted) a single line is displayed with the following format:
+.IP "\(bu" 3n
+a one letter specifier indicating whether the current resource availability 
+value was dominated by either
+.br
+`\fBg\fP' \- a cluster global,
+.br
+`\fBh\fP' \- a host total or
+.IP "\(bu" 3n
+a second one letter specifier indicating the source for the current resource 
+availability value, being one of
+.br
+`\fBl\fP' \- a load value reported for the
+resource,
+.br
+`\fBL\fP' \- a load value for the resource after administrator
+defined load scaling has been applied,
+.br
+`\fBc\fP' \- availability derived from
+the consumable resources facility (see
+.M complexes 5 ),
+.br
+`\fBf\fP' \- a fixed
+availability definition derived from a non-consumable complex attribute or 
+a fixed resource limit.
+.IP "\(bu" 3n
+after a colon the name of the resource on which information is displayed.
+.IP "\(bu" 3n
+after an equal sign the current resource availability value.
+.PP
+The displayed availability values and the sources from which they derive are 
+always the minimum values of all possible combinations. Hence, for example,
+a line of the form "qf:h_vmem=4G" indicates that a queue currently has a 
+maximum availability in virtual memory of 4 Gigabyte, where this value is a 
+fixed value (e.g. a resource limit in the queue configuration) and it is queue 
+dominated, i.e. the host in total may have more virtual memory available than 
+this, but the queue doesn't allow for more. Contrarily a line "hl:h_vmem=4G" 
+would also indicate an upper bound of 4 Gigabyte virtual memory 
+availability, but the limit would be derived from a load value currently 
+reported for the host. So while the queue might allow for jobs with higher 
+virtual memory requirements, the host on which this particular queue resides 
+currently only has 4 Gigabyte available.
+.PP
+After the queue status line (in case of \fB\-j\fP) a single line is printed
+for each job running currently in this queue. Each job status
+line contains
+.IP "\(bu" 3n
+the job ID,
+.IP "\(bu" 3n
+the job name,
+.IP "\(bu" 3n
+the job owner name,
+.IP "\(bu" 3n
+the status of the job \- one of t(ransfering),
+r(unning), R(estarted), s(uspended), S(uspended) or T(hreshold) (see the
+\fBReduced Format\fP section for detailed information),
+.IP "\(bu" 3n
+the start date and time and the function of the job (MASTER
+or SLAVE \- only meaningful in case of a parallel job) and
+.IP "\(bu" 3n
+the priority of the jobs.
+.\"
+.\"
+.SH "ENVIRONMENT VARIABLES"
+.\" 
+.IP "\fBxxQS_NAME_Sxx_ROOT\fP" 1.5i
+Specifies the location of the xxQS_NAMExx standard configuration
+files.
+.\"
+.IP "\fBxxQS_NAME_Sxx_CELL\fP" 1.5i
+If set, specifies the default xxQS_NAMExx cell. To address a xxQS_NAMExx
+cell
+.I qhost 
+uses (in the order of precedence):
+.sp 1
+.RS
+.RS
+The name of the cell specified in the environment 
+variable xxQS_NAME_Sxx_CELL, if it is set.
+.sp 1
+The name of the default cell, i.e. \fBdefault\fP.
+.sp 1
+.RE
+.RE
+.\"
+.IP "\fBxxQS_NAME_Sxx_DEBUG_LEVEL\fP" 1.5i
+If set, specifies that debug information
+should be written to stderr. In addition the level of
+detail in which debug information is generated is defined.
+.\"
+.IP "\fBxxQS_NAME_Sxx_QMASTER_PORT\fP" 1.5i
+If set, specifies the tcp port on which
+.M xxqs_name_sxx_qmaster 8
+is expected to listen for communication requests.
+Most installations will use a services map entry for the
+service "sge_qmaster" instead to define that port.
+.\"
+.\"
+.SH FILES
+.nf
+.ta \w'<xxqs_name_sxx_root>/     'u
+\fI<xxqs_name_sxx_root>/<cell>/common/act_qmaster\fP
+	xxQS_NAMExx master host file
+.fi
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M qalter 1 ,
+.M qconf 1 ,
+.M qhold 1 ,
+.M qmod 1 ,
+.M qstat 1 ,
+.M qsub 1 ,
+.M load_parameters 5 ,
+.M queue_conf 5 ,
+.M xxqs_name_sxx_execd 8 ,
+.M xxqs_name_sxx_qmaster 8 ,
+.M xxqs_name_sxx_shepherd 8 .
+.\"
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

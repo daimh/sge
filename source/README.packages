@@ -1,0 +1,49 @@
+Building SGE Debian or Red Hat packages
+=======================================
+
+Source packaging is available for building binary packages for Debian
+and derived distributions (like Ubuntu), and for Red Hat-derived
+distributions (RHEL, Fedora, CentOS, SL).  SuSE and other RPM-based
+distributions aren't currently support, but patches for the RPM spec
+file would be welcome.
+
+The binary packages will install into /opt/sge, intended for shared
+installations, although they will also work with a local installation.
+
+Dpkg
+----
+
+See <http://wiki.debian.org/BuildingAPackage> for general help on
+building Debian packages.  It is intended that the hardening-wrapper
+package <http://wiki.debian.org/Hardening#hardening-wrapper> is used,
+but it isn't required by the build dependencies.
+
+* Ensure the dpkg-dev package is installed
+
+* tar fx sge-<version>.tar.gz; cd sge-<version>
+
+* dpkg-buildpackage -b
+
+* If necessary, satisfy build dependencies:
+  sudo apt-get install <missing packages>
+  dpkg-buildpackage -b
+
+If you run lintian, e.g. via debuild, it will complain bitterly about
+use of /opt with recent versions, unfortunately.
+
+RPM
+---
+
+* Ensure the rpm-build package is installed.  You may or may not
+  (RHEL6) need to be root to run rpmbuild.
+
+* rpmbuild --rebuild gridengine-8.1.3-1.src.rpm
+
+* If necessary, satisfy build dependencies:
+  sudo yum install <missing packages>
+  rpmbuild --rebuild gridengine-8.1.3-1.src.rpm
+
+* To build the Hadoop support after installing the hadoop-0.20 package
+  from the Cloudera CDH3 repository.
+
+* To avoid Java components, add "--without java" to rpmbuild.

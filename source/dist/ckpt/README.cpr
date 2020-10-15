@@ -1,0 +1,77 @@
+                  SGI kernel level checkpointing
+                  ------------------------------
+
+___INFO__MARK_BEGIN__
+
+
+  The Contents of this file are made available subject to the terms of
+  the Sun Industry Standards Source License Version 1.2
+ 
+  Sun Microsystems Inc., March, 2001
+ 
+ 
+  Sun Industry Standards Source License Version 1.2
+  ================================================= 
+  The contents of this file are subject to the Sun Industry Standards
+  Source License Version 1.2 (the "License"); You may not use this file
+  except in compliance with the License. You may obtain a copy of the
+  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ 
+  Software provided under this License is provided on an "AS IS" basis,
+  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+  See the License for the specific provisions governing your rights and
+  obligations concerning the Software.
+ 
+  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ 
+  Copyright: 2001 by Sun Microsystems, Inc.
+ 
+  All Rights Reserved.
+
+___INFO__MARK_END__
+          
+The SGI CPR kernel-level checkpointing interfaces use the SGI cpr(1)
+command to checkpoint and restart Grid Engine/Grid Engine Enterprise
+Edition jobs. Here is some specific information about the SGI CPR
+checkpointing interface scripts.
+
+1. The cpr(1) command does not support waiting for a restarted batch job to
+complete.  This means that the o2k_restart_command script must itself wait
+until the job has completed.  It does this by polling in a loop using ps(1)
+and sleep(1) until the job script exits.  Currently, there is no method
+to get the status of the restarted job.
+
+2. When setting up a checkpointing interface for these scripts in the
+Qmon checkpoint config dialog, the checkpoint commands should be
+identified in the following format.  The names in <> should be filled
+in with the appropriate values.
+
+   <sge_root>/ckpt/<chkpnt_script_name> $job_id $job_pid $ckpt_dir
+
+3. The checkpoint interface scripts log some general information to the file
+$ckpt_dir/ckpt.log
+
+4. The checkpoint files are placed in $ckpt_dir/ckpt.$job_id.  A detailed
+log is available in  the user's home directory under the name 
+$REQUEST.co$JOD_ID.
+
+5. These scripts are designed to handle a system failure during checkpointing.
+That is, the latest checkpoint file will not be used for a restart until the
+checkpoint command completes.  If the system fails before the checkpoint has
+completed, the last checkpoint file will be used for restart.
+
+6. The checkpoint files will not be deleted in the cprcray_clean_command script
+if either the SGE_LEAVE_CKPT_DIR environment variable is set to a non-null
+string or if the fourth parameter in the clean command for the checkpoint
+configuration is set to the string "save".
+
+7. The cpr_ckpt_command and cpr_migration_command contain a qalter command to
+force the job to restart on the same host as it was checkpointed.
+
+8. These scripts checkpoint based on the ASH if it is available, otherwise
+they use the process group ID.
+
+9. These scripts are designed to work with IRIX 6.5 or later or IRIX 6.4 with
+patch 3453 installed.

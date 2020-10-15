@@ -1,0 +1,1557 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us"><head><title>N1GE AdvanceReservation</title>
+ 
+ <style type="text/css">
+/* tables */
+table.topic {border-collapse:collapse;border: 1px solid black;border-spacing: 0px}
+table.topic tr th {text-align:left;font-weight: bold; padding: 2px;}
+table.topic tr td {padding: 2px;}
+table.topic tr td ul {padding-left:0em; margin-left:1.5em;}
+
+/* contents */
+blockquote {border: thin solid black; padding: 1%; margin: 2%;} 
+dt { font-weight: bold;float: left;display:inline;margin-right: 1em}
+dd { display:block; margin-left: 2em}
+dl.block dt {float: none;display:block;margin-right: 0em}
+dl.signature dd {margin-left: 30em}
+
+ </style></head><body bgcolor="#ffffff">
+<p>
+<h1><a name="Functional_Specification_Documen"> </a> Functional Specification Document for <strong>6.2 Advance Reservation</strong></h1>
+</p>
+<a href="mailto:Roland.Dittel@sun.com">Roland Dittel</a>, <a href="mailto:Andreas.Haas@sun.com">Andreas Haas</a><br>
+31 May 2007<br>
+Work in progress<br>
+</p><p>
+</p><h2><a name="1_Introduction"> </a> 1 Introduction </h2>
+<p>
+This document describes a project that extends N1 Grid Engine with Advance Reservation
+capabilities. In the specification document <a href="http://gridengine.sunsource.net/nonav/source/browse/%7Echeckout%7E/gridengine/doc/devel/rfe/resource_reservation.txt?content-type=text/plain" target="_top">"Resource Reservation and Backfilling"</a> Advance Reservation (AR) was defined as:
+</p><pre>        A reservation (possibly independent of a particular job) that can 
+        be requested by a user or administrator and gets created by the 
+        scheduler. The reservation causes the associated resources be blocked
+        for other jobs.
+</pre>
+The <a href="http://www.fz-juelich.de/zam/RD/coop/ggf/graap/" target="_top">GRAAP-WG</a> Advance Reservation definition is:
+<pre>        A advance reservation is a possibly limited or restricted delegation
+        of a particular resource capability over a defined time interval,
+        obtained by the requester from the resource owner through a negotiation
+        process.
+</pre>
+A possibly better way to explain what AR will be adding to Grid Engine
+is by using the analogy of a flight reservation system: With Grid
+Engine 6.0 Resource Reservation (RR) capabilities an administrator can
+guarantee that passenger's will get their flights in the order they
+arrive at the airport. This is sufficient for last-minute travelers,
+yet it does not allow adequate travel planning. The purpose of AR is to
+fill this gap, so that administrators can arrange a passengers travel
+in advance based on an allocation schema that gets considered by the
+Grid Engine scheduler.
+<h2><a name="2_Project_Overview"> </a> 2 Project Overview </h2>
+<p>
+</p><h3><a name="2_1_Project_Aim"> </a> 2.1 Project Aim </h3>
+Aim is to enhance Grid Engine with Advance Reservation capabilities. Cornerstones for the enhancement are
+<ul>
+<li> any AR must have <em>start</em> and <em>end</em>
+</li>
+<li> <em>start</em> is specified by '-a date_time'
+</li>
+<li> <em>end</em> is defined as date or computed of <em>start</em> + <em>duration</em>
+</li>
+<li> duration is requested by the -d option
+</li>
+<li> a means to query granted ARs is required, to allow determining a suitable <em>start</em> and <em>duration</em> for requesting ARs
+</li>
+<li> granted ARs will be identified with an AR handle (=unique ID)
+</li>
+<li> ACL is controlled via "-u users" with "users" being defined as (a)
+comma separated list of UNIX users or ACLs (see access_list(5)) (b) the
+'@' prefix is used to differentiate ACL names from UNIX users (c) to
+exclude users or ACLs, the name can be prefixed with the '!' sign (d)
+wildcards will be supported both for UNIX user names and ACL names
+</li>
+<li> it must be possible for more than a single job to utilize resources of a particular AR (n:1)
+</li>
+<li> AR will only be granted if resource is available. Calendars are considered for verification, load thresholds not
+</li>
+<li> life-time of an AR ends when <em>end</em> is reached, if not deleted explicitly prior
+</li>
+<li> it is necessary to prevent an AR be used by a job, if it does not
+match the AR time window (-dl earlier than AR start time or -a later
+than AR end time)
+</li>
+<li> as for defining AR resources all semantics known from qsub(1) can be used: -l/-q/-pe/-masterq/-ckpt/-now
+</li>
+<li> job shall be free to use less or all of the reserved resources
+</li>
+<li> jobs can use only reserved consumable resources
+</li>
+<li> it is desirable to have a short-cut that combines requesting and
+utilizing an AR. For this case it seems necessary that AR life-time
+optionally ends automatically before regular <em>end</em> time once the job utilized the AR
+</li>
+<li> At end of AR all jobs requested the AR are killed. Thus no AR-job will run after AR <em>end</em>
+</li>
+<li> job accounting(5) must contain AR id
+</li>
+</ul>
+<p>
+</p><h2><a name="4_Functional_Definition"> </a> 4 Functional Definition </h2>
+<h3><a name="4_3_Diagnostics"> </a> 4.3 Diagnostics </h3>
+<p>
+</p><ul>
+<li> qstat -j job_id (enhancem.)
+</li>
+<li> qstat (enhancem.)
+</li>
+<li> qrstat (new command)
+</li>
+</ul>
+<p>
+</p><h3><a name="4_4_User_Experience"> </a> 4.4 User Experience </h3>
+<p>
+</p><h4><a name="4_4_1_Command_Line_CLI"> </a><a name="4_4_1_Command_Line_CLI_"> </a> 4.4.1 Command Line (CLI) </h4>
+<p>
+End users are allowed to create, delete, show and use an AR.
+</p><p>
+</p><h4><a name="4_4_2_Graphical_User_Interface_G"> </a> 4.4.2 Graphical User Interface (GUI) </h4>
+<p>
+The GUI will provide the same functionality as the CLI interface
+</p><p>
+</p><h4><a name="4_4_3_JGDI_API"> </a><a name="4_4_3_JGDI_API_"> </a> 4.4.3 JGDI (API) </h4>
+<p>
+JGDI will provide the same functionality as the CLI interface
+</p><p>
+</p><h3><a name="5_1_Component_Clients"> </a> 5.1 Component Clients </h3>
+<p>
+</p><h4><a name="5_1_1_Overview"> </a> 5.1.1 Overview </h4>
+<p>
+The clients are uses by end users for requesting, deleting, showing and using an AR. It's also desired to modify an AR.
+</p><p>
+The new clients are:
+</p><table border="0" cellpadding="0" cellspacing="1" frame="void">
+<tbody><tr><th class="twikiFirstCol" align="center" bgcolor="#0080a1"><font color="#ffffff"> command</font></th><th align="center" bgcolor="#0080a1"><font color="#ffffff"> description</font></th></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> qrsub </font></td><td bgcolor="#ffffff"><font color="#000000"> create a new AR </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> qralter (desired) </font></td><td bgcolor="#bdbec0"><font color="#000000"> modify AR </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> qrdel </font></td><td bgcolor="#ffffff"><font color="#000000"> delete an AR </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> qrstat </font></td><td bgcolor="#bdbec0"><font color="#000000"> view status of ARs </font></td></tr>
+</tbody></table>
+<p>
+Enhanced clients:
+</p><table border="0" cellpadding="0" cellspacing="1" frame="void">
+<tbody><tr><th class="twikiFirstCol" align="center" bgcolor="#0080a1"><font color="#ffffff"> command</font></th><th align="center" bgcolor="#0080a1"><font color="#ffffff"> description</font></th></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> qsub </font></td><td bgcolor="#ffffff"><font color="#000000"> submit a job </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> qstat </font></td><td bgcolor="#bdbec0"><font color="#000000"> show the status of jobs and queues </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> qmon </font></td><td bgcolor="#ffffff"><font color="#000000"> submit/delete/show AR </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> qacct </font></td><td bgcolor="#bdbec0"><font color="#000000"> view finished jobs </font></td></tr>
+</tbody></table>
+<p>
+</p><h4><a name="5_1_2_Functionality"> </a> 5.1.2 Functionality </h4>
+<p>
+</p><ul>
+<li> request new AR
+</li>
+<li> delete existing AR
+</li>
+<li> modify existing AR (desired)
+</li>
+<li> show granted ARs
+</li>
+<li> new configuration parameters
+</li>
+</ul>
+<p>
+</p><h4><a name="5_1_3_Interfaces"> </a> 5.1.3 Interfaces </h4>
+<p>
+</p><h5><a name="5_1_3_1_qrsub_submit_a_advance_r"> </a> 5.1.3.1 qrsub - submit a advance reservation to N1 Grid Engine </h5>
+<p>
+</p><h5><a name="5_1_3_1_1_Overview"> </a> 5.1.3.1.1 Overview </h5>
+Command Line Switches:
+<table border="0" cellpadding="0" cellspacing="1" frame="void">
+<tbody><tr><th class="twikiFirstCol" align="center" bgcolor="#0080a1"><font color="#ffffff"> switch/argument</font></th><th align="center" bgcolor="#0080a1"><font color="#ffffff"> description</font></th></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -a date_time </font></td><td bgcolor="#ffffff"><font color="#000000"> start time in [[CC]YY]MMDDhhmm[.SS] </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -alloc allocation_rule slot_range (desired) </font></td><td bgcolor="#bdbec0"><font color="#000000"> reserve more than one slots </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -A account_string </font></td><td bgcolor="#ffffff"><font color="#000000"> AR name in accounting record </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -ckpt ckpt-name </font></td><td bgcolor="#bdbec0"><font color="#000000"> reserve in queue with ckpt method </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -d time </font></td><td bgcolor="#ffffff"><font color="#000000"> duration in TIME format </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -e date_time </font></td><td bgcolor="#bdbec0"><font color="#000000"> end time in [[CC]YY]MMDDhhmm[.SS] </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -he yes/no </font></td><td bgcolor="#ffffff"><font color="#000000"> hard error handling </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -help </font></td><td bgcolor="#bdbec0"><font color="#000000"> print this help </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -l resource_list </font></td><td bgcolor="#ffffff"><font color="#000000"> request the given resources </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -m b/e/a/n </font></td><td bgcolor="#bdbec0"><font color="#000000"> define mail notification events </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -masterq wc_queue_list </font></td><td bgcolor="#ffffff"><font color="#000000"> bind master task to queue(s) </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -now </font></td><td bgcolor="#bdbec0"><font color="#000000"> reserve in queues with qtype interactive </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -M user[@host],... </font></td><td bgcolor="#ffffff"><font color="#000000"> notify these e-mail addresses </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -N name </font></td><td bgcolor="#bdbec0"><font color="#000000"> AR name </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -w e/v </font></td><td bgcolor="#ffffff"><font color="#000000"> validate availability of AR request, default e </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -pe pe_name slot_range </font></td><td bgcolor="#bdbec0"><font color="#000000"> reserve slot range for parallel jobs </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -q wc_queue_list </font></td><td bgcolor="#ffffff"><font color="#000000"> reserve in queue(s) </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -u wc_user </font></td><td bgcolor="#bdbec0"><font color="#000000"> access list </font></td></tr>
+</tbody></table>
+<p>
+</p><h5><a name="5_1_3_1_2_Description"> </a> 5.1.3.1.2 Description </h5>
+Qrsub submits a Advance Reservation to the N1 Grid Engine queuing system. 
+<p>
+For qrsub the administrator and the user may define default request
+files (analogous to sge_request for qsub) which can contain any of the
+possible command line options. The file names are
+$SGE_ROOT/$SGE_CELL/common/sge_ar_request (global defaults file) and
+$HOME/.sge_ar_request (user private defaults file).
+</p><p>
+The most of the options are already specified for qsub and defined in submit(1)
+</p><p>
+Additional switches are:
+</p><ul>
+<li> <em>-e date_time</em>
+</li>
+</ul>
+Available for qrsub only.
+<p>Specifies the end time for the Advance Reservation in
+[[CC]YY]MMDDhhmm[.SS] format (see -a option). The use of this switch is
+optional if the start time with the -a option and the duration with the
+-d option is requested.
+</p><p>
+</p><ul>
+<li> <em>-d time</em>
+</li>
+</ul>
+Available for qrsub only
+<p>Specifies the duration of the Advance Reservation in TIME format.
+Refer to queue_conf(5) for a format description. The use of this switch
+is optional if the start time with the -a option and the end time with
+the -e option is requested.
+</p><p>
+</p><ul>
+<li> <em>-u user|access_list[,user|access_list...]</em>
+</li>
+</ul>
+Behavior for qrsub
+<p>Specifies the access list for the new Advance Reservation. Only
+users defined in this list are allowed to request the AR handle for
+their jobs. By default only the user who requested the AR has access. A
+access list is differentiated from a user name by prefixing the group
+name with a '@' sign.
+</p><p>
+</p><ul>
+<li> <em>-m b/e/a/n</em>
+</li>
+</ul>
+<p>Defines or redefines under which circumstances mail is to be sent to
+the AR owner or to the users defined with the -M option described
+below. The option arguments have the following meaning:
+</p><p>
+</p><table border="0" cellpadding="0" cellspacing="1" frame="void">
+<tbody><tr><th class="twikiFirstCol" align="center" bgcolor="#0080a1"><font color="#ffffff"> flag</font></th><th align="center" bgcolor="#0080a1"><font color="#ffffff"> description</font></th></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> 'b' </font></td><td bgcolor="#ffffff"><font color="#000000"> Mail is sent at the beginning of the AR </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> 'e' </font></td><td bgcolor="#bdbec0"><font color="#000000"> Mail is sent at the end of the AR </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> 'a' </font></td><td bgcolor="#ffffff"><font color="#000000"> Mail is sent when the AR when goes into error state or is valid again </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> 'n' </font></td><td bgcolor="#bdbec0"><font color="#000000"> No mail is sent </font></td></tr>
+</tbody></table>
+<p>
+</p><ul>
+<li> <em>-he yes|no</em>
+</li>
+</ul>
+<p>Specifies the behavior when the AR goes into error state. A hard
+error means as long as the AR is in error state no jobs using the
+reservation will be scheduled. If soft error is specified the
+reservation stays usable with the remaining resources.
+</p><p>
+By default the soft error handling is used.
+</p><p>
+</p><ul>
+<li> -alloc allocation_rule slot_range (desired)_
+</li>
+</ul>
+<p>It's desired to implement IZ 285 that describes a switch to define
+the allocation rule and how many slots are requested at submission
+time. The multiplication will also happen but the slots are now
+separated from the other resources.
+</p><p>
+Examples:
+</p><p>
+    * Request 2 slots per host, on 2 quad CPU hosts, with two compiler licenses
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>    -alloc 2 4 -l license=1/2
+</pre>
+</td></tr></tbody></table>
+    * Request 10 slots, as much as possible on one host
+<table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>    -alloc $fill_up 10
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><h5><a name="5_1_3_1_2_Examples"> </a> 5.1.3.1.2 Examples </h5>
+<p>
+Reserve an slot in queue all.q on host1 or host2 or host3
+</p><ul>
+<li> With new upcoming RESTRING syntax
+</li>
+</ul>
+<table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>qrsub -q all.q -l "h=host1|host2|host3" -u $user -a 01121200 -d 1:0:0
+</pre>
+</td></tr></tbody></table>
+<ul>
+<li> With current syntax
+</li>
+</ul>
+<table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>qrsub -q "*@host1,*@host2,*@host3" -u $user -a 01121200 -d 1:0:0
+</pre>
+</td></tr></tbody></table>
+<p>
+Reserve 4 slots on a host with arch=sol-sparc64
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>qrsub -pe alloc_pe_slots 4 -l h=sol-sparc64 -u $user -a 01121200 -d 1:0:0
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><h5><a name="5_1_3_2_qralter"> </a> 5.1.3.2 qralter </h5>
+<p>
+<font color="#ff0000"> Skipped due to time constrains </font><br>
+Currently not decided to implement
+</p><p>
+</p><h5><a name="5_1_3_3_qrdel"> </a> 5.1.3.3 qrdel </h5>
+<p>
+</p><h5><a name="5_1_3_3_1_Overview"> </a> 5.1.3.3.1 Overview </h5>
+Command Line Switches:
+<table border="0" cellpadding="0" cellspacing="1" frame="void">
+<tbody><tr><th class="twikiFirstCol" align="center" bgcolor="#0080a1"><font color="#ffffff"> switch/argument</font></th><th align="center" bgcolor="#0080a1"><font color="#ffffff"> description</font></th></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -help </font></td><td bgcolor="#ffffff"><font color="#000000"> print this help </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -f </font></td><td bgcolor="#bdbec0"><font color="#000000"> force action (jobs referring to AR will be deleted) </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -u </font></td><td bgcolor="#ffffff"><font color="#000000"> wc_user_list delete all users ARs </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> ar_list </font></td><td bgcolor="#bdbec0"><font color="#000000"> delete all ARs given in list </font></td></tr>
+</tbody></table>
+<p>
+</p><h5><a name="5_1_3_3_2_Description"> </a> 5.1.3.3.2 Description </h5>Qrdel
+provides a means for a operator, manager or user referenced in arusers
+access list to delete one or more Advance Reservations. The AR
+identifiers can either AR-IDs or AR names. Qrdel deletes ARs in the
+order in which their identifiers are presented.
+<p>Jobs referring to a Advance Reservation tagged for deletion will
+also be removed. Only if all jobs referring an AR are removed from the
+N1 Grid Engine database the Reservation will also be removed.
+</p><p>
+</p><ul>
+<li> <em>-help</em>
+</li>
+</ul>
+Prints a listing of all options.
+<ul>
+<li> <em>-f</em>
+</li>
+</ul>Force action for ARs with jobs referring to the AR. The job(s) are
+deleted from the list of jobs registered at sge_qmaster(8) even if the
+sge_execd(8) controlling the job(s) does not respond to the delete
+request by the sge_qmaster(8).
+<ul>
+<li> <em>wc_user_list</em>
+</li>
+</ul>
+A list of users, which ARs should be deleted. 
+<ul>
+<li> <em>wc_ar_range_list</em>
+</li>
+</ul>
+A list of ARs, which should be deleted.
+<p>
+</p><h5><a name="5_1_3_4_qrstat"> </a> 5.1.3.4 qrstat </h5>
+<p>
+</p><h5><a name="5_1_3_4_1_Overview"> </a> 5.1.3.4.1 Overview </h5>
+<p>
+Command Line Switches:
+</p><table border="0" cellpadding="0" cellspacing="1" frame="void">
+<tbody><tr><th class="twikiFirstCol" align="center" bgcolor="#0080a1"><font color="#ffffff"> switch/argument</font></th><th align="center" bgcolor="#0080a1"><font color="#ffffff"> description</font></th></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -help </font></td><td bgcolor="#ffffff"><font color="#000000"> print this help </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -ar ar_id </font></td><td bgcolor="#bdbec0"><font color="#000000"> show scheduler advance reservation information </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -u user_list </font></td><td bgcolor="#ffffff"><font color="#000000"> view only ARs requested by this user </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -explain </font></td><td bgcolor="#bdbec0"><font color="#000000"> explain error </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -xml </font></td><td bgcolor="#ffffff"><font color="#000000"> print output in XML format </font></td></tr>
+</tbody></table>
+<p>
+</p><h5><a name="5_1_3_4_2_Description"> </a> 5.1.3.4.2 Description </h5>Qrstat
+shows the current status of the granted N1 Grid Engine Advance
+Reservations. Selection options allow you to get information about
+specific ARs or users. Without any options qrstat will display an
+overview of all reservations.
+<p>
+</p><ul>
+<li> <em>-help</em>
+</li>
+</ul>
+Prints a list of all options.
+<ul>
+<li> <em>-ar ar_list</em>
+</li>
+</ul>
+Displays various information for all ARs contained in the ar_list. The ar_list can contain ar_ids, ar_names or patterns.
+<ul>
+<li> <em>-u user_list</em>
+</li>
+</ul>
+Displays information only for those ARs being requested by one of the users from the given list. 
+<p>The string $user is a placeholder for the current user name. An
+asterisk "*" can be used as user name wildcard to request any users
+ARs be displayed.
+</p><ul>
+<li> <em>-explain</em>
+</li>
+</ul>
+Displays the reason for a Advance Reservation error state.
+<p>
+Possible reasons are:
+</p><ul>
+<li> reserved host is in unknown state
+</li>
+<li> reserved queue instance is in error state
+</li>
+</ul>
+<p>
+The output format for the error reasons is one line per reason.
+</p><ul>
+<li> <em>-xml</em>
+</li>
+</ul>This option can be used with all other options and changes the
+output to XML. The used scheme is defined in Appendix #3 - qrstat XML
+schema. The output is printed to stdout.
+<p>
+</p><h5><a name="5_1_3_4_3_Examples"> </a> 5.1.3.4.3 Examples </h5>
+<p>
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>% qrstat
+AR-ID   name       owner        state start at            end at              duration
+---------------------------------------------------------------------------------------
+    192 project_xy user1        r     12/14/2006 14:47:23 12/14/2006 14:57:33 0:10:10
+    193            user2        w     12/18/2006 10:00:00 12/19/2006 10:00:10 24:0:10
+
+% qrstat -ar 193
+==============================================================
+id:                         193
+ar_name:                    
+submission_time:            Mon Nov 27 17:11:34 2006
+owner:                      user1
+acl_list:                   user1,user2
+start_time:                 Mon Dec 18 10:00:00 2006
+end_time:                   Tue Dec 19 10:00:10 2006
+duration:                   24:0:10
+granted_slots:              all.q@host1=2,all.q@host2=1
+resource_list:              myapp=2,myapp=1
+...
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><h5><a name="5_1_3_5_qsub_qalter"> </a> 5.1.3.5 qsub/qalter </h5>
+<p>
+</p><h5><a name="5_1_3_5_1_Overview"> </a> 5.1.3.5.1 Overview </h5>
+Command Line Switches:
+<table border="0" cellpadding="0" cellspacing="1" frame="void">
+<tbody><tr><th class="twikiFirstCol" align="center" bgcolor="#0080a1"><font color="#ffffff"> switch/argument</font></th><th align="center" bgcolor="#0080a1"><font color="#ffffff"> description</font></th></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -ar <ar_id> </ar_id></font></td><td align="right" bgcolor="#ffffff"><font color="#000000"> request AR with the ar_id </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> ar_id </font></td><td bgcolor="#bdbec0"><font color="#000000"> positive integer </font></td></tr>
+</tbody></table>
+<p>
+</p><h5><a name="5_1_3_5_2_Description"> </a> 5.1.3.5.2 Description </h5>
+<p>
+</p><ul>
+<li> <em>-ar ar_id</em>
+</li>
+</ul>
+Selects the Advance Reservation to be used by the job.
+<p>
+Modifying the AR-ID with qalter will be denied if the job is already running.
+</p><p>
+</p><h5><a name="5_1_3_6_qstat"> </a> 5.1.3.6 qstat </h5>
+<p>
+</p><h5><a name="5_1_3_5_1_Overview"> </a> 5.1.3.5.1 Overview </h5>
+Command Line Switches:
+<table border="0" cellpadding="0" cellspacing="1" frame="void">
+<tbody><tr><th class="twikiFirstCol" align="center" bgcolor="#0080a1"><font color="#ffffff"> switch/argument</font></th><th align="center" bgcolor="#0080a1"><font color="#ffffff"> description</font></th></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -j <job_id> </job_id></font></td><td bgcolor="#ffffff"><font color="#000000"> show scheduler job information </font></td></tr>
+</tbody></table>
+<p>
+</p><h5><a name="5_1_3_5_2_Description"> </a> 5.1.3.5.2 Description </h5>
+<p>
+</p><ol>
+<li><b>qstat -j <job_id></job_id></b><br>The qstat -j prints out all
+job data. Because the job object will now have a AR-ID requested for
+this job this must be also shown by 'qstat -j'
+</li>
+<li><b>qstat</b><br>The qstat -f output is often to search for unused
+hosts. To represent if a host is reserved and can not be used by non-AR
+jobs the used/tot. field need to be enhanced to print out how many
+slots are reserved.
+<p>
+The following example illustrates the output. In the example 20 slots reserved on host brag and 1 AR job runs in the AR.
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>% qstat
+queuename                      qtype resv/used/tot. load_avg arch          states
+---------------------------------------------------------------------------------
+all.q@brag                     BIPC  20/1/20        0.02     darwin-x86
+     16 0.55500 Sleeper    rd141302     r     11/28/2006 11:48:26     1
+</pre>
+</td></tr></tbody></table>
+</li>
+</ol>
+<p>
+</p><h5><a name="5_1_3_7_qmon"> </a> 5.1.3.7 qmon </h5>
+<p>
+The "Submit Jobs" and the "Job Control" mask need to be enhanced for the AR-ID.
+</p><p>
+Qmon will get two new masks:
+</p><ol>
+<li><b>Submit Advance Reservation</b><br>The mask will be similar to
+the "Submit Jobs" mask. The most of the input parameter are already
+used by the "Submit Jobs" mask and some others need to be added.
+</li>
+<li><b>Show Granted Advance Reservations</b><br>
+The mask will be similar to the "Job Control" mask. The data will be the same as for the qrstat command.
+</li>
+</ol>
+<p>
+</p><h5><a name="5_1_3_7_qacct"> </a> 5.1.3.7 qacct </h5>
+<p>Because the accounting file will have a new column for the AR_id
+qacct parsing needs to be enhanced to view the correct output. Because
+the accounting file can have old entries
+by jobs prior 6.2 qacct needs to be able parse both formats.
+</p><p>To get a consistent accounting file a update procedure needs to
+be written that adds the new column for the AR_id to entries prior 6.2
+</p><p>
+</p><h5><a name="5_1_3_9_qmaster_configuration_sg"> </a> 5.1.3.9 qmaster configuration sge_conf(5) </h5>
+<p>
+</p><ul>
+<li> <em>max_advance_reservations</em>
+</li>
+</ul>The number of active (not finished) advance reservations
+simultaneously allowed in N1 Grid Engine is controlled by this
+parameter. A value greater than 0 defines the limit. The default value
+0 means "unlimited". If the max_advance_reservations limit is exceeded
+by a AR submission then the submission command exits with exit status
+25 and an appropriate error massage.
+<p>
+Changing max_advance_reservations will take immediate effect.
+</p><p>
+This value is a global configuration parameter only. It cannot be overwritten by the execution host local configuration.
+</p><p>
+</p><h4><a name="5_1_4_Other_Requirements"> </a> 5.1.4 Other Requirements </h4>
+<p>
+</p><h3><a name="5_2_Advance_Reservation_Object"> </a> 5.2 Advance Reservation Object </h3>
+<p>
+</p><h4><a name="5_2_1_Overview"> </a> 5.2.1 Overview </h4>
+<p>The Advance Reservation Object represents the requested AR for the
+N1 Grid Engine System. The request is stored in the internal Qmaster
+Database like all other object (for example. usersets, complexes).
+</p><p>Every AR is referenced by a unique integer ID. Analog to the
+Job ID the value is stored in the file "arseqnum" in the qmaster spool
+dir. The highest AR id is 9999999 like for jobs. If the highest AR is
+reached a wraparound happens and the next one starts with 1.
+</p><p>
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<img src="AR_life_time.jpg" alt="AR life time">
+</td></tr></tbody></table>
+<p>
+</p><h4><a name="5_2_2_Functionality"> </a> 5.2.2 Functionality </h4>
+<p>
+</p><h5><a name="5_2_2_1_AR_submit"> </a> 5.2.2.1 AR submit </h5>
+<p>
+</p><h6><a name="5_2_2_1_1_Validate_AR_request"> </a> 5.2.2.1.1 Validate AR request </h6>
+<p>
+During the submit at first some basic values are validated. 
+</p><p>
+</p><ol>
+<li><b>dissonant time window values</b><br>If start_time, end_time and
+duration does not match together the request will be rejected. For
+example a start time of 12:00 PM, end time of 13:00 PM and a duration
+of 2 hours will be rejected.
+</li>
+<li><b>reduced granted time window due to DURATION_OFFSET</b><br>The
+net time window of a granted AR is always reduced due to fixed schedule
+interval. Additionally the effective job runtime is always longer than
+the real job runtime because of start/stop overhead and prolog/epilog
+scripts. To reflect these longer times in the reservation schedule the
+parameter "DURATION_OFFSET" (see CR 6283308) was introduced.
+<p>To guarantee all jobs are removed from the cluster when AR end time
+is reached it is necessary to consider the DURATION_OFFSET for Advance
+Reservation also. This means all jobs submitted to a AR will have a
+resulting runtime limit of AR duration - DURATION_OFFSET. Jobs
+requesting a longer runtime will not be scheduled. The AR requester
+needs to keep this in mind when he creates a new AR.
+</p></li></ol>
+<p>
+</p><h6><a name="5_2_2_1_2_Access_Control_for_cre"> </a> 5.2.2.1.2 Access Control for creating new AR requests </h6>
+<p>It's necessary to restrict the users that are allowed to make an AR.
+This is done by a user list called 'arusers'. Only managers or users
+contained in the 'arusers' user list are allowed to create an ARs.
+</p><p>
+The 'arusers' user list will be created at installation time and the SGE admin user will be added to the list.
+</p><p>
+</p><h6><a name="5_2_2_1_3_Selecting_hosts_and_re"> </a> 5.2.2.1.3 Selecting hosts and reserving resources </h6>
+<p>The resource selection will be similar as for a regular sequential
+or parallel job. At first the best suited hosts are selected and at
+second the desired amount of resources are reserved. The difference
+between job dispatching is that disabled, unknown or suspended queues
+are considered as suited queues. Queues in orphaned state are not
+suited like for job dispatching.
+</p><p>
+For a Advance Reservation the following restrictions and enhancements for selection the resources are necessary
+</p><p>
+</p><ol>
+<li><b>AR access list and queue acl_list</b><br>Because every user of
+the access list requested for the AR with the '-u' option need to be
+able to run a job in the AR only those queue instances can be reserved
+where all users of the requested user list has access. During the AR
+granting this needs to be validated and if only one user of the list
+has no access to the queue instance, this queue instance will not
+considered for the reservation.
+<p>
+For example:
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>% qconf -sq all.q | grep xuser_list
+denied_users
+
+% qconf -su denied_users | grep entries
+entries user3
+
+% qrsub -u user1,user2,user3 -q all.q -a ....
+Error: No queue instances to reserve
+</pre>
+</td></tr></tbody></table>
+</li>
+<li><b>Avoiding conflicts with non runtime jobs</b><br>To make AR
+behavior predictable it's necessary to have the reserved resources free
+at the time of the AR start. This can be done in conflict cases either
+by preempting the non-AR jobs or proactive by avoiding conflict cases.
+Because Grid Engine currently does not support preemption the later one
+is implemented.
+<p>Conflicts can happen if jobs will not finish at the desired end of
+scheduled time slot. This is the case for jobs with no run time limit
+(h_rt) because jobs requested h_rt will be deleted automatically by
+Grid Engine if they exceed the requested time.
+</p><p>The solution to avoid such conflicts is by keeping
+non-runtime-limit jobs diverged from AR jobs. Because every job has a
+implicit slot count that refers to a queue instance this can be done by
+not reserving a AR on hosts where jobs with no run-time-limit are
+running and at the same time by not scheduling a non-runtime-limit job
+on a queue instance with a AR.
+</p><p>
+The following example illustrates the behavior:
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>% qstat -f
+queuename                      qtype used/tot. load_avg arch          states
+----------------------------------------------------------------------------
+all.q@host1                   BIPC  1/1      0.01     sol-amd64
+   3001 0.55500 Sleeper    rd141302     r     12/14/2006 10:20:47     1
+----------------------------------------------------------------------------
+all.q@host2                     BIPC  0/1      0.09     sol-amd64
+
+% qrsub -a 12141200 -d 0:30:0 -u user1 -h host1
+denied: Reservation can't be granted
+
+% qrsub -a 12141200 -d 0:30:0 -u user1 -h host2
+Your reservation 1 has been granted
+
+% qsub -w e -l h=host2 job_script
+Unable to run job: error: no suitable queues.
+Exiting.
+</pre>
+</td></tr></tbody></table>
+</li>
+<li><b>AR and Resource Quotas</b><br>The interaction between AR and
+resource quotas raises the questions whether it's necessary to honor
+quotas for AR jobs. Honoring AR reservation in resource quotas raises
+some issues with to much reserved resources or inefficient AR time
+frames. Therefore we've decided not to honor AR reservation and
+resource usage for AR jobs in the resource quotas.
+<p>The reason why we are able to ignore RQS reservation and resource
+usage in conjunction with AR is that Quotas does not represent the
+capacity of a resource. The capacity is defined a global/queue/host
+level and must of course honored for AR requests. This means ignoring
+RQS will not lead in a resource overload, only the quota share for a
+special request may be exceed for the time the AR time window is open.
+</p><p>
+The following examples illustrates the behavior:
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<ul>
+<li> resource quota:  limit users user1 to slots=10
+</li>
+<li> AR: start time now for user1  with slots=10.
+</li>
+</ul>
+</td></tr></tbody></table>
+<p>
+</p><ol>
+<li>user1 can use 20 slots (10 with and 10 without AR)</li>
+<li>if all slots are used qquota output will show 10 of 10 used slots (the 10 AR slots are not booked)</li>
+</ol>
+</li>
+</ol>
+<p>
+</p><h5><a name="5_2_2_2_AR_open_time_window"> </a> 5.2.2.2 AR open time window </h5>
+<p>
+</p><h6><a name="5_2_2_2_1_AR_error_state"> </a> 5.2.2.2.1 AR error state </h6>
+<p>An already granted AR would become invalid for several reasons like
+configuration changes on reserved hosts, user set changes, or queue
+changes. All of these foreseeable events need to be rejected. A list of
+foreseeable events is:
+</p><ul>
+<li> lowering or removing a reserved consumable complex on global/host/queue level
+</li>
+<li> configuring a queue calender that disables a queue in a reserved time frame
+</li>
+<li> changing global/queue/host access lists on reserved hosts
+</li>
+<li> modifying access lists on reserved hosts
+</li>
+<li> ???
+</li>
+</ul>
+<p>The cases that are not foreseeable are the outage of a host or a
+queue instance error, disable or suspend. In such cases the affected AR
+goes into error state. If error mail sending is enabled the AR
+requester and all email addresses specified by the -M option will get a
+mail when the AR became invalid (earliest at AR start time when the
+error is detected) and when the AR is satisfied again.
+</p><p>The error handling can be specified at AR submit time. A hard
+error blocks the fault AR and the scheduled does not dispatch the
+referring AR-jobs. With soft error the AR stays usable with the
+remaining resources.
+</p><p>
+</p><h6><a name="5_2_2_2_2_AR_influence_by_removi"> </a> 5.2.2.2.2 AR influence by removing a reserved queue </h6>
+<p>A granted Advance Reservation influence when a administrator removes
+a reserved queue instance. If this happens the removed queue will go
+into "orphaned" state. This is analogue when removing a queue with a
+running job. The queue will disappear when all advance reservations are
+ended.
+</p><p>Normally queues in orphaned state are not considered for job
+dispatching. Because the AR was requested and granted this is different
+for jobs requesting a AR. These jobs can be scheduled to the reserved
+orphaned queue.
+</p><p>
+</p><h5><a name="5_2_2_3_AR_cleanup"> </a> 5.2.2.3 AR cleanup </h5>
+<p>When the AR end time is reached at first all jobs referring to the
+AR will be deleted and at second the AR itself will be deleted. No jobs
+can request the AR handle any longer.
+</p><p>
+</p><h4><a name="5_2_3_Interfaces"> </a> 5.2.3 Interfaces </h4>
+<p>
+</p><h5><a name="5_2_3_1_AR_States"> </a> 5.2.3.1 AR States  </h5>
+<p>
+</p><table border="0" cellpadding="0" cellspacing="1" frame="void">
+<tbody><tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> State </font></td><td bgcolor="#bdbec0"><font color="#000000"> Description </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> w </font></td><td bgcolor="#ffffff"><font color="#000000"> waiting - granted but start time not reached </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> r </font></td><td bgcolor="#bdbec0"><font color="#000000"> running - start time reached </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> x </font></td><td bgcolor="#ffffff"><font color="#000000"> exited - end time reached and doing cleanup </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> d </font></td><td bgcolor="#bdbec0"><font color="#000000"> deleted - manual deletion </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> W </font></td><td bgcolor="#ffffff"><font color="#000000"> warning - AR became invalid but AR start time is not reached </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> E </font></td><td bgcolor="#bdbec0"><font color="#000000"> error - AR became invalid and AR start time is reached </font></td></tr>
+</tbody></table>
+<p>
+</p><h5><a name="5_2_3_2_Additional_GDI_Requests"> </a> 5.2.3.2 Additional GDI Requests </h5>
+<p>
+</p><ul>
+<li> SGE_GDI_ADD(SGE_AR_LIST, advance_reservation_list)
+</li>
+</ul>
+<p>This request adds the advance reservations in the specified list.
+The list elements are full specified advance reservations. The request
+is used for implementing qrsub command.
+</p><p>
+</p><ul>
+<li> SGE_GDI_DEL(SGE_AR_LIST, advance_reservation_list)
+</li>
+</ul>
+<p>This request deletes all advance reservation in the specified list.
+The list elements needs only to specify the name or ID of the advance
+reservation to be removed. The request is used for implementing the
+qrdel command.
+</p><p>
+</p><ul>
+<li> SGE_GDI_GET(SGE_AR_LIST, where, what)
+</li>
+</ul>
+<p>This request allows for retrieving advance reservations. CULL
+'where' expressions can be used for selecting particular ARs, CULL
+'what' expressions can be used for selecting particular AR fields.
+</p><p>
+</p><h5><a name="5_2_3_3_Additional_Event_Client"> </a><a name="5_2_3_3_Additional_Event_Client_"> </a> 5.2.3.3 Additional Event Client requests </h5>
+<p>
+</p><ul>
+<li> sgeE_AR_ADD(advance_reservation)
+</li>
+</ul>
+<p>This event is sent each time when a new advance reservation has been
+created. It contains the full advance reservation object, but no usage
+information.
+</p><p>
+</p><ul>
+<li> sgeE_AR_DEL(advance_reservation)
+</li>
+</ul>
+<p>This event is sent each time when an existing advance reservation is
+removed. The event contains only the name of the advance reservation to
+be removed.
+</p><p>
+</p><ul>
+<li> sgeE_AR_MOD(advance_reservation)
+</li>
+</ul>
+<p>
+This event is sent each time when an existing advance reservation has changed. It contains the full advance reservation object.
+</p><p>
+</p><h5><a name="5_2_3_4_AR_Cull_Specification"> </a> 5.2.3.4 AR Cull Specification </h5>
+<p>
+see Appendix #1 - Cull AR_Type definition
+</p><p>
+</p><h4><a name="5_2_4_Other_Requirements"> </a> 5.2.4 Other Requirements </h4>
+<p>
+</p><h3><a name="5_3_AR_Job_Object"> </a> 5.3 AR Job Object </h3>
+<h4><a name="5_3_1_Overview"> </a> 5.3.1 Overview </h4>
+<p>The AR Job Object is not a new Component, it's a enhancement of the
+regular N1GE Job Object to deal with Advance Reservations. All previous
+6.1 job properties are still valid will work for AR and non AR jobs.
+</p><p>
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<img src="AR_job_life_time.jpg" alt="AR job life time">
+</td></tr></tbody></table>
+<p>
+</p><h4><a name="5_3_2_Functionality"> </a> 5.3.2 Functionality </h4>
+<p>
+</p><h5><a name="5_3_2_1_Job_Submission"> </a> 5.3.2.1 Job Submission </h5>
+<p>
+</p><h6><a name="5_3_2_1_1_Validate_AR_request"> </a> 5.3.2.1.1 Validate AR request </h6>
+<p>
+At job submit time some additional verifications are done. If one of the verifications fails the job will be rejected.
+</p><p>
+The verifications are:
+</p><p>
+</p><ol>
+<li><b>AR-ID is valid</b><br>
+Verify that the requested AR-ID has the correct syntax and the AR exists.
+</li>
+<li><b>AR access list</b><br>
+Ensure the job submit user has access to the selected AR.
+</li>
+<li><b>job run time</b><br>Ensure the runtime selected with hr_t is a
+valid time frame. At first the runtime must be smaller than the AR time
+window duration and at second the the runtime must be smaller than the
+AR end time minus the current time.
+</li>
+<li><b>job resource requests</b><br>A job can only request the
+resources already reserved by the AR. It's not possible for jobs to use
+more or other resources than requested in the AR. The verification is
+implemented by a implicit '-w e' request when -ar was requested. This
+behavior can be changed by submitting AR jobs with '-w n' to the normal
+qsub default behaviour.
+</li>
+</ol>
+<p>
+</p><h5><a name="5_3_2_2_Job_Scheduling"> </a> 5.3.2.2 Job Scheduling </h5>
+<p>Jobs requesting an AR will only be scheduled if the AR start time is
+already reached, which means the AR is active and in state running. </p><p>
+Additionally it needs to be ensured the resources requested by the job
+are all reserved and free. If other jobs are running using the AR and
+the resources are already in use the job will not dispatched.
+</p><p>
+</p><h5><a name="5_3_2_3_Job_Execution"> </a> 5.3.2.3 Job Execution </h5>
+<p>To be sure jobs requesting an AR can not use more resources than
+reserved by the AR it's necessary to debit the AR job usage. This is
+done before the job starts. At job end the usage needs to be undebited.
+</p><p>
+All jobs (pending or running) will be deleted when the AR refereed by the job ends or will be deleted.
+</p><p>
+</p><h4><a name="5_3_3_Interfaces"> </a> 5.3.3 Interfaces </h4>
+<p>
+</p><h5><a name="5_2_3_1_AR_Cull_Enhancements"> </a> 5.2.3.1 AR Cull Enhancements </h5>
+<p>
+The Cull Object JB_Type defined in /lib/sgeobj/sge_jobL.h will get a new field JB_ar_id.
+</p><p>
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>LISTDEF(JB_Type)
+...
+SGE_ULONG(JB_ar_id)
+...
+LISTEND
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><h4><a name="5_3_4_Other_Requirements"> </a> 5.3.4 Other Requirements </h4>
+<p>
+</p><p>
+</p><h3><a name="5_4_Component_Accounting"> </a> 5.4 Component Accounting </h3>
+<p>
+</p><h4><a name="5_4_1_Overview"> </a> 5.4.1 Overview </h4>
+<p>After a AR end it's necessary to detect if a resource was reserved
+but not used over the complete time, only used partial or not used at
+all. Thus we need to add billing capabilities by enhancing the current
+accounting and reporting files. In addition <strong>dbwriter</strong> , <strong>arco</strong> and <strong>qacct</strong> needs to be enhanced.
+</p><p>
+The Accounting Component is part of the qmaster.
+</p><p>
+</p><h4><a name="5_4_2_Functionality_ARCo_Queries"> </a> 5.4.2 Functionality ARCo Queries </h4>
+<p>
+<b>Accounting per AR</b><br>
+type: Advanced <br>
+view: pivot <br>
+sql: SELECT time, ar_number, cpu, mem, io 
+       FROM (SELECT date_trunc('month', start_time)::date AS time, 
+                   ar_number, 
+                SUM(cpu) AS cpu, 
+                SUM(mem) AS mem, 
+                SUM(io)  AS io 
+           FROM view_accounting 
+           WHERE start_time &gt; (current_timestamp - interval '1 year')
+                          AND
+                          ar_number &gt; 0
+           GROUP BY time, ar_number) AS tmp;<br>
+</p><p>
+<b>Advanced Reservation Attributes</b><br>
+type: Simple <br>
+view: NONE <br>
+latebinding: ar_number <br>
+sql: SELECT "ar_number", "owner", "submission_time", "name", "account", "start_time", "end_time", 
+         "granted_pe", FROM (SELECT ar_number, owner, submission_time, name, account, start_time, end_time,
+         granted_pe FROM view_ar_attribute) AS tmp WHERE "ar_number" = '';<br>
+</p><p>
+<b>Advanced Reservation Log</b><br>
+type: Simple <br>
+view: NONE <br>
+latebinding: ar_number <br>
+sql: SELECT "ar_number", "time", "event", "state", "message" 
+         FROM(SELECT ar_number, time, event, state, message FROM view_ar_log ) AS tmp WHERE "ar_number" = '';<br>
+</p><p>
+<b>Advanced Reservation Time Usage</b><br>
+type: Advanced <br>
+view: NONE <br>
+sql: SELECT ar_number, job_duration, ar_duration, 
+                age(('1970-01-01'::date + ar_duration::interval)::timestamp, 
+                    ('1970-01-01'::date + job_duration::interval)::timestamp) AS unused_time
+         FROM view_ar_time_usage WHERE ar_number IN (SELECT ARL.ar_number 
+            FROM view_ar_log ARL WHERE event = 'TERMINATED');<br>
+</p><p>
+<b>Advanced Reservation by User</b><br>
+type: Simple <br>
+view: NONE <br>
+latebinding: ar_owner <br>
+sql: SELECT "ar_number", "submission_time"
+         FROM(SELECT ar_number, ar_submission_time FROM sge_ar ) AS tmp WHERE "ar_owner" = '';<br>
+</p><p>
+<b>Number of Jobs Completed per AR</b><br>
+type: Advanced <br>
+view: NONE <br>
+SELECT ar_number AS ar_number,
+                date_trunc('day', start_time) AS day,
+            COUNT(job_number) AS jobs 
+       FROM view_job_times 
+       WHERE start_time  &gt;  (current_timestamp - interval '1 year') 
+                 AND
+                 ar_number &gt; 0
+                 GROUP BY day, ar_number; <br>
+</p><p>
+</p><p>
+</p><p>
+</p><p>
+</p><p>
+</p><p>
+</p><p>
+</p><h4><a name="5_4_3_Interfaces"> </a> 5.4.3 Interfaces </h4>
+<p>
+</p><h5><a name="5_4_3_1_accounting_file"> </a> 5.4.3.1 accounting file </h5>
+<p>
+To get an overview what finished jobs were running in a previous AR the
+job entry in the accounting field needs an additional field for the
+AR-ID. </p><p>
+</p><h5><a name="5_4_3_2_reporting_file"> </a> 5.4.3.2 reporting file </h5>
+<p>
+</p><dl>
+<dt>acct</dt>
+<dd><br>The format of the "acct" entry will be changed. An additional column will be added which contains the ar number:<br><br>
+<dl>
+<dt>ar_number (u_long32)</dt>
+<dd><br>The AR number or 0</dd>
+</dl>
+</dd>
+<p>
+</p><dl>
+<dt>new_ar</dt>
+<dd><br>The new_ar job record is written whenever a new advance reservervation enters the system. It has the following fields:<br><br>
+<dl>
+<dt>submission_time (u_long32)</dt>
+<dd><br>Time (GMT unix time stamp) when the ar was submitted</dd>
+<dt>ar_number (u_long32)</dt>
+<dd><br>The AR number</dd>
+<dt>ar_owner (char *)</dt>
+<dd><br>The AR owner</dd>
+</dl>
+</dd>
+<p>
+</p><dt>ar_attribute</dt>
+<dd><br>The ar_attribute record is written whenever a new advance
+reservation was added or the attributes of a existing attributes has
+changed. It has the following fields:<br><br>
+<dl>
+<dt>event_time (u_long32)</dt>
+<dd><br>Time (GMT unix time stamp) when the event was generated.</dd>
+<dt>submission_time (u_long32)</dt>
+<dd><br>Time (GMT unix time stamp) when the ar was submitted</dd>
+<dt>ar_number (u_long32)</dt>
+<dd><br>The AR number</dd>
+<dt>ar_name (char *)</dt>
+<dd><br>The AR name</dd>
+<dt>ar_account (char *)</dt>
+<dd><br>The account string specified for the AR (from -A submission option)</dd>
+<dt>ar_start_time (u_long32)</dt>
+<dd><br>Start time (GMT unix time stamp)</dd>
+<dt>ar_end_time (u_long32)</dt>
+<dd><br>End time (GMT unix time stamp)</dd>
+<dt>ar_granted_pe (u_long32)</dt>
+<dd><br>The parallel environment which was selected for that AR</dd>
+<dt>ar_granted_resources (char * e.g. res1=3,res2=7,... )</dt>
+<dd><br>The resources which were granted to the advanced reservation</dd>
+</dl>
+</dd>
+<p>
+</p><dt>ar_log</dt>
+<dd><br>The ar_log record is written whenever a advance reservation is
+changing status. A status change can be from pending to active, but can
+also be triggered by system events like host outage. It has the
+following fields:<br><br>
+<dl>
+<dt>state_change_time (u_long32)</dt>
+<dd><br>Time (GMT unix time stamp) when the change was generated</dd>
+<dt>submission_time (u_long32)</dt>
+<dd><br>Time (GMT unix time stamp) when the ar was submitted</dd>
+<dt>ar_number (u_long32)</dt>
+<dd><br>The AR number</dd>
+<dt>ar_state (char *) </dt>
+<dd><br>The AR state</dd>
+<dt>ar_event (char *) </dt>
+<dd><br>The event id triggered the state change</dd>
+<dt>ar_message (char *)</dt>
+<dd><br>A message describing the event which triggered the state change</dd>
+</dl>
+</dd>
+<p>
+</p><dt>ar_acct</dt>
+<dd><br>Records of type ar_acct are accounting recoreds. They are
+written for every queue instance whenever a advance reservation
+terminates. Advance reservation accounting records comprise the
+following fields:<br><br>
+<dl>
+<dt>ar_termination_time (u_long32)</dt>
+<dd><br>Time (GMT unix time stamp) when the ar terminated</dd>
+<dt>submission_time (u_long32)</dt>
+<dd><br>Time (GMT unix time stamp) when the ar was submitted</dd>
+<dt>ar_number (u_long32)</dt>
+<dd><br>The AR number</dd>
+<dt>ar_qname (char *)</dt>
+<dd><br>Name of the cluster queue in which the AR reserved</dd>
+<dt>ar_hostname (char *)</dt>
+<dd><br>The name of the execution host</dd>
+<dt>ar_slots (u_long32)</dt>
+<dd><br>The number of slots which were reserved</dd>
+</dl>
+</dd>
+</dl>
+<p>
+</p><p>
+</p><h5><a name="5_4_3_3_database_model"> </a> 5.4.3.3 database model </h5>
+<p>
+see Appendix #2 - ARCo database model
+</p><p>
+</p><h4><a name="5_4_4_Other_Requirements"> </a> 5.4.4 Other Requirements </h4>
+<p>
+</p><h2><a name="Appendix_Appendix_1_Cull_AR_Type"> </a> Appendix - Appendix #1 - Cull AR_Type definition </h2>
+defined in libs/sgeobj/sge_advance_reservationL.h
+<table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>#include "sge_boundaries.h"
+#include "cull.h"
+
+#ifdef  __cplusplus
+extern "C" {
+#endif
+
+/* values for AR_verify */
+#define AR_OPTION_VERIFY_STR "ev"
+enum {
+   AR_ERROR_VERIFY = 0,
+   AR_JUST_VERIFY
+};
+
+/* AR states for AR_state */
+enum {
+   AR_UNKNOWN = 0,  /* should never be seen. only used for variable initialisation */
+
+   AR_WAITING,      /* w    waiting - granted but start time not reached */
+   AR_RUNNING,      /* r    running - start time reached */
+   AR_EXITED,       /* x    exited - end time reached and doing cleanup */
+   AR_DELETED,      /* d    deleted - manual deletion */
+   AR_ERROR,        /* E    error - AR became invalid and start time is reached */
+   AR_WARNING       /* W    error - AR became invalid but start time not reached */
+};
+
+/* Advance Reservation Object */
+enum {
+   AR_id = AR_LOWERBOUND,
+   AR_name,
+   AR_account,
+   AR_owner,
+   AR_group,
+
+   AR_submission_time,
+   AR_start_time,               
+   AR_end_time,                 
+   AR_duration,
+   AR_verify,                   
+   AR_error_handling,           
+
+   AR_state,               /* state of the AR */     
+
+   AR_checkpoint_name,          
+
+   AR_resource_list,
+   AR_resource_utilization,
+   AR_queue_list,
+
+   AR_granted_slots,            
+   AR_reserved_queues,          /* runtime value */
+
+   AR_mail_options,     
+   AR_mail_list,
+
+   AR_pe,
+   AR_pe_range,
+   AR_granted_pe,
+   AR_master_queue_list,
+   
+   AR_acl_list,
+   AR_xacl_list,
+   AR_type                      /* -now switch */
+};
+
+LISTDEF(AR_Type)
+   JGDI_ROOT_OBJ(AdvanceReservation, SGE_AR_LIST, ADD | DELETE | GET | GET_LIST)
+   JGDI_EVENT_OBJ(ADD(sgeE_AR_ADD) | MODIFY(sgeE_AR_MOD) | DELETE(sgeE_AR_DEL) | GET_LIST(sgeE_AR_LIST))
+   SGE_ULONG(AR_id, CULL_PRIMARY_KEY | CULL_HASH | CULL_UNIQUE | CULL_SPOOL)
+   SGE_STRING(AR_name, CULL_DEFAULT | CULL_SPOOL | CULL_CONFIGURE)
+   SGE_STRING(AR_account, CULL_DEFAULT | CULL_SPOOL | CULL_CONFIGURE)
+   SGE_STRING(AR_owner, CULL_DEFAULT | CULL_SPOOL | CULL_JGDI_RO)
+   SGE_STRING(AR_group, CULL_DEFAULT | CULL_SPOOL | CULL_JGDI_RO)
+
+   SGE_ULONG(AR_submission_time, CULL_DEFAULT | CULL_SPOOL)
+   SGE_ULONG(AR_start_time, CULL_DEFAULT | CULL_SPOOL | CULL_CONFIGURE)
+   SGE_ULONG(AR_end_time, CULL_DEFAULT | CULL_SPOOL | CULL_CONFIGURE)
+   SGE_ULONG(AR_duration, CULL_DEFAULT | CULL_SPOOL | CULL_CONFIGURE)
+
+   SGE_ULONG(AR_verify, CULL_DEFAULT | CULL_SPOOL | CULL_CONFIGURE)
+   SGE_ULONG(AR_error_handling, CULL_DEFAULT | CULL_SPOOL | CULL_CONFIGURE)
+
+   SGE_ULONG(AR_state, CULL_DEFAULT | CULL_JGDI_RO)
+
+   SGE_STRING(AR_checkpoint_name, CULL_DEFAULT | CULL_SPOOL | CULL_CONFIGURE)   
+
+   SGE_LIST(AR_resource_list, CE_Type, CULL_DEFAULT | CULL_SPOOL | CULL_CONFIGURE)
+   SGE_LIST(AR_resource_utilization, RUE_Type, CULL_DEFAULT | CULL_JGDI_RO)
+   SGE_LIST(AR_queue_list, QR_Type, CULL_DEFAULT | CULL_SPOOL | CULL_CONFIGURE)
+
+   SGE_LIST(AR_granted_slots, JG_Type, CULL_SPOOL | CULL_JGDI_RO)
+   SGE_LIST(AR_reserved_queues, QU_Type, CULL_DEFAULT | CULL_SPOOL | CULL_JGDI_RO)
+   SGE_ULONG(AR_mail_options, CULL_DEFAULT | CULL_SPOOL | CULL_CONFIGURE) 
+   SGE_LIST(AR_mail_list, MR_Type, CULL_DEFAULT | CULL_SPOOL | CULL_CONFIGURE)  
+
+   SGE_STRING(AR_pe, CULL_DEFAULT | CULL_SPOOL | CULL_CONFIGURE)              
+   SGE_LIST(AR_pe_range, RN_Type, CULL_DEFAULT | CULL_SPOOL | CULL_CONFIGURE)   
+   SGE_STRING(AR_granted_pe, CULL_DEFAULT | CULL_SPOOL | CULL_CONFIGURE)
+   SGE_LIST(AR_master_queue_list, QR_Type, CULL_DEFAULT | CULL_SPOOL)
+
+   SGE_LIST(AR_acl_list, ARA_Type, CULL_DEFAULT | CULL_SPOOL | CULL_CONFIGURE)
+   SGE_LIST(AR_xacl_list, ARA_Type, CULL_DEFAULT | CULL_SPOOL | CULL_CONFIGURE)
+   SGE_ULONG(AR_type, CULL_DEFAULT | CULL_SPOOL | CULL_CONFIGURE)
+LISTEND
+
+NAMEDEF(ARN)
+   NAME("AR_id")
+   NAME("AR_name")
+   NAME("AR_account")
+   NAME("AR_owner")
+   NAME("AR_group")
+
+   NAME("AR_submission_time")
+   NAME("AR_start_time")
+   NAME("AR_end_time")
+   NAME("AR_duration")
+   NAME("AR_verify")
+   NAME("AR_error_handling")
+
+   NAME("AR_state")
+
+   NAME("AR_checkpoint_name")
+
+   NAME("AR_resource_list")
+   NAME("AR_resource_utilization")
+   NAME("AR_queue_list")
+
+   NAME("AR_granted_slots")
+   NAME("AR_reserved_queues")
+
+   NAME("AR_mail_options")
+   NAME("AR_mail_list")
+
+   NAME("AR_pe")
+   NAME("AR_pe_range")
+   NAME("AR_granted_pe")
+   NAME("AR_master_queue_list")
+
+   NAME("AR_acl_list")
+   NAME("AR_xacl_list")
+   NAME("AR_type")
+NAMEEND
+#define ARS sizeof(ARN)/sizeof(char*)
+
+/* Advance Reservation ACL Entry Object */
+enum {
+   ARA_name = ARA_LOWERBOUND,   /* user or userset */
+   ARA_group                    /* group name for user */
+};
+
+LISTDEF(ARA_Type)
+   SGE_STRING(ARA_name, CULL_PRIMARY_KEY | CULL_HASH | CULL_UNIQUE | CULL_SPOOL)
+   SGE_STRING(ARA_group, CULL_DEFAULT | CULL_SPOOL)
+LISTEND
+
+NAMEDEF(ARAN)
+   NAME("ARA_name")
+   NAME("ARA_group")
+NAMEEND
+
+#define ARAS sizeof(ARAN)/sizeof(char*)
+/* *INDENT-ON* */ 
+
+#ifdef  __cplusplus
+}
+
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><h2><a name="Appendix_Appendix_2_ARCo_databas"> </a> Appendix - Appendix #2 - ARCo database model </h2>
+<p>
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>&lt;version id="5" name="6.2"&gt;
+    &lt;item&gt;
+       &lt;description&gt;Create table sge_ar&lt;/description&gt;
+       &lt;sql&gt;
+         CREATE TABLE sge_ar (
+            ar_id integer,
+            ar_number integer,
+            ar_owner text,
+            ar_submission_time timestamp,
+            PRIMARY KEY (ar_id)
+         )
+       &lt;/sql&gt;
+    &lt;/item&gt;
+    &lt;item&gt;
+       &lt;description&gt;Create index sge_ar_idx0&lt;/description&gt;
+       &lt;sql&gt;CREATE INDEX sge_ar_idx0 ON sge_ar (ar_number)&lt;/sql&gt;       
+    &lt;/item&gt;
+    &lt;item&gt;
+       &lt;description&gt;Create index sge_ar_idx1&lt;/description&gt;
+       &lt;sql&gt;CREATE INDEX sge_ar_idx1 ON sge_ar (ar_owner)&lt;/sql&gt;       
+    &lt;/item&gt;  
+    &lt;item&gt;
+       &lt;description&gt;Create table sge_ar_attribute&lt;/description&gt;
+       &lt;sql&gt;
+         CREATE TABLE sge_ar_attribute (
+            ara_id integer,
+            ara_parent integer,
+            ara_curr_time timestamp,
+            ara_name text,
+            ara_account text,
+            ara_start_time timestamp,
+            ara_end_time timestamp,
+            ara_granted_pe text,
+            PRIMARY KEY (ara_id),
+            FOREIGN KEY (ara_parent) REFERENCES sge_ar (ar_id)
+         )
+       &lt;/sql&gt;
+    &lt;/item&gt;
+    &lt;item&gt;
+       &lt;description&gt;Create index sge_ar_attribute_idx0&lt;/description&gt;
+       &lt;sql&gt;CREATE INDEX sge_ar_attribute_idx0 ON sge_ar_attribute (ara_end_time)&lt;/sql&gt;       
+    &lt;/item&gt;
+    &lt;item&gt;
+      &lt;description&gt;Create table sge_ar_usage&lt;/description&gt;
+      &lt;sql&gt;
+         CREATE TABLE sge_ar_usage (
+            aru_id integer,
+            aru_parent integer,
+            aru_termination_time timestamp,
+            aru_qname text,
+            aru_hostname text,
+            aru_slots integer,
+            PRIMARY KEY (aru_id),
+            FOREIGN KEY (aru_parent) REFERENCES sge_ar (ar_id)
+         )
+      &lt;/sql&gt;
+    &lt;/item&gt;
+    &lt;item&gt;
+      &lt;description&gt;Create table sge_ar_log&lt;/description&gt;
+      &lt;sql&gt;
+         CREATE TABLE sge_ar_log (
+            arl_id integer,
+            arl_parent integer,
+            arl_time timestamp,
+            arl_event text,
+            arl_state text,
+            arl_host text,
+            arl_message text,
+            PRIMARY KEY (arl_id),
+            FOREIGN KEY (arl_parent) REFERENCES sge_ar (ar_id)
+         )
+      &lt;/sql&gt;
+    &lt;/item&gt;
+    &lt;item&gt;
+       &lt;description&gt;Create index sge_ar_log_idx0&lt;/description&gt;
+       &lt;sql&gt;CREATE INDEX sge_ar_log_idx0 ON sge_ar_log (arl_event)&lt;/sql&gt;       
+    &lt;/item&gt; 
+    &lt;item&gt;
+       &lt;description&gt;Create table sge_ar_resource_usage&lt;/description&gt;
+       &lt;sql&gt;
+         CREATE TABLE sge_ar_resource_usage (
+             arru_id integer,
+             arru_parent integer,
+             arru_variable text,
+             arru_value text,
+             PRIMARY KEY (arru_id),
+             FOREIGN KEY (arru_parent) REFERENCES sge_ar (ar_id)
+         )       
+       &lt;/sql&gt;
+    &lt;/item&gt;
+    &lt;item&gt;
+       &lt;description&gt;Adds the column ar_number to sge_job_usage table&lt;/description&gt;
+       &lt;sql&gt;
+          ALTER TABLE sge_job_usage ADD COLUMN ju_ar_number integer DEFAULT 0
+       &lt;/sql&gt;
+    &lt;/item&gt;    
+    &lt;item&gt;
+       &lt;description&gt;Create index on column ar_number&lt;/description&gt;
+       &lt;sql&gt;
+          CREATE INDEX sge_job_usage_idx1 ON sge_job_usage (ju_ar_number)
+       &lt;/sql&gt;          
+    &lt;/item&gt;    
+    &lt;item&gt;
+       &lt;description&gt;Drop view view_job_times&lt;/description&gt;
+       &lt;sql&gt;
+         DROP VIEW view_job_times
+       &lt;/sql&gt;
+    &lt;/item&gt;    
+    &lt;item&gt;
+       &lt;description&gt;Drop view view_accounting&lt;/description&gt;
+       &lt;sql&gt;
+         DROP VIEW view_accounting
+       &lt;/sql&gt;
+    &lt;/item&gt;    
+    &lt;item&gt;
+       &lt;description&gt;Create updated view view_accounting&lt;/description&gt;
+       &lt;sql&gt;
+         CREATE VIEW view_accounting AS 
+            SELECT j_job_number AS job_number, j_task_number AS task_number, 
+                   j_pe_taskid AS pe_taskid,
+                   j_job_name AS name, j_group AS group, j_owner AS username,
+                   j_account AS account, 
+                   j_project AS project, j_department AS department,
+                   j_submission_time AS submission_time, 
+                   ju_ar_number AS ar_number,
+                   ju_start_time AS start_time, ju_end_time as end_time,
+                   (ju_start_time - j_submission_time)::interval AS wait_time,
+                   (ju_end_time - j_submission_time)::interval AS turnaround_time,
+                   (ju_end_time - ju_start_time)::interval AS job_duration,
+                   ju_ru_wallclock AS wallclock_time,
+                   ju_cpu AS cpu, ju_mem AS mem, ju_io AS io, ju_iow AS iow, 
+                   ju_maxvmem AS maxvmem
+            FROM sge_job, sge_job_usage
+            WHERE j_id = ju_parent
+              AND j_submission_time &gt; '1970-01-02' 
+              AND ju_start_time &gt;= j_submission_time
+       &lt;/sql&gt;
+    &lt;/item&gt;    
+    &lt;item&gt;
+        &lt;description&gt;Update view view_job_times&lt;/description&gt;
+        &lt;sql&gt;
+          CREATE OR REPLACE VIEW view_job_times AS
+                       SELECT * FROM view_accounting
+                       WHERE pe_taskid = 'NONE'
+        &lt;/sql&gt;
+     &lt;/item&gt;    
+     &lt;item&gt;
+       &lt;description&gt;Create view view_ar_attribute&lt;/description&gt;
+       &lt;sql&gt;
+         CREATE VIEW view_ar_attribute AS
+            SELECT ar_number AS ar_number,
+                   ar_owner AS owner,
+                   ar_submission_time AS submission_time,
+                   ara_name AS name,
+                   ara_account AS account,
+                   ara_start_time AS start_time,
+                   ara_end_time AS end_time,
+                   ara_granted_pe AS granted_pe
+            FROM sge_ar, sge_ar_attribute
+            WHERE ar_id = ara_parent       
+       &lt;/sql&gt;
+    &lt;/item&gt;    
+    &lt;item&gt;
+       &lt;description&gt;Create view view_ar_log&lt;/description&gt;
+       &lt;sql&gt;
+          CREATE VIEW view_ar_log AS
+            SELECT ar_number AS ar_number,
+                   arl_time AS time,
+                   arl_event AS event,
+                   arl_state AS state,
+                   arl_message AS message
+            FROM sge_ar, sge_ar_log
+            WHERE ar_id = arl_parent
+       &lt;/sql&gt;
+    &lt;/item&gt;    
+    &lt;item&gt;
+       &lt;description&gt;Create view view_ar_usage&lt;/description&gt;
+       &lt;sql&gt;
+          CREATE VIEW view_ar_usage AS 
+            SELECT ar_number AS ar_number,
+                   aru_termination_time AS termination_time,
+                   aru_qname AS queue,
+                   aru_hostname AS hostname,
+                   aru_slots AS slots
+             FROM sge_ar, sge_ar_usage
+             WHERE ar_id = aru_parent
+       &lt;/sql&gt;   
+     &lt;/item&gt;     
+     &lt;item&gt;
+        &lt;description&gt;Create view view_ar_resource_usage&lt;/description&gt;
+        &lt;sql&gt;
+           CREATE VIEW view_ar_resource_usage AS
+             SELECT ar_number AS ar_number,
+                    arru_variable AS variable,
+                    arru_value AS value
+             FROM sge_ar, sge_ar_resource_usage
+             WHERE ar_id = arru_parent
+        &lt;/sql&gt;        
+     &lt;/item&gt;     
+     &lt;item&gt;
+       &lt;description&gt;Create view view_ar_time_usage&lt;/description&gt;
+       &lt;sql&gt;
+          CREATE VIEW view_ar_time_usage AS
+            SELECT ART.ar_number AS ar_number, 
+                   SUM(job_duration)::interval AS job_duration,                   
+                   (ART.end_time - ART.start_time)::interval AS ar_duration
+            FROM view_ar_attribute ART LEFT OUTER JOIN view_accounting ACC 
+            ON (ART.ar_number = ACC.ar_number) 
+            GROUP BY ART.ar_number, ar_duration ORDER BY ART.ar_number
+       &lt;/sql&gt;
+    &lt;/item&gt; 
+    &lt;item&gt;
+        &lt;description&gt;Update version table&lt;/description&gt;
+        &lt;sql&gt;
+          INSERT INTO sge_version (v_id, v_version, v_time)
+                      VALUES(5, '6.2', current_timestamp)
+        &lt;/sql&gt;
+     &lt;/item&gt;
+&lt;/version&gt;
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><h2><a name="Appendix_Appendix_3_qrstat_XML_s"> </a> Appendix - Appendix #3 - qrstat XML schema </h2>
+<p>
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
+&lt;xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified"&gt;
+
+    &lt;!-- ======================================= --&gt;
+    &lt;!-- qrstat output                           --&gt;
+
+    &lt;xs:complexType name="ar_summary_t"&gt;
+        &lt;xs:sequence&gt;
+            &lt;xs:element name="id" type="xs:unsignedInt"/&gt;
+            &lt;xs:element name="name" type="xs:string" minOccurs="0"/&gt;
+            &lt;xs:element name="account" type="xs:string" minOccurs="0"/&gt;
+            &lt;xs:element name="owner" type="xs:string"/&gt;
+
+            &lt;xs:element name="submission_time" type="xs:dateTime"/&gt;
+            &lt;xs:element name="start_time" type="xs:dateTime"/&gt;
+            &lt;xs:element name="end_time" type="xs:dateTime"/&gt;
+            &lt;xs:element name="duration" type="xs:unsignedInt"/&gt;
+
+            &lt;xs:element name="state" type="xs:string"/&gt;
+            &lt;xs:element name="message" type="xs:string" minOccurs="0"/&gt;
+
+            &lt;xs:element name="resource_list" type="resource_list_t"/&gt;
+            &lt;xs:element name="granted_slots" type="granted_slots_list_t"/&gt;
+            &lt;xs:element name="granted_parallel_environment" type="granted_pe_t" minOccurs="0"/&gt;
+            &lt;xs:element name="checkpoint_name" type="xs:string" minOccurs="0"/&gt;
+
+            &lt;xs:element name="mail_options" type="xs:string"/&gt;
+            &lt;xs:element name="mail_list" type="mail_list_t" minOccurs="0"/&gt;
+
+            &lt;xs:element name="acl_list" type="acl_list_t" minOccurs="0"/&gt;
+            &lt;xs:element name="xacl_list" type="acl_list_t" minOccurs="0"/&gt;
+        &lt;/xs:sequence&gt;
+    &lt;/xs:complexType&gt;
+
+    &lt;!-- ======================================= --&gt;
+
+    &lt;xs:complexType name="resource_list_t"&gt;
+        &lt;xs:sequence&gt; 
+            &lt;xs:element name="resource" type="resource_t" minOccurs="1" maxOccurs="unbounded"/&gt;
+        &lt;/xs:sequence&gt;
+    &lt;/xs:complexType&gt;
+
+    &lt;xs:complexType name="resource_t"&gt;
+        &lt;xs:attribute name="name" type="xs:string" use="required"/&gt;
+        &lt;xs:attribute name="type" type="xs:string" use="required"/&gt;
+    &lt;/xs:complexType&gt;
+
+    &lt;xs:complexType name="granted_slots_list_t"&gt;
+        &lt;xs:sequence&gt;
+            &lt;xs:element name="granted_slots" type="granted_slots_t" minOccurs="1" maxOccurs="unbounded"/&gt;
+        &lt;/xs:sequence&gt;
+    &lt;/xs:complexType&gt;
+
+    &lt;xs:complexType name="granted_slots_t"&gt;
+        &lt;xs:attribute name="queue_instance" type="xs:string" use="required"/&gt;
+        &lt;xs:attribute name="slots" type="xs:unsignedInt" use="required"/&gt;
+    &lt;/xs:complexType&gt;
+
+    &lt;xs:complexType name="granted_pe_t"&gt;
+        &lt;xs:sequence&gt;
+            &lt;xs:element name="parallel_environment" type="xs:string" minOccurs="1" maxOccurs="1"/&gt;
+            &lt;xs:element name="slots" type="xs:unsignedInt" minOccurs="1" maxOccurs="1"/&gt;
+        &lt;/xs:sequence&gt;
+    &lt;/xs:complexType&gt;
+
+    &lt;xs:complexType name="mail_list_t"&gt;
+        &lt;xs:sequence&gt;
+             &lt;xs:element name="mail" type="mail_t" minOccurs="1" maxOccurs="unbounded"/&gt;
+         &lt;/xs:sequence&gt;
+    &lt;/xs:complexType&gt;
+
+    &lt;xs:complexType name="mail_t"&gt;
+        &lt;xs:attribute name="user" type="xs:string" use="required"/&gt;
+        &lt;xs:attribute name="host" type="xs:string" use="required"/&gt;
+    &lt;/xs:complexType&gt;
+
+    &lt;xs:complexType name="acl_list_t"&gt;
+         &lt;xs:sequence&gt;
+        &lt;xs:element name="acl" type="acl_t" minOccurs="1" maxOccurs="unbounded"/&gt;
+         &lt;/xs:sequence&gt;
+    &lt;/xs:complexType&gt;
+
+    &lt;xs:complexType name="acl_t"&gt;
+        &lt;xs:attribute name="user" type="xs:string" use="required"/&gt;
+    &lt;/xs:complexType&gt;
+
+&lt;/xs:schema&gt;
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><p>
+</p><hr>
+</body></html>

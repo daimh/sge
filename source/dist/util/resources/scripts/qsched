@@ -1,0 +1,495 @@
+#!/usr/bin/perl
+
+# Copyright (C) 2010-2011 University of Leeds
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# User command to interrogate contents of schedule.last file
+#
+# $Id: qsched 1826 2011-06-30 11:15:34Z issmcd $
+
+use strict;
+use IO::File;
+use File::stat;
+use File::Basename;
+use Getopt::Long;
+use POSIX qw(floor);
+use XML::Simple;
+use Env qw(USER SGE_ROOT SGE_CELL);
+
+my $sched_data     = "${SGE_ROOT}/${SGE_CELL}/common/schedule.last";
+my $max_attempts   = 2;
+my $retry_interval = 1;
+my $jids;
+my $old_seconds    = 1200;
+my $trim_string    = '\.example.com$';
+my @suffix_two     = ("", "K", "M", "G", "T");
+my @suffix_ten     = ("", "k", "m", "g", "t");
+
+my %minimum_free;
+$minimum_free{"h_vmem"} = expand_suffix("1G");
+$minimum_free{"slots"}  = 1;
+
+my %opts;
+$opts{user}     = $USER;
+GetOptions(
+    'u|user=s'    => \$opts{user},
+    'a|all'       => \$opts{all},
+    'f|full'      => \$opts{full},
+    'j|jid=s'     => \$opts{jid},
+    's|sort:s'    => \$opts{sort},
+    'd|debug'     => \$opts{debug},
+    'h|help'      => \$opts{help},
+    'q|queues'    => \$opts{queues},
+);
+
+$opts{all} = 1 if ($opts{user} eq '*');
+
+if ($opts{help}) {
+    print "Usage: ". basename($0) ." [OPTION...]\n";
+    print "\n";
+    print "  -u <user>      - view jobs belonging to user\n";
+    print "  -a             - view jobs belonging to all users (synonym for '-u *')\n";
+    print "  -j <jid_list>  - comma-separated list of JIDs to view\n";
+    print "  -f             - print all available data for each job\n";
+    print "  -s j           - sort by JID\n";
+    print "  -q             - sort by queue";
+    print "  -d             - print debugging info\n";
+    print "  -h             - print this message\n";
+    exit 0;
+}
+
+if ($opts{jid}) {
+    $jids = proc_jid_list($opts{jid});
+}
+
+my $fh = open_file($sched_data);
+warn_and_exit("ABORT: Could not read scheduler data") if (! $fh);
+
+my $queue = queue_data();
+my $sched = sched_data($fh); # WARNING: data lags other sources by a few minutes
+
+if ($opts{queues}) {
+    print_queues($sched, $queue);
+} else {
+    my $users = job_to_user($queue);
+    print_data($sched, $users);
+}
+
+# Warn if data file was rather old
+my $time = time() - stat($fh)->mtime;
+if ($time > $old_seconds) {
+    warn_and_exit("WARNING: Scheduler data is $time seconds old - out of date");
+}
+
+exit 0;
+
+sub job_to_user {
+    my($q) = @_;
+    my %users;
+
+    foreach my $entry (@{$q->{job_info}->{job_list}}) {
+        $users{$entry->{JB_job_number}} = $entry->{JB_owner};
+    }
+    foreach my $entry (@{$q->{queue_info}->{job_list}}) {
+        $users{$entry->{JB_job_number}} = $entry->{JB_owner};
+    }
+
+    return \%users;
+}
+
+#DEBUG - still need to:
+#  - format output properly
+#  - switches to control minimum_free settings
+#  - include job times
+#  - too big: split into functions
+sub print_queues {
+    my($sched, $queue) = @_;
+
+    # Sort reservations by queue
+    my %qreserv;
+    foreach my $job (sort keys %{$sched}) {
+        foreach my $task (sort keys %{$sched->{$job}}) {
+            foreach my $qinst (keys %{$sched->{$job}{$task}{Q}}) {
+                push(@{$qreserv{$qinst}}, { job => $job, task => $task });
+            }
+        }
+    }
+
+    # Check each queue instance
+    foreach my $qinst (sort keys %{$queue->{queue_info}->{"Queue-List"}}) {
+        my $qresource = $queue->{queue_info}->{"Queue-List"}->{$qinst}->{resource};
+
+        my $report = 1;
+
+        foreach my $res (keys %{$qresource}) {
+            if (defined($minimum_free{$res})) {
+                if (expand_suffix($qresource->{$res}{content}) < expand_suffix($minimum_free{$res})) {
+                    $report = 0;
+                }
+            }
+        }
+
+        if ($report) {
+            print trim_irrelev($qinst) .":";
+
+            # Resources
+            foreach my $res (keys %{$qresource}) {
+                print " $res=". $qresource->{$res}{content};
+            }
+
+            # Scheduled jobs
+            foreach my $j (@{$qreserv{trim_irrelev($qinst)}}) {
+                print " ". $j->{job} .".". $j->{task};
+            }
+
+            print "\n";
+        }
+    }
+}
+
+sub print_data {
+    my($data,$users) = @_;
+
+    # Obtain a sorted list of jobs/tasks into %order
+    my %order;
+    if ($opts{jid}) {
+        foreach my $jid (@{$jids}) {
+            if ($jid =~ /^(\d+)\.(\d+)$/) {
+                my $job  = $1;
+                my $task = $2;
+                push(@{$order{0}}, [ $job, $task ]);
+            } elsif ($jid =~ /^(\d+)$/) {
+                my $job = $1;
+                next if (! exists $data->{$job});
+                foreach my $task (sort {$a <=> $b} keys %{$data->{$job}}) {
+                    push(@{$order{0}}, [ $job, $task ]);
+                }
+            }
+        }
+    } else {
+        if ($opts{sort} eq "j") {
+            # Print job/task data in order of job id
+            foreach my $job (sort {$a <=> $b} keys %{$data}) {
+                foreach my $task (sort {$a <=> $b} keys %{$data->{$job}}) {
+                    push(@{$order{0}}, [ $job, $task ]) if (match_username($users->{$job}));
+                }
+            }
+        } else {
+            # Print job/task data in order of start_time
+            foreach my $job (sort {$a <=> $b} keys %{$data}) {
+                foreach my $task (sort {$a <=> $b} keys %{$data->{$job}}) {
+                    push(@{$order{$data->{$job}{$task}{start_time}}}, [ $job, $task ]) if (match_username($users->{$job}));
+                }
+            }
+        }
+    }
+
+    # Find calculate derived data and formatting information
+    my %format;
+    $format{jobid}  = 6;
+    $format{time}   = 19;
+    $format{slots}  = 5;
+    $format{h_vmem} = 6;
+    $format{user}   = 4;
+    foreach my $key (keys %{order}) {
+        foreach my $entry (@{$order{$key}}) {
+            my $job  = ${$entry}[0];
+            my $task = ${$entry}[1];
+
+            # jobid
+            my $len = length($job .".". $task);
+            $format{jobid} = $len if ($len > $format{jobid});
+
+            # slots
+            $data->{$job}{$task}{slots} = sum_entry($data->{$job}{$task}{Q}, "slots");
+            my $len = length($data->{$job}{$task}{slots});
+            $format{slots} = $len if ($len > $format{jobid});
+
+            # h_vmem
+            $data->{$job}{$task}{h_vmem} = human_readable(sum_entry($data->{$job}{$task}{H}, "h_vmem") / $data->{$job}{$task}{slots});
+            my $len = length($data->{$job}{$task}{h_vmem});
+            $format{h_vmem} = $len if ($len > $format{jobid});
+
+            # user
+            my $len = 0;
+            $len = length($users->{$job}) if (exists $users->{$job});
+            $format{user} = $len if ($len > $format{user});
+        }
+    }
+
+    if (! $opts{full}) {
+        print
+            sprintf("%-". $format{jobid}  ."s", "job-ID") ."  ".
+            sprintf("%-". $format{user}   ."s", "user")   ."  ".
+            sprintf("%-". $format{time}   ."s", "start")  ."  ".
+            sprintf("%-". $format{time}   ."s", "end")    ."  ".
+            sprintf("%-". $format{slots}  ."s", "slots")  ."  ".
+            sprintf("%-". $format{h_vmem} ."s", "h_vmem") ."\n";
+        print
+            "-" x $format{jobid}  ."  ".
+            "-" x $format{user}   ."  ".
+            "-" x $format{time}   ."  ".
+            "-" x $format{time}   ."  ".
+            "-" x $format{slots}  ."  ".
+            "-" x $format{h_vmem} ."\n";
+    }
+
+    # Print sorted list of jobs/tasks
+    foreach my $key (sort {$a <=> $b} keys %{order}) {
+        foreach my $entry (@{$order{$key}}) {
+            print_job_data(${$entry}[0], ${$entry}[1], $data, \%format, $users);
+        }
+    }
+}
+
+sub print_job_data {
+    my($job,$task,$data,$format,$users) = @_;
+
+    return if (! exists $data->{$job});
+    return if (! exists $data->{$job}{$task});
+
+    my $user   = $users->{$job};
+    my $slots  = $data->{$job}{$task}{slots};
+    my $h_vmem = $data->{$job}{$task}{h_vmem};
+
+    if ($opts{full}) {
+        my $start = localtime($data->{$job}{$task}{start_time});
+        my $end   = localtime($data->{$job}{$task}{end_time});
+
+        print "Job ${job}.${task}\n";
+        print "    user      = $user\n";
+        print "    start     = $start\n";
+        print "    end       = $end\n";
+        print "    slots     = $slots\n";
+        print "    h_vmem    = $h_vmem\n";
+
+        print "    pe        =". print_entry($data->{$job}{$task}{P});
+        print "    queue     =". print_entry($data->{$job}{$task}{Q});
+        print "    resources =". print_entry($data->{$job}{$task}{H});
+
+        print "\n";
+
+    } else {
+        my $start = print_datetime($data->{$job}{$task}{start_time});
+        my $end   = print_datetime($data->{$job}{$task}{end_time});
+
+        print
+            sprintf("%-". $format->{jobid}  ."s", "${job}.${task}") ."  ".
+            sprintf("%-". $format->{user}   ."s", $user)            ."  ".
+            sprintf("%-". $format->{time}   ."s", $start)           ."  ".
+            sprintf("%-". $format->{time}   ."s", $end)             ."  ".
+            sprintf("%".  $format->{slots}  ."s", $slots)           ."  ".
+            sprintf("%".  $format->{h_vmem} ."s", $h_vmem)          ."\n";
+    }
+}
+
+sub sched_data {
+    my($fh) = @_;
+    my %data;
+
+    while (<$fh>) {
+        if (/^([^:]+):([^:]+):([^:]+):([^:]+):([^:]+):([^:]+):([^:]+):([^:]+):([^:]+)$/) {
+            my $job           = $1;
+            my $task          = $2;
+            my $state         = $3;
+            my $time          = $4;
+            my $length        = $5;
+            my $record_type   = $6;
+            my $record_object = $7;
+            my $record_key    = $8;
+            my $record_value  = $9;
+            chomp($record_value);
+
+            if ($state eq "RESERVING") {
+                $data{$job}{$task}{start_time} = $time;
+                $data{$job}{$task}{end_time} = $time + $length;
+
+                $record_object = trim_irrelev($record_object) if ($record_type eq "Q");
+                $record_object = trim_irrelev($record_object) if ($record_type eq "H");
+                $record_value  = trim_irrelev($record_value);
+
+                $data{$job}{$task}{$record_type}{$record_object}{$record_key} = human_readable($record_value);
+            }
+        }
+    }
+
+    return \%data;
+}
+
+sub open_file {
+    my($file) = @_;
+
+    my $attempts = 0;
+    do {
+        $attempts++;
+
+        my $fh = IO::File->new;
+        $fh->open("< $file") && return $fh;
+
+        plog("Failed opening $file");
+        sleep $retry_interval;
+    } while ($attempts < $max_attempts);
+
+    return 0;
+}
+
+sub plog {
+    my($txt) = @_;
+    chomp($txt);
+
+    if ($opts{debug}) {
+        print "$txt\n";
+    }
+}
+
+sub warn_and_exit {
+    my($txt) = @_;
+    chomp($txt);
+
+    print "$txt\n";
+    exit 1;
+}
+
+sub trim_irrelev {
+    my($txt) = @_;
+
+    $txt =~ s/\.0+$//;
+    $txt =~ s/${trim_string}//;
+    return $txt;
+}
+
+sub print_entry {
+    my($data) = @_;
+    my $str;
+
+    foreach my $obj (sort keys %{$data}) {
+        $str .= " $obj (";
+        my $num = 0;
+        foreach my $key (sort keys %{$data->{$obj}}) {
+            $str .= ", " if ($num > 0);
+            $str .= "$key = $data->{$obj}{$key}";
+            $num++;
+        }
+        $str .= ")";
+    }
+    $str .= "\n";
+}
+
+sub sum_entry {
+    my($data,$key) = @_;
+    my $sum = 0;
+
+    foreach my $obj (sort keys %{$data}) {
+        $sum += expand_suffix($data->{$obj}{$key});
+    }
+
+    return $sum;
+}
+
+sub proc_jid_list {
+    my($txt) = @_;
+    my @jid = split(/,/,$txt);
+    return \@jid;
+}
+
+sub human_readable {
+    my($value) = @_;
+    my(@base_two, @base_ten);
+
+    @base_two = contract_suffix($value, 1024);
+    @base_ten = contract_suffix($value, 1000);
+
+    if ($base_two[1] > $base_ten[1]) {
+         # value divides more neatly in base 2
+        if ($#suffix_two < $base_two[1]) {
+            return $value;
+        } else {
+            return $base_two[0] . $suffix_two[$base_two[1]];
+        }
+    } else {
+         # value divides more neatly in base 10
+        if ($#suffix_ten < $base_ten[1]) {
+            return $value;
+        } else {
+            return $base_ten[0] . $suffix_ten[$base_ten[1]];
+        }
+    }
+}
+
+# Return the value with n*base subtracted from it, and n
+sub contract_suffix {
+    my($value, $base) = @_;
+
+    my $new_value = $value / $base;
+    if ($new_value != 0 && $new_value == POSIX::floor($value / $base)) {
+        my($value, $nbase) = contract_suffix($new_value, $base);
+        return ($value, $nbase+1);
+    } else {
+        return ($value, 0);
+    }
+
+}
+
+sub print_datetime {
+    my($time) = @_;
+    my @d = localtime($time);
+    return sprintf("%02d", $d[4]+1) ."/".
+           sprintf("%02d", $d[3])   ."/".
+           ($d[5] +1900) ." ".
+           sprintf("%02d", $d[2]) .":".
+           sprintf("%02d", $d[1]) .":".
+           sprintf("%02d", $d[0]);
+}
+
+sub queue_data {
+    my $xs = XML::Simple->new(ForceArray => [ 'job_list' ]);
+
+    # Obtain queue instance data
+    my $fh = IO::File->new;
+    $fh->open("qstat -F h_vmem,slots -f -ext -u \\\* -xml |") || die("Problem executing qstat: $!");
+
+    my $doc = $xs->XMLin($fh);
+
+    return $doc;
+}
+
+sub expand_suffix {
+    my($number) = @_;
+
+    if ($number =~ /^([0-9.]+)(\S+)?$/) {
+        my $amount    = $1;
+        my $multipler = $2;
+
+        for(my $i = 0; $i <= $#suffix_ten; $i++) {
+            return $number * 1000**$i if ($multipler eq $suffix_ten[$i]);
+        }
+
+        for(my $i = 0; $i <= $#suffix_two; $i++) {
+            return $number * 1024**$i if ($multipler eq $suffix_two[$i]);
+        }
+    }
+
+    return $number;
+}
+
+sub match_username {
+    my($user) = @_;
+
+    if ($opts{all} || $user eq $opts{user}) {
+        return 1;
+    }
+
+    return 0;
+}

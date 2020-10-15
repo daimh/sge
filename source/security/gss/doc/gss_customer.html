@@ -1,0 +1,347 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76C-CCK-MCD Netscape [en] (X11; U; SunOS 5.8 sun4u) [Netscape]">
+   <meta name="CREATED" content="20010611;10370600">
+   <meta name="CHANGEDBY" content="Andre Alefeld">
+   <meta name="CHANGED" content="20010611;11590200">
+</head>
+<body>
+
+<h2>
+<font color="#660000">Grid Engine Kerberos/DCE Security Modules Overview</font></h2>
+The Kerberos / DCE security modules are designed to be called by Grid Engine
+in order to do the following:
+<ul>
+<li>
+Forward the user's DCE/Kerberos credentials to the job</li>
+
+<li>
+Protect the credentials during network transfer (done automatically by
+DCE and Kerberos)</li>
+
+<li>
+Authenticate the user</li>
+
+<li>
+Verify the authenticated user matches the Grid Engine user</li>
+</ul>
+The security modules consist of several programs which are called by Grid
+Engine client programs and Grid Engine daemons.
+<ul>
+<li>
+get_cred</li>
+
+<br>This program builds a GSSAPI security context and gets the user's forwardable
+credentials, tokenizes them into a buffer and writes them to standard output.
+It is called by qsub, qsh, and qmon when submitting jobs. It is also called
+by sge_qmaster on behalf of the user before a job is sent to an execution
+host.
+<li>
+put_cred</li>
+
+<br>This program accepts a tokenized security context from standard input,
+authenticates the user, verifies that the user is who Grid Engine thinks
+he is, and creates the forwarded credentials for the user. The routine
+also checks to make sure the qsub request is not a replay (i.e. a qsub
+request which was "stolen" and resent by a hacker so he could impersonate
+the user). The put_cred program is called by the sge_qmaster and the sge_execd
+on receipt of a new job. The sge_qmaster stores the credentials cache files
+in /tmp/krb5cc_qmaster_&lt;job_id>. On the execution host the credentials
+cache files are stored in /tmp/krb5cc_sge_&lt;job_id>.
+<li>
+delete_cred</li>
+
+<br>This program deletes a set of credentials. Deleting a user's credentials
+means that the user's credentials cache files are deleted. The delete_cred
+program is called by the sge_qmaster and sge_execd when a job completes.
+<li>
+starter_cred</li>
+
+<br>This shell script is used as a shepherd wrapper program in a DCE environment.
+It executes the k5dcelogin program to turn the forwarded Kerberos TGT into
+DCE credentials and then executes the sge_shepherd.
+
+
+<h2>
+<font color="#660000">How the security modules work</font></h2>
+
+<ol>
+<li>
+qsub/qmon calls get_cred when a job is submitted to get the credentials
+of the user. The tokenized credentials are sent back to qsub and are put
+into the job request.</li>
+
+<li>
+The qmaster calls put_cred which authenticates the user and stores the
+forwarded credentials in a credentials cache file.</li>
+
+<li>
+When a job is sent to an execution host, the qmaster calls get_cred and
+sends the credentials to the execd.</li>
+
+<li>
+The execd calls put_cred which stores the credentials in a credentials
+cache for the user.</li>
+
+<li>
+We set the KRB5CCNAME environment variable for the job so it points to
+the job's credentials cache.</li>
+
+<li>
+(DCE-only) The execd spawns starter_cred instead of the shepherd which
+executes k5dcelogin to convert the Kerberos TGT into valid DCE credentials
+and then executes the shepherd program.</li>
+
+<li>
+When the job completes, execd and qmaster call delete_cred to delete the
+credentials cache files</li>
+</ol>
+
+<h2>
+<font color="#660000">Building and installing the binaries</font></h2>
+First, you must obtain, compile and install the Kerberos libraries for
+each architecture. For a DCE environment, you will also need to compile
+the k5dcelogin program for each execution host architecture.
+<br>To compile and install k5dcelogin, use the commands:
+<br>$ aimk -dce k5dcelogin
+<br>$ aimk install_k5dcelogin
+<br>Before using the security modules, you must create and install the
+binaries for each qmaster or execution host architecture upon which you
+will be using DCE/Kerberos security.
+<br>To create and install the Kerberos security binaries, run <tt>aimk</tt>
+with the <tt>-gss</tt> option before running the <tt>distinst</tt>
+script as usual.  You will need Kerberos/GSSAPI development libraries.
+Either the Heimdal or MIT distribution will work, but you may need to
+adjust the GSSLIBS variable in <tt>aimk.site</tt>.
+
+<h2>
+<font color="#660000">DCE / Kerberos Configuration</font></h2>
+DCE or Kerberos must be configured to recognize the "sge" principal. The
+following instructions explain how to configure Kerberos or DCE. There
+may be minor differences depending on your version of Kerberos or DCE.
+<h4>
+Kerberos Instructions</h4>
+
+<ol>
+<li>
+Create a "sge" principal for each qmaster and execution host. In the example
+below sdremote.hpc-mo.com is the qmaster host and o2.hpc-mo.com is an execution
+host, and an MIT Kerberos installation is used.</li>
+
+<br># ./kadmin
+<br>Enter password: xxxxxxx
+<br>kadmin: addprinc -randkey sge/sdremote.hpc-mo.com
+<br>Principal "sge/sdremote.hpc-mo.com@HPC-MO.COM" created.
+<br>kadmin: addprinc -randkey sge/o2.hpc-mo.com
+<br>Principal "sge/o2.hpc-mo.com@HPC-MO.COM" created.
+<br>kadmin: quit
+<li>
+Put the "sge" key into the default keytab on the qmaster and execution
+hosts. To do this, you need to log into each host individually and execute
+the following commands substituting the local host name for sdremote.hpc-mo.com.</li>
+
+<br># ./kadmin
+<br>Enter password: xxxxxxx
+<br>kadmin: ktadd sge/sdremote.hpc-mo.com
+<br>Entry for principal sge/sdremote.hpc-mo.com with kvno 3, encryption
+type DES-CBC-CRC added to keytab WRFILE:/etc/krb5.keytab.
+<br>kadmin: quit</ol>
+
+<h4>
+DCE Instructions</h4>
+
+<ol>
+<li>
+Create a "sge" principal and server account for each qmaster and execution
+host. In the example below sdremote.hpc-mo.com is the qmaster host and
+o2.hpc-mo.com is an execution host.</li>
+
+<br># dce_login cell_admin
+<br>Enter Password: xxxxx
+<br># dcecp
+<br>dcecp> principal create sge/sdremote.hpc-mo.com
+<br>dcecp> group add none -member sge/sdremote.hpc-mo.com
+<br>dcecp> organization add none -member sge/sdremote.hpc-mo.com
+<br>dcecp> account create sge/sdremote.hpc-mo.com -group none -organization
+none -mypwd xxxxx -password yyyyy
+<br>dcecp> principal create sge/o2.hpc-mo.com
+<br>dcecp> group add none -member sge/o2.hpc-mo.com
+<br>dcecp> organization add none -member sge/o2.hpc-mo.com
+<br>dcecp> account create sge/o2.hpc-mo.com -group none -organization none
+-mypwd xxxxx -password yyyyy
+<p>where xxxxx is the cell_admin password and yyyyy is a key you make up
+for the "sge" account.
+<br>&nbsp;
+<li>
+Put the "sge" key into the default keytab on the qmaster and execution
+hosts</li>
+
+<br>dcecp> keytab add /.../&lt;CELL>/hosts/&lt;HOST>/config/keytab/self
+-member sge/sdremote.hpc-mo.com -key yyyyy -version 1 -nopriv
+<br>dcecp> quit
+<p>where &lt;CELL> is the local cell name and &lt;HOST> is the local host
+name. For some DCE versions, you may need to use rgy_edit to update the
+keytab file.
+<p>If you currently do not run any Kerberos utilities on your DCE system
+(e.g. rlogin, rcp, telnet) then you may need to set up a few Kerberos configuration
+files so the Kerberos libraries that the security subprograms use will
+work correctly.
+<ol>
+<li>
+Make sure /etc/krb5.keytab points to your DCE keytab file. The DCE keytab
+file is generally /etc/v5srvtab</li>
+
+<li>
+Make sure you have a valid /etc/krb5.conf file. Something like this should
+be OK:</li>
+
+<br>
+<br>[libdefaults]
+<br>
+<br>&nbsp;&nbsp;&nbsp;default_realm = &lt;your_DCE_realm_name>
+<br>&nbsp;&nbsp;&nbsp;default_tkt_enctypes = des-cbc-crc
+<br>&nbsp;&nbsp;&nbsp;default_tgs_enctypes = des-cbc-crc
+<br>&nbsp;&nbsp;&nbsp;kdc_req_checksum_type = 2
+<br>&nbsp;&nbsp;&nbsp;ccache_type = 2
+<br>
+<br>[realms]
+<br>
+<br>&nbsp;&nbsp;&nbsp;&lt;your_DCE_realm_name> = {
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; kdc = &lt;your_security_server_hostname>:88
+<br>&nbsp;&nbsp;&nbsp;}
+<br>
+<br>[domain_realm]
+<br>
+<br>&nbsp;&nbsp;&nbsp;.&lt;your_local_domain> = &lt;your_DCE_realm_name>
+<br>&nbsp;&nbsp;&nbsp;&lt;your_local_domain> = &lt;your_DCE_realm_name></ol>
+
+<p><br>Host and domain names in the [domain_realm] section should be specified in lowercase letters. For additional information, see the Kerberos krb5.conf(5) man page.
+<br>&nbsp;
+<br>&nbsp;</ol>
+
+<h2>
+<font color="#660000">Testing the security modules</font></h2>
+Once the binaries are built and installed and you have configured Kerberos
+or DCE, you can verify that the binaries work in your environment by
+testing them standalone. First, you must obtain valid
+Kerberos or DCE credentials. The following instructions assume that the
+user is named joe.
+
+<ul>
+<br>$ get_cred sge > /tmp/cred.out
+<br>$ su
+<br># setenv KRB5CCNAME FILE:/tmp/krb5cc_test_sge
+<br># put_cred -s sge -u joe -b joe &lt; /tmp/cred.out
+<br># delete_cred</ul>
+
+<h2>
+<font color="#660000">Grid Engine Configuration</font></h2>
+<p>
+To use the security sub-programs with Grid Engine, you must switch on
+Kerberos or DCE with the "security_mode" parameter in the bootstrap(5)
+file; the installation script currently doesn't support setting this.
+Kerberos and DCE are equivalent, although the modules for each are
+built differently.
+
+<h2>
+<font color="#660000">Instructions for Grid Engine spool directories in
+DFS</font></h2>
+If you would like to maintain the Grid Engine spool directories in DFS,
+then the Grid Engine deamons must run under a DCE identity. The best way
+to accomplish this is to create a unique DCE account (e.g. "sge_daemon")
+and put the key into the default keytab. To create the account, follow
+the DCE Instructions above substituting the DCE account name that you choose
+for "sge". Once the account is set up, you or the DCE administrator can
+create directories in DFS for use by Grid Engine. The final step is to
+modify the Grid Engine startup scripts. The lines which start the sge_qmaster,
+sge_schedd, and sge_execd should be modified to use dce_login to start
+the daemons. For example,
+<p>Change:
+<br>/gridengine/test/bin/arch/sge_qmaster
+<br>to:
+<br>dce_login sge_daemon -k /krb5/v5srvtab -e /gridengine/test/bin/arch/sge_qmaster
+<p>To install Grid Engine into a DFS directory, the user should be running
+as root and with the DCE Grid Engine daemon identity. The execution daemon
+spool directories should be stored on a local non-DFS file system.
+<br>&nbsp;
+<h2>
+<a NAME="Turning off security"></a><font color="#660000">Turning off security</font></h2>
+The security modules can be turned "off" globally by including the string
+"NO_SECURITY" in the qmaster_params of the global cluster configuration.
+The security modules can be turned "off" for all or particular execution
+hosts by including the string "NO_SECURITY" in the execd_params of the
+global or host-specific cluster configuration. This can be useful for an
+environment where certain hosts do not support DCE or Kerberos security.
+By default, the security modules authenticate that the DCE or Kerberos
+principal is authorized to use the Unix account represented by the user's
+user name on the qmaster host and on the execution hosts. The authentication
+feature can be turned "off" globally by including the string "NO_AUTHENTICATION"
+in the qmaster_params of the global cluster configuration. The authentication
+feature can also be turned off for all or particular execution hosts by
+including the string "NO_AUTHENTICATION" in the global or host-specific
+cluster configuration. The authentication feature can also be turned on
+for all or particular execution hosts by including the string "DO_AUTHENTICATION"
+in the global or host-specific cluster configuration. To turn off authentication
+on the qmaster host, but turn it on for some or all execution hosts, add
+the string "NO_AUTHENTICATION" to the qmaster_params of the global cluster
+configuration and add the string "DO_AUTHENTICATION" to the global or host-specific
+cluster configuration of the execution host(s).
+<h2>
+<font color="#660000">Renewing credentials</font></h2>
+Credentials can be automatically renewed in a Kerberos environment
+through the use of the renew_cred
+script included in the security distribution. In order for the script to
+automatically renew credentials, users must initially obtain renewable
+credentials. In Kerberos, this can be set up as the default, or users can
+use the "-r" option of the kinit command. The renew_cred script should
+be executed from the Grid Engine startup script.
+<br>&nbsp;
+<h2>
+<font color="#660000">Troubleshooting</font></h2>
+
+<ul>
+<li>
+When there are problems, you should always check the qmaster and execution
+daemon messages files. The stderr of the security subprograms is written
+to these files.</li>
+
+<li>
+If authentication fails, here are a few things to check.</li>
+
+<ul>
+<li>
+Make sure the user's credentials are forwardable. If the credentials could
+not be forwarded, there will be a warning message in the qmaster messages
+file. You can also have the user do a klist -f and see if the TGT has the
+forwardable flag set.</li>
+
+<li>
+Make sure the user's Unix name matches the user's Kerberos or DCE name.
+If the names do not match, then the user cannot be authenticated. If there
+is a valid reason for the mismatching names (e.g. cross-realm authentication),
+then a .k5login file in the user's home directory can be used to authenticate
+the user. The .k5login file, which resides in a user's home directory,
+contains a list of Kerberos principals which can be used to access the
+user's account. Anyone with valid tickets for a principal in the file is
+allowed host access with the UID of the user in whose home directory the
+file resides. Suppose the user "janedoe" had a .k5login file in her home
+directory containing the following line: johndoe@FUBAR.ORG This would allow
+her husband "johndoe" to use Grid Engine to access her account. However,
+in order for this to work, the .k5login file must be accessible by the
+qmaster deamon running on the qmaster host. If the qmaster host does not
+have access to the users home directories, then the Grid Engine manager
+has the option to create "dummy" home directories which simply contain
+the appropriate .k5login files for the appropriate users. The dummy home
+directories must be pointed to by the password file (or equivalent) on
+the qmaster host. To turn off authentication, see the paragraph on <a href="#Turning off security">Turning
+off security</a> above.</li>
+</ul>
+</ul>
+
+<center>Copyright 2001 Sun Microsystems, Inc. All rights reserved.</center>
+
+</body>
+</html>

@@ -1,0 +1,159 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH xxQS_NAME_Sxx_QMASTER 8 "2008-05-05" "xxRELxx" "xxQS_NAMExx Administrative Commands"
+.SH NAME
+xxqs_name_sxx_qmaster \- xxQS_NAMExx master control daemon
+.\"
+.\"
+.SH SYNOPSIS
+.B xxqs_name_sxx_qmaster
+[
+.B \-help
+]
+.\"
+.\"
+.SH DESCRIPTION
+.I xxqs_name_sxx_qmaster
+controls the overall xxQS_NAMExx behavior in a cluster. 
+.\"
+.\"
+.SH OPTIONS
+.IP "\fB\-help\fP"
+Prints  a listing of all options.
+.\"
+.\"
+.SH "ENVIRONMENT VARIABLES"
+.\" 
+.IP "\fBxxQS_NAME_Sxx_ROOT\fP" 1.5i
+Specifies the location of the xxQS_NAMExx standard configuration
+files.
+.\"
+.IP "\fBxxQS_NAME_Sxx_CELL\fP" 1.5i
+If set, specifies the default xxQS_NAMExx cell. To address a xxQS_NAMExx
+cell
+.I xxqs_name_sxx_qmaster
+uses (in order of precedence):
+.sp 1
+.RS
+.RS
+The name of the cell specified in the environment 
+variable xxQS_NAME_Sxx_CELL, if it is set.
+.sp 1
+The name of the default cell, i.e. \fBdefault\fP.
+.sp 1
+.RE
+.RE
+.\"
+.IP "\fBxxQS_NAME_Sxx_DEBUG_LEVEL\fP" 1.5i
+If set, specifies that debug information
+should be written to stderr. In addition, the level of
+detail in which debug information is generated is defined by the
+defined value.
+.\"
+.IP "\fBxxQS_NAME_Sxx_DEBUG_LEVEL\fP" 1.5i
+If set, the qmaster will not daemonize.
+.\"
+.IP "\fBxxQS_NAME_Sxx_QMASTER_PORT\fP" 1.5i
+If set, specifies the tcp port on which
+.M xxqs_name_sxx_qmaster 8
+is expected to listen for communication requests.
+Most installations will use a services map entry for the
+service "sge_qmaster" instead to define that port.
+.\"
+.IP "\fBxxQS_NAME_Sxx_EXECD_PORT\fP" 1.5i
+If set, specifies the tcp port on which
+.M xxqs_name_sxx_execd 8
+is expected to listen for communication requests.
+Most installations will use a services map entry for the
+service "sge_execd" instead to define that port.
+.\"
+.IP "\fBxxQS_NAME_Sxx_TEST_DELAY_SCHEDULING\fP" 1.5i
+If set, specifies a delay in (integral seconds) before a scheduling
+run, for test purposes.
+.\"
+.IP "\fBSGE_ND\fP" 1.5i
+If set, don't daemonize the program (for debugging).
+.IP "\fBSGE_ENABLE_COREDUMP\fP" 1.5i
+If set, enable core dumps on Linux when the admin_user is not root.
+Linux normally disables core dumps when the daemon has changed uid or
+gid.  Setting SGE_ENABLE_COREDUMP in xxqs_name_sxx_qmaster's
+environment defeats that to enable core dumps for debugging if they
+are otherwise allowed.  This is typically not a big hazard with
+xxQS_NAME_Sxx, since most information is exposed in the spool area
+anyhow.  Dumps will appear in the host spool directory.
+.br
+On Solaris,
+.M coreadm 1
+may be used to enable such dumps.
+.\"
+.IP \fBSGE_QMASTER_PIDFILE\fP 1.5i
+Path name of file to which to write the daemon process id at startup
+(default "qmaster.pid").  Note that this must be writable by the admin
+user (see
+.M bootstrap 5 ).
+.\"
+.SH RESTRICTIONS
+.I xxqs_name_sxx_qmaster
+is usually started from root on the master or shadow master machines of the
+cluster.
+.\" cluster (refer to the
+.\" .I xxQS_NAMExx Installation and Administration Guide
+.\" for more information about the configuration of shadow master hosts).
+If started by a normal user, a master spool directory must be used to which
+the user has read/write access. In this case only jobs being submitted
+by that same user are handled correctly by the system.
+.\"
+.\"
+.SH FILES
+.nf
+.ta \w'<xxqs_name_sxx_root>/     'u
+\fI<xxqs_name_sxx_root>/<cell>/common/configuration\fP
+	xxQS_NAMExx global configuration
+\fI<xxqs_name_sxx_root>/<cell>/common/local_conf/<host>\fP
+	xxQS_NAMExx host specific configuration
+\fI<xxqs_name_sxx_root>/<cell>/common/qmaster_args\fP
+	\fIxxqs_name_sxx_qmaster\fP argument file
+\fI<xxqs_name_sxx_root>/<cell>/spool\fP
+	Default master spool directory
+.fi
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M xxqs_name_sxx_conf 5 ,
+.M xxqs_name_sxx_execd 8 ,
+.M xxqs_name_sxx_shadowd 8
+.\" .M xxqs_name_sxx_shadowd 8 ,
+.\" .I xxQS_NAMExx Installation and Administration Guide
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

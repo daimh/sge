@@ -1,0 +1,157 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Checkpoint Configuration
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_ckpt.xmtChildren:  unmanaged XmtLayout ckpt_layout;
+
+Qmon*qmon_ckpt.ckpt_layout.autoUnmanage:  False
+Qmon*qmon_ckpt.ckpt_layout.resizePolicy:  RESIZE_NONE
+Qmon*qmon_ckpt.ckpt_layout.dialogTitle:  @{QMON  +++  Checkpointing Configuration}
+!Qmon*qmon_ckpt.ckpt_layout.fontList:     $dialog_font
+
+Qmon*qmon_ckpt.ckpt_layout.xmtChildren: \
+   XmPushButton   ckpt_main_link; \
+   XmScrolledList ckpt_names, ckpt_conf_list; \
+   XmPushButton   ckpt_delete, ckpt_add, ckpt_modify, ckpt_done, ckpt_help;
+
+Qmon*qmon_ckpt.ckpt_layout.layout: \
+   Fixed Shadowed Out 4 2 LREvenSpaced Row ckptconfig_title { \
+      Fixed Centered ckpt_main_link \
+      Centered Color "$title_fg" "@{@fBCheckpointing Configuration}" \
+   } \
+   # \
+   Row { \
+      Caption tl "@{Checkpoint Objects}" 2 in ckpt_names \
+      Caption tl "@{Configuration}" 5 in ckpt_conf_list \
+      Fixed Shadowed Col { \
+         Fixed ckpt_add \
+         Fixed ckpt_modify \
+         Fixed ckpt_delete \
+         Fixed ckpt_done \
+         Fixed ckpt_help \
+      } \
+   }
+
+Qmon*qmon_ckpt.ckpt_layout.ckpt_main_link.labelType:   PIXMAP
+Qmon*qmon_ckpt.ckpt_layout.ckpt_main_link.labelPixmap: logo
+Qmon*qmon_ckpt.ckpt_layout.ckpt_main_link.shadowThickness:    1
+Qmon*qmon_ckpt.ckpt_layout.ckpt_main_link.highlightThickness: 0
+Qmon*qmon_ckpt.ckpt_layout.ckpt_main_link.marginHeight:       0
+Qmon*qmon_ckpt.ckpt_layout.ckpt_main_link.marginWidth:        0
+
+Qmon*qmon_ckpt.ckpt_layout.ckpt_delete.labelString:    @{Delete}
+Qmon*qmon_ckpt.ckpt_layout.ckpt_add.labelString:       @{Add}
+Qmon*qmon_ckpt.ckpt_layout.ckpt_modify.labelString:    @{Modify}
+Qmon*qmon_ckpt.ckpt_layout.ckpt_done.labelString:      @{Done}
+Qmon*qmon_ckpt.ckpt_layout.ckpt_help.labelString:      @{Help}
+
+!! We can't directly specify the parent of ckpt_names or ckpt_conf_list
+Qmon*qmon_ckpt.ckpt_layout*scrollBarDisplayPolicy:  AS_NEEDED
+Qmon*qmon_ckpt.ckpt_layout*listSizePolicy:          RESIZE_IF_POSSIBLE
+
+Qmon*qmon_ckpt.ckpt_layout*ckpt_names.fontList:                  $fixed_font
+Qmon*qmon_ckpt.ckpt_layout*ckpt_names.selectionPolicy:           BROWSE_SELECT
+Qmon*qmon_ckpt.ckpt_layout*ckpt_names.visibleItemCount:          8
+
+Qmon*qmon_ckpt.ckpt_layout*ckpt_conf_list.fontList:              $fixed_font
+Qmon*qmon_ckpt.ckpt_layout*ckpt_conf_list.selectionPolicy:       BROWSE_SELECT
+Qmon*qmon_ckpt.ckpt_layout*ckpt_conf_list.visibleItemCount:      8
+
+Qmon*ckpt_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+
+Qmon*ckpt_ask_shell.xmtChildren: unmanaged XmtLayout ckpt_ask_layout;
+
+Qmon*ckpt_ask_shell.ckpt_ask_layout.autoUnmanage: False
+Qmon*ckpt_ask_shell.ckpt_ask_layout.resizePolicy:  RESIZE_NONE
+Qmon*ckpt_ask_shell.ckpt_ask_layout.dialogTitle: @{Add/Modify Checkpoint Object}
+!Qmon*ckpt_ask_shell.ckpt_ask_layout.fontList: $fixed_font
+
+Qmon*ckpt_ask_shell.ckpt_ask_layout.XmtInputField.marginWidth:      2
+Qmon*ckpt_ask_shell.ckpt_ask_layout.XmtInputField.marginHeight:     2
+
+Qmon*ckpt_ask_shell.ckpt_ask_layout.xmtChildren: \
+   InputField     ckpt_name, \
+                  ckpt_ckpt_command, \
+                  ckpt_migr_command, \
+                  ckpt_rest_command, \
+                  ckpt_clean_command, \
+                  ckpt_ckpt_dir, \
+                  ckpt_signal; \
+   XmtChooser     ckpt_interface, \
+                  ckpt_when; \
+   XmPushButton   ckpt_ok, ckpt_cancel;
+
+Qmon*ckpt_ask_layout.layout: \
+   Row { \
+      Shadowed Col { \
+         Fixed Row { \
+            Col { \
+               Fixed Caption tl "@{Name}" ckpt_name \
+               Fixed Caption tl "@{Interface}" ckpt_interface \
+            } \
+         } \
+         Fixed Caption tl "@{Checkpoint Command}" ckpt_ckpt_command \
+         Fixed Caption tl "@{Migration Command}" ckpt_migr_command \
+         Fixed Caption tl "@{Restart Command}" ckpt_rest_command \
+         Fixed Caption tl "@{Clean Command}" ckpt_clean_command \
+         Fixed Caption tl "@{Checkpointing Directory}" ckpt_ckpt_dir \
+         Fixed Caption tl "@{Checkpoint When}" ckpt_when \
+         Fixed Caption tl "@{Checkpoint Signal}" ckpt_signal \
+      } \
+      Fixed Shadowed Col { \
+         Fixed ckpt_ok \
+         Fixed ckpt_cancel \
+      } \
+   }
+
+
+Qmon*ckpt_ask_layout.ckpt_interface.chooserType:  ChooserOption
+Qmon*ckpt_ask_layout.ckpt_interface.strings: \
+   "@{USERDEFINED}", \
+   "@{HIBERNATOR}", \
+   "@{TRANSPARENT}", \
+   "@{CPR}", \
+   "@{APPLICATION-LEVEL}"
+
+Qmon*ckpt_ask_layout.ckpt_when.chooserType:  ChooserCheckBox
+Qmon*ckpt_ask_layout.ckpt_when.orientation:  HORIZONTAL
+Qmon*ckpt_ask_layout.ckpt_when.strings: \
+   "@{On Shutdown of Execd}", \
+   "@{On Min CPU Interval}", \
+   "@{On Job Suspend}", \
+   "@{Reschedule Job}"
+
+Qmon*ckpt_ask_layout.ckpt_ok.labelString:     @{Ok}
+Qmon*ckpt_ask_layout.ckpt_cancel.labelString: @{Cancel}
+

@@ -1,0 +1,125 @@
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+./source/3rdparty/qmake Interactive/qmake
+./source/3rdparty/qmon/Xbae 3rdpartylibs/Xbae
+./source/3rdparty/qmon/iconlist 3rdpartylibs/iconlist
+./source/3rdparty/qmon/ltree 3rdpartylibs/ltree
+./source/3rdparty/qmon/spinbox 3rdpartylibs/spinbox
+./source/3rdparty/qmon/tab 3rdpartylibs/tab
+./source/3rdparty/qmon/Xmt310 3rdpartylibs/Xmt310
+./source/3rdparty/qmon/Xmt310/Xmt 3rdpartylibs/Xmt310
+./source/3rdparty/qtcsh Interactive/qtcsh
+./source/3rdparty/remote Interactive/remotecommands
+./source/3rdparty/sge_depend Utilities/sge_depend
+./source/3rdparty/zlib 3rdpartylibs/zlib
+./source/3rdparty/adoc Utilities/adoc
+./source/clients/common common/clients
+./source/clients/qacct qacct
+./source/clients/qalter qalter
+./source/clients/qconf qconf
+./source/clients/qdel qdel
+./source/clients/qhost qhost
+./source/clients/qmod qmod
+./source/clients/qmon qmon
+./source/clients/qmon/util qmon/util
+./source/clients/qrsh Interactive/qrsh
+./source/clients/qsh Interactive/qsh
+./source/clients/qstat qstat
+./source/clients/qsub qsub
+./source/clients/qlogin Interactive/qlogin
+./source/common common/general
+./source/daemons/commd commd
+./source/daemons/common common/daemons
+./source/daemons/execd execd
+./source/daemons/qmaster qmaster
+./source/daemons/schedd schedd
+./source/daemons/shadowd schadowd
+./source/daemons/shepherd shepherd
+./source/dist distrib
+./source/dist/ckpt distrib/checkpointing
+./source/dist/examples distrib/examples
+./source/dist/examples/jobs distrib/examples
+./source/dist/locale distrib/locale
+./source/dist/mpi distrib/mpi
+./source/dist/pvm distrib/pvm
+./source/dist/pvm/src distrib/pvm
+./source/dist/qmon distrib/qmon
+./source/dist/util distrib/util
+./source/dist/util/resources distrib/util
+./source/dist/util/resources/calendars distrib/util
+./source/dist/util/resources/complexes distrib/util
+./source/dist/util/resources/loadsensors distrib/util
+./source/dist/util/resources/usersets distrib/util
+./source/libs/comm commlib
+./source/libs/cull culllib
+./source/libs/gdi gdilib
+./source/libs/rmon rmonlib
+./source/libs/sched schedlib
+./source/libs/uti utilib
+./source/scripts scripts
+./source/security security
+./source/security/coshepherd security/afs
+./source/security/gss security/gss
+./source/security/krb security/kerberos
+./source/security/sec security/sec
+./source/security/sec/ssl security/ssl
+./source/utilbin utilbin
+./testsuite general
+./testsuite/checktree checks
+./testsuite/checktree/functional checks
+./testsuite/checktree/functional/migration checks/migration
+./testsuite/checktree/install_core_system checks/install
+./testsuite/checktree/performance checks/performance
+./testsuite/checktree/performance/cluster checks/performance_cluster
+./testsuite/checktree/performance/general checks/performance
+./testsuite/checktree/performance/scheduler checks/performance_scheduler
+./testsuite/checktree/system_tests checks
+./testsuite/checktree/system_tests/clients checks
+./testsuite/checktree/system_tests/clients/qalter checks/qalter
+./testsuite/checktree/system_tests/clients/qconf checks/qconf
+./testsuite/checktree/system_tests/clients/qdel checks/qdel
+./testsuite/checktree/system_tests/clients/qmod checks/qmod
+./testsuite/checktree/system_tests/clients/qmod/auto_reschedule checks/qmod_auto_reschedule
+./testsuite/checktree/system_tests/clients/qmod/general checks/qmod
+./testsuite/checktree/system_tests/clients/qmod/reschedule checks/qmod_reschedule
+./testsuite/checktree/system_tests/clients/qrsh checks/qrsh
+./testsuite/checktree/system_tests/clients/qstat checks/qstat
+./testsuite/checktree/system_tests/clients/qsub checks/qsub
+./testsuite/checktree/system_tests/qmaster checks/qmaster
+./testsuite/checktree/system_tests/qmaster/size checks/qmaster_size
+./testsuite/checktree/system_tests/shadowd checks/shadowd
+./testsuite/checktree/system_tests/shadowd/migrate checks/shadowd_migrate
+./testsuite/checktree/system_tests/utilbin checks/utilbin
+./testsuite/checktree/system_tests/utilbin/loadcheck checks/utilbin_loadcheck
+./testsuite/demo_config_dir configuration
+./testsuite/scripts scripts
+./testsuite/tcl_files library

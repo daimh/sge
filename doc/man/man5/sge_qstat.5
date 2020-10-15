@@ -1,0 +1,118 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\" $RCSfile: sge_qstat.5,v $     Last Update: $Date: 2007-03-23 09:41:42 $     Revision: $Revision: 1.4 $
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH xxQS_NAME_Sxx_QSTAT 5 "2007-03-23" "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+sge_qstat \- xxQS_NAMExx default qstat file format
+.\"
+.\"
+.SH DESCRIPTION
+.I sge_qstat
+defines the command line switches that will be used by qstat by default.
+If available, the default sge_qstat file is read and processed by 
+.M qstat 1 .
+.PP
+There is a cluster global and a user private sge_qstat file. The user private
+file has the highest precedence and is followed by the cluster global 
+sge_qstat file. Command line switches used with 
+.M qstat 1
+override all switches contained in the user private or cluster global 
+sge_qstat file.
+.PP
+.\"
+.\"
+.\"
+The format of the default files is:
+.\"
+.\"
+.IP "\(bu" 3n
+The default sge_qstat file may contain an arbitrary number of lines.
+Blank lines and lines with a '#' sign in the first column are skipped.
+.\"
+.\"
+Each line not to be skipped may contain any
+.M qstat 1
+option.
+.\" option as described in
+.\" the xxQS_NAMExx Reference Manual.
+More than one option per line is
+allowed. 
+.\"
+.\"
+.SH "EXAMPLES"
+.PP
+The following is a simple example of a default sge_qstat file:
+.PP
+.nf
+
+=====================================================
+# Just show me my own running and suspended jobs
+\-s rs \-u $user
+=====================================================
+
+.fi
+.PP
+Having defined a default sge_qstat file like this and using qstat 
+as follows:
+.PP
+.nf
+qstat 
+.fi
+.PP
+has the same effect as if qstat was executed with:
+.PP
+.nf
+qstat \-s rs \-u <current_user>
+.fi
+(Note that \-u $user is now the default behaviour.)
+.\"
+.\"
+.\"
+.SH "FILES"
+.nf
+.ta \w'<xxqs_name_sxx_root>/   'u
+\fI<xxqs_name_sxx_root>/<cell>/common/sge_qstat\fP global defaults file
+\fI$HOME/.sge_qstat\fP	user private defaults file
+.fi
+.\"
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M qstat 1
+.\" .M qstat 1 ,
+.\" .I xxQS_NAMExx Installation and Administration Guide
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

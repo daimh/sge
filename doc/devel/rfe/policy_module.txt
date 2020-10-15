@@ -1,0 +1,562 @@
+         Specification of 6.0 changes in Grid Engine Enterprise Edition 
+             policy module as preparation for resource reservation 
+                      and for the SGE 5.3 mimic mode 
+
+1. Concepts
+
+   a) New job priority based on urgency and ticket sub-policy 
+
+      The new Enterprise Edition priority used by the scheduler 
+      to determine pending job list order unites the existing
+      5.3 ticket policy, the new urgency policy and the policy 
+      that is implemented through the priority controlled via 
+      -p <priority> submit option. The latter one is also called 
+      POSIX priority which indicates it's origin. This term is 
+      used to delimit this priority from priorty concept that is 
+      used by the scheduler to finally decide about pending job 
+      list order. For each policy a weighting factor can be specified 
+      determining to degree it shall be in effect. To facilitate 
+      easier control on each policies values range a normalized 
+      ticket amount ("ntckts"), a normalized urgency value ("nurg") 
+      and a normalized POSIX priority ("pprio") is used rather than 
+      the raw values ticket amount resp. urgency value ("tckts"/"urg"):
+
+         prio    =     weight_urgency * nurg + 
+                       weight_ticket  * ntckts +
+                       weight_priority * pprio
+
+         nurg    = normalized(urg)
+         ntckts  = normalized(tckts)
+         pprio   = normalized(-p <priority>)
+      
+    b) New urgency sub-policy 
+
+       The urgency policy defines a so-called urgency value ("urg") for each 
+       job. The urgency value consists of resource requirement contribution 
+       ("rrcontr"), waiting time contribution ("wtcontr") and deadline 
+       contribution ("dlcontr")
+
+         urg     =  rrcontr + wtcontr + dlcontr
+
+       The resource requirement contribution is a sum with one addend
+       for each hard resource request ("rraddend") 
+
+         rrcontr = Sum over all(rraddend)
+
+       Depending on the resource type two different methods are used 
+       to determine the resource_addend. For numeric type resource 
+       requests the addend is a product of the resources' urgency value 
+       ("rurg") from complex(5), the assumed slot allocation of the job and the
+       per slot request specified using -l submit(1) option: 
+
+         rraddend = "rurg" * assumed_slot_allocation * request
+
+       For string type requests the resources' urgency value is directly 
+       used as addend:
+
+         rraddend = "rurg"
+  
+       The waiting time contribution is the product of the jobs waiting time 
+       in seconds ("waiting_time") and the "waiting_weight" value specified 
+       in sched_conf(5).
+
+         wtcontr = waiting_time * waiting_weight
+
+       The deadline contribution is 0 for jobs without a deadline 
+
+         dlcontr = 0
+  
+       or  the quotient of the 'weight_deadline' value from sched_conf(5) and 
+       the free time in seconds until deadline initiation time.
+
+       The urgency policy provides a multitude of means for different resource 
+       dependent prioritization schemes. Amongst them are general preference for 
+       parallel jobs to implement "largest jobs first" filling or preference for 
+       jobs that request particular resources in order to keep expensive licenses 
+       utilized.
+
+     c) 6.0 Changes with the ticket policy 
+
+        The ticket policy represents the three sub-policies functional
+        policy, override policy and share tree policy. The ticket value
+        ("tckts") is defined as the sum of the specific ticket values 
+        for each sub-policy ("ftckt"/"otckt"/"stckt")
+
+          tckts = ftckt + otckt + stckt
+
+        The ticket policies provide a broad range of means for influencing 
+        both jobs pending-time and run-time priority on a per job, per user, per 
+        project, per department and job class basis. Irrespective of the 
+        disappearance of the deadline ticket policy (as reflected by this 
+        document) the 5.3 documentation is still applicable.
+
+     d) 6.0 Changes to unite SGE 5.3 -p priority concept with new GEEE 6.0 
+        priority concept
+
+        The -p <priority> as described in qsub(1), qalter(1), etc. can be 
+        used for implementing site specific priority policies. Priorities can 
+        be specified within a range -1023 to 1024 whereas higher numbers 
+        always mean higher priority. 
+
+2. Use cases
+
+   The following new use cases show how problems for known problems
+   can be solved based on the changes with job priority in GEEE 6.0:
+
+   a) Resource-based priority classes 
+
+      * use three resources each one representing a priority class
+         #name            shortcut   type     relop requestable consumable default urgency
+         low              lw         BOOL     ==    YES         NO         0       0     
+         medium           md         BOOL     ==    YES         NO         0       100  
+         high             hg         BOOL     ==    YES         NO         0       10000
+      * don't consider slots with urgency computation
+         slots            s          INT      <=    YES         YES        1       0
+      * configure these three complex attributes in the global host
+        qconf -rattr exechost complex_values low=true,medium=true,high=true global
+      * use 'weight_urgency' of '1' and 'weight_ticket' of '0'
+         weight_ticket                    0
+         weight_urgency                   1.0
+      -->  -l high jobs always get dispatched before -l medium and -l low jobs
+      -->  -l medium jobs always get dispatched before -l low jobs
+
+   b) Resource-based priority classes and use of functional policy to implement 50:50 
+      project-sort
+     
+      * same resources as in a)
+      * use 'weight_urgency' of '1' and 'weight_ticket' of '0.001'
+      * use 'weight_tickets_functional' of '10000' and 'weight_project' of '1' (others 0)
+      * use two project 'p1' and 'p2' with 50 functional shares each
+
+      -->  -l high jobs always get dispatched before -l medium and -l low jobs
+      -->  -l medium jobs always get dispatched before -l low jobs
+      -->  functional policy must cause 'p1' and 'p2' jobs be dispatched with a relation 
+           50:50 at any time
+
+   c) Resource-based priority classes and use of share-tree policy to implement over time 
+      50:50 project-sort
+    
+      * same resources as in a)
+      * use 'weight_urgency' of '1' and 'weight_ticket' of '0.001'
+      * use 'weight_tickets_share' of '10000'
+      * use a share tree and assign 50 shares to the projects 'p1' and 'p2'
+
+      -->  -l high jobs always must be dispatched before -l medium and -l low jobs
+      -->  -l medium jobs always must be dispatched before -l low jobs
+      -->  share-tree policy must cause 'p1' and 'p2' jobs be dispatched with a resource 
+           usage relation 50:50 over time
+
+   d) Strict -p priority classes overlaying resource-based urgency overlaying
+      functional policy to implement equal share user sort
+
+      * use 1 as 'weight_priority', 0.001 as 'weight_urgency' and 0.00001 as 
+        'weight_ticket' in sched_conf(5)
+      * use auto_user_fshare of '100' in sge_conf(5)
+      * use auto_user_delete_time of '720:0:0' in sge_conf(5)
+      * use enforce_user of 'auto' in sge_conf(5)
+
+      --> for jobs with the same -p priority that request the same resources 
+          the equal share user sort will be in effect
+      --> for jobs with the same -p priority that differ regarding their requested
+          resources the urgency policy will be in effect whereas the equal share user 
+          sort will not be determining 
+      --> for jobs with different -p priority the priority determines which one is
+          dispatched first and other policies will not be determining
+
+      
+3. Changes with command line interface and configuration file formats
+
+
+qstat(1)
+
+>
+>    -urg This option is only supported in case  of  a  Sun  Grid
+>         Engine,  Enterprise Edition system. It is not available
+>         for Sun Grid Engine systems. Displays additional 
+>         information for each job related to the job urgency policy 
+>         scheme.
+>
+
+<    -ext This option is only supported in case  of  a  Sun  Grid
+<         Engine,  Enterprise Edition system. It is not available
+<         for Sun Grid Engine systems.
+<         Displays additional Sun Grid Engine, Enterprise Edition
+<         relevant  information  for each job (see OUTPUT FORMATS
+<         below).
+<
+
+>
+>    -ext This option is only supported in case  of  a  Sun  Grid
+>         Engine,  Enterprise Edition system. It is not available
+>         for Sun Grid Engine systems.
+>         Displays additional information for each job related to 
+>         the job ticket policy scheme.
+>
+
+>
+>    -g t Displays for running parallel job subtask information
+>         in multiple lines. By  default, parallel job tasks are 
+>         displayed in a single line. See under OUTPUT FORMATS for 
+>         more details on -g t output format differences.
+>         
+
+<     -t   Prints extended information about the  controlled  sub-
+<          tasks  of  the displayed parallel jobs. Please refer to
+<          the OUTPUT FORMATS sub-section  Expanded  Format  below
+<          for  detailed  information.  Sub-tasks of parallel jobs
+<          should not be confused with array  job  tasks  (see  -g
+<          option above and -t option to qsub(1)).
+
+>     -t   Prints extended information about the  controlled  sub-
+>          tasks  of  the displayed parallel jobs. Please refer to
+>          the OUTPUT FORMATS sub-section  Reduced Format below
+>          for  detailed  information. Sub-tasks of parallel jobs
+>          should not be confused with array  job  tasks  (see  -g
+>          option above and -t option to qsub(1)). 
+
+<  Reduced Format (without -f and -F)
+<     Following the header line a line is  printed  for  each  job
+<     consisting of
+<
+<    o  the job ID.
+<
+<     o  the priority of the jobs as assigned to them via  the  -p
+<        option  to  qsub(1) or qalter(1) determining the order of
+<        the pending jobs list.
+<
+
+>  Reduced Format (without -f and -F)
+>     Following the header line a line is  printed  for  each  job
+>     consisting of
+>
+>    o  the job ID.
+>
+>     o  the priority of the jobs determining the order of the pending list.
+>        In case of a Sun  Grid Engine system this is the priority
+>        as assigned to a job via the -p option to qsub(1) or qalter(1). In case 
+>        of Sun Grid Engine, Enterprise Edition system the priority value is 
+>        determined dynamically by sge_schedd(8) as described in sched_conf(5).
+
+
+<    o  the function of the running jobs (MASTER or SLAVE  -  the
+<       latter for parallel jobs only).
+
+>    o  The function of the running jobs or the number of slots depending
+>       whether -g t is specified or not: 
+>
+>       If a single line is printed for a parallel job the number of slots 
+>       occupied or requested by the job is diplayed. For pending parallel that 
+>       got a slot range assigned via -pe submit(1) option a preliminary assumed 
+>       slot amount is displayed. This is always the range minimum in a Sun Grid 
+>       Engine, in a Sun Grid Engine, Enterprise Edition system system this slot 
+>       number can be controlled by the urgency_slots parameter in sge_pe(5). 
+> 
+>       If multiple lines are printed for running parallel jobs (see -g t) the 
+>       function of the running parallel job subtask (MASTER or SLAVE - the 
+>       latter for parallel jobs only) is displayed.
+
+
+<    If the -t option is supplied, each job status line also con-
+<    tains
+
+>    If the -t option is supplied, each status line always contains 
+>    parallel job subtask information as if -g t were specified and
+>    each line contains the following parallel job subtask information:
+
+<  Expanded Format (with -r)
+<     If the -r option was specified together with qstat, the fol-
+<     lowing information for each displayed job is printed (a sin-
+<     gle line for each of the following job characteristics):
+<
+<     o  The hard and soft resource requirements  of  the  job  as
+<        specified with the qsub(1) -l option.
+<
+<     o  The requested parallel environment including the  desired
+<        queue slot range (see -pe option of qsub(1)).
+<
+
+>  Expanded Format (with -r)
+>     If the -r option was specified together with qstat, the fol-
+>     lowing information for each displayed job is printed (a sin-
+>     gle line for each of the following job characteristics):
+>
+>     o  The hard and soft resource requirements  of  the  job  as
+>        specified with the qsub(1) -l option. In a Sun Grid Engine, 
+>        Enterprise Edition system also the per resource addend used
+>        to determine the urgency contribution rrcontr value is printed.
+>
+>     o  The requested parallel environment including the  desired
+>        queue slot range (see -pe option of qsub(1)).
+>
+
+<  Enhanced Sun Grid Engine, Enterprise Edition Output (with -ext)
+<     For each job the following additional items are displayed:
+<
+<     project
+<          The project to which the job is assigned  as  specified
+<          in the qsub(1) -P option.
+<
+<     department
+<          The department, to which the user belongs (use the -sul
+<          and  -su  options  of  qconf(1)  to display the current
+<          department definitions).
+<
+<     deadline
+<          The deadline initiation time of the  job  as  specified
+<          with the qsub(1) -dl option.
+<
+<     cpu  The current accumulated CPU usage of the job.
+<
+<     mem  The current accumulated memory usage of the job.
+<
+<     io   The current accumulated IO usage of the job.
+<
+<     tckts
+<          The  total  number  of  tickets  assigned  to  the  job
+<          currently
+<
+<     ovrts
+<          The override tickets as assigned by the -ot  option  of
+<          qalter(1).
+<
+<     otckt
+<          The override portion of the  total  number  of  tickets
+<          assigned to the job currently
+<
+<     dtckt
+<          The deadline portion of the  total  number  of  tickets
+<          assigned to the job currently
+<
+<     ftckt
+<          The functional portion of the total number  of  tickets
+<          assigned to the job currently
+<
+<     stckt
+<          The share  portion  of  the  total  number  of  tickets
+<          assigned to the job currently
+<
+<     share
+<          The share of the total system to which the job is enti-
+<          tled currently.
+<
+
+>  Enhanced Sun Grid Engine, Enterprise Edition Output (with -ext)
+>     For each job the following additional items are displayed:
+>
+>     ntckts
+>          The normalized ticket value.
+>
+>     project
+>          The project to which the job is assigned  as  specified
+>          in the qsub(1) -P option.
+>
+>     department
+>          The department, to which the user belongs (use the -sul
+>          and  -su  options  of  qconf(1)  to display the current
+>          department definitions).
+>
+>     cpu  The current accumulated CPU usage of the job.
+>
+>     mem  The current accumulated memory usage of the job.
+>
+>     io   The current accumulated IO usage of the job.
+>
+>     tckts
+>          The  total  number  of  tickets  assigned  to  the  job
+>          currently
+>
+>     ovrts
+>          The override tickets as assigned by the -ot  option  of
+>          qalter(1).
+>
+>     otckt
+>          The override portion of the  total  number  of  tickets
+>          assigned to the job currently
+>
+>     ftckt
+>          The functional portion of the total number  of  tickets
+>          assigned to the job currently
+>
+>     stckt
+>          The share  portion  of  the  total  number  of  tickets
+>          assigned to the job currently
+>
+>     share
+>          The share of the total system to which the job is enti-
+>          tled currently.
+>
+
+>  Enhanced Sun Grid Engine, Enterprise Edition Output (with -urg)
+>     For each job the following additional urgency policy related 
+>     items are displayed:
+>
+>     nurg
+>          The normalized urgency value.
+>
+>     urg
+>          The urgency value that is a sum of resource request contribution 
+>          (rrcontr), waiting time contribution (wtcntr) and deadline 
+>          contribution (dlcontr).
+>
+>     rrcontr  
+>          The urgency contribution that reflects the urgency
+>          that is related to the jobs overall resource requirement. The 
+>          resource requirement contribution is a sum consisting 
+>          of one addend per resource request (hard requests only). For 
+>          resource requests of numeric type (i.e. INT, DOUBLE, TIME, 
+>          MEMORY, BOOL) the addend is computed is a product of the jobs 
+>          request, the preliminarily assumed slot allocation (see 
+>          urgency_slots in sge_pe(5)) and the per resource urgency 
+>          weighting factor specified in complex(5) number. For resource 
+>          requests of string type (i.e. STRING, CSTRING, RSTRING, HOST) 
+>          the resources ugency value as specified in complex(5) is 
+>          directly used as added. The addend for each resource request in 
+>          this formula can be investigated with the -r option.
+>
+>     wtcontr  
+>          The urgency contribution that reflects the urgency related to 
+>          the jobs waiting time. The waiting time contribution is 
+>          the product of the jobs waiting time (in seconds ??) and the 
+>          'weight_waiting_time' value as specified in sched_conf(5).
+>
+>     dlcontr   
+>          The urgency contribution that reflects the urgency related to
+>          the jobs deadline initiation time, if specified with -dl 
+>          submit(1) option. For jobs with a deadline initiation time the 
+>          deadline contribution is the quotient of 'weight_deadline' value 
+>          as specified in sched_conf(5) and the free time until deadline 
+>          initiation time (in seconds ??).
+>
+>     deadline
+>          The deadline initiation time of the  job as specified with the 
+>          qsub(1) -dl option.
+>
+
+sched_conf(5) 
+
+<  weight_tickets_deadline (was wrongly documented as weight_deadline!)
+<     This parameter is only  available  in  a  Sun  Grid  Engine,
+<     Enterprise  Edition system. Sun Grid Engine does not support
+<     this parameter.
+<
+<     The maximum number of deadline tickets available for distri-
+<     bution  by  Sun  Grid Engine, Enterprise Edition. Determines
+<     the relative importance of the deadline policy.
+
+> weight_deadline
+>     This parameter is only  available  in  a  Sun  Grid  Engine,
+>     Enterprise  Edition system. Sun Grid Engine does not support
+>     this parameter.
+>
+>     The weight applied on the remaining time until latest deadline 
+>     initiation. 
+>
+> weight_waiting_time
+>     This parameter is only  available  in  a  Sun  Grid  Engine,
+>     Enterprise  Edition system. Sun Grid Engine does not support
+>     this parameter.
+>
+>     The weight applied on the waiting time since job submission.
+>
+> weight_urgency 
+>     This parameter is only  available  in  a  Sun  Grid  Engine,
+>     Enterprise  Edition system. Sun Grid Engine does not support
+>     this parameter.
+>
+>     The weight applied on normalized urgency (nurg) when
+>     determining priority (prio) finally used.
+>
+> weight_ticket
+>     This parameter is only  available  in  a  Sun  Grid  Engine,
+>     Enterprise  Edition system. Sun Grid Engine does not support
+>     this parameter.
+>
+>     The weight applied on normalized ticket amount (ntix) when
+>     determining priority (prio) finally used.
+>
+
+sge_conf(5)
+
+<    SHARE_DEADLINE_TICKETS
+<         If set to "true" or "1", the total deadline tickets are
+<         shared  among  all  deadline jobs. If set to "false" or
+<         "0", each deadline job will receive the total  deadline
+<         tickets  once  the  job  deadline has been reached. The
+<         default value is "true". This parameter is  only  valid
+<         in a SGEEE system.
+
+<         The "POLICY_HIERARCHY" parameter  can  be  a  up  to  4
+<         letter  combination of the first letters of the 4 poli-
+<         cies  S(hare-based),   F(unctional),   D(eadline)   and
+<         O(verride).  So  a value "OFSD" means that the override
+<         policy takes precedence  over  the  functional  policy,
+<         which  influences  the  share-based  policy  and  which
+<         finaly  preceeds  the  deadline  policy.  Less  than  4
+<         letters mean that some of the policies do not influence
+<         other policies and also are  not  influenced  by  other
+<         policies.  So a value of "FS" means that the functional
+<         policy influences the share-based policy and that there
+<         is no interference with the other policies.
+
+>         The "POLICY_HIERARCHY" parameter  can  be  a  up  to  3
+>         letter  combination of the first letters of the 3 poli-
+>         cies  S(hare-based), F(unctional) and
+>         O(verride).  So  a value "OFS" means that the override
+>         policy takes precedence  over  the  functional  policy,
+>         which  finally preceeds  the  share-based  policy. Less  
+>         than  3 letters mean that some of the policies do not 
+>         influence other policies and also are  not  influenced  
+>         by  other policies.  So a value of "FS" means that the 
+>         functional policy influences the share-based policy and 
+>         that there is no interference with the other policies.
+
+
+complex(5) 
+
+> urgency
+>     Sun Grid Engine does not support this parameter. 
+>     The urgency weight is applied by the sge_schedd(8) on the 
+>     resources total requirement of a job when determining the 
+>     resource request contribution (rrcontr) to the urgency (urg).
+>     Qstat(1) -r can be used to monitor all resource request 
+>     contributions of a job affecting it's urgency (urg).
+>
+
+sge_pe(5)
+
+> urgency_slots
+>     This parameter is only  available  in  a  Sun  Grid  Engine,
+>     Enterprise  Edition system. Sun Grid Engine does not support
+>     this parameter.
+>
+>     For jobs that are submitted with a slot range PE request the 
+>     number of slots can't be determined without considering possible
+>     assignments. This setting specifies what method used by 
+>     sge_schedd(8) to determine the estimated number slots the job
+>     will get finally. The slot amount is then assumed when determining 
+>     the total resource requirement is computed to for each resource.
+>     When qstat(1) is run without -g t option the slot amount displayed
+>     is determined using the method specified with urgency_slots.
+>
+>     Please note, when wildcards and slot ranges are used with qsub(1) -pe 
+>     option the method used to determine the assumed slot amount is 
+>     ambiguous. In this case it is recommended to use the same urgency_slots 
+>     settings with all PEs. (??? check this with -w e ???)
+>   
+>     The following methods are supported:
+>
+>     <int> The specified integer number is assumed as prospective 
+>           slot amount.
+>
+>     'min' The minimum of the slot range is assumed as prospective
+>           slot amount. If no lower bound is specified with the range 
+>            1 is assumed.
+>
+>     'max' The maximum of the slot range is assumed as prospective
+>           slot amount. If no upper bound is specified with the range
+>           the absolute maximum possible due to the PE's 'slot' setting
+>           is assumed.
+>
+>     'avg' The average of all numbers within the jobs PE range request
+>           is assumed.
+>

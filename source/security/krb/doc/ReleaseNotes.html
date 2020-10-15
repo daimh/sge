@@ -1,0 +1,148 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76C-CCK-MCD Netscape [en] (X11; U; SunOS 5.8 sun4u) [Netscape]">
+   <meta name="CREATED" content="20010611;10370600">
+   <meta name="CHANGEDBY" content="Andre Alefeld">
+   <meta name="CHANGED" content="20010611;11590200">
+</head>
+<body>
+
+<h2>
+<font color="#990000">Kerberized Grid Engine Release Notes</font></h2>
+Kerberized Grid Engine provides for the authentication of Grid Engine users
+and Grid Engine daemons to ensure a secure queueing environment. Kerberized
+Grid Engine also supports automatic forwarding and renewal of Kerberos
+ticket granting tickets (TGTs) on behalf of the user to the execution hosts
+to ensure that users' jobs will have the proper Kerberos credentials to
+execute other kerberized applications (e.g. PVM).
+<h4>
+Installation Instructions for Kerberized Grid Engine</h4>
+Kerberized Grid Engine requires Kerberos 5, release 1.0pl1 or later to
+be installed on all Grid Engine qmaster, shadow, execution, and submit
+hosts.
+<br>You must also define some kerberos principals and add them to the Kerberos
+database and add some keys to the default keytabs of the qmaster and execution
+hosts. Detailed instructions for setting up your Kerberos database to execute
+Kerberized Grid Engine are included below. The instructions below include
+examples.
+<br>In the examples, the Kerberos domain is HPC-TX.COM. The qmaster host
+is fritz.hpc-tx.com and the execution host is constitution.hpc-tx.com.
+<br>&nbsp;
+<ol>
+<li>
+Add a principal for the Grid Engine service for each qmaster and shadow
+host. Specify the qmaster or shadow host as the host portion of the principal.</li>
+
+<br>&nbsp;
+<p>&nbsp;
+<p>$ kinit admin/admin
+<br>Password for admin/admin@HPC-TX.COM:
+<br>$ /usr/krb5/sbin/kadmin
+<br>Enter password:
+<br>kadmin: addprinc -randkey sge/fritz.hpc-tx.com@HPC-TX.COM
+<br>Principal "sge/fritz.hpc-tx.com@HPC-TX.COM" created.
+<br>kadmin: quit
+<br>$
+<br>&nbsp;
+<li>
+Add a principal for the sge_qmaster and sge_schedd daemons for the qmaster
+host and any shadow hosts. Specify the qmaster or shadow host as the host
+portion of the principal.</li>
+
+<br>&nbsp;
+<p>&nbsp;
+<p>$ /usr/krb5/sbin/kadmin
+<br>Enter password:
+<br>kadmin: addprinc -randkey sge_qmaster/fritz.hpc-tx.com@HPC-TX.COM
+<br>Principal "sge_qmaster/fritz.hpc-tx.com@HPC-TX.COM" created.
+<br>kadmin: addprinc -randkey sge_schedd/fritz.hpc-tx.com@HPC-TX.COM
+<br>Principal "sge_schedd/fritz.hpc-tx.com@HPC-TX.COM" created.
+<br>kadmin: quit
+<br>$
+<br>&nbsp;
+<li>
+For each execution host, add a sge_execd principal for the sge_execd daemon
+which will be executing on the host. Specify the execution host as the
+host portion of the principal.</li>
+
+<br>&nbsp;
+<p>&nbsp;
+<p>$ /usr/krb5/sbin/kadmin
+<br>Enter password:
+<br>kadmin: addprinc -randkey sge_execd/constitution.hpc-tx.com@HPC-TX.COM
+<br>Principal "sge_execd/constitution.hpc-tx.com@HPC-TX.COM" created.
+<br>kadmin: quit
+<br>$
+<br>&nbsp;
+<li>
+Add the Grid Engine, sge_qmaster, and sge_schedd principals to the default keytab
+on the qmaster host and any shadow hosts. (You need to be root to write
+to the default keytab.)</li>
+
+<br>&nbsp;
+<p>&nbsp;
+<p>On each qmaster or shadow host:
+<p>$ su
+<br>Password:
+<br># /usr/krb5/bin/kinit admin/admin
+<br>Password for admin/admin@HPC-TX.COM:
+<br># /usr/krb5/sbin/kadmin
+<br>Enter password:
+<br>kadmin: ktadd sge/fritz.hpc-tx.com sge_qmaster/fritz.hpc-tx.com sge_schedd/fritz.hpc-tx.com
+<br>Entry for principal sge/fritz.hpc-tx.com with kvno 5, encryption type
+DES-CBC-CRC added to keytab WRFILE:/etc/krb5.keytab.
+<br>Entry for principal sge_qmaster/fritz.hpc-tx.com with kvno 5, encryption
+type DES-CBC-CRC added to keytab WRFILE:/etc/krb5.keytab.
+<br>Entry for principal sge_schedd/fritz.hpc-tx.com with kvno 4, encryption
+type DES-CBC-CRC added to keytab WRFILE:/etc/krb5.keytab.
+<br>kadmin: quit
+<br>#
+<br>&nbsp;
+<li>
+For each execution host, add the sge_execd principal to the default keytab
+on the execution host. (You need to be root to write to the default keytab.)</li>
+
+<br>&nbsp;
+<p>&nbsp;
+<p>On each execution host:
+<p>$ su
+<br>Password:
+<br># /usr/krb5/bin/kinit admin/admin
+<br>Password for admin/admin@HPC-TX.COM:
+<br># /usr/krb5/sbin/kadmin
+<br>Enter password:
+<br>kadmin: ktadd sge_execd/constitution.hpc-tx.com
+<br>Entry for principal sge_execd/constitution.hpc-tx.com with kvno 3,
+encryption type DES-CBC-CRC added to keytab WRFILE:/etc/krb5.keytab.
+<br>kadmin: quit
+<br>#
+<br>&nbsp;
+<li>
+Follow the usual instructions for installing Grid Engine.</li>
+</ol>
+
+<ul>
+<li>
+Kerberos Error Logging</li>
+
+<br>Kerberos errors are logged in the usual Grid Engine messages files
+as well as the Kerberos library log file. Each kerberos error includes
+a descriptive Kerberos error message as well as the Grid Engine context
+in which the error occurred. Authentication failures are logged as errors.
+<li>
+TGT Forwarding and TGT Renewal</li>
+
+<br>In order for Kerberized Grid Engine to automatically forward and renew
+TGTs for a job submitted by a user, the user must have obtained a forwardable
+and renewable TGT. This can be done by using the -f and -r switches when
+the kinit command is issued. To request a forwardable TGT which can be
+renewed for 14 days, the user should issue the command:
+<p>$ kinit -f -r 14d</ul>
+
+<center>Copyright 2001 Sun Microsystems, Inc. All rights reserved.</center>
+
+</body>
+</html>

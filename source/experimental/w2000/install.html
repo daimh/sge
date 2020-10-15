@@ -1,0 +1,156 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="StarOffice/5.2 (Solaris Sparc)">
+	<META NAME="AUTHOR" CONTENT="Ernst Bablick">
+	<META NAME="CREATED" CONTENT="20000616;13053600">
+	<META NAME="CHANGEDBY" CONTENT="Ernst Bablick">
+	<META NAME="CHANGED" CONTENT="20010611;11523300">
+	<STYLE>
+	<!--
+		@page { margin-left: 1.25in; margin-right: 1.25in; margin-top: 1in; margin-bottom: 1in }
+		TH P { margin-bottom: 0.08in; font-style: italic }
+		TD P { margin-bottom: 0.08in }
+		P { margin-bottom: 0.08in }
+	-->
+	</STYLE>
+</HEAD>
+<BODY>
+<P STYLE="margin-top: 0.17in; margin-bottom: 0.2in; page-break-after: avoid">
+<FONT FACE="Times New Roman, serif"><FONT SIZE=4>Installation notes</FONT></FONT></P>
+<P STYLE="margin-bottom: 0in"><SPAN STYLE="font-weight: medium">This
+document should give an short overview about the applications which
+can be build from the files contained in the w2000 directory and some
+necessary steps to be done before they can be used with SGE and an
+implementation of a standard remote shell daemon for W2000. </SPAN>
+</P>
+<H1>W2000 Security Settings:</H1>
+<P STYLE="margin-bottom: 0in">Following access rights are necessary
+for the W2000 admin_user who will start the shepherd process
+(&quot;Start&quot;-&gt;&quot;Settings&quot;-&gt;&quot;Control
+Panel&quot;-&gt;&quot;Administartive Tools&quot;-&gt;&quot;Local
+Security Policy&quot;):</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0in">Bypass traverse checking</P>
+	<LI><P STYLE="margin-bottom: 0in">Create a token object</P>
+	<LI><P STYLE="margin-bottom: 0in">Replace a process level token</P>
+	<LI><P STYLE="margin-bottom: 0in">Act as part of the OS</P>
+	<LI><P STYLE="margin-bottom: 0in">Increase quotas</P>
+</UL>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Each user who should be able to start
+SGE-Jobs on a W2000-host has to have following access rights:</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0in">Access this computer from Network</P>
+	<LI><P STYLE="margin-bottom: 0in">Log on as batch job</P>
+	<LI><P STYLE="margin-bottom: 0in">Log on locally</P>
+</UL>
+<H1>W2000 Applikationen/Scripts:</H1>
+<P STYLE="margin-bottom: 0in">Shepherd.exe</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Shepherd process for Windows 2000.
+First Argument of the binary is an absolute path. The shepherd will
+procces the 'config' and 'environment' file contained in this
+directory. Before it terminates it will create a 'usage' file there.
+The second argument is a command string.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<TABLE WIDTH=100% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=45*>
+	<COL WIDTH=211*>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=18%>
+				<P>command string</P>
+			</TH>
+			<TH WIDTH=82%>
+				<P>function</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=18%>
+				<P>start</P>
+			</TD>
+			<TD WIDTH=82%>
+				<P>The main thread will create a W2000- JobObject and load the
+				UserProfile of the target user into the registry. The job id will
+				be written into the 'osjobid' file. After that it starts
+				StarterMethoid.exe and wait for the termination of all Processes
+				part of the W2000-JobObjects. Then the application creates a
+				usage file an terminates.</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=18%>
+				<P>terminate</P>
+			</TD>
+			<TD WIDTH=82%>
+				<P>Terminates all processes/threads part of the job whose id is
+				stored in 'osjobid'</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=18%>
+				<P>suspend</P>
+			</TD>
+			<TD WIDTH=82%>
+				<P>Suspends all processes/threads part of the job whose id is
+				stored in 'osjobid'</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=18%>
+				<P>resume</P>
+			</TD>
+			<TD WIDTH=82%>
+				<P>Resumes all processes/threads part of the job whose id is
+				stored in 'osjobid'</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">StarterMethod.exe</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">Is the first process in the target
+users W2000 job environment. Instances of this application will be
+started by Shepherd.exe. This process has full access to registry
+entries of the target user. Therefore all environment variables are
+visible for this application. StarterMethod.exe adds all environment
+variables contained in the 'environment' file and starts the
+interpreter application which will execute the users job script. The
+application will terminate with the interpreters exit status.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">W2000_Helper.js</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">This is a JavaScript file. It is used
+to transfer files between UNIX nodes and W2000 hosts. It will also
+used to start applications on the W2000 host via UNIX rsh.</P>
+<H1>UNIX Scripts:</H1>
+<P STYLE="margin-bottom: 0in; font-weight: medium">w2000.sh</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">The script can be used as 'shell'
+parameter in the SGE queue configuration. All jobs assigned to this
+queue will be transfer to an W2000 host via rsh. 
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+</BODY>
+</HTML>

@@ -1,0 +1,125 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="StarOffice/5.2 (Solaris Sparc)">
+	<META NAME="AUTHOR" CONTENT=" ">
+	<META NAME="CREATED" CONTENT="20010608;17060500">
+	<META NAME="CHANGEDBY" CONTENT=" ">
+	<META NAME="CHANGED" CONTENT="20010716;11462600">
+</HEAD>
+<BODY>
+<H1>Grid Engine Debug-Monitoring</H1>
+<H2>Overview</H2>
+<P>The rmon library is a module which helps running Grid Engine
+components in a debug trace mode. It is most often applied for
+monitoring the behavior of daemons. In this mode the daemon does not
+disconnect from the controlling terminal, but stays in foreground and
+prints <I>monitoring messages</I>.
+Based on these messages, it is possible to trace into a distributed
+system like Grid Engine. Tracing into the system is important for
+many tasks:</P>
+<UL>
+	<LI><P STYLE="font-style: normal">find the location/reason for a
+	daemon crash.</P>
+	<LI><P STYLE="font-style: normal">monitor daemon-internal processes
+	in development phases.</P>
+	<LI><P STYLE="font-style: normal">find bottlenecks or just develop a
+	sense for possible bottlenecks in the overall architecture.</P>
+</UL>
+<P STYLE="font-style: normal">The monitoring library provides a set
+of functions which are used to implement macros like DPRINTF, DTRACE,
+DENTER and DEXIT. These macros are widely used in the source code.</P>
+<H2>Running daemons in monitoring mode</H2>
+<P>Usually, users don't start the daemons directly. Instead they use
+the <SPAN STYLE="font-style: normal">start-up script</SPAN> for this
+task. For purposes of a monitoring run, the daemon has to be started
+directly from a shell. Nevertheless, it is necessary to have the same
+environment in the shell as it is also set by the start-up script
+(SGE_ROOT, SGE_QMASTER_PORT, ...). This can be easily achieved by sourcing
+the <SPAN STYLE="font-style: normal">settings file:</SPAN></P>
+<P STYLE="font-style: normal">% source $SGE_ROOT/util/dl.csh</P>
+<P STYLE="font-style: normal">The monitoring library allows to select
+8 different <I>categories </I>of messages and it supports also a
+concept of 8 different <I>layers</I>. The idea behind <I>layers</I>
+and <I>categories</I> is to provide the possibility to hide
+unnecessary debug output and display the pertinent one. All DPRINTF
+messages belong to the <I>category</I> of <I>info</I> messages, all
+DENTER/DEXIT messages are <SPAN STYLE="font-weight: medium"><I>trace</I></SPAN>
+messages. The layer of a function is passed as argument to the DENTER
+macro. To communicate to the daemon that it should run in monitoring
+mode and to pass the information which <I>category </I>and which
+<I>layer</I> of messages is to be displayed the environment variable
+SGE_DEBUG_LEVEL is used. So SGE_DEBUG_LEVEL must be set before the
+daemon is started in monitoring mode. E.g. 
+</P>
+<P STYLE="font-style: normal">% setenv SGE_DEBUG_LEVEL &quot;1 0 0 0
+0 0 0&quot;</P>
+<P STYLE="font-style: normal">will cause all top layer DENTER/DEXIT
+messages being printed. As a convenience there are small shell script
+functions for sh/csh allowing to set/unset the debug level easily. To
+activate these functions do a:</P>
+<P STYLE="font-style: normal">% source $SGE_ROOT/util/dl.csh</P>
+<P STYLE="font-style: normal">this activates an alias 'dl' which can
+be used like a command to operate on SGE_DEBUG_LEVEL:</P>
+<P STYLE="font-style: normal">% dl 1</P>
+<P STYLE="font-style: normal">% echo $SGE_DEBUG_LEVEL</P>
+<P STYLE="font-style: normal">2 0 0 0 0 0 0 0</P>
+<P STYLE="font-style: normal">% dl 2</P>
+<P STYLE="font-style: normal">% echo $SGE_DEBUG_LEVEL</P>
+<P STYLE="font-style: normal">3 0 0 0 0 0 0 0</P>
+<P STYLE="font-style: normal">The following &quot;dl&quot; settings
+are supported (or provide some useful combinations of debug output):</P>
+<P STYLE="font-style: normal">dl 1 --&gt; 2 0 0 0 0 0 0 0 TOP_LAYER</P>
+<P STYLE="font-style: normal">dl 2 --&gt; 3 0 0 0 0 0 0 0 dto. +
+DENTER/DEXIT</P>
+<P STYLE="font-style: normal">dl 3 --&gt; 2 2 0 0 0 0 2 0 CULL_LAYER
++ GDI_LAYER</P>
+<P STYLE="font-style: normal">dl 4 --&gt; 3 3 0 0 0 0 3 0 dto. +
+DENTER/DEXIT</P>
+<P STYLE="font-style: normal">dl 5 --&gt; 3 0 0 3 0 0 3 0 --&gt;
+useful sometimes for qmon</P>
+<P STYLE="font-style: normal">dl 6 --&gt; undefined</P>
+<P STYLE="font-style: normal">dl 7 --&gt; 0 0 0 0 3 0 0 0 --&gt; only
+used for CORBA, here: unsupported</P>
+<P STYLE="font-style: normal">dl 8 --&gt; 2 0 0 0 0 2 0 0 TOP_LAYER +
+COMMD_LAYER</P>
+<P STYLE="font-style: normal">dl 9 --&gt; 3 0 0 0 0 3 0 0 dto. +
+DENTER/DEXIT</P>
+<P STYLE="font-style: normal">dl 10 --&gt; 3 3 3 0 0 0 0 3 TOP_LAYER
++ CULL_LAYER + BASIS_LAYER + PACK_LAYER --&gt; usually not of any
+interest</P>
+<H2>Limitations of the Grid Engine Monitoring System</H2>
+<P>A common misunderstanding
+of the Grid Engine monitoring mechanism is that it can be only as
+good as the debug information which the code is setup to produce. You
+might not be able to identify a problem with the software via debug
+traces because there is simply no message generated which would be
+related to the problem. In many
+practical cases it can be necessary to enhance existing messages or
+to add new messages and then to re-build Grid Engine and run it in
+debug mode again. The monitoring system is a developer tool and thus
+it is the developer who decides what layer a function belongs to and
+what messages should be printed. Sometimes new modules start with
+many monitoring messages in the top layer and after some time they
+end in some less significant layer without any messages. The
+monitoring messages must not be seen as the primary interface to
+provide information about error conditions. If you feel there is a
+lack of information about error conditions, you should first look at
+the output which the Grid Engine component provides itself or which
+the component logs into pertinent log files. Likewise, if you find
+nothing and if you consider to make a corresponding change, the
+primary goal should be to provide such error information to the
+administrator or user via output and log files but not to the
+developer via monitoring messages.</P>
+<H2>Implementation Overview</H2>
+<P STYLE="font-style: normal"><FONT COLOR="#000000">For the librmon.a
+library only the files rmon_macros.c rmon_semaph.c and
+rmon_monitoring_level.c are needed. The definition of monitoring
+levels can be found in rmon_monitoring_level.h. The definitions of
+the macros mentioned above are located in sgermon.h.</FONT></P>
+<P ALIGN=CENTER STYLE="text-decoration: none">Copyright 2001 Sun
+Microsystems, Inc. All rights reserved.</P>
+</BODY>
+</HTML>

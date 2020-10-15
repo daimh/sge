@@ -1,0 +1,76 @@
+#!/bin/sh
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+##########################################################################
+# Startup script for the jgdi jmx event monitor
+##########################################################################
+
+BASEDIR=`dirname $0`
+BASEDIR=`cd $BASEDIR; pwd`
+
+MAIN_CLASS=com.sun.grid.jgdi.examples.jmxeventmonitor.Main
+MAIN_CLASS_FILE=`echo $MAIN_CLASS | sed 's#\.#/#g'`
+MAIN_CLASS_FILE=${MAIN_CLASS_FILE}.class
+if [ ! -f $BASEDIR/examples/classes/$MAIN_CLASS_FILE ]; then
+   echo "Error: jgdi example project is not build."
+   echo "       Please start ant in $BASEDIR/examples"
+   exit 1
+fi
+
+if [ -z "$SGE_ROOT" ]; then
+   echo "Error: SGE_ROOT not set."
+   echo "       Please source your SGE environment"
+   exit 1
+fi
+
+if [ ! -f $SGE_ROOT/lib/jgdi.jar ]; then
+   echo "Error: jgdi.jar not found in $SGE_ROOT/lib"
+   exit 1
+fi
+
+if [ ! -f $SGE_ROOT/lib/juti.jar ]; then
+   echo "Error: juti.jar not found in $SGE_ROOT/lib"
+   exit 1
+fi
+
+JVM_ARGS=-Djava.util.logging.config.file=$BASEDIR/util/shell_logging.properties
+
+# For SSL debugging
+#JVM_ARGS="$JVM_ARGS -Djava.security.debug=access,failure"
+# On Mac we need sometimes the system property java.awt.headless
+#JVM_ARGS="$JVM_ARGS -Djava.awt.headless=true"
+ 
+
+java $JVM_ARGS \
+     -cp $SGE_ROOT/lib/juti.jar:$SGE_ROOT/lib/jgdi.jar:$BASEDIR/examples/classes \
+     $MAIN_CLASS
+

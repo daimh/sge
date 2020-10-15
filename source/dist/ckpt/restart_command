@@ -1,0 +1,71 @@
+#!/bin/sh
+#
+#
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+# change the path to your needs
+F=/tmp/restart.out
+touch $F
+
+echo ----------------------------------  >> $F 2>&1
+echo I am: `id`				 >> $F 2>&1
+echo Checkpoint command called at `date` >> $F 2>&1
+echo Myargs: $*				 >> $F 2>&1
+echo done				 >> $F 2>&1
+echo                                     >> $F 2>&1
+
+echo Restart command: /usr/bin/restart sge_$1 >> $F 2>&1
+/usr/bin/restart -j -m sge_$1                 >> $F 2>&1
+
+# Now be careful: The restart command is the parent process of the restarted
+# job. SGE is the parent process of the restart command.
+# If the job was killed (probably due to a migration request), we need to
+# tell our parent that by killing ourselves. SGE will also detect an 
+# exit status > 128 analogous to a KILL
+
+exit_status=$?
+echo Exit status of restart command: $exit_status >> $F 2>&1
+
+# This doesn't work under Irix 6.2, since the variable $$ is not
+# correctly set
+#if [ $exit_status -gt 128 ]; then
+#   signal=`expr $exit_status - 128`
+#   echo Killing ourself: kill -$signal $$        >> $F 2>&1   
+#   /usr/bin/kill -$signal $pid                   >> $F 2>&1
+#fi
+
+# If killing ourselves didn't help or the exit_status was  < 128 exit 
+# with the exit status of our child
+
+echo Exiting with exit status: $exit_status      >> $F 2>&1
+exit $exit_status

@@ -1,0 +1,132 @@
+
+------------------------------------------------------------------------------
+              CHANGES since adoc-0.17 beta 3 (the first release)
+------------------------------------------------------------------------------
+
+
+Tue Mar 21 22:13:37 1995
+
+  * Autodoc default was `--preserve-order' and there was no switch to
+    sort the entries.  ADOC now sorts the entries by default as documented.
+
+
+Wed Mar 22 14:32:27 1995
+
+  * Removed the undocumented "hidden feature" which allowed combining
+    `-1 -o file' to `-o1 file'.
+
+  * `--revision' replaces `--edition' and `--edition' now does what it says:
+    it defines the REVISION macro.
+
+  * `-h' option qualifier added to avoid line breaks on 80 column terminals:
+
+      `-h0'   prints only the "usage:" string
+      `-h1'   prints only the "short" options (those with one `-')
+      `-h2'   printd only the "long" options (those with two `--')
+
+    `-h' alone defaults to `-h3' which prints both "long" and "short" options"
+
+
+Thu Mar 23 12:58:38 1995
+
+  * Added the `-Y' option which allows autodoc comments to begin in any column.
+    (They normally have to begin in column 1).
+
+    There is no checking yet whether or not the indentation is equal in every
+    line of the comment.  (Do we really need that?)
+
+  * There is only one warning now for lines in autodoc comments without a white
+    space after the first column black character.  These lines are ignored.
+
+  * A (char *)0 reference has been fixed which happened in case of an 
+    unterminated comment at the end of a file.
+
+  * Added `-u' option which allows the removal of the body text indentation.
+    This is useful in texinfo mode because the texinfo @example block is
+    indented automatically.
+
+    Warning: This option removes *all* white spaces at the beginning of a line
+             and that might destroy your textual layout.
+             This is why this option is not documented and might be removed in
+             future revisions.
+
+
+Fri Mar 24 13:24:46 1995
+
+  * Added `-j' option which might be what you need instead of `-u'.  (-:
+
+  * Adoc now replaces the the leading "black" character of body text lines with
+    a single space if the black character is followed by a space.  Otherwise
+    (if it is followed by a TAB or a NL) adoc only removes the back character.
+    This guarantees an equal indentation of body text lines indented with tabs
+    and those indented with spaces.  (This was a bug until today)
+
+
+------------------------------------------------------------------------------
+                            CHANGES since adoc-0.18
+------------------------------------------------------------------------------
+
+
+Fri Mar 24 20:40:49 1995
+
+  * Made the period `.' a legal character for an identifier in the comment
+    header.  This allows headers of the form
+
+                  /****** myfirst.library/greatfun *******...
+
+  * Wrote the CODA tool which is now distributed together with adoc
+    CODA converts autodocs to C language comments which allows further
+    processing with ADOC
+
+  * Found another DICE bug which caused crashes on my system :'(
+
+           z=((++x) % y)      is not equal to      x++; z= x%y
+
+
+Sat Mar 25 10:55:21 1995
+
+  * ADOC now adds an untitled section if there is text without a section
+    heading at the beginning of an autodoc comment.
+
+  * added the `-Z' option which avoids writing the "Function Index" in
+    `--texinfo' mode.
+
+
+------------------------------------------------------------------------------
+                            CHANGES since adoc-0.19
+------------------------------------------------------------------------------
+
+
+Mon Apr  3 17:14:12 1995
+
+  * Fixed a bug in the scanner's strip() function which did not remove all
+    white spaces from a string which consists entirely of white spaces.
+
+  * Documented the @w{} cheat which allows TeX to break the page inside
+    indented paragraphs in @example and @smallexample blocks.
+
+  * ADOC now uses malloc() instead of of realloc() for initial allocations.
+    (This was a problem in a SUN's libc.a)
+
+  * References to library @chapter nodes are now recognized by the SEE ALSO 
+    parser.  (New problem for the user:  A reference `f' to a function `f' 
+    in a library `f' will come out as a reference to the library `f'.  The 
+    function can be refered to as `f/f'.)
+
+  * Some changes in the texinfo header have been made, especially the page 
+    numbering on the title page has been removed and double sided page 
+    numbering has been forced for the rest of the document.
+
+
+------------------------------------------------------------------------------
+                            CHANGES since adoc-1.01
+------------------------------------------------------------------------------
+
+Wed Apr 12 21:47:05 1995
+
+  * Now using a space character instead of a slash `/' or a period `.' or a
+    colon `:' as a seperator between library and function name because of 
+    problems with makeinfo and makeguide which seem convert some slashes in 
+    @node names to dashes and some not and then get in trouble later... hmpf!
+
+  *

@@ -1,0 +1,79 @@
+#!/bin/sh
+
+# Check for Grid Engine jobs in error state.
+# Dave Love <fx@gnu.org>, 2008-03-27
+# Copyright (C) 2008  University of Liverpool
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+
+# Configure these:
+#SGE_ROOT=/opt/sge; export SGE_ROOT
+. /etc/profile.d/sge.sh
+qstat=$SGE_ROOT/bin/$($SGE_ROOT/util/arch)/qstat
+
+if [ -f /bin/basename ]; then
+    PROGNAME=`/bin/basename $0`
+else
+    PROGNAME=`/usr/bin/basename $0`
+fi
+REVISION=1.0
+PROGPATH=`echo $0 | /bin/sed -e 's,[\\/][^\\/][^\\/]*$,,'`
+
+. $PROGPATH/utils.sh
+
+usage () {
+    echo "\
+Grid Engine jobs in error state plugin for Nagios
+
+-h, --help 		Print this help
+--version 		Print version"
+}
+
+help () {
+    print_revision $PROGNAME $REVISION
+    echo; usage
+}
+
+cleanup () {
+    exit $state
+}
+
+arg () {
+  expr $1 : '[^=]*=\(.*\)'
+}
+
+daemon=execd
+
+while [ $# -gt 0 ]; do
+    case $1 in
+	-h|--help) help; exit $STATE_OK;;
+	-H|--hostname) shift; host=$1; shift;;
+        --version | -V)
+            print_revision $PROGNAME $REVISION
+            exit $STATE_OK;;
+	*) usage; exit $STATE_UNKNOWN;;
+    esac
+done
+
+state=$STATE_WARNING
+trap cleanup EXIT
+
+result=$("$qstat" -u *, -s p 2>&1 | grep -c Eqw)
+
+if [ $result -ne 0 ]; then
+    echo "WARNING $result SGE job(s) in error state | error_jobs=$result"
+else
+    echo "OK No jobs in error state | error_jobs=0"
+    state=$STATE_OK
+fi

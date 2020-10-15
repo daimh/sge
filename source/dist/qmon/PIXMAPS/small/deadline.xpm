@@ -1,0 +1,172 @@
+/* XPM */
+/*___INFO__MARK_BEGIN__*/
+/*************************************************************************
+ * 
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ * 
+ *  Sun Microsystems Inc., March, 2001
+ * 
+ * 
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ * 
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ * 
+ *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ * 
+ *   Copyright: 2001 by Sun Microsystems, Inc.
+ * 
+ *   All Rights Reserved.
+ * 
+ ************************************************************************/
+/*___INFO__MARK_END__*/
+static char *deadline[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 119 2",
+"   c #000700",
+".  c #A40000",
+"X  c #B20707",
+"o  c #B30909",
+"O  c #B40A0A",
+"+  c #B50B0B",
+"@  c #B50D0D",
+"#  c #CD1A1A",
+"$  c #D30809",
+"%  c #D30908",
+"&  c #D30909",
+"*  c #D20A09",
+"=  c #D30A09",
+"-  c #D30B0B",
+";  c #D40909",
+":  c #D40A0A",
+">  c #D50A0B",
+",  c #D50B0A",
+"<  c #D50B0B",
+"1  c #D60B0B",
+"2  c #D60C0C",
+"3  c #D70D0C",
+"4  c #D70D0D",
+"5  c #D60D0E",
+"6  c #D70E0D",
+"7  c #D60E0F",
+"8  c #D80E0D",
+"9  c #D80E0E",
+"0  c #D80F0E",
+"q  c #D90F0F",
+"w  c #D41716",
+"e  c #D51717",
+"r  c #D91111",
+"t  c #D91212",
+"y  c #DA1010",
+"u  c #DA1111",
+"i  c #DB1111",
+"p  c #DB1211",
+"a  c #DB1212",
+"s  c #DB1213",
+"d  c #DB1312",
+"f  c #DB1413",
+"g  c #DC1312",
+"h  c #DC1313",
+"j  c #DC1314",
+"k  c #DD1314",
+"l  c #DD1413",
+"z  c #DC1514",
+"x  c #DD1414",
+"c  c #DE1414",
+"v  c #DE1515",
+"b  c #DF1515",
+"n  c #DE1616",
+"m  c #DE1717",
+"M  c #DF1616",
+"N  c #DF1617",
+"B  c #DF1716",
+"V  c #DF1717",
+"C  c #DE1817",
+"Z  c #D91D1D",
+"A  c #D91F1F",
+"S  c #D12222",
+"D  c #D12323",
+"F  c #D32323",
+"G  c #D22424",
+"H  c #D32626",
+"J  c #D42222",
+"K  c #D62727",
+"L  c #D6292A",
+"P  c #D62D2D",
+"I  c #DF2627",
+"U  c #D82E2E",
+"Y  c #D83030",
+"T  c #DA3333",
+"R  c #DB3232",
+"E  c #D93737",
+"W  c #DB3434",
+"Q  c #DA3737",
+"!  c #DB3636",
+"~  c #DB393A",
+"^  c #DB3B3B",
+"/  c #DB3E3D",
+"(  c #DE3939",
+")  c #DE3A3A",
+"_  c #DC3D3D",
+"`  c #DC3F3F",
+"'  c #E01716",
+"]  c #E01717",
+"[  c #E01718",
+"{  c #E11718",
+"}  c #E01817",
+"|  c #E11818",
+" . c #E11918",
+".. c #E11919",
+"X. c #E11A1A",
+"o. c #E11B1B",
+"O. c #E21919",
+"+. c #E21C1C",
+"@. c #E02829",
+"#. c #E42F2F",
+"$. c #E13E3E",
+"%. c #E14242",
+"&. c #E04545",
+"*. c #E14949",
+"=. c #E44949",
+"-. c #E44C4C",
+";. c #E44D4E",
+":. c #E6504F",
+">. c #E45252",
+",. c #E65151",
+"<. c #E95252",
+"1. c #E85758",
+"2. c #E85A5B",
+"3. c #E85B5B",
+"4. c #E95C5C",
+"5. c #EA5F5F",
+"6. c #EA6060",
+"7. c gray100",
+"8. s mask c None",
+/* pixels */
+"8.8.8.8.8.. . . . . . 8.8.8.8.8.",
+"8.8.8.. @ ( ,.5.2.-.W + . 8.8.8.",
+"8.8.. P 6.#.X.M M C @.,.H . 8.8.",
+"8.. P <.X.X.X.M M c h M %.D . 8.",
+"8.@ 5.X.X.} M M h h h t t *.+ 8.",
+". ( #.X.[ M M M c h i q q A L . ",
+". :.X.[ 7.7.7.7.7.7.7.7.q 7 ~ . ",
+". 2.} M 7.7.7.7.7.7.7.7.< < ` . ",
+". 1.C c 7.7.7.7.7.7.7.7.< < / . ",
+". =.C c h h q q q 7 < < < < T . ",
+". R I t q q q q 3 < < % * e D . ",
+"8.+ -.c h q q 1 3 < < % * W X 8.",
+"8.. H $.q q 2 < < < * - P # . 8.",
+"8.8.. D &.A 7 < ; * w W # . 8.8.",
+"8.8.8.. o L W / ( Y J o . 8.8.8.",
+"8.8.8.8.8.. . . . . . 8.8.8.8.8."
+};

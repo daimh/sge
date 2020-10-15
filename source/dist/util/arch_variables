@@ -1,0 +1,590 @@
+#!/bin/sh
+#
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+#  Portions of this software are Copyright (c) 2011 Univa Corporation
+#
+##########################################################################
+#___INFO__MARK_END__
+#
+# Get Grid Engine architecture and set architecture dependent variables.
+# This script is *sourced* by the installation procedure
+#
+# There are also a couple of shell functions defined which are used by other
+# Grid Engine utility script.
+#
+
+
+QLOGIN_DAEMON="undef"
+QLOGIN_COMMAND="undef"
+RLOGIN_DAEMON="undef"
+RLOGIN_COMMAND="undef"
+RSH_DAEMON="undef"
+RSH_COMMAND="undef"
+
+ARCH=UNKNOWN
+
+if [ -f util/arch ]; then
+   ARCH=`util/arch`
+elif [ "$SGE_ROOT" != "" -a -x $SGE_ROOT/util/arch ]; then
+   ARCH=`$SGE_ROOT/util/arch`
+else
+   echo "can't find script \$SGE_ROOT/util/arch"
+   exit 1
+fi
+
+ROOTGROUP=root
+
+case $ARCH in
+ sol-*|usol-*)
+   AWK=/usr/bin/nawk
+   ECHO=/usr/bin/echo
+   RC_FILE=sysv_rc
+   RC_PREFIX=/etc
+   RC_DIR=rc2.d
+   XTERM=/usr/openwin/bin/xterm
+   MAILER=/bin/mailx
+   QLOGIN_COMMAND=telnet
+   QLOGIN_DAEMON=/usr/sbin/in.telnetd
+   RLOGIN_DAEMON=/usr/sbin/in.rlogind
+   GETTEXT=/usr/bin/gettext
+   RSH_DAEMON=undef
+   LOADSENSOR_COMMAND=undef
+   ;;
+ lx*|ulx*)
+   AWK=/usr/bin/awk
+   # fixme:  Is -e actually necessary?
+   ECHO="/bin/echo -e"
+   unset POSIXLY_CORRECT        # so we can rely on echo -e
+   if [ -x /usr/lib/lsb/install_initd ]; then
+      # RedHat, CentOS etc.
+      RC_FILE=lsb
+      RC_PREFIX=/etc/init.d
+      RC_DIR=unused
+   elif [ -x /usr/sbin/update-rc.d ]; then
+      # Debian uses update-rc.d to add startup scripts
+      RC_FILE=update-rc.d
+      RC_PREFIX=/etc/init.d
+      RC_DIR=unused
+   elif [ -x /sbin/insserv ]; then
+      # SuSe 7.1 and higher uses insserv to add the startup script
+      RC_FILE=insserv-linux
+      RC_PREFIX=/etc/init.d
+      RC_DIR=unused
+   elif [ -x /sbin/rc-update ]; then
+      # Gentoo uses rc-update to add startup scripts
+      RC_FILE=rc-update
+      RC_PREFIX=/etc/init.d
+      RC_DIR=unused
+   else
+      RC_FILE=sysv_rc
+      RC_PREFIX=/etc/rc.d
+      RC_DIR=rc3.d
+   fi
+   XTERM=/usr/bin/xterm
+   MAILER=/bin/mail
+   QLOGIN_COMMAND=telnet
+   QLOGIN_DAEMON=/usr/sbin/in.telnetd
+   RLOGIN_DAEMON=/usr/sbin/in.rlogind
+   GETTEXT=/usr/bin/gettext
+   RSH_DAEMON=undef
+   LOADSENSOR_COMMAND=undef
+   ;;
+ tru64)
+   AWK=/usr/bin/nawk
+   ECHO=/usr/bin/echo
+   RC_FILE=sysv_rc
+   RC_PREFIX=/sbin
+   RC_DIR=rc3.d
+   XTERM=/usr/bin/X11/xterm
+   MAILER=/usr/bin/Mail
+   QLOGIN_COMMAND=telnet
+   QLOGIN_DAEMON=/usr/sbin/telnetd
+   RLOGIN_DAEMON=/usr/sbin/rlogind
+   RSH_DAEMON=undef
+   LOADSENSOR_COMMAND=undef
+   ;;
+ irix*)
+   AWK=/usr/bin/nawk
+   ECHO=/sbin/echo
+   RC_FILE=sysv_rc
+   RC_PREFIX=/etc
+   RC_DIR=rc2.d
+   XTERM=/usr/bin/X11/xterm
+   MAILER=/usr/sbin/Mail
+   QLOGIN_COMMAND=telnet
+   QLOGIN_DAEMON=/usr/etc/telnetd
+   RLOGIN_DAEMON=/usr/etc/rlogind
+   RSH_DAEMON=undef
+   LOADSENSOR_COMMAND=undef
+   ;;
+ hp*)
+   AWK=/usr/bin/awk
+   ECHO=/bin/echo
+   RC_FILE=sysv_rc
+   RC_DIR=rc2.d
+   RC_PREFIX=/sbin
+   XTERM=/usr/bin/X11/xterm
+   MAILER=/usr/bin/mailx
+   QLOGIN_COMMAND=telnet
+   QLOGIN_DAEMON=/usr/lbin/telnetd
+   RLOGIN_DAEMON=/usr/lbin/rlogind
+   RSH_DAEMON=undef
+   LOADSENSOR_COMMAND=undef
+   ;;
+ aix*)
+   AWK=/usr/bin/nawk
+   ECHO=/usr/bin/echo
+   RC_FILE=/etc/rc
+   XTERM=/usr/bin/X11/aixterm
+   MAILER=/usr/bin/Mail
+   QLOGIN_COMMAND=telnet
+   QLOGIN_DAEMON=/usr/sbin/telnetd
+   RLOGIN_DAEMON=/usr/sbin/rlogind
+   RSH_DAEMON=undef
+   LOADSENSOR_COMMAND=undef
+   ;;
+ fbsd-*)
+   AWK=/usr/bin/awk
+   ECHO="/bin/echo"
+   RC_FILE=freebsd
+   RC_PREFIX=/usr/local/etc/rc.d
+   RC_SUFFIX=.sh
+   XTERM=/usr/X11R6/bin/xterm
+   MAILER=/usr/bin/mail
+   QLOGIN_COMMAND=telnet
+   QLOGIN_DAEMON=/usr/libexec/telnetd
+   RLOGIN_DAEMON=/usr/libexec/rlogind
+   GETTEXT=/usr/local/bin/gettext
+   RSH_DAEMON=undef
+   ROOTGROUP=wheel
+   LOADSENSOR_COMMAND=undef
+   ;;
+ nbsd-*)
+   AWK=/usr/bin/awk
+   ECHO="/bin/echo"
+   RC_FILE=netbsd
+   RC_PREFIX=/etc/rc.d
+   RC_SUFFIX=.sh
+   XTERM=/usr/X11R7/bin/xterm
+   MAILER=/usr/bin/mail
+   QLOGIN_COMMAND=telnet
+   QLOGIN_DAEMON=/usr/libexec/telnetd
+   RLOGIN_DAEMON=/usr/libexec/rlogind
+   GETTEXT=/usr/bin/gettext
+   RSH_DAEMON=undef
+   ROOTGROUP=wheel
+   LOADSENSOR_COMMAND=undef
+   ;;
+obsd-*)
+  AWK=/usr/bin/awk
+  ECHO="/bin/echo"
+  RC_FILE=openbsd
+  RC_PREFIX=/etc/rc.d
+  RC_SUFFIX=.sh
+  XTERM=/usr/X11R6/bin/xterm
+  MAILER=/usr/bin/mail
+  QLOGIN_COMMAND=telnet
+  QLOGIN_DAEMON=/usr/libexec/telnetd
+  RLOGIN_DAEMON=/usr/libexec/rlogind
+  GETTEXT=/usr/bin/gettext
+  RSH_DAEMON=undef
+  ROOTGROUP=wheel
+  LOADSENSOR_COMMAND=undef
+  ;;
+ darwin*)
+   AWK=/usr/bin/awk
+   ECHO=/bin/echo
+   RC_FILE=SGE
+   RC_DIR=SGE
+   RC_PREFIX=/Library/StartupItems
+   if [ -x /sw/bin/Eterm ]; then
+      XTERM=/sw/bin/Eterm
+   else
+      XTERM=/usr/X11R6/bin/xterm
+   fi
+   MAILER=/usr/bin/mail
+   QLOGIN_COMMAND=telnet
+   QLOGIN_DAEMON=/usr/libexec/telnetd
+   RLOGIN_DAEMON=/usr/libexec/rlogind
+   RSH_DAEMON=undef
+   ROOTGROUP=wheel
+   LOADSENSOR_COMMAND=undef
+   ;;
+ win32-x86)
+   AWK=/bin/awk
+   ECHO="/bin/echo"
+   RC_FILE=sysv_rc
+   RC_DIR=rc2.d
+   RC_PREFIX=/etc
+   XTERM=/usr/X11/bin/xterm
+   MAILER=/bin/mail
+   QLOGIN_COMMAND=telnet
+   QLOGIN_DAEMON="/usr/sbin/in.telnetd -i"
+   RLOGIN_DAEMON=/usr/sbin/in.rlogind
+   RSH_DAEMON=undef
+   GETTEXT=
+   ROOTGROUP=wheel
+   LOADSENSOR_COMMAND="/util/resources/loadsensors/interix-loadsensor.sh"
+   ;;
+ cygwin-x86)
+   AWK=/usr/bin/awk
+   ECHO="/bin/echo -e"
+   unset POSIXLY_CORRECT        # so we can rely on echo -e
+   RC_FILE=sysv_rc
+   RC_DIR=rc3.d
+   RC_PREFIX=/etc
+   XTERM=/usr/bin/xterm
+   MAILER=/bin/mail
+   QLOGIN_COMMAND=telnet
+   QLOGIN_DAEMON=/usr/sbin/in.telnetd
+   RLOGIN_DAEMON=/usr/sbin/in.rlogind
+   GETTEXT=/usr/bin/gettext
+   RSH_DAEMON=undef
+   LOADSENSOR_COMMAND=undef
+   ROOTGROUP=wheel
+   ;;
+ *)
+   echo "Architecture $ARCH not supported by this procedure!"
+   exit 1
+   ;;
+esac
+
+TOUCH=touch
+RM=rm
+MKDIR=mkdir
+CHMOD=chmod
+CHOWN=chown
+CP=cp
+MV=mv
+
+# Some of the following shell function require this variable set to false or
+# true
+#
+autoinst=false
+
+#--------------------------------------------------------------------------
+# Translate
+# create localized version of arguments using "gettext" and "printf"
+#
+# USES: variable "$translation" to either translate or not
+# 
+# $1 = 0  stdout, newline
+# $1 = 1  stderr, newline
+# $1 = 2  stdout, no newline
+# $1 = 3  stderr, no newline
+# $1 = 4  just store string in variable $transout
+# $2 = string to localize
+# $2- args not to localize
+#
+Translate()
+{
+   newline=""
+   stderr=0
+
+   if [ "$1" = 0 -o "$1" = 1 ]; then
+      newline="\n"
+   fi
+
+   if [ "$1" = 1 -o "$1" = 3 ]; then
+      stderr=1
+   fi
+   if [ "$1" = 4 ]; then
+      stderr=4
+   fi
+   shift
+
+   if [ "$translation" = 1 ]; then
+      transout=`env TEXTDOMAIN=$TEXTDOMAIN TEXTDOMAINDIR=$TEXTDOMAINDIR $GETTEXT "$1"`
+      shift
+      if [ $stderr = 4 ]; then
+         transout=`printf "$transout"$newline "$@"`
+      elif [ $stderr = 0 ]; then
+         printf "$transout"$newline "$@"
+      else
+         printf "$transout"$newline "$@" >&2
+      fi
+   else
+      transout="$1"
+      shift
+      if [ $stderr = 4 ]; then
+         transout=`printf "$transout" "$@"`
+      elif [ $stderr = 0 ]; then
+         printf "$transout"$newline "$@"    
+      else
+        printf "$transout"$newline "$@" >&2    
+      fi
+   fi
+}
+
+#-------------------------------------------------------------------------
+# WaitClear
+# Let user press the return key and print message
+#
+# USES: variables "$autoinst"
+#                 "$CLEAR"
+# $1 = clear  clear screen 
+# $1 =
+# $2 = no string - print default messages
+# $4 = arg       - print argument
+#
+WaitClear()
+{
+   do_clear=$1
+   text="$2"
+
+   if [ "$text" != "" ]; then
+      $ECHO "$text"
+   else
+      Translate 2 "Hit <RETURN> to continue >> "
+   fi
+
+   if [ "$autoinst" = true ]; then
+      echo
+   else
+      read INP_WaitClear
+
+      if [ $do_clear = clear ]; then
+         $CLEAR
+      fi
+   fi
+}
+
+#-------------------------------------------------------------------------
+# Enter: input is read and returned to stdout. If input is empty echo $1
+#
+# USES: variable "$autoinst" 
+#
+Enter()
+{
+   if [ "$autoinst" = true ]; then
+      $ECHO $1
+   else
+      read INP
+      if [ "$INP" = "" ]; then
+         $ECHO $1
+      else
+         $ECHO $INP
+      fi
+   fi
+}
+
+#-------------------------------------------------------------------------
+# YesNo: print argument and get YES/NO answer
+# $1 = string to print
+# $2 = default value if user enters return. Values are y,n,x (for no default)
+#
+YesNo()
+{
+   text=$1
+   default=$2
+   if [ "$default" = "" ]; then
+      default=x
+      text="$text >> \c"
+   else
+      Translate 4 "(y/n)"
+      text="$text $transout [$default] >> \c"
+   fi
+
+   if [ "$autoinst" = true -a $default != x -a $default != X ]; then
+      $ECHO "$text"
+      $ECHO $default
+      if [ $default = y -o $default = Y ]; then
+         return 0
+      else
+         return 1
+      fi
+   fi
+
+   YesNo_done=false
+   while [ $YesNo_done = false ]; do
+      $ECHO "$text"
+      read YesNo_INP
+
+      if [ "$YesNo_INP" = "" ]; then
+         if [ "$default" = y -o "$default" = Y ]; then
+            YesNo_INP=y
+         elif [ "$default" = n -o "$default" = N ]; then
+            YesNo_INP=n
+         fi
+      fi
+
+      case "$YesNo_INP" in
+         y|y|j|J)
+            YesNo_done=true
+            ret=0
+            ;;
+         n|N)
+            YesNo_done=true
+            ret=1
+            ;;
+      esac
+   done
+   return $ret
+}
+
+#-------------------------------------------------------------------------
+# Fatal Error: print message and exit
+#
+FatalError()
+{
+   $ECHO $*                           >&2
+   $ECHO ""                           >&2
+   Translate 1 "Installation failed. Exit."
+   $ECHO ""                           >&2
+   exit 1
+}
+
+#-------------------------------------------------------------------------
+# Execute command and exit if exit status != 0
+#
+Execute()
+{
+   if [ "$verbose" = true ]; then
+      $ECHO $*
+   fi
+   $*
+   if [ $? != 0 ]; then
+      $ECHO >&2
+      Translate 1 "Command failed: %s" "$*"
+      $ECHO "" >&2
+      Translate 1 "Probably a permission problem. Please check file access permissions."
+      Translate 1 "Check root read/write permission. Check if SGE daemons are running."
+      $ECHO "" >&2
+      exit 1
+   fi
+}
+
+#-------------------------------------------------------------------------
+# Execute eval command and exit if exit status != 0
+#
+ExecuteEval()
+{
+   if [ "$verbose" = true ]; then
+      $ECHO $*
+   fi
+   eval $*
+   if [ $? != 0 ]; then
+      $ECHO >&2
+      Translate 1 "Command failed: %s" "$*"
+      $ECHO "" >&2
+      Translate 1 "Probably a permission problem. Please check file access permissions."
+      Translate 1 "Check root read/write permission. Check if SGE daemons are running."
+      $ECHO "" >&2
+      exit 1
+   fi
+}
+
+#-------------------------------------------------------------------------
+# Execute command as user $ADMINUSER and exit if exit status != 0
+# if ADMINUSER = default then execute command unchanged
+#
+# uses binary "adminrun" form SGE distribution
+#
+# USES: variables "$verbose"    (if set to "true" print arguments)
+#                 "$ADMINUSER"   (if set to "default" do not use "adminrun")
+#                 "$V5UTILBIN"  (path to the binary in utilbin)
+#
+ExecuteAsAdmin()
+{
+   if [ "$verbose" = true ]; then
+      $ECHO $*
+   fi
+
+   if [ $ADMINUSER = default ]; then
+      $*
+   else
+      if [ -z "$V5UTILBIN" ]; then
+         V5UTILBIN=$SGE_ROOT/utilbin/$SGE_ARCH
+      fi
+      $V5UTILBIN/adminrun $ADMINUSER "$@"
+   fi
+
+   if [ $? != 0 ]; then
+      $ECHO >&2
+      Translate 1 "Command failed: %s" "$*"
+      $ECHO >&2
+      Translate 1 "Probably a permission problem. Please check file access permissions."
+      Translate 1 "Check read/write permission. Check if SGE daemons are running."
+      $ECHO >&2
+      if [ "$ADMINRUN_NO_EXIT" != "true" ]; then 
+         exit 1
+      fi
+   fi
+   return 0
+}
+
+#-------------------------------------------------------------------------
+# CreateAndMakeWriteable
+# create $1 as file and make it writable for everybody
+# uses variable $ADMINUSER
+#
+CreateAndMakeWriteable()
+{
+   ExecuteAsAdmin $TOUCH $1
+   if [ $ADMINUSER != default ]; then
+      ExecuteAsAdmin $CHMOD 666 $1
+   fi
+}
+
+#-------------------------------------------------------------------------
+# TruncCreateAndMakeWriteable
+# delete $1 as file and make it writable for everybody
+#
+TruncCreateAndMakeWriteable()
+{
+   if [ -f $1 ]; then
+      ExecuteAsAdmin $RM $1 
+   fi
+   CreateAndMakeWriteable $1
+}
+
+#--------------------------------------------------------------------------
+# SetAdminUser
+#   set ADMINUSER from global cluster config
+#   exit if cluster config does not exist
+#
+SetAdminUser()
+{
+   cfgname=$SGE_ROOT/$SGE_CELL/common/bootstrap
+ 
+   if [ -f $cfgname ]; then
+      user=`env LC_ALL=C grep admin_user $cfgname | env LC_ALL=C awk '{ print $2 }'`
+   else
+      Translate 1 "Global cluster configuration >%s< doesn't exist. Exit." $cfgname
+      exit 1
+   fi
+ 
+   if [ `echo "$user"| env LC_ALL=C tr "[A-Z]" "[a-z]"` = "none" ]; then
+      ADMINUSER=default
+   else
+      ADMINUSER=$user
+   fi
+}

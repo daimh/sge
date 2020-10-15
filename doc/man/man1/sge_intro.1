@@ -1,0 +1,239 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH xxQS_NAME_Sxx_INTRO 1 "2011-05-08" "xxRELxx" "xxQS_NAMExx User Commands"
+.\"
+.SH NAME
+sge_intro \- xxQS_NAMExx, a facility for executing jobs on remote machines
+.\"
+.SH DESCRIPTION
+.\"
+xxQS_NAMExx is a facility for executing Unix-like batch jobs (shell
+scripts or binaries) on a pool of cooperating CPUs. Jobs are queued
+and executed remotely according to defined policies.  The CPUs may be
+in desktop systems, with jobs run on them at times when they would
+otherwise be idle or only lightly loaded. The work load may be
+distributed according to the (generalized) load situation of each
+machine and the resource requirements of the jobs.
+.PP
+.\"
+User level checkpointing programs are supported and a transparent
+checkpointing mechanism is provided (see
+.M xxqs_name_sxx_ckpt 1 ).
+Checkpointing jobs migrate from system to system without user
+intervention on load demand. In addition to simple batch jobs, interactive
+jobs and parallel jobs can also be submitted to xxQS_NAMExx.
+.PP
+.\"
+.SH "USER INTERFACE"
+The xxQS_NAMExx
+user interface consists of several programs which are described
+separately.
+.\"
+.TP
+.M qacct 1
+.I qacct
+extracts arbitrary accounting information from the cluster logfile.
+.\"
+.TP
+.M qalter 1
+.I qalter
+changes the characteristics of already submitted jobs.
+.\"
+.TP
+.M qconf 1
+.I qconf
+provides the user interface for configuring, modifying, deleting and
+querying queues and the cluster configuration.
+.\"
+.TP
+.M qdel 1
+.I qdel
+provides the means for a user/operator/manager to cancel jobs.
+.\"
+.TP
+.M qevent 1
+.I qevent
+provides a means of watching xxQS_NAMExx events and acting on jobs finishing.
+.\"
+.TP
+.M qhold 1
+.I qhold
+holds back submitted jobs from execution.
+.\"
+.TP
+.M qhost 1
+.I qhost
+displays status information about xxQS_NAMExx execution hosts.
+.\"
+.TP
+.M qlogin 1
+.I qlogin
+initiates a telnet or similar login session with automatic selection of a
+suitable host.
+.\"
+.TP
+.M qmake 1
+.I qmake
+is a replacement for the standard Unix
+.I make
+facility. It extends make with
+an ability to distribute independent make steps across a cluster of
+suitable machines.
+.TP
+.M qmod 1
+.I qmod
+allows the owner(s) of a queue to suspend and enable queues, e.g. all queues
+associated with his machine (all currently active processes in this queue 
+are also signaled) or to suspend and enable jobs executing in the queues.
+.\"
+.TP
+.M qmon 1
+.I qmon
+provides a Motif command interface to all xxQS_NAMExx
+functions. The status of all, or a private selection of, the configured
+queues is displayed on-line by changing colors at corresponding queue
+icons.
+.\"
+.TP
+.M qping 1
+.I qping
+can be used to check the status of xxQS_NAMExx daemons.
+.\"
+.TP
+.M qquota 1
+.I qquota
+provides a status listing of all currently used resource quotas (see
+.M xxqs_name_sxx_resource_quota 5 ).
+.\"
+.TP
+.M qresub 1
+.I qresub
+creates new jobs by copying currently running or pending jobs.
+.\"
+.TP
+.M qrls 1
+.I qrls
+releases holds from jobs previously assigned to them e.g. via
+.M qhold 1
+(see above).
+.\"
+.TP
+.M qrdel 1
+.I qrdel
+provides the means to cancel advance reservations.
+.\"
+.TP
+.M qrsh 1
+.I qrsh
+can be used for various purposes such as providing remote execution of
+interactive applications via xxQS_NAMExx comparable to the standard Unix
+facility rsh, to allow for the submission of batch jobs which, upon
+execution, support terminal I/O (standard/error output and standard input)
+and terminal control, to provide a batch job submission client which
+remains active until the job has finished or to allow for the
+xxQS_NAMExx-controlled remote execution of the tasks of parallel jobs.
+.\"
+.TP
+.M qrstat 1
+.I qrstat
+provides a status listing of all advance reservations in the cluster.
+.\"
+.TP
+.M qrsub 1
+.I qrsub
+is the user interface for submitting an advance reservation to xxQS_NAMExx.
+.\"
+.TP
+.M qselect 1
+.I qselect
+prints a list of queue names corresponding to specified selection 
+criteria. The output of
+.I qselect
+is usually fed into other xxQS_NAMExx 
+commands to apply actions on a selected set of queues. 
+.\"
+.TP
+.M qsh 1
+.I qsh
+opens an interactive shell (in an
+.M xterm 1 )
+on a low loaded host. Any kind of
+interactive job can be run in this shell.
+.\"
+.TP
+.M qstat 1
+.I qstat
+provides a status listing of all jobs and queues associated with the
+cluster.
+.\"
+.TP
+.M qtcsh 1
+.I qtcsh
+is a fully compatible replacement for the widely known and used Unix
+C-Shell (\fIcsh\fP) derivative \fItcsh\fP. It provides a command-shell
+with the extension of transparently distributing execution of
+designated applications to suitable and lightly loaded hosts via
+xxQS_NAMExx.
+.\"
+.TP
+.M qsub 1
+.I qsub
+is the user interface for submitting a job to xxQS_NAMExx.
+.\"
+.SH SEE ALSO
+.M xxqs_name_sxx_ckpt 1 ,
+.M qacct 1 ,
+.M qalter 1 ,
+.M qconf 1 ,
+.M qdel 1 ,
+.M qhold 1 ,
+.M qhost 1 ,
+.M qlogin 1 ,
+.M qmake 1 ,
+.M qmod 1 ,
+.M qmon 1 ,
+.M qresub 1 ,
+.M qrls 1 ,
+.M qrsh 1 ,
+.M qselect 1 ,
+.M qsh 1 ,
+.M qstat 1 ,
+.M qsub 1 ,
+.M qtcsh 1 .
+.\"
+.SH COPYRIGHT
+Copyright: 2008 by Sun Microsystems, Inc.
+Parts of the manual page texts are Copyright 2011 Univa Corporation,
+and various dates by other contributors.
+The manual pages are licensed under the Sun Industry Standards Source
+License, like the source, except where noted in some files by
+other contributors, which are under other free licences noted in their
+source.

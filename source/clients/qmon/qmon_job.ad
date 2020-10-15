@@ -1,0 +1,296 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+Qmon*qmon_job.xmtChildren:   XmtLayout job_main_layout;
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Job Main Layout 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*job_main_layout.dialogTitle: @{QMON +++ Job Control}
+!Qmon*job_main_layout*fontList:  $dialog_font
+Qmon*job_main_layout.job_form*fontList:  $dialog_font
+
+Qmon*job_main_layout.xmtChildren: \
+   XmPushButton   job_main_link; \
+   XmForm         job_form; \
+   XmToggleButton job_force; \
+   XmPushButton   job_delete, job_submit, job_suspend, job_update, \
+                  job_reschedule, job_tickets, job_unsuspend, job_qalter, \
+                  job_customize, job_done, job_help, job_priority, job_hold, \
+                  job_error, job_schedd_info, job_select_all;
+
+Qmon*job_main_layout.layout: \
+   Fixed Shadowed Out 4 2 LREvenSpaced Row jobcontrol_title { \
+      Fixed Centered job_main_link \
+      Centered Color "$title_fg" "@{@fBJob Control}" \
+   } \
+   # \
+   Row { \
+      job_form \
+      Fixed Shadowed Col { \
+         job_update \
+         job_submit \
+         job_tickets \
+         Etched Col { \
+            job_force \
+            job_suspend \
+            job_unsuspend \
+            job_delete \
+            job_reschedule \
+            job_select_all \
+         } \
+         job_schedd_info \
+         job_hold \
+         job_priority \
+         job_qalter \
+         job_error \
+         job_customize \
+         job_done \
+         job_help \
+         <>\
+      } \
+   }
+
+Qmon*job_form.xmtChildren: \
+   Folder         job_folder;
+
+Qmon*job_main_layout.job_main_link.labelType:   PIXMAP
+Qmon*job_main_layout.job_main_link.labelPixmap: logo
+Qmon*job_main_layout.job_main_link.shadowThickness:    1
+Qmon*job_main_layout.job_main_link.highlightThickness: 0
+Qmon*job_main_layout.job_main_link.marginHeight:       0
+Qmon*job_main_layout.job_main_link.marginWidth:        0
+
+Qmon*job_main_layout*job_done.labelString:      @{Done}
+Qmon*job_main_layout*job_submit.labelString:    @{Submit}
+Qmon*job_main_layout*job_suspend.labelString:   @{Suspend}
+Qmon*job_main_layout*job_reschedule.labelString: @{Reschedule}
+Qmon*job_main_layout*job_unsuspend.labelString: @{Resume}
+Qmon*job_main_layout*job_update.labelString:    @{Refresh}
+Qmon*job_main_layout*job_delete.labelString:    @{Delete}
+Qmon*job_main_layout*job_select_all.labelString: @{Select All}
+Qmon*job_main_layout*job_customize.labelString: @{Customize}
+Qmon*job_main_layout*job_qalter.labelString:    @{Qalter}
+Qmon*job_main_layout*job_priority.labelString:  @{Priority}
+Qmon*job_main_layout*job_schedd_info.labelString: @{Why ?}
+Qmon*job_main_layout*job_hold.labelString:      @{Hold}
+Qmon*job_main_layout*job_error.labelString:     @{Clear Error}
+Qmon*job_main_layout*job_tickets.labelString:   @{Tickets}
+Qmon*job_main_layout*job_help.labelString:      @{Help}
+
+Qmon*job_main_layout*job_force.labelString:     @{Force}
+
+Qmon*job_main_layout*job_folder.resizeChildren: True
+
+Qmon*job_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! job_folder
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*job_main_layout*job_folder.xmtChildren: \
+   XmtLayout job_pending, job_running, job_zombie;
+
+Qmon*job_running.xmtChildren: \
+   CE_TypeMatrix  job_running_jobs;
+
+Qmon*job_pending.xmtChildren: \
+   CE_TypeMatrix  job_pending_jobs;
+
+Qmon*job_zombie.xmtChildren: \
+   CE_TypeMatrix  job_zombie_jobs;
+
+Qmon*job_running.layout: \
+   Stretchable job_running_jobs
+
+Qmon*job_pending.layout: \
+   Stretchable job_pending_jobs
+
+Qmon*job_zombie.layout: \
+   Stretchable job_zombie_jobs
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! job_running
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*job_running.tabLabel: @{@fBRunning Jobs}
+
+Qmon*job_running_jobs.allowColumnResize:    True
+Qmon*job_running_jobs.fill:                 False
+Qmon*job_running_jobs.reverseSelect:        True
+Qmon*job_running_jobs.fontList:             $matrix_font
+!!Qmon*job_running_jobs.fixedColumns:     5
+Qmon*job_running_jobs.columns:          6
+Qmon*job_running_jobs.columnMaxLengths: 40,20,50,50,30,500
+Qmon*job_running_jobs.rows:             20
+Qmon*job_running_jobs.visibleRows:      17
+Qmon*job_running_jobs.evenRowBackground: $matrix_even_bg
+Qmon*job_running_jobs.oddRowBackground:  $matrix_odd_bg
+!! Qmon*job_running_jobs.gridType:            GRID_CELL_SHADOW
+!! Qmon*job_running_jobs.cellShadowType:      SHADOW_IN
+!! Qmon*job_running_jobs.cellShadowThickness: 1
+Qmon*job_running_jobs.gridType:            GRID_NONE
+
+Qmon*job_running_jobs.boldLabels:             True
+Qmon*job_running_jobs.buttonLabels:           True
+Qmon*job_running_jobs.columnLabelColor:       $matrix_label
+Qmon*job_running_jobs.columnLabels:           @{JobId}, @{Priority}, @{JobName}, @{Owner}, @{Status}, @{Queue}
+
+Qmon*job_running_jobs*horizontalScrollBarDisplayPolicy: DISPLAY_STATIC
+
+Qmon*job_running_jobs.translations:   #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:   SelectCell(begin)\n\
+         <Btn1Up>(2):  SelectCell(edit)\n\
+         Ctrl<Btn2Down>:  ResizeColumns()
+Qmon*job_running_jobs.clip.translations: #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:   SelectCell(begin)\n\
+         <Btn1Up>(2):  SelectCell(edit)\n\
+         Ctrl<Btn2Down>:  ResizeColumns()
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! job_pending
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*job_pending.tabLabel: @{@fBPending Jobs}
+
+Qmon*job_pending_jobs.allowColumnResize:    True
+Qmon*job_pending_jobs.fill:                 False
+Qmon*job_pending_jobs.reverseSelect:        True
+Qmon*job_pending_jobs.fontList:             $matrix_font
+!!Qmon*job_pending_jobs.fixedColumns:         5
+Qmon*job_pending_jobs.columns:              6
+Qmon*job_pending_jobs.columnMaxLengths: 40,20,50,50,30,500
+Qmon*job_pending_jobs.rows:        20
+Qmon*job_pending_jobs.visibleRows: 17
+Qmon*job_pending_jobs.evenRowBackground: $matrix_even_bg
+Qmon*job_pending_jobs.oddRowBackground:  $matrix_odd_bg
+!! Qmon*job_pending_jobs.gridType:      GRID_CELL_SHADOW
+!! Qmon*job_pending_jobs.cellShadowType:      SHADOW_IN
+!! Qmon*job_pending_jobs.cellShadowThickness: 1
+Qmon*job_pending_jobs.gridType:      GRID_NONE
+
+Qmon*job_pending_jobs.columnLabels:           @{JobId}, @{Priority}, @{JobName}, @{Owner}, @{Status}, @{Queue}
+Qmon*job_pending_jobs.boldLabels: True
+Qmon*job_pending_jobs.buttonLabels:        True
+Qmon*job_pending_jobs.columnLabelColor:    $matrix_label
+
+Qmon*job_pending_jobs*horizontalScrollBarDisplayPolicy: DISPLAY_STATIC
+
+Qmon*job_pending_jobs.translations:   #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:   SelectCell(begin)\n\
+         <Btn1Up>(2):  SelectCell(edit)\n\
+         Ctrl<Btn2Down>:  ResizeColumns()
+Qmon*job_pending_jobs.clip.translations: #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:   SelectCell(begin)\n\
+         <Btn1Up>(2):  SelectCell(edit)\n\
+         Ctrl<Btn2Down>:  ResizeColumns()
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! job_zombie
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*job_zombie.tabLabel: @{@fBFinished Jobs}
+
+Qmon*job_zombie_jobs.allowColumnResize:    True
+Qmon*job_zombie_jobs.fill:                 False
+Qmon*job_zombie_jobs.reverseSelect:        True
+Qmon*job_zombie_jobs.fontList:             $matrix_font
+!!Qmon*job_zombie_jobs.fixedColumns:         5
+Qmon*job_zombie_jobs.columns:              6
+Qmon*job_zombie_jobs.columnMaxLengths: 40,20,50,50,30,500
+Qmon*job_zombie_jobs.rows:        20
+Qmon*job_zombie_jobs.visibleRows: 17
+Qmon*job_zombie_jobs.evenRowBackground: $matrix_even_bg
+Qmon*job_zombie_jobs.oddRowBackground:  $matrix_odd_bg
+!! Qmon*job_zombie_jobs.gridType:      GRID_CELL_SHADOW
+!! Qmon*job_zombie_jobs.cellShadowType:      SHADOW_IN
+!! Qmon*job_zombie_jobs.cellShadowThickness: 1
+Qmon*job_zombie_jobs.gridType:      GRID_NONE
+
+Qmon*job_zombie_jobs.columnLabels:           @{JobId}, @{Priority}, @{JobName}, @{Owner}, @{Status}, @{Queue}
+Qmon*job_zombie_jobs.boldLabels: True
+Qmon*job_zombie_jobs.buttonLabels:        True
+Qmon*job_zombie_jobs.columnLabelColor:    $matrix_label
+
+Qmon*job_zombie_jobs*horizontalScrollBarDisplayPolicy: DISPLAY_STATIC
+
+Qmon*job_zombie_jobs.translations:   #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:   SelectCell(begin)\n\
+         <Btn1Up>(2):  SelectCell(edit)\n\
+         Ctrl<Btn2Down>:  ResizeColumns()
+Qmon*job_zombie_jobs.clip.translations: #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:   SelectCell(begin)\n\
+         <Btn1Up>(2):  SelectCell(edit)\n\
+         Ctrl<Btn2Down>:  ResizeColumns()
+
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Ask Hold Popup
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_hold.xmtChildren:  unmanaged XmtLayout hold_layout;
+Qmon*qmon_hold.hold_layout.dialogStyle: DIALOG_FULL_APPLICATION_MODAL
+Qmon*qmon_hold.hold_layout.xmtChildren: \
+   XmtChooser     hold_flags; \
+   StrListField   hold_tasks; \
+   XmPushButton   hold_ok, hold_cancel; \
+
+Qmon*qmon_hold.hold_layout.layout: \
+   Row { \
+      Shadowed Out Col { \
+         "@{@fBSet Hold}" \
+         hold_flags \
+         Caption tl "@{@fBTasks}" 15 em hold_tasks \
+      } \
+      Fixed Shadowed Out Col { \
+         Fixed hold_ok \
+         Fixed hold_cancel \
+      } \
+   }
+
+Qmon*qmon_hold.hold_layout.hold_flags.chooserType:   ChooserCheckBox
+Qmon*qmon_hold.hold_layout.hold_flags.strings: \
+   "@{User}", \
+   "@{Operator}", \
+   "@{System}"
+
+Qmon*qmon_hold.hold_layout.hold_ok.labelString:      @{Ok}
+Qmon*qmon_hold.hold_layout.hold_cancel.labelString:  @{Cancel}

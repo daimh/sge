@@ -1,0 +1,1186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--___INFO__MARK_BEGIN__
+/*************************************************************************
+ *
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ *
+ *  Sun Microsystems Inc., March, 2001
+ *
+ *
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ *
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ *
+ *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ *
+ *   Copyright: 2001 by Sun Microsystems, Inc.
+ *
+ *   All Rights Reserved.
+ *
+ ************************************************************************/
+___INFO__MARK_END__-->
+
+<project basedir="." default="all" name="jgdi">
+    
+    <macrodef name="assert_prop">
+        <attribute name="property"/>
+        <sequential>
+            <fail unless="@{property}">
+                Please define property @{property} in
+                ${sge.srcdir}/build_private.properties
+                or ${sge.srcdir}/build.properties
+            </fail>
+        </sequential>
+    </macrodef>
+    
+    <target name="aimk.init" depends="aimk.init.remote, aimk.init.local"/>
+    
+    <target name="aimk.init.remote" if="aimk.remote" depends="jni.init">
+        <macrodef name="aimk_call">
+            <attribute name="args" default=""/>
+            <sequential>
+                <exec executable="${aimk.starter}" failonerror="true">
+                    <arg line='${aimk.build_host} echo JAVA_HOME=${java.home}/..\; export JAVA_HOME\; cd ${sge.srcdir}\; ./aimk @{args} | sh'/>
+                </exec>
+            </sequential>
+        </macrodef>
+    </target>
+    
+    <target name="aimk.init.local" unless="aimk.remote" depends="jni.init">
+        <macrodef name="aimk_call">
+            <attribute name="args" default=""/>
+            <sequential>
+                <exec dir="${sge.srcdir}" executable="${sge.srcdir}/aimk" failonerror="true">
+                    <arg line="@{args}"/>
+                </exec>
+            </sequential>
+        </macrodef>
+    </target>
+    
+    <target name="aimk" depends="aimk.init, javah">
+        <!-- echo message="aimk.targetbits = ${aimk.targetbits}"/ -->
+        <aimk_call args="${aimk.targetbits} ${aimk.options} ${aimk.debug} -only-core jgdi_all"/>
+    </target>
+    
+    <target name="aimk.clean" depends="aimk.init">
+        <aimk_call args="${aimk.targetbits} ${aimk.options} ${aimk.debug} -only-core jgdi_clean"/>
+    </target>
+    
+    <target name="aimk.template.required" depends="aimk.init, init">
+        <uptodate targetfile="${build.dir}/sge_all_listsL.template"
+                  property="aimk.template.uptodate">
+            <srcfiles dir="${sge.srcdir}" includes="libs/sgeobj/*L.h"/>
+            <srcfiles dir="${sge.srcdir}" includes="libs/spool/*L.h"/>
+            <srcfiles dir="${sge.srcdir}" includes="libs/japi/*L.h"/>
+            <srcfiles dir="${sge.srcdir}" includes="libs/schedd/*L.h"/>
+            <srcfiles dir="${sge.srcdir}" includes="libs/cull/*L.h"/>
+        </uptodate>
+    </target>
+    
+    <target name="aimk.template" depends="aimk.init, init, aimk.template.required"
+            unless="aimk.template.uptodate">
+        <echo message="Rebuilding ${build.dir}/sge_all_listsL.template"/>
+        <aimk_call args="${aimk.targetbits} ${aimk.debug} ${aimk.options} -only-core jgdi_template"/>
+    </target>
+    
+    <target name="init">
+        <echo>ant.java.version=${ant.java.version}</echo>
+        <condition property="supported.jdk">
+            <or>
+                <equals arg1="${ant.java.version}" arg2="1.5"/>
+                <equals arg1="${ant.java.version}" arg2="1.6"/>
+            </or>
+        </condition>
+        <!--fail unless="supported.jdk" message="jdk version ${ant.java.version} less than 1.5 => no jgdi" status="0"/-->
+        
+        <property name="sge.srcdir" location="../.."/>
+        <property file="${sge.srcdir}/build_testsuite.properties"/>    
+        <property file="${sge.srcdir}/build_private.properties"/>    
+        <property file="${sge.srcdir}/build.properties"/>
+        
+        <exec executable="hostname" outputproperty="hostname"/>
+        
+        <condition property="isJavaBuildHost">
+            <not>
+                <isset property="java.buildhost"/>
+            </not>
+        </condition>
+        
+        <condition property="isJavaBuildHost" >
+            <contains string="${java.buildhost}" substring="${hostname}" casesensitive="false"/>
+        </condition>
+        
+        <echo>isJavaBuildHost=${isJavaBuildHost}</echo>
+        <echo>java.buildhost=${java.buildhost}</echo>
+        <echo>hostname=${hostname}</echo>
+        
+        <property name="build.dir"  location="build"/>
+        <property name="classes.dir"  location="${build.dir}/classes"/>
+        <property name="src.dir"      location="src" />
+        <property name="gensrc.dir"   location="${build.dir}/gensrc" />
+        <property name="test.src.dir" location="test"/>
+        <property name="test.classes.dir"  location="${build.dir}/test"/>
+        <property name="javadoc.dir" location="../../JAVADOCS/jgdi"/>
+        <property name="example.dir" location="examples"/>
+        <property name="example.src.dir" location="examples/src"/>
+        
+        <property name="cullconv.dir" location="${basedir}/cullconv"/>
+        <property name="cullconv.jar" location="${cullconv.dir}/build/cullconv.jar"/>
+        <property name="project.name" value="${ant.project.name}"/>
+        <property name="jar" location="${build.dir}/${project.name}.jar"/>
+        <property name="test.jar" location="${build.dir}/${project.name}-test.jar"/>
+        <mkdir dir="${classes.dir}"/>
+        <mkdir dir="${test.classes.dir}"/>
+        <mkdir dir="${gensrc.dir}"/>
+        
+        <path id="compile.classpath">
+            <pathelement path="${libs.junit.classpath}"/>
+            <pathelement path="${juti.jar}"/>
+            <!-- pathelement location="${drmaa.jar}"/ -->
+        </path>
+        
+        <path id="jgdi.srcpath">
+        <path location="${src.dir}"/>
+        <path location="${gensrc.dir}"/>
+        <path location="${test.src.dir}"/>  
+        <path location="${example.src.dir}"/>
+        </path>
+        
+        
+        
+    </target>
+    
+    <target depends="init, compile.javah" name="javah"
+            description="Creates jgdi.h" if="isJavaBuildHost">    
+        <javah outputFile="${build.dir}/jgdi_factory.h">
+            <class name="com.sun.grid.jgdi.JGDIFactory"/>
+            <classpath>
+                <pathelement location="${classes.dir}"/>
+            </classpath>
+        </javah>    
+        <javah outputFile="${build.dir}/jgdi_base.h">
+            <class name="com.sun.grid.jgdi.jni.JGDIBaseImpl"/>
+            <classpath>
+                <pathelement location="${classes.dir}"/>
+            </classpath>
+        </javah>    
+        <javah outputFile="${build.dir}/jgdi.h">
+            <class name="com.sun.grid.jgdi.jni.JGDIImpl"/>
+            <classpath>
+                <pathelement location="${classes.dir}"/>
+            </classpath>
+        </javah>    
+        <javah outputFile="${build.dir}/jgdi_event_gen.h">
+            <class name="com.sun.grid.jgdi.jni.EventClientImpl"/>
+            <classpath>
+                <pathelement location="${classes.dir}"/>
+            </classpath>
+        </javah>    
+        <javah outputFile="${build.dir}/jgdi_event_map.h">
+            <class name="com.sun.grid.jgdi.event.EventTypeMapping"/>
+            <classpath>
+                <pathelement location="${classes.dir}"/>
+            </classpath>
+        </javah>    
+        
+    </target>
+    
+    <target name="compile.javah" depends="init, gensrc" if="isJavaBuildHost">
+        <javac debug="${javac.debug}"
+               deprecation="${javac.deprecated}"
+               destdir="${classes.dir}"
+               includes="com/sun/grid/jgdi/jni/JGDIImpl.java, com/sun/grid/jgdi/jni/JGDIBase.java, com/sun/grid/jgdi/jni/EventClientImpl.java"
+               includeantruntime="true"
+               target="${jgdi.javac.target}"
+               source="${jgdi.javac.source}">
+            <src refid="jgdi.srcpath"/>
+        </javac>
+    </target>
+    
+    <target depends="init, gensrc" name="compile" if="isJavaBuildHost">
+        <javac debug="${javac.debug}" 
+               deprecation="${javac.deprecated}"  
+               destdir="${classes.dir}"
+               target="${jgdi.javac.target}"
+               includeantruntime="true"
+               source="${jgdi.javac.source}">
+            <src refid="jgdi.srcpath"/>
+            <classpath refid="compile.classpath"/>
+            <!--compilerarg line="-Xlint:unchecked"/-->
+        </javac>
+        
+        <!--rmic base="${classes.dir}" includes="com/sun/grid/jgdi/rmi/JGDIRemote*Impl.class" -->   
+            <!-- rmic checks wether the *_Skel.class files are generated, however
+               they are only generated for rmi version 1.1. We have to generate
+               the complatible version -->
+            <!-- compilerarg line="-vcompat"/ -->
+        <!-- /rmic -->
+    </target>
+    
+    
+    <target name="jar.init" depends="init" if="isJavaBuildHost">
+        <property environment="env"/>
+
+        <!-- Copyright stuff -->
+        <condition property="legal.dir" value="${env.AIMK_COPYRIGHT_DIR}" else="">
+            <isset property="env.AIMK_COPYRIGHT_DIR"/>
+        </condition>
+
+        <condition property="legal" value="COPYRIGHT">
+            <equals arg1="${env.AIMK_COPYRIGHT}" arg2="sun" trim="true"/>
+        </condition>
+        <condition property="legal" value="COPYRIGHT LICENSE">
+            <equals arg1="${env.AIMK_COPYRIGHT}" arg2="courtesy" trim="true"/>
+        </condition>
+        <condition property="legal" value="NA">
+           <not>
+               <or>
+                   <equals arg1="${dist.type}" arg2="courtesy" trim="true"/>
+                   <equals arg1="${dist.type}" arg2="sun" trim="true"/>
+               </or>
+           </not>
+        </condition>
+
+        <fileset id="jar.classes" dir="${classes.dir}">
+            <include name="**/*.class"/>
+            <exclude name="**/*Test*.class"/>
+<!--
+            <exclude name="com/sun/grid/jgdi/configuration/*Test*.class"/>
+            <exclude name="com/sun/grid/jgdi/*Test*.class"/>
+            <exclude name="com/sun/grid/jgdi/event/*Test*.class"/>
+            <exclude name="com/sun/grid/jgdi/qmod/*Test*.class"/>
+            <exclude name="com/sun/grid/jgdi/monitoring/*Test*.class"/>
+            <exclude name="com/sun/grid/jgdi/examples/**/*"/>
+-->
+        </fileset>
+
+        <fileset id="jar.test.classes" dir="${classes.dir}">
+            <include name="**/*Test*.class"/>
+        </fileset>
+
+        <fileset id="jar.properties" dir="${src.dir}">
+            <include name="com/sun/grid/jgdi/Resources*.properties"/>
+            <include name="com/sun/grid/jgdi/util/shell/ErrorMessagesResources.properties"/>
+            <include name="com/sun/grid/jgdi/util/shell/UsageResources.properties"/>
+            <include name="com/sun/grid/jgdi/util/shell/editor/EditorResources.properties"/>
+        </fileset>
+        <dependset>
+            <srcfileset refid="jar.classes"/>
+            <srcfileset refid="jar.test.classes"/>
+            <srcfileset refid="jar.properties"/>
+            <targetfileset file="${jar}"/>
+        </dependset>
+    </target>
+    
+    <target name="jar" depends="jar.build, jar.wait"/>
+    
+    <target name="jar.build" depends="jar.init, compile, gensrc.native" if="isJavaBuildHost">
+        
+        <jar compress="true" jarfile="${jar}.tmp">
+            <fileset refid="jar.classes"/>
+            <fileset refid="jar.properties"/>
+            <metainf dir="${legal.dir}" includes="${legal}"/>
+        </jar>
+
+        <jar compress="true" jarfile="${test.jar}.tmp">
+            <fileset refid="jar.test.classes"/>
+            <metainf dir="${legal.dir}" includes="${legal}"/>
+        </jar>
+
+        <copy file="${jar}.tmp" tofile="${jar}"/>
+        <copy file="${test.jar}.tmp" tofile="${test.jar}"/>
+
+    </target>
+    
+    <target name="jar.wait" depends="jar.init" unless="isJavaBuildHost">
+        <waitfor maxwait="${maxwait}" maxwaitunit="minute" checkevery="5" checkeveryunit="second">
+            <available file="${jar}"/>
+        </waitfor>
+        
+        <available file="${jar}" property="jar.available"/>
+        
+        <fail unless="jar.available">
+            Timeout while waiting for jar file build on host ${java.buildhost}
+        </fail>
+    </target>       
+
+    <target depends="jar, aimk" description="Build everything." name="all"/>
+    
+    
+    <target name="javadoc.init" depends="init">
+        <mkdir dir="${javadoc.dir}"/>
+        
+        <fileset id="javadoc.src.files" dir="${src.dir}">
+            <include name="**/*.java"/>
+            <!-- exclude name="**/reflect/*.java"/ -->
+            <!-- exclude name="com/sun/grid/jgdi/configuration/xml/*.java"/ -->
+            <!-- exclude name="com/sun/grid/jgdi/configuration/Util.java"/ -->
+            <exclude name="com/sun/grid/jgdi/event/QEvent.java"/>
+            <!--exclude name="com/sun/grid/jgdi/security/*.java"/-->
+            <exclude name="com/sun/grid/jgdi/management/SSLHelper.java"/>
+        </fileset>
+        
+        <fileset id="javadoc.gensrc.files" dir="${gensrc.dir}">
+            <include name="**/*.java"/>
+            <exclude name="**/*TestCase.java"/>
+            <exclude name="**/*Testsuite.java"/>
+            <exclude name="**/reflect/*.java"/>
+            <exclude name="**/*Descriptor.java"/>
+            <!--exclude name="com/sun/grid/jgdi/configuration/*Impl.java"/ -->
+            <exclude name="com/sun/grid/jgdi/monitoring/*Impl.java"/>
+        </fileset>   
+        
+    </target>    
+    
+    <target name="javadoc" depends="javadoc.init" 
+            description="Javadoc for SGE Java Admin API.">
+        
+        <javadoc destdir="${javadoc.dir}" 
+                 packagenames="com.sun.grid.*"
+                 overview="docs/Overview.html">
+            <doctitle><![CDATA[<h1>Sun&trade; Grid Engine Java Admin API</h1>]]></doctitle>
+            <bottom><![CDATA[<i>Copyright &#169; 2007 Sun Microsystems, Inc. All rights reserved.</i>]]></bottom>
+            <fileset refid="javadoc.src.files"/>
+            <fileset refid="javadoc.gensrc.files"/>
+            <tag name="jgdi.todo" scope="all"  description="TODO:"/>
+        </javadoc>
+    </target>
+    
+    <target name="javadoc.todo.init">
+        <available file="${tododoclet.jar}" property="javadoc.tododoclet.available"/>   
+    </target>
+    
+    <!--
+      The javadoc.todo target needs the jar file ${tododoclet.jar}
+   -->
+    <target name="javadoc.todo" depends="javadoc.init, javadoc.todo.init" 
+            if="javadoc.tododoclet.available"
+            description="Generates a overview of all todo tags from the javadoc comments">
+        
+        <fail unless="javadoc.tododoclet.available">
+            tododoclet not found. Please specify the tododoclet.jar property
+        </fail>
+        
+        <javadoc packagenames="com.sun.grid.*" 
+                 doclet="com.sun.grid.tododoclet.TodoListDoclet"
+                 docletpath="${tododoclet.jar}"
+                 additionalparam="-d ${basedir}/build/todo.xml">
+            <fileset refid="javadoc.src.files"/>
+            <fileset refid="javadoc.gensrc.files"/>
+        </javadoc>
+        <xslt in="${basedir}/build/todo.xml" out="${build.dir}/todo.html"
+              style="util/todo.xsl"/>
+    </target>
+    
+    <target name="clean" depends="init, java.clean, java.clean.warn, aimk.clean" 
+            description="Clean all build products."/>
+    
+    <!-- 
+   =============================================================================
+   The java.clean target is only executed on the java build host
+   Do not wonder that your files are not deleted if the java.buildhost
+   property is not set 
+   =============================================================================
+   -->
+    <target name="java.clean" depends="init" if="isJavaBuildHost">
+        <delete dir="${build.dir}"/>
+        <delete file="${jar}"/>
+        <delete file="${test.jar}"/>
+        <ant dir="cullconv" antfile="build.xml" target="clean"/>
+    </target>
+    
+    <target name="java.clean.warn" depends="init" unless="isJavaBuildHost">
+        <echo level="warning">Warning: Do not delete</echo>
+        <echo level="warning">         ${build.dir} and</echo>
+        <echo level="warning">         ${jar}</echo>
+        <echo level="warning">         ${test.jar}</echo>
+        <echo level="warning">         I am not on the java build host (${java.buildhost}).</echo>
+    </target>
+    
+    <target name="gensrc" depends="jni.init" if="isJavaBuildHost"
+            description="Create a all generated source files">  
+        <echo>java.library.path: ${java.library.path}</echo>      
+        <java classname="org.apache.tools.ant.launch.Launcher" 
+              fork="true" failonerror="true">
+            <jvmarg line="${sge.jvmargs}"/>
+            <classpath>
+                <pathelement path="${java.class.path}"/>
+            </classpath>
+            <!-- <arg value="-v"/> -->
+            <arg value="-Dsge.src.arch=${sge.src.arch}"/>
+            <arg value="gensrc.forked"/>
+        </java>
+    </target>
+    
+    <target name="gensrc.init" depends="jni.init, cullconv" if="isJavaBuildHost">
+        <taskdef name="cullconv" classname="com.sun.grid.cull.ant.CullConvAntTask">
+            <classpath>
+                <pathelement path="${cullconv.jar}"/>
+                <pathelement path="${libs.junit.classpath}"/>
+            </classpath>
+        </taskdef>
+        <taskdef name="javaconv" classname="com.sun.grid.javaconv.ant.JavaConvAntTask">
+            <classpath>
+                <pathelement path="${cullconv.jar}"/>
+                <pathelement path="${libs.junit.classpath}"/>
+            </classpath>
+        </taskdef>
+        <mkdir dir="${build.dir}/tmp"/>
+    </target>
+    
+    <target name="gensrc.debug" depends="jni.init"
+            description="Start the source generation in debugging mode" if="isJavaBuildHost">  
+        <path id="cullconv.srcpath">
+            <path location="${basedir}/cullconv/src"/>
+            <path location="${basedir}/cullconv/build/gensrc"/>            
+        </path>
+        <nbjpdastart name="JGDI Code Generation" addressproperty="jpda.address" transport="dt_socket">
+            <classpath>
+                <path path="java.class.path"/>
+                <path location="${cullconv.jar}"/>
+            </classpath>
+            <sourcepath>
+                <path refid="jgdi.srcpath"/>
+                <path refid="cullconv.srcpath"/>
+            </sourcepath>
+        </nbjpdastart>
+        <java classname="org.apache.tools.ant.launch.Launcher" 
+              fork="true" failonerror="true">
+            <jvmarg line="${sge.jvmargs}"/>
+            <jvmarg value="-Xdebug"/>
+            <jvmarg value="-Xnoagent"/>
+            <jvmarg value="-Djava.compiler=none"/>
+            <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>
+            <classpath>
+                <pathelement path="${java.class.path}"/>
+            </classpath>
+            <arg value="gensrc.forked"/>
+        </java>
+    </target>
+    
+    
+    <target name="gensrc.uptodate" depends="jni.init, gensrc.init, aimk.template">
+        <uptodate property="gensrc.isuptodate" targetfile="${jar}">
+            <srcfiles dir="${build.dir}" includes="sge_all_listsL.template"/>
+            <srcfiles dir="templates" includes="*"/>
+        </uptodate>
+        <echo message="gensrc.isuptodate = ${gensrc.isuptodate}"/>    
+    </target>
+    
+    <target name="gensrc.forked" depends="gensrc.uptodate"
+            description="Create all generated java source files"
+            unless="gensrc.isuptodate">
+
+        <delete>
+            <fileset dir="${build.dir}/tmp" includes="**/*"/>
+        </delete>
+        <delete dir="${gensrc.dir}"/>
+        <mkdir dir="${gensrc.dir}/com/sun/grid/jgdi/jni"/>
+        <echo>java.library.path: ${java.library.path}</echo>      
+        <cullconv packageName="com.sun.grid.jgdi.configuration"
+                  buildDir="${build.dir}/tmp"
+                  target="${jgdi.javac.target}"
+                  source="${jgdi.javac.source}">
+            <classpath>
+                <path location="${cullconv.jar}"/>
+            </classpath>
+
+            <templateconv scope="definition"
+                          outputFile="${build.dir}/jgdi_mapping.c"
+                          templateFile="templates/c_jgdi_mapping.jsp">
+            </templateconv>            
+
+            <templateconv scope="definition"
+                          outputFile="${gensrc.dir}/com/sun/grid/jgdi/configuration/reflect/CullTypeMapping.java"
+                          templateFile="templates/java_mapping.jsp">
+                <pattern objectFilter="root depend"/>
+            </templateconv>
+            
+            <javatemplateconv outputDir="${gensrc.dir}"
+                              template="templates/javamodel.jsp"
+                              scope="objects">
+                <pattern objectFilter="root depend"/>
+                <pattern objectFilter="objects">
+                    <include name="AN_Type"/>
+                </pattern>
+            </javatemplateconv>
+            
+            <javatemplateconv outputDir="${gensrc.dir}"
+                              template="templates/javamodel_impl.jsp"
+                              classSuffix="Impl"
+                              scope="objects">
+                <pattern objectFilter="root depend"/>
+                <pattern objectFilter="objects">
+                    <include name="AN_Type"/>
+                </pattern>
+            </javatemplateconv>
+            
+            <templateconv scope="definition"
+                          outputFile="${gensrc.dir}/com/sun/grid/jgdi/configuration/ConfigurationFactory.java"
+                          templateFile="templates/java_config_factory.jsp">
+                <pattern objectFilter="root depend"/>
+            </templateconv>
+            
+            <javaconv outputDir="${gensrc.dir}"
+                      packagename="com.sun.grid.jgdi"
+                      className="com.sun.grid.cull.CullConstantConverter"/>
+            
+            <javatemplateconv outputDir="${gensrc.dir}"
+                              classSuffix="Descriptor"
+                              packagename="com.sun.grid.jgdi.configuration.reflect"
+                              template="templates/javadescriptor.jsp"
+                              scope="objects">
+                <pattern objectFilter="root depend"/>
+                <pattern objectFilter="objects">
+                    <include name="AN_Type"/>
+                </pattern>
+            </javatemplateconv>
+            
+            <javatemplateconv outputDir="${gensrc.dir}"
+                              classSuffix="TestCase"
+                              scope="objects"
+                              template="templates/java_simpletest.jsp">
+                <pattern objectFilter="root">
+                    <exclude name="STN_Type"/>
+                    <exclude name="QU_Type"/>
+                </pattern>
+            </javatemplateconv>
+            
+            <!-- JGDI classes -->
+            <templateconv scope="definition"
+                          outputFile="${gensrc.dir}/com/sun/grid/jgdi/JGDI.java"
+                          templateFile="templates/java_jgdi.jsp">
+                <pattern objectFilter="root primitive_root"/>
+            </templateconv>
+            
+            <templateconv scope="definition"
+                          outputFile="${gensrc.dir}/com/sun/grid/jgdi/jni/JGDIImpl.java"
+                          templateFile="templates/java_jni_jgdi.jsp">
+                <pattern objectFilter="root primitive_root"/>
+            </templateconv>
+            
+            <templateconv scope="objects"
+                          outputFile="${build.dir}/jgdi.c"
+                          templateFile="templates/c_jgdi.jsp">
+                <pattern objectFilter="root primitive_root"/>
+            </templateconv>
+            
+            
+            <!-- RMI ====================================== -->               
+            <templateconv scope="definition"
+                          outputFile="${gensrc.dir}/com/sun/grid/jgdi/rmi/JGDIRemote.java"
+                          templateFile="templates/java_rmi_jgdi.jsp">
+                <pattern objectFilter="root primitive_root"/>
+            </templateconv>
+            
+            
+            <templateconv scope="definition"
+                          outputFile="${gensrc.dir}/com/sun/grid/jgdi/rmi/JGDIRemoteImpl.java"
+                          templateFile="templates/java_rmi_jgdi_impl.jsp">
+                <pattern objectFilter="root primitive_root"/>
+            </templateconv>
+            
+            <templateconv scope="definition"
+                          outputFile="${gensrc.dir}/com/sun/grid/jgdi/rmi/JGDIRemoteCache.java"
+                          templateFile="templates/java_rmi_jgdi_cache.jsp">
+                <pattern objectFilter="root primitive_root"/>
+            </templateconv>
+            
+            <templateconv scope="definition"
+                          outputFile="${gensrc.dir}/com/sun/grid/jgdi/rmi/JGDIRemoteDescriptor.java"
+                          templateFile="templates/java_rmi_jgdi_descriptor.jsp">
+                <pattern objectFilter="root primitive_root"/>
+            </templateconv>
+            
+            <!-- JMX ====================================== -->               
+            <templateconv scope="definition"
+                          outputFile="${gensrc.dir}/com/sun/grid/jgdi/management/mbeans/JGDIJMXMBean.java"
+                          templateFile="templates/java_jmx_jgdi.jsp">
+                <pattern objectFilter="root primitive_root"/>
+            </templateconv>
+            
+            <templateconv scope="definition"
+                          outputFile="${gensrc.dir}/com/sun/grid/jgdi/management/mbeans/JGDIJMX.java"
+                          templateFile="templates/java_jmx_jgdi_impl.jsp">
+                <pattern objectFilter="root primitive_root"/>
+            </templateconv>
+            
+            <!-- Event Objects -->
+         
+            <javatemplateconv outputDir="${gensrc.dir}"
+                              classSuffix="ListEvent"
+                              packagename="com.sun.grid.jgdi.event"
+                              scope="objects"
+                              template="templates/java_listevent.jsp">
+                <pattern objectFilter="event"/>
+            </javatemplateconv>                           
+            
+            
+            <javatemplateconv outputDir="${gensrc.dir}"
+                              classSuffix="ModEvent"
+                              packagename="com.sun.grid.jgdi.event"
+                              scope="objects"
+                              template="templates/java_modevent.jsp">
+                <pattern objectFilter="event"/>
+            </javatemplateconv>                           
+            
+            <javatemplateconv outputDir="${gensrc.dir}"
+                              classSuffix="AddEvent"
+                              packagename="com.sun.grid.jgdi.event"
+                              scope="objects"
+                              template="templates/java_addevent.jsp">
+                <pattern objectFilter="event"/>
+            </javatemplateconv>                           
+            
+            <javatemplateconv outputDir="${gensrc.dir}"
+                              classSuffix="DelEvent"
+                              packagename="com.sun.grid.jgdi.event"
+                              scope="objects"
+                              template="templates/java_delevent.jsp">
+                <pattern objectFilter="event"/>
+            </javatemplateconv>                           
+            
+            <templateconv scope="definition"
+                          outputFile="${gensrc.dir}/com/sun/grid/jgdi/event/EventFactory.java"
+                          templateFile="templates/java_event_factory.jsp">
+                <pattern objectFilter="event"/>
+            </templateconv>
+            
+            <templateconv scope="definition"
+                          outputFile="${gensrc.dir}/com/sun/grid/jgdi/management/NotificationBridgeFactory.java"
+                          templateFile="templates/java_jmx_notification_bridge_factory.jsp">
+                <pattern objectFilter="event"/>
+            </templateconv>
+            
+            <templateconv scope="definition"
+                          outputFile="${gensrc.dir}/com/sun/grid/jgdi/event/EventTypeEnum.java"
+                          templateFile="templates/java_event_type_enum.jsp">
+                <pattern objectFilter="event"/>
+            </templateconv>
+            
+            <templateconv scope="definition"
+                          outputFile="${build.dir}/jgdi_event_map.c"
+                          templateFile="templates/c_event_map.jsp">
+                <pattern objectFilter="event"/>
+            </templateconv>
+            
+            <templateconv scope="definition"
+                          outputFile="${build.dir}/jgdi_event_gen.c"
+                          templateFile="templates/c_event_client.jsp">
+                <pattern objectFilter="event"/>
+            </templateconv>
+            
+            <javatemplateconv outputDir="${gensrc.dir}"
+                              classSuffix="EventTestCase"
+                              packagename="com.sun.grid.jgdi.event"
+                              scope="objects"
+                              template="templates/java_event_test.jsp">
+                <pattern objectFilter="event">
+                    <exclude name="STN_Type"/>
+                    <exclude name="QU_Type"/>
+                    <exclude name="CE_Type"/>
+                    <exclude name="CONF_Type"/>
+                    <exclude name="JB_Type"/>
+                    <exclude name="JAT_Type"/>
+                    <exclude name="PET_Type"/>
+                    <exclude name="SME_Type"/>
+                </pattern>
+            </javatemplateconv>
+            
+            <!-- COMMAND OPTIONS -->
+            <templateconv scope="definition"
+                          outputFile="${gensrc.dir}/com/sun/grid/jgdi/util/shell/QConfCommandGenerated.java"
+                          templateFile="templates/java_qconf_cmd.jsp">
+            </templateconv>
+            
+            <cullFiles dir="${build.dir}">
+                <include name="sge_all_listsL.template"/>
+            </cullFiles>
+        </cullconv>
+    </target>
+
+    <target name="gensrc.native" depends="gensrc.uptodate"
+            description="Create all generated native source files"
+            unless="gensrc.isuptodate">  
+        <cullconv packageName="com.sun.grid.jgdi.configuration"
+                  source="${jgdi.javac.source}"
+                  target="${jgdi.javac.target}"
+                  buildDir="${build.dir}/tmp">
+            <classpath>
+                <path location="${cullconv.jar}"/>
+            </classpath>
+            
+            <templateconv scope="definition"
+                          outputFile="${build.dir}/jgdi_mapping.c"
+                          templateFile="templates/c_jgdi_mapping.jsp"/>        
+            
+            <templateconv scope="objects"
+                          outputFile="${build.dir}/jgdi.c"
+                          templateFile="templates/c_jgdi.jsp">
+                <pattern objectfilter="root depend"/>
+            </templateconv>
+            
+            
+            <cullFiles dir="${build.dir}">
+                <include name="sge_all_listsL.template"/>
+            </cullFiles>
+        </cullconv>
+        
+        <javaconv buildDir="${build.dir}/tmp"
+                  source="${jgdi.javac.source}"
+                  target="${jgdi.javac.target}">
+
+            <classdef>
+                <classpath>
+                    <pathelement location="${java.home}/lib/rt.jar"/>
+                    <pathelement location="${build.dir}/classes"/>
+                    <pathelement location="${cullconv.jar}"/>
+                </classpath>
+                
+                <class name="java.util.Iterator"/>
+                <class name="java.util.Set"/>
+                <class name="java.util.List"/>
+                <class name="java.util.ArrayList"/> 
+                <class name="java.util.Calendar"/>
+                <class name="java.lang.Class"/>
+                <class name="java.lang.Object"/>
+                <class name="java.lang.Long"/>
+                <class name="java.lang.Integer"/>
+                <class name="java.lang.Boolean"/>
+                <class name="java.lang.Double"/>
+                <class name="java.lang.Float"/>
+                <class name="java.lang.Number"/>
+                
+                <!--
+            <class name="java.util.logging.Logger"/>
+            <class name="java.util.logging.Level"/>
+            -->
+            </classdef>
+            
+            <simpletemplateconv templatefile="templates/c_bean_wrapper.jsp"
+                                outputfile="${build.dir}/jgdi_wrapper_java.c"
+                                prologfile="templates/c_bean_wrapper_c.prolog"/>
+            
+            <simpletemplateconv templatefile="templates/c_bean_wrapper_h.jsp"
+                                outputfile="${build.dir}/jgdi_wrapper_java.h"
+                                prologfile="templates/c_bean_wrapper_java_h.prolog"
+                                epilogfile="templates/c_bean_wrapper_java_h.epilog"/>
+            
+        </javaconv>
+        
+        <javaconv buildDir="${build.dir}/tmp">
+            <classdef>
+                <classpath>
+                    <pathelement location="${java.home}/lib/rt.jar"/>
+                    <pathelement location="${build.dir}/classes"/>
+                    <pathelement location="${cullconv.jar}"/>
+                </classpath>
+                <package name="com.sun.grid.jgdi.configuration.reflect">
+                    <include name="ClassDescriptor"/>
+                    <include name="PropertyDescriptor"/>         
+                    <include name="ListPropertyDescriptor"/>
+                    <include name="SimplePropertyDescriptor"/>
+                    <include name="MapPropertyDescriptor"/>
+                    <include name="MapListPropertyDescriptor"/>
+                </package>
+                <package name="com.sun.grid.jgdi.configuration">
+                    <include name="Util"/>
+                    <include name="JGDIAnswer"/>
+                </package>
+                <package name="com.sun.grid.jgdi.monitoring">
+                    <exclude name="TestClusterQueueSummary"/>
+                    <exclude name="TestJobSchedulingInfo"/>
+                    <exclude name="TestQueueInstanceSummary"/>
+                    <exclude name="TestRequestedResourcesForJobs"/>
+                </package>
+                <package name="com.sun.grid.jgdi.filter">
+                    <exclude name="ResourceAttributeFilter"/>
+                </package>
+                <package name="com.sun.grid.jgdi.security">
+                    <include name="SecurityHelper"/>
+                </package>
+                <package name="com.sun.grid.jgdi.monitoring.filter">
+                    <!--   <pattern>
+               <include name="com/sun/grid/monitoring/ClusterQueueSummary"/>
+               </pattern> -->
+                </package>
+            </classdef>
+            
+            <simpletemplateconv templatefile="templates/c_bean_wrapper.jsp"
+                                outputfile="${build.dir}/jgdi_wrapper.c"
+                                prologfile="templates/c_bean_wrapper_c.prolog"/>
+            
+            <simpletemplateconv templatefile="templates/c_bean_wrapper_h.jsp"
+                                outputfile="${build.dir}/jgdi_wrapper.h"
+                                prologfile="templates/c_bean_wrapper_h.prolog"
+                                epilogfile="templates/c_bean_wrapper_h.epilog"/>
+            
+        </javaconv>
+        
+        <javaconv buildDir="${build.dir}/tmp"
+                  source="${jgdi.javac.source}"
+                  target="${jgdi.javac.target}">
+
+            <classdef>
+                <classpath>
+                    <pathelement location="${java.home}/lib/rt.jar"/>
+                    <pathelement location="${build.dir}/classes"/>
+                    <pathelement location="${cullconv.jar}"/>
+                </classpath>
+                <package name="com.sun.grid.jgdi.event">
+                    <include name="EventFactory"/>
+                    <include name="EventTypeMapping"/>
+                    <include name="ChangedObjectEvent"/>
+                    <include name="ListEvent"/>
+                    <include name="EventFactoryBase"/>
+                    <include name="JobEvent"/>
+                    <include name="JobUsageEvent"/>
+                </package>
+            </classdef>
+            
+            <simpletemplateconv templatefile="templates/c_bean_wrapper.jsp"
+                                outputfile="${build.dir}/jgdi_wrapper_event.c"
+                                prologfile="templates/c_bean_wrapper_c.prolog"/>
+            
+            <simpletemplateconv templatefile="templates/c_bean_wrapper_h.jsp"
+                                outputfile="${build.dir}/jgdi_wrapper_event.h"
+                                prologfile="templates/c_bean_wrapper_event_h.prolog"
+                                epilogfile="templates/c_bean_wrapper_event_h.epilog"/>
+            
+        </javaconv>
+        
+    </target>
+    
+    <!-- =======================  Test ===================================   -->
+    <target name="jni.init" depends="init">
+        
+        <property environment="env"/>
+        
+        <echo message="env.AIMK_TARGET_BITS=${env.AIMK_TARGET_BITS}"/>
+        <echo message="env.aimk_buildarch=${env.aimk_buildarch}"/>
+        <!-- 
+      <echo message="A=${A}"/>
+      <echo message="B=${B}"/>
+      <echo message="C=${C}"/>
+      -->
+
+        <condition property="sge.arch" value="${env.aimk_buildarch}">
+            <isset property="env.aimk_buildarch"/>
+        </condition>
+        <!-- else -->
+        <exec executable="${sge.srcdir}/dist/util/arch" outputproperty="sge.arch" 
+              failifexecutionfails="true"/>
+        
+        <exec executable="${sge.srcdir}/scripts/compilearch"
+              outputproperty="sge.compile.arch"
+              failifexecutionfails="true">
+            <arg line="-c ${sge.arch}"/>
+        </exec>
+        
+        <exec executable="${sge.srcdir}/scripts/compilearch"
+              outputproperty="sge.build.arch"
+              failifexecutionfails="true">
+            <arg line="-b ${sge.arch}"/>
+        </exec>
+        
+        <condition property="sge.src.arch" value="${sge.build.arch}" else="${sge.compile.arch}">
+            <equals arg1="${sge.compile.arch}" arg2=""/>
+        </condition>
+        
+        <property name="sge.src.targetbits" value="${env.AIMK_TARGET_BITS}"/>
+        
+        <condition property="aimk.options" value="${env.ANT_AIMK_OPTS}" else="">
+            <isset property="env.ANT_AIMK_OPTS"/>
+        </condition>
+        
+        <condition property="aimk.debug" value="-debug" else="">
+            <equals arg1="${env.AIMK_DEBUG}" arg2="true"/>
+        </condition>
+        
+        <echo message="sge.arch=${sge.arch}"/>
+        <echo message="sge.src.arch=${sge.src.arch}"/> 
+        <echo message="sge.src.targetbits=${sge.src.targetbits}"/>
+        <echo message="aimk.debug=${aimk.debug}"/>
+        <echo message="aimk.options=${aimk.options}"/> 
+        
+        <condition property="aimk.targetbits" value="-64">
+            <equals arg1="${sge.src.targetbits}" arg2="TARGET_64BIT"/>
+        </condition>
+        <!-- else if -->
+        <condition property="aimk.targetbits" value="-32" else="">
+            <equals arg1="${sge.src.targetbits}" arg2="TARGET_32BIT"/>
+        </condition>
+        
+        <condition property="datamodel" value="-d64" else="">
+            <or>
+                <equals arg1="${sge.arch}" arg2="sol-sparc64"/>
+                <equals arg1="${sge.arch}" arg2="solaris64"/>
+                <equals arg1="${sge.arch}" arg2="sol-amd64"/>
+                <equals arg1="${sge.arch}" arg2="lx-amd64"/>
+                <equals arg1="${sge.arch}" arg2="lx-ia64"/>
+                <equals arg1="${sge.arch}" arg2="hp11-64"/>
+                <equals arg1="${sge.src.targetbits}" arg2="TARGET_64BIT"/>
+            </or>   
+        </condition>
+        
+        <fail message="Unsuported ARCH ${sge.arch}" unless="sge.src.arch"/>
+        
+        <property name="sge.lib.path" value="${sge.srcdir}/${sge.src.arch}"/>
+        <property name="sge.jvmargs"  value="-Djava.library.path=${sge.lib.path} ${datamodel}"/>
+        <echo>sge.jvmargs = ${sge.jvmargs}</echo>
+    </target>
+    
+    <target name="test.init" depends="init, jar">
+        
+        <path id="test.classpath">
+        <path location="${jar}"/>
+        <path location="${test.jar}"/>
+        <path location="test"/>
+        <path refid="compile.classpath"/>
+        </path>
+    </target>
+    
+    <target name="test.selected.init" depends="test.init, jni.init">
+        
+        <macrodef name="test.selected">
+            <attribute name="dir"/>
+            <sequential>
+
+                <junit fork="yes" dir="${basedir}" showoutput="true">
+                    <jvmarg line="${sge.jvmargs}"/>
+                    <env key="LD_LIBRARY_PATH" value="${sge.lib.path}"/>
+                    <sysproperty key="java.util.logging.config.file" value="test/logging.properties"/>
+                    <sysproperty key="java.security.policy" value="util/jgdi.policy"/>
+                    <sysproperty key="java.security.auth.login.config" value="util/jaas.config"/>
+                    <sysproperty key="-Djava.security.manager" value=""/>
+                    <classpath refid="test.classpath"/>
+                    <batchtest todir="${build.dir}">
+                        <fileset dir="@{dir}" includes="${selected.test.class}"/>
+                    </batchtest>          
+                    <formatter type="xml" usefile="no"/>
+                </junit>
+            </sequential>
+        </macrodef>
+        
+        <macrodef name="test.selected.debug">
+            <attribute name="dir"/>
+            <sequential>
+                <nbjpdastart name="Debug test" addressproperty="jpda.address" transport="dt_socket">
+                    <classpath refid="test.classpath"/>
+                    <sourcepath>
+                        <path refid="jgdi.srcpath"/>
+                        <path refid="cullconv.srcpath"/>
+                    </sourcepath>               
+                </nbjpdastart>            
+                <junit fork="yes" dir="${basedir}" showoutput="true">
+                    <jvmarg line="${sge.jvmargs}"/>
+                    <env key="LD_LIBRARY_PATH" value="${sge.lib.path}"/>
+                    <sysproperty key="java.util.logging.config.file" value="test/logging.properties"/>
+                    <sysproperty key="java.security.policy" value="util/jgdi.policy"/>
+                    <sysproperty key="java.security.auth.login.config" value="util/jaas.config"/>
+                    <sysproperty key="-Djava.security.manager" value=""/>
+                    <jvmarg value="-Xdebug"/>
+                    <jvmarg value="-Xnoagent"/>
+                    <jvmarg value="-Djava.compiler=none"/>
+                    <jvmarg value="-Xrunjdwp:transport=dt_socket,address=${jpda.address}"/>              
+                    <classpath refid="test.classpath"/>
+                    <batchtest todir="${build.dir}">
+                        <fileset dir="@{dir}" includes="${selected.test.class}"/>
+                    </batchtest>          
+                    <formatter type="xml" usefile="no"/>
+                </junit>
+            </sequential>
+        </macrodef>
+        
+    </target>
+    
+    <target name="test.selected.files" depends="test.selected.init, jni.init">
+        <test.selected dir="test"/>
+    </target>
+    
+    <target name="test.selected.files.debug" depends="test.selected.init">
+        <test.selected.debug dir="test"/>
+    </target>
+    
+    <target name="test.selected.genfiles" depends="test.selected.init, jni.init">
+        <test.selected dir="${gensrc.dir}"/>
+    </target>
+    
+    <target name="test.selected.genfiles.debug" depends="test.selected.init, jni.init">
+        <test.selected.debug dir="${gensrc.dir}"/>
+    </target>
+    
+    <target name="java.version.check" description="Checks if we have appropriate java version">
+        <echo message="JAVA_HOME=${java.home}"/>
+        <echo message="JAVA_VERSION=${java.specification.version}"/>
+        <condition property="isValidJava">
+            <equals arg1="${java.specification.version}" arg2="${java.test.version}"/>
+        </condition>
+        <!--<fail message="Invalid java version. Expected java ${java.test.version}!" unless="isValidJava"/> -->
+    </target>
+    
+    <target name="compile.tests" depends="java.version.check, jni.init, jar, aimk" description="Compile junit tests"/>
+
+    <target name="test" depends="compile.tests" description="Run all jgdi tests">
+        <condition property="format" value="plain" else="xml">
+            <equals arg1="${junit.formatter}" arg2="plain"/>
+        </condition>
+        <junit printsummary="withOutAndErr" haltonfailure="no" failureproperty="hasFailed" fork="yes" dir="${basedir}"> 
+            <jvmarg line="${sge.jvmargs}"/>
+            <sysproperty key="java.security.policy" value="util/jgdi.policy"/>
+            <sysproperty key="java.security.auth.login.config" value="util/jaas.config"/>
+            <sysproperty key="-Djava.security.manager" value=""/>
+            <env key="LD_LIBRARY_PATH" value="${sge.lib.path}"/>
+            <sysproperty key="java.util.logging.config.file" value="test/logging.properties"/>
+            <sysproperty key="cluster.config.file.location" value="${cluster.config.file.location}"/>
+            <classpath refid="test.classpath"/>
+            <formatter type='brief' usefile='false'/>
+            <batchtest todir="${build.dir}" >
+                <fileset dir="test">
+                    <include name="**/Test*.java"/>
+                    <include name="**/*Test.java"/>
+                    <include name="**/*TestCase.java"/>
+                    <exclude name="**/TestGEObject.java"/>
+                    <exclude name="**/TestGEObjectDescriptor.java"/>
+                    <!-- exclude name="**/TestQueueInstanceSummary.java"/ --> <!-- Sometimes crashes java in com.sun.grid.jgdi.jni.JGDIBase.fillQueueInstanceSummary -->
+                    <exclude name="**/TestRunner.java"/>
+                    <!-- exclude name="**/TestRequestedResourcesForJobs.java"/ --> <!-- testSimple fails with "Job has not hard requested value" message -->
+                    <exclude name="**/TestValueFactory.java"/>
+                    <!-- exclude name="**/TestQmod.java"/ --> <!-- CR6560442 - cleanQueues does not work -->
+                    <exclude name="**/BaseTestCase.java"/> <!-- Super class for other test cases -  no tests in it -->
+                    <exclude name="**/ClusterQueueTestCase.java"/> <!-- testClusterQueueListXML fails with "serialized object of class ClusterQueue is invalid" -->
+                    <!-- exclude name="**/JobTaskEventTestCase.java"/ --> <!--timeouts while waititng for jobs if only 2 slots available, should adjust config so more slots are always available-->
+                    <exclude name="**/PETaskEventTestCase.java"/> <!--testPETaskEvents needs either a very special setup or fails since the PETASK events are generated only under special conditions
+                                                              and not as expected for every PETask -->
+                    <exclude name="**/SpecialEventTestCase.java"/> <!-- no tests -->
+                </fileset>
+                <fileset dir="${gensrc.dir}">
+                    <include name="**/*TestCase.java"/>
+                    <!-- This tests should work --> 
+                    <!-- exclude name="**/AdminHostEventTestCase.java"/ --> <!-- testAdminHostEvents causes error fails ""exechost <host> already exists"" -->
+                    <!-- exclude name="**/AdvanceReservationTestCase.java"/ --> <!-- testAdvanceReservationAddGetDelete fails with "Your AR 1 has been granted ListPropertyDescriptor_add failed java.lang.NullPointerException" -->
+                    <!-- exclude name="**/AdvanceReservationEventTestCase.java"/ --> <!-- testAdvanceReservationEvents fails with "Your AR 1 has been granted ListPropertyDescriptor_add failed java.lang.NullPointerException" -->
+                    <!-- exclude name="**/ClusterQueueTestCase.java"/ --> <!--testWriteXML fails, missing xml files -->
+                    <!-- exclude name="**/ExecHostTestCase.java"/ --> <!-- testExecHostAddGetDelete causes error "exechost <host> already exists" -->
+                    <!-- exclude name="**/ExecHostEventTestCase.java"/ --> <!-- testExecHostEvents causes error "exechost <host> already exists" -->
+                    <!-- exclude name="**/JobTestCase.java"/ --> <!-- testJobAddGetDelete crashes qmaster -->
+                    <!-- exclude name="**/SubmitHostEventTestCase.java"/ --> <!-- testSubmitHostEvents causes error "exechost <host> already exists" -->
+                </fileset>
+            </batchtest>          
+        </junit>
+        
+        <fail message="JUnit tests failed!">
+            <condition>
+                <equals arg1="${hasFailed}" arg2="true"/>
+            </condition>
+        </fail>
+        <echo message="JUnit tests succeeded."/>
+    </target>
+    
+    <target name="runutil" depends="init, jni.init, compile">
+        <java fork="true" classname="com.sun.grid.jgdi.util.SGEUtil">
+            <jvmarg line="${sge.jvmargs}"/>
+            <env key="LD_LIBRARY_PATH" value="${sge.lib.path}"/>
+            <classpath>
+                <pathelement location="${classes.dir}"/>
+            </classpath>
+        </java>
+    </target>
+    
+    <target name="run.qevent" depends="init, jni.init, jar">
+        <echo message="bootstrap://${sge.root}@${sge.cell}:${sge.qmaster_port}"/> 
+        <java fork="true" classname="com.sun.grid.jgdi.event.QEvent">
+            <jvmarg line="${sge.jvmargs}"/>
+            <env key="LD_LIBRARY_PATH" value="${sge.lib.path}"/>
+            <classpath>
+                <pathelement location="${classes.dir}"/>
+            </classpath>
+            <arg line="bootstrap://${sge.root}@${sge.cell}:${sge.qmaster_port}"/>
+        </java>
+    </target>
+    
+    <target name="runproxy" depends="init, jni.init, compile" description="run the jgdi proxy">
+        
+        <assert_prop property="rmiproxy.name"/>
+        <assert_prop property="rmiproxy.port"/>
+        
+        <java fork="true" classname="com.sun.grid.jgdi.rmi.JGDIRmiProxy">
+            <jvmarg line="${sge.jvmargs}"/>
+            <jvmarg value="-Djava.security.manager=java.rmi.RMISecurityManager"/>
+            <jvmarg value="-Djava.security.policy=${basedir}/util/rmiproxy.policy"/>
+            <jvmarg value="-Djava.rmi.server.codebase=file://${classes.dir}/*"/>
+            <jvmarg value="-Djava.rmi.server.logCalls=false"/>
+            <sysproperty key="java.util.logging.config.file" value="util/logging.properties"/>
+            <env key="LD_LIBRARY_PATH" value="${sge.lib.path}"/>
+            <arg line="-reg local:${rmiproxy.port}"/>
+            <arg value="${rmiproxy.name}"/>
+            <arg value="bootstrap://${sge.root}@${sge.cell}:${sge.qmaster_port}"/>
+            <classpath>
+                <pathelement location="${classes.dir}"/>
+            </classpath>
+        </java>
+    </target>
+    
+    <target name="test.login" depends="init, jni.init, compile">
+        
+        <java fork="true" classname="com.sun.grid.jgdi.login.JGDILoginTest">
+            <sysproperty key="java.security.auth.login.config" value="juti/jgdi_jaas.config"/>
+            <classpath>
+                <pathelement location="${classes.dir}"/>
+            </classpath>
+        </java>
+    </target>
+    
+    
+    <target name="publish" depends="init, javadoc" description="Publish">
+        
+        <delete dir="${publish.dir}/jgdi"/>
+        <mkdir dir="${publish.dir}/jgdi"/>
+        <copy todir="${publish.dir}/jgdi">
+            <fileset dir="${build.dir}/doc">
+                <include name="api/**/*"/>
+            </fileset>
+            <fileset dir="${basedir}/docs">
+                <include name="JAAPI-FS.odt"/>
+                <include name="intro.odp"/>
+            </fileset>
+        </copy>
+        
+        <!-- Publish the examples -->
+        <mkdir dir="${publish.dir}/jgdi/examples"/>
+        <copy todir="${publish.dir}/jgdi/examples">
+            <fileset dir="${example.dir}">
+                <include name="src/com/sun/grid/jgdi/examples/*.java"/>
+                <include name="build.xml"/>
+            </fileset>
+        </copy>
+    </target>
+    
+    <!-- CULLCONV =========================================================== -->
+    <target name="cullconv.init" depends="init">
+        <uptodate property="cullconv.uptodate" targetfile="${cullconv.jar}">
+            <srcfiles dir="${cullconv.dir}">
+                <include name="src/**/*.java"/>
+                <include name="Cull.jj"/>
+            </srcfiles>
+        </uptodate>
+    </target>
+    
+    <target name="cullconv" unless="cullconv.uptodate" depends="cullconv.init"
+            description="builds cullconv.jar">
+        <ant antfile="build.xml" dir="${cullconv.dir}"/>
+    </target>
+    
+</project>

@@ -1,0 +1,515 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76C-CCK-MCD Netscape [en] (X11; U; SunOS 5.8 sun4u) [Netscape]">
+   <meta name="CREATED" content="20010611;10370600">
+   <meta name="CHANGEDBY" content="Andre Alefeld">
+   <meta name="CHANGED" content="20010611;11590200">
+</head>
+<body>
+
+<h2>
+<font color="#990000">Grid Engine Kerberization Implementation</font></h2>
+Kerberos support is implemented in Grid Engine primarily through the use
+of a set of library routines. The source code for the library is in krb/krb_lib.c.
+<br>The header file is krb/krb_lib.h. There are two routines, krb_send_message()
+and krb_receive_message() which replace the normal send_message() and receive_message()
+routines used by all Grid Engine daemons and client processes.
+<br>The krb_send_message() and krb_receive_message() routines take care
+of authenticating and encrypting messages which are passed between processes.
+<br>The <a href="#Original Design Notes">original design</a> is outlined
+below.
+<br>To build a Kerberized version of Grid Engine proceed as follows:
+<p>% aimk clean
+<br>check aimk.site and adapt the corresponding Kerberos V related paths
+(Kerberos can be obtained from <a href="http://www.crypto-publish.org">http://www.crypto-publish.org</a>)
+<p>% aimk -kerberos
+<p>Install the system as usual, the setup of Kerberos itself is beyond
+the scope of this document. Additional hints can be found in the <a href="ReleaseNotes.html">ReleaseNotes</a>.
+<h2>
+<font color="#990000">Authentication</font></h2>
+Authentication of Grid Engine clients and daemons to the qmaster is accomplished
+within the krb_send_message() and krb_receive_message() routines.
+<br>Each message sent from a Grid Engine client or daemon to the qmaster
+contains the necessary information for the qmaster to authenticate the
+sender of the message (i.e. a Kerberos AP_REQ packet).
+<br>The actual data in the message is also encrypted in the session key,
+which is a key obtained from the KDC which is private between the Grid
+Engine client/daemon and the qmaster.
+<p>The message may also contain a forwarded TGT which is also encrypted
+in the session key.
+<br>A connection list is maintained by the library routines in the qmaster
+to track the state of each qmaster client (including the Grid Engine daemons).
+<br>The connection list is keyed based on the client name, host name, and
+connection ID. Client connections are removed from the connection list
+after a period of inactivity in the krb_check_for_idle_clients() routine,
+which is called regularly in qmaster.
+<br>The connection list is primarily used as a holding place for client-specific
+information passed between the kerberos library and higher level routines.
+For example, upon receiving an GDI request, the qmaster verifies that the
+user name passed in the GDI request matches the user name used during Kerberos
+authentication by calling krb_verify_user() and passing the client information
+and the user name as a parameter. The user name associated with connection
+entry is looked up based on the client information, and if the user names
+do not match, then the GDI request is denied.
+<h2>
+<font color="#990000">Message Encryption</font></h2>
+All message data passed between a Grid Engine client or daemon and the
+qmaster is encrypted in a session key which is private between the Grid
+Engine client or daemon and the qmaster.
+<h2>
+<font color="#990000">Forwarding TGTs</font></h2>
+Kerberized Grid Engine also automatically forwards ticket-granting-tickets
+(TGTs) to the execution host. In order for TGT forwarding to work, the
+client must have requested "forwardable" tickets in the initial kinit(1)
+request. This allows jobs submitted using Grid Engine to automatically
+have Kerberos tickets and to run kerberized applications without the user
+having to login to each execution host and execute a kinit(1).
+<p>When a job is submitted from qmon, qsub, or qsh, the sge_gdi_multi()
+routine (sge_gdi_request.c) calls krb_set_client_flags() (krb_lib.c) to
+set the KRB_FORWARD_TGT flag, which informs the kerberos library to forward
+the TGT for any subsequent krb_send_message() messages.
+<br>When the krb_send_message() routine is called to send the job to the
+qmaster, the TGT is acquired, encoded, and sent as part of the encoded
+message to the qmaster. The TGT is encrypted in the private session key
+of the client process and the qmaster.
+<p>After sending the message, the sge_gdi_multi() routine calls krb_set_client_flags()
+to clear the KRB_FORWARD_TGT flag. When the message is received by the
+qmaster, the TGT is stored in the client connection entry maintained by
+the Grid Engine kerberos library routines.
+<br>When the job is added to the job list in the sge_gdi_add_job() routine
+(sge_job.c), the TGT is retrieved from the connection entry using krb_get_tgt()
+(krb_lib.c), and is then encrypted in the qmaster's private key using krb_encrypt_tgt_creds()
+(krb_lib.c), and is converted to a string using krb_bin2str() (krb_lib.c),
+and is stored in the job entry in the JB_tgt field.
+<p>This allows the TGT to be spooled as part of the job entry but also
+to be protected since it is encrypted. Once a job is to be executed on
+an execution host, the send_job routine() (sge_give_jobs.c), just before
+sending the message, calls krb_str2bin() (krb_lib.c) to convert the TGT
+stored in the JB_tgt field of the job entry, from string to binary. The
+TGT is then decrypted using krb_decrypt_tgt_creds() (krb_lib.c), and is
+stored in the connection entry associated with the execution daemon that
+the message is being sent to using krb_put_tgt() (krb_lib.c). When the
+krb_send_message() routine (krb_lib.c) is executed, the TGT is forwarded
+to the execution daemon. Upon receiving the message in the execution daemon,
+the krb_receive_message() routine decrypts and saves the TGT locally. The
+execd_job_exec_() routine (execd_job_exec.c), then calls krb_get_tgt()
+(krb_lib.c) to retrieve the saved TGT and calls krb_store_forwarded_tgt()
+(krb_lib.c) which stores in the forwarded TGT in a specific credentials
+cache created for the user for this job. The credentials cache is stored
+in /tmp/krb5cc_sge_%d where %d is the job ID. The KRB5CCNAME environment
+variable for the job is updated to point to this credentials cache.
+<p>Any kerberized applications executed by the job will automatically use
+the TGT located in the credentials cache. When the job completes and is
+cleaned up, the credentials cache is destroyed by calling krb_destroy_forwarded_tgt()
+from clean_up_job() (reaper_execd.c).
+<h2>
+<font color="#990000">Renewing TGTs</font></h2>
+Kerberized Grid Engine automatically renews the kerberos ticket for the
+"sge" service which is required by the Grid Engine sge_schedd and sge_execd
+daemons to authenticate themselves to the Grid Engine qmaster. The ticket
+is renewed by checking the credentials of the daemon to see if the ticket
+has expired or is about to expire before sending a message to the qmaster.
+<p>Kerberized Grid Engine also handles renewing TGTs on behalf of the client.
+In order for TGTs to be renewed the client must have requested both <i>forwardable</i>
+and <i>renewable</i> <i>TGTs</i> in the initial kinit(1) request.
+<br>This allows long running jobs or jobs which are queued for a long period
+of time to still maintain a valid TGT when they are executed on the execution
+hosts. TGTs are renewed on both the execution host and the qmaster host
+until the job is complete to ensure that if the job is restarted on a different
+host, it will still have a valid TGT.
+<p>Tickets are renewed in the krb_renew_tgts() routine which is regularly
+called by both the qmaster and the execution daemon. The krb_renew_tgts()
+routine, which is executed once per TGT renewal interval, goes through
+the list of jobs and checks to see if the TGT will expire within the TGT
+renewal threshold.
+<br>If so, a new TGT is acquired from the KDC and is stored back into the
+job entry. If executing in the execution daemon, the new TGT is also written
+to the user's credentials cache, where it will be used by any Kerberized
+applications running in the job.
+<br>&nbsp;
+<br>&nbsp;
+<h2>
+<a NAME="Original Design Notes"></a><font color="#990000">Original Design
+Notes</font></h2>
+In February 1997 an attempt was made to integrate Grid Engine into a Kerberos
+environment.
+<h2>
+<font color="#990000">Problems with Kerberizing Grid Engine</font></h2>
+Once you have a good understanding of the basics of Kerberos and how the
+API library works, it appears from the sample client/server code that it
+would be very easy to kerberize an application. This is not really the
+case. The sample code deals with an extremely simplistic client/server
+application. It is very easy to kerberize a simple client/server application.
+Unfortunately, most existing client/server applications aren't simple.
+Many of the problems with kerberizing an application are not addressed
+in this simple example code. For instance, a real server will likely have
+multiple clients which must be tracked individually. This involves keeping
+some internal data structures on a per-client basis which may or may not
+exist in the application.
+<p>Another difficult problem is that in an existing "real-life" server
+application the communications protocol is likely implemented in a separate
+layer than the application code. This insulates the application code from
+having to deal with the specifics of the communication layer. This presents
+some real difficulties in implementing security, because the security protocol
+needs information from both levels.
+<p>Another significant problem with kerberizing Grid Engine deals with
+tracking clients. In a typical client/server application using stream based
+sockets to pass messages between the client and the server, the server
+would initially authenticate the client either before or as part of the
+first message sent from the client to the server. All communications (i.e.
+messages) between the client and the server would then be encrypted using
+the secret session key known only to the client and the server. The server
+associates messages with the clients based on the socket the message is
+read from. If a message comes across the socket, the server uses the secret
+key associated with the client to decrypt the message. If the socket goes
+down, this indicates that communications between the client and the server
+have been disrupted and the server can clean up any data structures that
+the client had. The design of Grid Engine introduces a different communication
+model. Instead of maintaining a socket per client, Grid Engine servers
+and clients communicate through a set of services that are part of a communication
+library. The client and server actually communicate through one or more
+communication daemons which dynamically manage socket connections. This
+insulates the application from the details of socket management and handles
+various problems associated with server communications such as buffering
+data and running out of file descriptors. It also makes it difficult to
+know if a client is up or down or reachable at a given time since there
+is no socket directly associated with the client.
+<p>One possible solution for handling the connectionless nature of Grid
+Engine communications was to authenticate each individual message passed
+between the client and the server. However, upon further investigation,
+this proved to be an inadequate solution. One reason for this is that a
+simple transaction consisting of a client sending a request to the server
+and getting back the response generates two messages. One from the client
+to the server and one from the server back to the client. It makes sense
+for the server to authenticate the client, but the client should not have
+to explicitly authenticate the server.
+<p>Even a simple transaction has an implied state. A request is sent from
+the client, the server performs some service on behalf of the client, and
+a response is sent back to the client. Because the response is tied to
+the request, there exists an implied state. The server must, at minimum,
+authenticate the request, decrypt it, and encrypt the response back to
+the client sufficiently that only the client can read the response. This
+means that the server must at least maintain the state of the client internally
+for the length of the transaction. An outgrowth of the design for handling
+this case is that the server can actually handle additional messages from
+the client without having to reauthenticate each message. Instead, each
+message after the first is decrypted using the secret client/server session
+key.
+<br>&nbsp;
+<h2>
+<font color="#990000">Grid Engine Kerberization Level of Effort Scope</font></h2>
+There are two levels of effort in Kerberizing Grid Engine. The first
+level of effort is the authentication of Grid Engine clients and servers.
+It turns out that the authentication of Grid Engine clients and the authentication
+between the Grid Engine servers are both actually accomplished with the
+same design and code. The basic design for this first level of effort was
+completed by Shannon Davidson and Andre Alefeld as part of the February
+8-13, 1997 trip to GENIAS. The second level of effort in kerberizing Grid
+Engine is the acquisition of Kerberos tickets on behalf of the client's
+job on the execution host. This involves issues such as acquiring ticket-granting-tickets
+on behalf of a client, handling/preventing ticket expirations, storing
+tickets for future use, and forwarding tickets to the execution host. There
+are also a number of design and performance related issues associated with
+the second level of kerberizing Grid Engine. Some of these issues were
+identified during the February 8-13 trip, but the actual design work has
+not yet been completed.
+<h2>
+<font color="#990000">Grid Engine Kerberization - First Level of Effort</font></h2>
+First Level Kerberization is handled by replacing the generic send_message
+and receive_message routines in the commd library with kerberized versions.
+The kerberized versions of the routines will maintain the state of the
+connection and take care of the authentication of clients, as well as encrypting
+and decrypting messages passed between clients and servers. Handling authentication
+at this level means that any code using the standard commd library will
+automatically have authentication. These routines will ensure that a user
+is who he says he is. Higher level routines are responsible for determining
+if that user is actually an authorized user of Grid Engine. These routines
+will behave differently when acting on behalf of a client or server. In
+this model, the qmaster acts as the server, and all other Grid Engine daemons
+and client programs act as clients. When acting as a server, these routines
+will maintain a connection list which tracks the clients. When a client
+first connects to a server, the client will be authenticated. If authentication
+fails, a failure message will be sent back to the client indicating the
+failure. If the client is not a Grid Engine daemon the failure message
+will be displayed on the screen. If the client is successfully authenticated,
+a connection entry will be created and added to the connection list. The
+connection entry contains enough information to uniquely identify the client
+based on information received in the receive_message routine. All later
+messages received from or sent to this client will be encrypted. If the
+connection is idle for a period of time (i.e. no messages sent or received
+on the connection), the connection entry will be removed from the connection
+list. A specific routine will be written which will check for connections
+which have "timed-out" and "clean them up". This routine will be called
+from the send_message and/or receive_message routines and may also be called
+separately from within a chk_to_do routine in a Grid Engine daemon.
+<h4>
+Grid Engine Kerberization Level One Design</h4>
+sec_krb_init
+<br>&nbsp;&nbsp;&nbsp; call krb5_init
+<br>&nbsp;&nbsp;&nbsp; if we are a grid engine daemon
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; setup connection lists
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; set internal is_sge_daemon
+flag
+<br>&nbsp;&nbsp;&nbsp; endif
+<br>&nbsp;&nbsp;&nbsp; set connection ID to 0
+<br>&nbsp;&nbsp;&nbsp; if (is_sge_daemon)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; get TGT from keytab file
+<br>&nbsp;&nbsp;&nbsp; endif
+<br>&nbsp;&nbsp;&nbsp; if (!qmaster)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; go get ticket for the qmaster/sge
+service
+<br>&nbsp;&nbsp;&nbsp; endif
+<p>sec_krb_send_message
+<br>&nbsp;&nbsp;&nbsp; if (!qmaster &amp;&amp; !connected)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; build an AP_REQ authentication
+packet AP_REQ
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; (krb5_mk_req)
+<br>&nbsp;&nbsp;&nbsp; endif
+<br>&nbsp;&nbsp;&nbsp; if (qmaster)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lookup auth_context using
+commd triple
+<br>&nbsp;&nbsp;&nbsp; else
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; use the local auth_context
+<br>&nbsp;&nbsp;&nbsp; endif
+<br>&nbsp;&nbsp;&nbsp; if (!qmaster)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; put connection ID in the
+buffer
+<br>&nbsp;&nbsp;&nbsp; endif
+<br>&nbsp;&nbsp;&nbsp; call krb5_mk_priv to encrypt message
+<br>&nbsp;&nbsp;&nbsp; call send_message to send [ AP_REQ + ] message
+<p>sec_krb_receive_message
+<br>&nbsp;&nbsp;&nbsp; call recv_message to receive message
+<br>&nbsp;&nbsp;&nbsp; if (*tag == TAG_AUTHENTICATE)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (qmaster) {
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+call krb5_rd_req to authenticate client
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if authentication fails
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+send TAG_AUTHENTICATE message back to the client
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+endif
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else (is_a_daemon) {
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+set reconnect flag
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } else /* its a normal client
+*/ {
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+print TAG_AUTHENTICATE message to stderr
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+set reconnect flag
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; } endif
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (qmaster)
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+get connection ID
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+look up connection ID in connection list
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+get auth_context from connetion list
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; else
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+get connection ID from msg
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+compare connection ID to connection ID in msg
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+set auth_context to local auth_context
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; endif
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; decrypt message
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if decryption fails
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+send TAG_AUTHENTICATE message back to client
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; endif
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return message
+<br>&nbsp;
+<h4>
+Data Structures</h4>
+connection list
+<br>list of connection entry for each client
+<p>connection entry
+<br>connection ID
+<br>commd host triple &lt;host, commproc,ID>
+<br>auth_context
+<p>global client/server data
+<br>is_sge_daemon flag
+<br>auth_context (client)
+<br>&nbsp;
+<h4>
+Design Notes</h4>
+Q. Is there a unique ID in the auth_context or available from the KDC which
+could be used as the connection ID? It would need to be unique for every
+client and also unique for each instantiation of a client. If there is
+no unique ID that we can get from the KDC, then we may need to use a transaction
+when authenticating the client in order to get back a connection ID from
+the server.
+<p>A.
+<p>Q. Do we need to maintain an auth_context for each client?
+<p>A. It appears that we need to maintain an auth_context for each client
+for the life of the connection in the connection entry. The Kerberos libraries
+maintain certain information such as the sequence number, etc. in this
+data structure.
+<p>Q. Why is there a connection ID?
+<p>A. The connection ID is used to uniquely identify a client connection
+by the server. Since the Grid Engine communication mechanism is basically
+connectionless there is nothing like a socket to uniquely identify a client.
+A client can be identified using the commd triple which consists of the
+host, process name, and ID, but this would not be unique for cycled processes.
+The connection ID can either be assigned by the KDC (if possible - see
+the first question) or assigned by the server itself during the initial
+authentication process. Assignment by the server guarrantees uniqueness
+of all clients regardless
+<p>Q. Is there any way to avoid maintaining a connection list in the qmaster?
+<p>A. It doesn't appear so. The connection list is needed so that the server
+will know how to encrypt any messages going back from the server to the
+client. The only way to make this association from with the sec_krb_send_message
+routine is to map the parameters on the send_msg routine to a client in
+the connection list and then use the auth_context from the connection entry
+to encrypt the message.
+<p>Q. What happens when the qmaster is cycled?
+<p>A. The connection list is not spooled to disk, so when the qmaster is
+cycled, all clients must reauthenticate. If the qmaster receives a message
+from an unauthenticated client, the message will be thrown away and an
+error message will be sent back to the client. (Would it make sense to
+return the original offending message back to the client where it could
+be retried?) This reauthentication could be handled in one of two ways.
+The first method is that is a message ever fails then the client must reauthenticate
+using an authentication transaction. The response of the authentication
+request would contain the connection ID assigned by the server to the client.
+Another possibility would be to include the reauthentication information
+information (AP_REQ) in every message sent from the client to the server.
+If the client was already authenticated in the server this portion of the
+message would be ignored by the server. If the client was not already authenticated
+by the server, he would be reauthenticated by the server. This would also
+handle cases where messages destined for the qmaster are spooled in the
+commd while the qmaster is down. Since each message would include authentication
+info, the messages would not have to be thrown away when the qmaster comes
+back up.
+<p>Q. What happens when other Grid Engine daemons are cycled?
+<p>A. When a Grid Engine daemon other than the qmaster is cycled and comes
+back up, it will initially attempt to contact the qmaster. Any initial
+message sent to the qmaster will include the authentication info (AP_REQ).
+Any messages queued in the commd will be lost because they will have been
+encrypted with an old session key. (Is this a problem?)
+<p>Q. What happens when a client is cycled?
+<p>A. Same as Grid Engine daemon.
+<p>Q. Can the other Grid Engine daemons serve as server? This may be needed
+for the plans that GENIAS has for enhanced parallel job support.
+<p>A. We will look into this further during implementation. If possible,
+we will construct the code such that any Grid Engine daemon can act as
+a client if a message is received with the authentication information (AP_REQ)
+attached.
+<p>Q. If a client receives a message that it cannot decrypt what should
+it do?
+<p>A. If the client is a Grid Engine the message should be thrown away
+and an error message logged. If the client is a general purpose client
+acting on behalf of a user, an error message should be displayed to the
+user.
+<p>Q. How do we make sure that the user doesn't authenticate himself to
+the security routines and then simply indicate that he is someone else
+to the higher level routines?
+<p>A. The higher level routines (i.e. those which call receive_message)
+need to call some security routine to verify that the user is who he says
+he is. This is necessary because the higher level routines currently just
+check the user ID which is passed in the message. This is not adequate
+since a knowledgeable user could pass through the lower level security
+routines as himself while putting a zero user ID into the message and passing
+himself off as root in the higher level routines. There needs to be a test
+in the higher level routines to verify that the user authenticated himself
+as the same user that he indicated he was in the higher level message.
+This would need to be done in the code which is calling the receive_message
+routine. A routine needs to be written which verifies that the client is
+a particular user. The routine could be called sec_krb_verify_client_user
+and would be passed the user ID (or user name) and the commd triple &lt;host,
+commproc, ID>. The routine would look up the user in the connection list,
+compare to the passed user ID, and return true or false.
+<br>&nbsp;
+<h2>
+<font color="#990000">Grid Engine Kerberization - Second Level of Effort</font></h2>
+Second level Grid Engine kerberization will affect a number of different
+pieces of code. It will probably involve changes in the job submittal client
+modules (qsub, qmon), the queue master (sge_qmaster), the execution daemon
+(sge_execd), and possibly the job shepherd process (sge_shepherd). It will
+also mean changes to, at a minimum, the job structure and the message data
+structures used to pass job information between the various modules.
+<p>A job submitted to Grid Engine needs to have a TGT on the execution
+host. This is necessary because certain applications that the job may need
+to access (such as PVM) will need valid Kerberos tickets in order to work.
+A valid TGT should be provided, since we don't know which services will
+be needed by the job. A valid TGT on the execution host for the user of
+the job will allow processes running under the job to get tickets for whatever
+services the job requires.
+<p>A number of steps are involved in order to get a valid TGT on the execution
+host of the job. In general, a TGT is valid on a particular host or set
+of hosts. (It is possible to get a TGT that is valid on any host in the
+Kerberos domain, but this is not recommended.) First, the qsub or qmon
+client program gets a forwardable TGT for the host where the qmaster is
+executing. This TGT is passed along with the job request to the qmaster.
+The qmaster stores this TGT in the job entry. After the decision to run
+the job on a particular host is made, the qmaster uses the TGT in the job
+entry to acquire a TGT which is valid on the execution host and then passes
+that TGT to the execution daemon along with the job request. The sge_execd
+or the sge_shepherd then stores that TGT in the user's credentials cache
+and starts the job. The job then has access to a valid TGT on the execution
+host.
+<p>A potential performance problem of getting a TGT on the execution host
+of the job occurs when the sge_qmaster has to get a TGT which is valid
+on the execution host. This is a problem because the sge_qmaster must contact
+the KDC and wait for a response before it can send the job to the execution
+host. If this transaction is executed synchronously, the qmaster will be
+blocked for a period of time (maybe 100 ms average) for each job. This
+should certainly be avoided if possible. One option would be to use an
+asynchronous request, but this has the disadvantage of significantly complicating
+the code due to handling the asynchronous request and having an additional
+job state (i.e. WAITING_FOR_TGT) for each outstanding job. We would also
+have to investigate if this is even possible using the Kerberos API C library.
+A more attractive solution to this performance problem is to get a TGT
+in the client (qsub or qmon) which is valid for any host but to prevent
+this TGT from being written to the user's credentials cache (Hopefully,
+not making this TGT available in the user's credential cache would address
+any security concerns of a wildcard TGT). Then the wild-card TGT could
+be passed to the qmaster who would store it in the job entry and pass it
+to the execution host when the job executes. The sge_execd or sge_shepherd
+could use this wildcard TGT to get a specific TGT valid on the execution
+host and then destroy the original wild-card TGT.
+<br>&nbsp;
+<h4>
+Grid Engine Kerberization Level Two Design</h4>
+
+<h4>
+Data Structures</h4>
+
+<h4>
+Design Notes</h4>
+Q. How do we prevent a job's tickets from expiring while the job is queued?
+<p>A. If this is a requirement, then the qmaster (or some other external
+process such as the scheduler) will need to occasionally go through all
+of the job entries and look for TGTs which are about to expire and contact
+the KDC to request a new TGT for that job. Of course, contacting the KDC
+will impose some overhead and care should be taken that this does not cause
+performance problems. Grid Engine should also continue to keep the TGT
+in the qmaster valid for as long as the job is executing, just in case
+we have to restart the job at a later time. It might also make sense that
+when the shepherd gets a TGT for the job that it gets a TGT which is valid
+for a reasonably long period of time.
+<p>Q. How can we prevent a job's tickets from expiring while the job is
+executing?
+<p>A. The sge_shepherd could continually renew the TGT of the client on
+a regular basis. The sge_shepherd could do this directly or spawn a separate
+process to do it. When the TGT is renewed the new TGT would be placed in
+the user's credential cache making it available to processes executing
+as part of the user's job. (Thanks to Fritz for this suggestion.)
+<center>
+<p>Copyright 2001 Sun Microsystems, Inc. All rights reserved.</center>
+
+</body>
+</html>

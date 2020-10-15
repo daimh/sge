@@ -1,0 +1,166 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<JB_Type>
+   <jobNumber>0</jobNumber>
+   <jobName>Sleeper</jobName>
+   <jidRequest>NONE</jidRequest>
+   <session>JAPI_SSK</session>
+   <department>defaultdepartment</department>
+   <scriptFile>/home/aa114085/OPENSOURCE/.trash/MAINTRUNC/examples/jobs/sleeper.sh</scriptFile>
+   <scriptPtr>
+#!/bin/sh
+#
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+#
+# Usage: sleeper.sh [time [do_echo]]
+#        default for time is 60 seconds
+#        default for do_echo is 1 (=true)
+#
+
+# -- our name ---
+#$ -N Sleeper
+#$ -S /bin/sh
+
+
+time=60
+do_echo=1
+if [ $# -ge 1 ]; then
+   time=$1
+fi
+if [ $# -ge 2 ]; then
+   do_echo=$2
+fi
+
+if [ $do_echo != '0' ]; then
+   /bin/echo Here I am. Sleeping now at: `date`
+fi
+
+sleep $time
+
+if [ $do_echo != '0' ]; then
+   echo Now it is: `date`
+fi</scriptPtr>
+   <scriptSize>1746</scriptSize>
+   <executionTime>0</executionTime>
+   <deadline>0</deadline>
+   <account>sge</account>
+   <notify>false</notify>
+   <type>0</type>
+   <reserve>false</reserve>
+   <priority>1024</priority>
+   <jobshare>0</jobshare>
+   <shell>
+      <PN_Type>
+         <path>/bin/sh</path>
+         <fileStaging>false</fileStaging>
+      </PN_Type>
+   </shell>
+   <env key='__SGE_PREFIX__O_HOST'>flip</env>
+   <env key='__SGE_PREFIX__O_HOME'>/home/aa114085</env>
+   <env key='__SGE_PREFIX__O_SHELL'>/bin/tcsh</env>
+   <env key='__SGE_PREFIX__O_PATH'>/home/aa114085/ARCHIVE/apache-ant-1.6.5/bin:/usr/java/jdk1.5.0_11/bin:/home/aa114085/bin:/home/aa114085/ARCHIVE/apache-ant-1.6.5/bin:/usr/java/jdk1.5.0_11/bin:/home/aa114085/bin:/home/aa114085/ARCHIVE/apache-ant-1.6.5/bin:/usr/java/jdk1.5.0_11/bin:/home/aa114085/bin:/home/aa114085/ARCHIVE/apache-ant-1.6.5/bin:/usr/java/jdk1.5.0_11/bin:/home/aa114085/bin:/home/aa114085/ARCHIVE/apache-ant-1.6.5/bin:/usr/java/jdk1.5.0_11/bin:/home/aa114085/bin:/home/aa114085/ARCHIVE/apache-ant-1.6.5/bin:/usr/java/jdk1.4.2_13/bin:/home/aa114085/bin:/home/aa114085/ARCHIVE/apache-ant-1.6.5/bin:/usr/java/jdk1.4.2_13/bin:/home/aa114085/bin:/home/aa114085/OPENSOURCE/.trash/MAINTRUNC/bin/lx26-x86:/home/aa114085/ARCHIVE/apache-ant-1.6.5/bin:/usr/java/jdk1.5.0_06/bin:/home/aa114085/bin:/opt/kde3/bin:/usr/local/bin:/usr/bin:/bin:/usr/bin:/usr/games:/usr/X11R6/bin:/usr/X11R6/bin:/opt/jdk1.3/bin:/usr/local/bin:/home/aa114085/insure5.1/bin.linux2:.:/usr/X11R6/bin:/opt/jdk1.3/bin:/usr/local/bin:/home/aa114085/insure5.1/bin.linux2:.:/usr/X11R6/bin:/opt/jdk1.3/bin:/usr/local/bin:/home/aa114085/insure5.1/bin.linux2:.:/usr/X11R6/bin:/opt/jdk1.3/bin:/usr/local/bin:/home/aa114085/insure5.1/bin.linux2:.:/usr/X11R6/bin:/opt/jdk1.3/bin:/usr/local/bin:/home/aa114085/insure5.1/bin.linux2:.:/usr/X11R6/bin:/opt/jdk1.3/bin:/usr/local/bin:/home/aa114085/insure5.1/bin.linux2:.:/usr/X11R6/bin:/opt/jdk1.3/bin:/usr/local/bin:/home/aa114085/insure5.1/bin.linux2:.:/usr/X11R6/bin:/opt/jdk1.3/bin:/usr/local/bin:/home/aa114085/insure5.1/bin.linux2:.</env>
+   <env key='__SGE_PREFIX__O_LOGNAME'>aa114085</env>
+   <env key='__SGE_PREFIX__O_WORKDIR'>/home/aa114085/OPENSOURCE/gridengine/source/libs/jgdi</env>
+   <jobArgs>
+      <string>300</string>
+   </jobArgs>
+   <restart>0</restart>
+   <stdoutPath>NONE</stdoutPath>
+   <stderrPath>NONE</stderrPath>
+   <stdinPath>NONE</stdinPath>
+   <mergeStderr>false</mergeStderr>
+   <hardResource>NONE</hardResource>
+   <softResource>NONE</softResource>
+   <hardQueue>NONE</hardQueue>
+   <softQueue>NONE</softQueue>
+   <mailOptions>0</mailOptions>
+   <mail>
+      <MR_Type>
+         <user>aa114085</user>
+         <host>flip.germany.sun.com</host>
+      </MR_Type>
+   </mail>
+   <peRange>NONE</peRange>
+   <masterHardQueue>NONE</masterHardQueue>
+   <jaStructure>
+      <RN_Type>
+         <min>1</min>
+         <max>1</max>
+         <step>1</step>
+      </RN_Type>
+   </jaStructure>
+   <jaNHIds>NONE</jaNHIds>
+   <jaUHIds>NONE</jaUHIds>
+   <jaSHIds>NONE</jaSHIds>
+   <jaOHIds>NONE</jaOHIds>
+   <jaTemplate>
+      <JAT_Type>
+         <taskNumber>1</taskNumber>
+         <status>0</status>
+         <startTime>0</startTime>
+         <endTime>0</endTime>
+         <hold>0</hold>
+         <jobRestarted>0</jobRestarted>
+         <grantedDestinIdentifier>NONE</grantedDestinIdentifier>
+         <state>2112</state>
+         <pvmCkptPid>0</pvmCkptPid>
+         <pendingSignal>0</pendingSignal>
+         <pendingSignalDeliveryTime>0</pendingSignalDeliveryTime>
+         <pid>0</pid>
+         <fshare>0</fshare>
+         <tix>0.0</tix>
+         <oticket>0.0</oticket>
+         <fticket>0.0</fticket>
+         <sticket>0.0</sticket>
+         <share>0.0</share>
+         <suitable>0</suitable>
+         <task>NONE</task>
+         <finishedTask>NONE</finishedTask>
+         <nextPeTaskId>0</nextPeTaskId>
+         <stopInitiateTime>0</stopInitiateTime>
+         <prio>0.0</prio>
+         <ntix>0.0</ntix>
+         <message>NONE</message>
+      </JAT_Type>
+   </jaTemplate>
+   <jaTasks>
+      <JAT_Type>
+         <taskNumber>1</taskNumber>
+      </JAT_Type>
+   </jaTasks>
+   <verifySuitableQueues>0</verifySuitableQueues>
+   <overrideTickets>0</overrideTickets>
+   <pathAliases>NONE</pathAliases>
+   <urg>0.0</urg>
+   <ar>0</ar>
+</JB_Type>

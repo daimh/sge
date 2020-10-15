@@ -1,0 +1,18 @@
+2007-05-08  Andreas Haupt  <andreas.haupt@desy.de>
+
+	* pam_sge-qrsh-setup.c:
+	just do something if flag PAM_REINITIALIZE_CRED is set
+
+	* pam_sge-qrsh-setup.c:
+	be more flexible in finding the prepared rshd-wrapper file
+
+
+2007-03-15  Götz Waschk  <goetz.waschk@desy.de>
+
+	* rshd-wrapper: use /usr/bin/perl instead of /usr/local/bin/perl to
+	prevent an unnessesary rpm dep	
+	
+	* pam_sge-qrsh-setup.c:
+	rename log() to pam_sge_log() to fix another warning
+	add missing includes to fix warnings and errors
+

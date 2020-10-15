@@ -1,0 +1,152 @@
+--- COPYRIGHT ---
+
+The Xmt library and all its supporting programs and documentation are 
+
+    Copyright (c) 1992 through 2001 by David Flanagan.
+    All Rights Reserved.
+
+This is software provided at no charge. It is Open Source software as
+defined by OpenSource.org. There is no requirement to purchase
+anything. Please read the file LICENSE for the details.  There is NO
+WARRANTY for this software.  Please see the file NO_WARRANTY for
+details.
+
+Portions of the Xmt library are derived from other sources, and fall
+under additional copyrights and restrictions.  Where code has been used
+or modified from other sources, it is noted at the top of the file, or
+immediately above the use of that code.
+
+Some code is modified from the X11R5 distribution, and is copyright MIT
+and DEC.  Some code is modified from the XPM distribution from Groupe
+Bull.  Some is derived from work originally done by the author at MIT
+Project Athena.  The copyright notices on these pieces of the library
+are given below.  Note, however, all of the Xmt library, including these
+derived parts, falls under the copyright above.
+
+The MIT and Digital copyright for X11R5 code:
+
+    Copyright 1987, 1988 by Digital Equipment Corporation, Maynard, Massachusetts
+    and the Massachusetts Institute of Technology, Cambridge, Massachusetts.
+
+			    All Rights Reserved
+
+    Permission to use, copy, modify, and distribute this software and its 
+    documentation for any purpose and without fee is hereby granted, 
+    provided that the above copyright notice appear in all copies and that
+    both that copyright notice and this permission notice appear in 
+    supporting documentation, and that the names of Digital or MIT not be
+    used in advertising or publicity pertaining to distribution of the
+    software without specific, written prior permission.  
+
+    DIGITAL DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
+    ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL
+    DIGITAL BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR
+    ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
+    WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
+    ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
+    SOFTWARE.
+
+The Groupe Bull copyright for the Xpm code.
+
+    Copyright 1990, 1991 GROUPE BULL
+
+    Permission to use, copy, modify, and distribute this software and its
+    documentation for any purpose and without fee is hereby granted, provided
+    that the above copyright notice appear in all copies and that both that
+    copyright notice and this permission notice appear in supporting
+    documentation, and that the name of GROUPE BULL not be used in advertising
+    or publicity pertaining to distribution of the software without specific,
+    written prior permission.  GROUPE BULL makes no representations about the
+    suitability of this software for any purpose.  It is provided "as is"
+    without express or implied warranty.
+
+       GROUPE BULL disclaims all warranties with regard to this software,
+    including all implied warranties of merchantability and fitness,
+    in no event shall GROUPE BULL be liable for any special,
+    indirect or consequential damages or any damages
+    whatsoever resulting from loss of use, data or profits,
+    whether in an action of contract, negligence or other tortious
+    action, arising out of or in connection with the use 
+    or performance of this software.
+
+    Arnaud LE HORS   BULL Research FRANCE -- Koala Project 
+		     (XPM - X PixMap format version 2 & 3)
+
+The MIT copyright for Project Athena code.  Note that none of the
+software in the Xmt library uses encryption, so the clause pertaining to
+encryption does not apply.
+
+     Copyright (C) 1990 by the Massachusetts Institute of Technology
+
+       Export of software employing encryption from the United States of
+       America is assumed to require a specific license from the United
+       States Government.  It is the responsibility of any person or
+       organization contemplating export to obtain such a license before
+       exporting.
+
+    WITHIN THAT CONSTRAINT, permission to use, copy, modify, and
+    distribute this software and its documentation for any purpose and
+    without fee is hereby granted, provided that the above copyright
+    notice appear in all copies and that both that copyright notice and
+    this permission notice appear in supporting documentation, and that
+    the name of M.I.T. not be used in advertising or publicity pertaining
+    to distribution of the software without specific, written prior
+    permission.  M.I.T. makes no representations about the suitability of
+    this software for any purpose.  It is provided "as is" without express
+    or implied warranty.
+
+--- LICENSE ---
+The Xmt "Motif Tools" library is licensed and
+copyrighted as follows:
+===============================================================================
+       Copyright (c) 1992-2001, David Flanagan 
+       All rights reserved.
+
+       Redistribution and use in source and binary forms, with or
+       without modification, are permitted provided that the following
+       conditions are met:
+
+            Redistributions of source code must retain the above
+            copyright notice, this list of conditions and the
+            following disclaimer.
+
+            Redistributions in binary form must reproduce the above
+            copyright notice, this list of conditions and the
+            following disclaimer in the documentation and/or other
+            materials provided with the distribution.
+
+            None of the names David Flanagan, davidflanagan.com, or
+            motiftools.org, nor the names of its contributors may be
+            used to endorse or promote products derived from this
+            software without specific prior written permission.
+
+       THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+       CONTRIBUTORS ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
+       INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+       MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+       DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR THE
+       CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+       SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+       NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+       LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+       HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+       CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+       OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+       EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+===============================================================================
+Please see file COPYRIGHT for additional information.
+
+--- NO_WARRANTY ---
+       THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+       CONTRIBUTORS ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES,
+       INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+       MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+       DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDERS OR THE
+       CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+       SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+       NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+       LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+       HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+       CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+       OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+       EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

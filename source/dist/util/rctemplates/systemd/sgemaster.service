@@ -1,0 +1,14 @@
+[Unit]
+Description=Grid Engine qmaster
+After=network-online.target remote-fs.target
+
+[Service]
+Type=forking
+# Modify if the cell isn't "default"
+PIDFile=/opt/sge/default/spool/qmaster/qmaster.pid
+EnvironmentFile=-/etc/sysconfig/sgemaster
+# insist on setting ARCH in sysconfig instead of using shell?
+ExecStart=/bin/sh -c /opt/sge/bin/$($SGE_ROOT/util/arch)/sge_qmaster
+
+[Install]
+WantedBy=multi-user.target

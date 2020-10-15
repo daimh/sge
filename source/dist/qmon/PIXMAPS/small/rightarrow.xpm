@@ -1,0 +1,71 @@
+/* XPM */
+/*___INFO__MARK_BEGIN__*/
+/*************************************************************************
+ * 
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ * 
+ *  Sun Microsystems Inc., March, 2001
+ * 
+ * 
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ * 
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ * 
+ *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ * 
+ *   Copyright: 2001 by Sun Microsystems, Inc.
+ * 
+ *   All Rights Reserved.
+ * 
+ ************************************************************************/
+/*___INFO__MARK_END__*/
+static char *rightarrow[] = {
+/* columns rows colors chars-per-pixel */
+"17 9 25 1",
+"  c #204A87",
+". c #214B87",
+"X c #29528D",
+"o c #305791",
+"O c #3D629A",
+"+ c #40659C",
+"@ c #5072A7",
+"# c #5274A8",
+"$ c #5375A9",
+"% c #6080B1",
+"& c #6A88B7",
+"* c #6E8CBA",
+"= c #7E99C5",
+"- c #819CC7",
+"; c #839DC8",
+": c #859FCA",
+"> c #88A2CC",
+", c #8CA5CE",
+"< c #8FA8D1",
+"1 c #91A9D1",
+"2 c #93ABD3",
+"3 c #97AED6",
+"4 c #98AFD6",
+"5 c #99B0D7",
+"6 s mask c None",
+/* pixels */
+"666666666 *666666",
+"666666666  O:6666",
+"666666666    #666",
+"6%%@@+o.      X&6",
+"6$&@@+o.        #",
+"6%$@@+X       X&6",
+"666666666    #666",
+"666666666  O;6666",
+"666666666 *666666"
+};

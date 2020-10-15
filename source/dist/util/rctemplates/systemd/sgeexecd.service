@@ -1,0 +1,12 @@
+[Unit]
+Description=Grid Engine execd
+After=network-online.target remote-fs.target
+
+[Service]
+Type=forking
+EnvironmentFile=-/etc/sysconfig/sgeexecd
+# insist on setting ARCH in sysconfig instead of using shell?
+ExecStart=/bin/sh -c /opt/sge/bin/$($SGE_ROOT/util/arch)/sge_execd
+
+[Install]
+WantedBy=multi-user.target

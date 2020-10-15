@@ -1,0 +1,112 @@
+#!/bin/sh
+
+# Check Grid Engine using qping.
+# Dave Love <fx@gnu.org>, 2008-03-27
+# Copyright (C) 2008, 2014  University of Liverpool
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+
+# NB This will produce a warning state for daemons from releases prior
+# to SGE 8.1.7.
+
+# Configure these:
+# SGE_ROOT=/opt/sge
+# export SGE_ROOT
+[ -f /etc/profile.d/sge.sh ] && . /etc/profile.d/sge.sh
+qping=$SGE_ROOT/bin/$($SGE_ROOT/util/arch)/qping
+
+if [ -f /bin/basename ]; then
+    PROGNAME=`/bin/basename $0`
+else
+    PROGNAME=`/usr/bin/basename $0`
+fi
+REVISION=1.0
+PROGPATH=`echo $0 | /bin/sed -e 's,[\\/][^\\/][^\\/]*$,,'`
+
+. $PROGPATH/utils.sh
+
+usage () {
+    echo "\
+Grid Engine plugin for Nagios
+
+-H, --hostname=HOST	Name of host to check
+-P, --port=PORT		Port on which service runs (default 6445 for execd,
+                        6444 for qmaster)
+-d, --daemon=NAME       Name of daemon to check, either 'execd' or 'qmaster'
+                        (default 'execd')
+-h, --help 		Print this help
+--version 		Print version
+
+Requires SGE version >= 8.1.7.
+For qmaster, the number of connected clients is a performance datum."
+}
+
+help () {
+    print_revision $PROGNAME $REVISION
+    echo; usage
+}
+
+cleanup () {
+    exit $state
+}
+
+arg () {
+  expr $1 : '[^=]*=\(.*\)'
+}
+
+daemon=execd
+
+while [ $# -gt 0 ]; do
+    case $1 in
+	-h|--help) help; exit $STATE_OK;;
+	-H|--hostname) shift; host=$1; shift;;
+	--hostname=*) host=$(arg $1); shift;;
+	-P|--port) shift; port=$1; shift;;
+	--port=*) port=$(arg $1); shift;;
+	-d|--daemon) shift; daemon=$1; shift;;
+	--daemon=*) daemon=$(arg $1); shift;;
+        --version | -V)
+            print_revision $PROGNAME $REVISION
+            exit $STATE_OK;;
+	*) usage; exit $STATE_UNKNOWN;;
+    esac
+done
+
+if [ -z "$host" ]; then
+    usage; exit $STATE_UNKNOWN
+fi
+
+case $daemon in
+    execd) [ -z "$port" ] && port=6445 ;;
+    qmaster) [ -z "$port" ] && port=6444 ;;
+    *) usage; exit $STATE_UNKNOWN ;;
+esac
+
+state=$STATE_CRITICAL
+trap cleanup EXIT
+
+result=$("$qping" -info $host $port $daemon 1 2>&1)
+
+if [ $? -eq 0 ]; then
+    if [ $daemon = qmaster ]; then
+        clients=" | connected_clients=$(echo "$result" | awk '/^no. of connected clients:/ {print $NF}')"
+    fi
+    case $(echo "$result" | grep "^info:") in
+        *OK) echo "$daemon OK$clients"; state=$STATE_OK;;
+        *WARNING|*ERROR) echo "$daemon WARNING$clients"; state=$STATE_WARNING;;
+    esac
+else
+    echo "CRITICAL Checking $daemon: $result"
+fi
+exit $state

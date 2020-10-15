@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<CONF_Type>
+   <name>${host}</name>
+   <entries>
+      <CF_Type>
+         <name>mailer</name>
+         <value>/bin/mailx</value>
+      </CF_Type>
+      <CF_Type>
+         <name>xterm</name>
+         <value>/usr/openwin/bin/xterm</value>
+      </CF_Type>
+      <CF_Type>
+         <name>qlogin_daemon</name>
+         <value>/usr/sbin/in.telnetd</value>
+      </CF_Type>
+      <CF_Type>
+         <name>rlogin_daemon</name>
+         <value>/usr/sbin/in.rlogind</value>
+      </CF_Type>
+   </entries>
+</CONF_Type>

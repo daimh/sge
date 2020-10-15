@@ -1,0 +1,9 @@
+# This file can contain csh variable definitions to override those in
+# aimk and aimk.site.  It may be necessary for building other than on
+# a Debian- or RedHat-derived system.
+
+# Default to not requiring the tricky Java bits and using system libs
+set argv = ( -no-gui-inst -no-herd $* )
+
+# This is appropriate for a Debian distribution, but it loses with some csh:
+# set argv = ( -DDEFAULT_EDITOR='\"sensible-editor\"' $argv )

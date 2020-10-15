@@ -1,0 +1,127 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76C-CCK-MCD Netscape [en] (X11; U; SunOS 5.8 sun4u) [Netscape]">
+   <meta name="CREATED" content="20010611;10370600">
+   <meta name="CHANGEDBY" content="Andre Alefeld">
+   <meta name="CHANGED" content="20010611;11590200">
+</head>
+<body>
+
+<h2>
+<font color="#660000">Grid Engine Kerberos/DCE Security Modules Overview</font></h2>
+see <a href="gss_customer.html">Customer Info</a>
+<h2>
+<font color="#660000">How the security modules work</font></h2>
+see <a href="gss_customer.html">Customer Info</a>
+<h2>
+<font color="#660000">DCE version differences</font></h2>
+<p>This section is obsolete and is only included for historical reasons.
+A Grid Engine / DCE integration now uses the security modules compiled
+with the Kerberos GSSAPI rather than using the DCE GSSAPI library. There
+were too many problems with the DCE GSSAPI library and forwarding of
+DCE credentials. Some of the problems are explained below.
+For additional information on Grid Engine using DCE, see 
+<font color="#660000">Running Kerberos binaries in a DCE environment</font>
+at the bottom of this page.
+
+<p>The DCE GSSAPI library forwards credentials but the forwarded credentials
+apparently cannot be inherited by child programs. I found the following
+comment in the DCE source code which explains this.
+<blockquote>dce/src/src/security/client/login/sec_login.c, line 1295 of
+2643
+<p>/* * DCE 1.0 restriction - can't do a set context if the context was
+<br>&nbsp;&nbsp;&nbsp; * marked sec_login_credentials_private. Note that
+this means
+<br>&nbsp;&nbsp;&nbsp; * such a context can only be used as an explicit
+context in user
+<br>&nbsp;&nbsp;&nbsp; * space applications. It cannot be used to make
+authenticated
+<br>&nbsp;&nbsp;&nbsp; * kernel calls, because these rely on the default
+context. */</blockquote>
+This is in the sec_login_set_context DCE library function which allows
+the user to set up a new default network credentials. (Maybe this is why
+DCE does not provide rlogin type of utilities which automatically forward
+your credentials.) However, I was able to work around this problem by using
+a "hack" to clear the "private" flag in the forwarded credential. Once
+the "private" flag is cleared, the forwarded credential can be made the
+user's default credential which causes the credential to be written to
+the user's credential cache. I plan on investigating to find out if there
+is a way to create a non-private credential without resorting to hacking
+the code.
+<p>DCE uses the KRB5CCNAME environment variable to specify the location
+of the credentials cache file name. However, unlike Kerberos, the DCE library
+determines the location of the credentials cache and sets the KRB5CCNAME
+environment variable on your behalf when the credentials are created. Under
+Kerberos, the user or application can specify the location of the credentials
+cache by setting the KRB5CCNAME environment variable and the Kerberos library
+routines will simply use it.
+<br>Grid Engine initially sets the KRB5CCNAME environment variable based
+on the job ID before calling the get_cred, put_cred, and delete_cred programs.
+<br>For Kerberos, this works fine. The Kerberos GSSAPI routines just use
+the KRB5CCNAME environment variable.
+<br>When DCE sets a credential as the default credentials, it chooses a
+file location for the credentials cache and overwrites the current setting
+of the KRB5CCNAME environment variable. In order to allow Grid Engine to
+refer to the credentials cache by a "handle" that it creates, the put_cred
+program creates a soft link from the Grid Engine provided credentials cache
+to the DCE provided credentials cache. This allows Grid Engine to refer
+to the credentials cache based on the handle that it created.
+<p>Another strange thing about DCE is that when the user's credentials
+are forwarded, the default Kerberos principal for the user is "sge", not
+his user name. The list of Kerberos service tickets remains the same as
+the user's original credentials. I'm not sure why this is or if it is a
+problem.
+<p>For some reason, get_cred always fails on notos. Specifically, it fails
+with the error message "Can't enable delegation in gss_init_sec_ctx (141290bd)".
+This is a normal gss_init_sec_context call requesting a delegated credential.
+It works fine on euros. I haven't yet figured out the difference. I think
+there is probably a configuration problem. I haven't been able to test
+this lately because I haven't been able to login to notos.
+<p>Once, while testing, I got an error that said the delegated token had
+expired. This made me think that there may be a special expiration time
+on a delegated token. I looked at the DCE source code and it appeared that
+the token got the expiration time of the credentials from which it was
+derived. I will probably have to test this by putting some queues on hold
+for a long period of time.
+<p>DCE requires the use of shepherd "starter" program to create the credentials
+because only descendants of this process can use the credentials.
+<h2>
+<font color="#660000">Building the binaries for distribution with Grid
+Engine</font></h2>
+To make dependencies:
+<br><font face="Courier New,Courier">% aimk gss_depend</font>
+<br>To compile the security binaries for Kerberos or DCE:
+<br>Make sure KRB_HOME is set correctly in aimk.site or aimk.private.
+<br><font face="Arial,Helvetica">% aimk -only-core -gss gss_all</font>
+<p>To compile k5dcelogin for DCE:
+<br><font face="Arial,Helvetica">% aimk -only-core -dce k5dcelogin</font>
+<p>To clean:
+<br><font face="Arial,Helvetica">% aimk -gss gss_clean</font>
+<br>&nbsp;
+<h2>
+<font color="#660000">DCE / Kerberos Configuration</font></h2>
+see <a href="gss_customer.html">Customer Info</a>
+<h2>
+<font color="#660000">Instructions for spool directories in DFS</font></h2>
+see <a href="gss_customer.html">Customer Info</a>
+<h2>
+<font color="#660000">Turning off security</font></h2>
+see <a href="gss_customer.html">Customer Info</a>
+<h2>
+<font color="#660000">Running Kerberos binaries in a DCE environment</font></h2>
+After having many problems with the DCE delegation code (see above) and
+learning a little more about how DCE uses Kerberos internally, I decided
+the best way to run in a DCE environment is to use the Kerberos security
+modules. The only addition that has to be made for a DCE environment is
+that the k5dcelogin command must be used as a shepherd wrapper to convert
+the Kerberos TGT to the user's DCE credentials before executing the shepherd
+process. This method works quite well. It uses the stable, robust Kerberos
+code for forwarding the TGT and then on the execution host, it changes
+the Kerberos TGT into the DCE credentials. See the <a href="gss_customer.html">Customer Info</a> file for additional information.
+<center>
+<p>Copyright 2001 Sun Microsystems, Inc. All rights reserved.</center>
+</body>
+</html>

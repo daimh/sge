@@ -1,0 +1,13 @@
+
+grant {
+   permission java.security.AllPermission;
+   /*
+   permission java.lang.RuntimePermission        "loadLibrary.jgdi";
+   permission javax.security.auth.AuthPermission "createLoginContext.jgdi";
+   permission javax.security.auth.AuthPermission "doAs";
+   permission java.util.PropertyPermission       "*", "read,write";
+   permission java.io.FilePermission             "-", "read";*/
+};
+
+
+

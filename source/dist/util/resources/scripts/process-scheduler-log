@@ -1,0 +1,209 @@
+#!/usr/bin/perl
+
+# Copyright (C) 2010-2011 University of Leeds
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# GE can create a "schedule" file, which is appended to at each scheduling
+# interval. This can be difficult to post-process. This daemon "tails" the
+# file and writes a "schedule.last" file containing the contents of the
+# last complete scheduling interval seen.
+
+# $Id: process-scheduler-log 1337 2011-03-01 13:51:43Z issmcd $
+
+use strict;
+use IO::File;
+use IO::Seekable;
+use File::stat;
+use Getopt::Long;
+use File::Basename;
+use Env qw(SGE_ROOT SGE_CELL);
+
+$0 = "process-scheduler-log";
+
+my $poll_interval = 60;
+my $sge_common    = "${SGE_ROOT}/${SGE_CELL}/common";
+my $sge_arch      = `${SGE_ROOT}/util/arch`;
+chomp($sge_arch);
+my $sge_hostname  = "${SGE_ROOT}/utilbin/$sge_arch/gethostname";
+#
+my $schedule_info = "$sge_common/schedule";
+my $schedule_out  = "$sge_common/schedule.last";
+my $act_qmaster   = "$sge_common/act_qmaster";
+my $ext_tmp       = "tmp";
+my $ext_old       = "old";
+my $pidfile       = "/var/run/sgeprocschedlog.pid";
+
+my $hostname = `$sge_hostname -aname`;
+chomp($hostname);
+
+my %opts;
+GetOptions(
+    'v|verbose'   => \$opts{verbose},
+);
+
+my $fh = IO::File->new;
+die("Could not write to pidfile: $?") if (! $fh->open("> $pidfile"));
+print $fh "$$\n";
+$fh->close();
+
+while (1) {
+    if (is_qmaster()) {
+        process_file($schedule_info);
+    }
+    sleep $poll_interval;
+}
+
+exit 0;
+
+sub process_file {
+    my($file) = @_;
+
+    plog("Opening file");
+    my $fh = IO::File->new;
+    if (! $fh->open("< $file")) {
+        plog("Could not open file: $?");
+        return;
+    }
+
+    my $inode = stat($fh)->ino;
+
+    my $last_interval;
+    my $interval = new_interval();
+    my $num_interval = 0;
+
+    # Enter "tail" loop
+    for (;;) {
+        plog("Read data");
+
+        # Process data until end of file
+        while (<$fh>) {
+            if (/^::::::::/) {
+                # Begin new scheduling interval, save old data
+                $last_interval = $interval;
+                $interval      = new_interval();
+                $num_interval++;
+
+                plog("New scheduling interval");
+            } else {
+                push(@$interval, $_);
+            }
+ 
+        }
+        $fh->clearerr();
+
+        # Idle if we are not the qmaster
+        return if (! is_qmaster());
+
+        # Print last known complete interval (if we've seen enough
+        # start of interval markers to know we've got a full set
+        # of data).
+        if ($last_interval ne undef && $num_interval > 1) {
+            log_interval($last_interval) if ($num_interval > 1);
+            $last_interval = undef;
+        }
+
+        # Wait a bit
+        sleep $poll_interval;
+
+        # Return if the file has been deleted (does not
+        # work on NFS filesystems)
+        #return if (stat($fh)->nlink == 0);
+
+        # Try to flush any NFS silliness
+        system("/bin/ls -l ". basename($file) ." > /dev/null 2>&1");
+
+        # Return if the file no longer exists or has a different
+        # inode number
+        my $st = stat($file);
+        return if ($st eq undef);
+        return if ($inode != $st->ino);
+    }
+}
+
+sub new_interval {
+#    my %hash;
+#    return \%hash;
+    my @array;
+    return \@array;
+}
+
+sub log_interval {
+    my($data) = @_;
+
+    plog("Output interval data");
+
+    my $tmp = "${schedule_out}.${ext_tmp}";
+    my $old = "${schedule_out}.${ext_old}";
+
+    unlink($tmp);
+    unlink($old);
+
+    my $fh = IO::File->new;
+    $fh->open("> $tmp") || die("Could not write to $tmp");
+    
+    #foreach my $job (sort {$a <=> $b} keys %{$data}) {
+    #    foreach my $task (sort {$a <=> $b} keys %{$data->{$job}}) {
+    #        my $time = localtime($data->{$job}{$task});
+    #        plog("${job}.${task}\t$time");
+    #        print $fh "${job}.${task}\t$time\n";
+    #    }
+    #}
+
+    foreach my $elem (@$data) {
+        print $fh $elem;
+        plog($elem);
+    }
+
+    $fh->close || die("Problem while writing to $tmp");
+
+#    rename($schedule_out, $old) || die("Could not rename $schedule_out to $old");
+#    rename($tmp, $schedule_out) || die("Could not rename $tmp to $schedule_out");
+    attempt_rename($schedule_out, $old);
+    attempt_rename($tmp, $schedule_out) || return;
+
+    unlink($old);
+}
+
+sub attempt_rename {
+    my($old,$new) = @_;
+
+    if (! rename($old, $new)) {
+        plog("Could not rename $old to $new");
+        system("logger '$0: Could not rename $old to $new'");
+        return 0
+    }
+
+    return 1;
+}
+
+sub plog {
+    my($txt) = @_;
+    chomp($txt);
+
+    if ($opts{verbose}) {
+        print "$txt\n";
+    }
+}
+
+sub is_qmaster {
+    my $qmaster = `cat $act_qmaster`;
+    chomp($qmaster);
+
+    if ($qmaster ne $hostname) {
+        plog("Not qmaster - idling");
+        return 0;
+    }
+    return 1;
+}

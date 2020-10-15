@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--___INFO__MARK_BEGIN__
+/*************************************************************************
+ *
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ *
+ *  Sun Microsystems Inc., March, 2001
+ *
+ *
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ *
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ *
+ *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ *
+ *   Copyright: 2001 by Sun Microsystems, Inc.
+ *
+ *   All Rights Reserved.
+ *
+ ************************************************************************/
+___INFO__MARK_END__-->
+
+<project name="JSV" default="jar" basedir=".">
+    <description>Builds, tests, and runs the project JSV.</description>
+    <property name="sge.srcdir" location="../.."/>
+    <property file="${sge.srcdir}/build_testsuite.properties"/>
+    <property file="${sge.srcdir}/build_private.properties"/>
+    <property file="${sge.srcdir}/build.properties"/>
+    <property name="javac.source" value="${jjsv.javac.source}"/>
+    <property name="javac.target" value="${jjsv.javac.target}"/>
+
+    <import file="nbproject/build-impl.xml"/>
+    <!--
+
+    There exist several targets which are by default empty and which can be
+    used for execution of your tasks. These targets are usually executed
+    before and after some main targets. They are:
+
+      -pre-init:                 called before initialization of project properties
+      -post-init:                called after initialization of project properties
+      -pre-compile:              called before javac compilation
+      -post-compile:             called after javac compilation
+      -pre-compile-single:       called before javac compilation of single file
+      -post-compile-single:      called after javac compilation of single file
+      -pre-compile-test:         called before javac compilation of JUnit tests
+      -post-compile-test:        called after javac compilation of JUnit tests
+      -pre-compile-test-single:  called before javac compilation of single JUnit test
+      -post-compile-test-single: called after javac compilation of single JUunit test
+      -pre-jar:                  called before JAR building
+      -post-jar:                 called after JAR building
+      -post-clean:               called after cleaning build products
+
+    (Targets beginning with '-' are not intended to be called on their own.)
+
+    Example of inserting an obfuscator after compilation could look like this:
+
+        <target name="-post-compile">
+            <obfuscate>
+                <fileset dir="${build.classes.dir}"/>
+            </obfuscate>
+        </target>
+
+    For list of available properties check the imported
+    nbproject/build-impl.xml file.
+
+
+    Another way to customize the build is by overriding existing main targets.
+    The targets of interest are:
+
+      -init-macrodef-javac:     defines macro for javac compilation
+      -init-macrodef-junit:     defines macro for junit execution
+      -init-macrodef-debug:     defines macro for class debugging
+      -init-macrodef-java:      defines macro for class execution
+      -do-jar-with-manifest:    JAR building (if you are using a manifest)
+      -do-jar-without-manifest: JAR building (if you are not using a manifest)
+      run:                      execution of project
+      -javadoc-build:           Javadoc generation
+      test-report:              JUnit report generation
+
+    An example of overriding the target for project execution could look like this:
+
+        <target name="run" depends="JSV-impl.jar">
+            <exec dir="bin" executable="launcher.exe">
+                <arg file="${dist.jar}"/>
+            </exec>
+        </target>
+
+    Notice that the overridden target depends on the jar target and not only on
+    the compile target as the regular run target does. Again, for a list of available
+    properties which you can use, check the target you are overriding in the
+    nbproject/build-impl.xml file.
+
+    -->
+
+    <target name="propsinit.base">
+        <condition property="isWindows">
+            <os family="windows"/>
+        </condition>
+
+    </target>
+
+    <target name="propsinit.unix" depends="propsinit.base" unless="isWindows">
+        <property file="../../build.properties"/>
+    </target>
+
+    <target name="propsinit.win" depends="propsinit.base" if="isWindows">
+        <property file="../../build_win.properties"/>
+    </target>
+
+    <target name="propsinit" depends="propsinit.win, propsinit.unix"/>
+
+    <target name="-pre-init" >
+        <property file="../../build_testsuite.properties"/>
+        <property file="../../build_private.properties"/>
+    </target>
+
+    <target name="-post-init" depends="propsinit">
+        <property environment="env"/>
+
+        <echo>libs.junit.classpath=${libs.junit.classpath}</echo>
+        <exec executable="hostname" outputproperty="hostname"/>
+        <condition property="isJavaBuildHost">
+           <not>
+           <isset property="java.buildhost"/>
+           </not>
+        </condition>
+        <condition property="isJavaBuildHost" >
+            <contains string="${java.buildhost}" substring="${hostname}" casesensitive="false"/>
+        </condition>
+
+        <!-- Copyright stuff -->
+        <condition property="legal.dir" value="${env.AIMK_COPYRIGHT_DIR}" else="">
+            <isset property="env.AIMK_COPYRIGHT_DIR"/>
+        </condition>
+
+        <condition property="legal" value="COPYRIGHT">
+            <equals arg1="${env.AIMK_COPYRIGHT}" arg2="sun" trim="true"/>
+        </condition>
+        <condition property="legal" value="COPYRIGHT LICENSE">
+            <equals arg1="${env.AIMK_COPYRIGHT}" arg2="courtesy" trim="true"/>
+        </condition>
+        <condition property="legal" value="NA">
+           <not>
+               <or>
+                   <equals arg1="${dist.type}" arg2="courtesy" trim="true"/>
+                   <equals arg1="${dist.type}" arg2="sun" trim="true"/>
+               </or>
+           </not>
+        </condition>
+
+    </target>
+
+    <target name="-pre-compile" unless="isJavaBuildHost">
+        <waitfor maxwait="${maxwait}" maxwaitunit="minute" checkevery="10" checkeveryunit="second">
+           <available file="${dist.jar}"/>
+        </waitfor>
+        <available file="${dist.jar}" property="jar.available"/>
+        <fail unless="jar.available">
+           Timeout while waiting for jar file build on host ${java.buildhost}
+        </fail>
+    </target>
+
+    <target depends="init,compile,-pre-pre-jar,-pre-jar" name="-do-jar-without-manifest" if="isJavaBuildHost" unless="manifest.available">
+        <jar file="${dist.jar}">
+            <fileset dir="${build.classes.dir}">
+                <include name="**/*.class"/>
+            </fileset>
+            <metainf dir="${legal.dir}" includes="${legal}"/>
+        </jar>
+    </target>
+
+    <target name="-post-jar" depends="-test-jar" if="isJavaBuildHost">
+    </target>
+
+    <target name="-test-jar" depends="init,compile-test" if="isJavaBuildHost">
+        <jar file="${dist.dir}/jjsv-test.jar">
+            <fileset dir="${build.test.classes.dir}">
+                <include name="**/*.class"/>
+            </fileset>
+            <metainf dir="${legal.dir}" includes="${legal}"/>
+        </jar>
+    </target>
+
+    <target name="-do-clean" depends="init, -do-clean.do, -do-clean.warning"/>
+
+    <target name="-do-clean.do" depends="init" if="isJavaBuildHost">
+        <delete dir="${build.dir}"/>
+        <delete dir="${dist.dir}"/>
+    </target>
+
+    <target name="-do-clean.warning" depends="init" unless="isJavaBuildHost">
+       <echo level="warning">Warning: Do not delete</echo>
+       <echo level="warning">         ${build.dir} and</echo>
+       <echo level="warning">         ${dist.dir}</echo>
+       <echo level="warning">         I am not on the java build host (${java.buildhost}).</echo>
+    </target>
+</project>

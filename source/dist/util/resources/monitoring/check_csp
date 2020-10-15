@@ -1,0 +1,169 @@
+#!/bin/bash
+
+# Check Grid Engine CSP certificate and CRL expiries
+
+# Copyright (C) 2014 Dave Love, University of Liverpool
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Requires openssl on the path.
+
+# We check the stuff under CATOP (e.g. /opt/sge/default/common/sgeCA),
+# but not under LOCALTOP (e.g. /var/lib/sgeCA/sge_qmaster/default) on
+# the assumption Nagios can't read that, and rely on it being
+# synchonized.
+
+set -e
+
+trap fail ERR
+
+fail () {
+    echo "error in check"
+    exit $STATE_UNKNOWN
+}
+
+REVISION=1.0
+PROGPATH=`echo $0 | /bin/sed -e 's,[\\/][^\\/][^\\/]*$,,'`
+
+. $PROGPATH/utils.sh
+
+usage () {
+    echo "\
+Usage: $(basename $0) -t <catop> -w <days> -c <days> [--help] [--version]
+
+Grid Engine CSP-checking plugin for Nagios, using openssl(1).  Prints a
+list of expir{ed,ing} certificates, which may be user names, 'daemon', or 'CA'.
+'CRL' may be included if the CRL next update time is too early.
+
+-t, --catop		CATOP location, per sge_ca -showCaTop, e.g.
+			/opt/sge/default/common/sgeCA
+-w, --warning		Report warning if any expiries within this number
+			of days
+-c, --critcal		Report critical if any expiries within this number
+			of days
+-h, --help 		Print this help
+--version 		Print version"
+}
+
+help () {
+    print_revision $PROGNAME $REVISION
+    echo; usage
+}
+
+while [ $# -gt 0 ]; do
+    case $1 in
+	(-h|--help) help; exit $STATE_OK;;
+        (-t|--catop) shift; catop=$1; shift;;
+#        (-l|--localtop) shift; localtop=$1; shift;;
+        (-w|--warning) shift; warn=$1; shift;;
+        (-c|--critical) shift; crit=$1; shift;;
+        (--version|-V) print_revision $PROGNAME $REVISION; exit $STATE_OK;;
+	(*) usage; exit $STATE_UNKNOWN;;
+    esac
+done
+
+if [ ! type openssl 2>/dev/null ]; then
+    echo "openssl not found"
+    exit $STATE_UNKNOWN
+fi
+
+if [ -z "$catop" -o -z "$warn" -o -z "$crit" ]; then
+    usage
+    exit $STATE_UNKNOWN
+fi
+
+if [ ! -d "$catop" ]; then
+    echo "catop not a directory"; exit $STATE_UNKNOWN
+fi
+
+if [[ ! "$warn$crit" =~ ^[0-9]+$ ]]; then
+    usage; exit $STATE_UNKNOWN
+fi
+
+now=$(date +%s)
+warnt=$(($warn*3600*24 + $now))
+critt=$(($crit*3600*24 + $now))
+critnum=0
+warnnum=0
+maxcrit=9
+maxwarn=9
+
+exp=$(date -d "$(openssl crl -nextupdate -noout -in "$catop/ca-crl.pem" | sed -e s/nextUpdate=//)" +%s)
+if [[ $exp -lt $critt ]]; then
+    critlist=CRL; critnum=1
+elif [[ $exp -lt $warnt ]]; then
+    warnlist=CRL; warnnum=1
+fi
+
+warn_or_crit () {
+    exp=$(date -d "$(openssl x509 -enddate -noout -in "$1" | sed -e s/notAfter=//)" +%s)
+    if [[ $exp -lt $critt ]]; then
+        echo crit
+    elif [[ $exp -lt $warnt ]]; then
+        echo warn
+    fi
+}
+
+case $(warn_or_crit $catop/cacert.pem) in
+    (crit) critlist="$critlist CA"; critnum=$(($critnum + 1));;
+    (warn) warnlist="$warnlist CA"; warnnum=$(($warnnum + 1));;
+esac
+
+case $(warn_or_crit $catop/certs/cert.pem) in
+    (crit) critlist="$critlist daemon"; critnum=$(($critnum + 1));;
+    (warn) warnlist="$warnlist daemon"; warnnum=$(($warnnum + 1));;
+esac
+
+for c in "$catop"/usercerts/*; do
+    (($critnum > $maxcrit)) && break
+    case $(warn_or_crit $c/cert.pem) in
+        (crit) critnum=$(($critnum + 1))
+               (($critnum > $maxcrit)) && break
+               critlist="$critlist $(basename $c)";;
+        (warn) (($critnum > 1)) && continue
+               warnnum=$(($warnnum + 1))
+               (($warnnum > $maxwarn)) && continue
+               warnlist="$warnlist $(basename $c)";;
+    esac
+done
+
+# This won't work in general, as Nagios probably won't have permission
+# to read the keys.
+
+# for c in "$localtop"/userkeys/*; do
+#     (($critnum > $maxcrit)) && break
+#     case $(warn_or_crit $c/cert.pem) in
+#         (crit) critnum=$(($critnum + 1))
+#                (($critnum > $maxcrit)) && break
+#                critlist="$critlist $(basename $c)(local)";;
+#         (warn) (($critnum > 1)) && continue
+#                warnnum=$(($warnnum + 1))
+#                (($warnnum > $maxwarn)) && continue
+#                warnlist="$warnlist $(basename $c)(local)";;
+#     esac
+# done
+
+(( $critnum > $maxcrit)) && critlist="$critlist ..."
+(( $warnnum > $maxwarn)) && warnlist="$warnlist ..."
+
+if (( $critnum > 0 )); then
+    echo "CRITICAL: expiry critical: $critlist"
+    exit $STATE_CRITICAL
+elif (( $warnnum > 0 )); then
+    echo "WARNING: expiry warning: $critlist"
+    exit $STATE_WARNING
+else
+    echo OK
+    exit $STATE_OK
+fi

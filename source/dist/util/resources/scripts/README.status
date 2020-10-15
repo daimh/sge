@@ -1,0 +1,46 @@
+[The script was re-named to "qstatus" to avoid a name clash, and was modified
+to work with gawk 3.1.5 (RHEL 5) c.f. Reuti's original.]
+
+                              status script
+
+This archive contains a shell script, which makes heavy use of awk. The purpose
+is to beautify the output of the qstat command under SGE 5.x/6.x/8.x. The script is
+uniform for all versions of SGE.
+
+For the -r option to work you will need gawk version 3.1.6 or higher. Unfortunately
+there seems no "--version" option to be available across different operating
+system's provided "awk", hence it can't be tested at runtime.
+
+For a full explanation please have a look at the help page of status, which can
+be accessed by "status -h".
+
+Just copy it to any directory you like on your system which is in your search
+path.
+
+Under Solaris the awk used by the script must be the POSIX variant, which is
+located unter /usr/xpg4/bin. The script tries to get the used OS and set
+the awk command accordingly. If the necessary version of awk is in an other
+directory, please set at the beginning of the script the value of $awk_command
+to the correct one.
+
+Display your own jobs:
+$ status
+
+Display your own jobs with relative times:
+$ status -r
+
+Display all jobs grouped by owner:
+$ status -ag
+
+Display number of jobs/slots for each user, suppress normal job listing:
+$ status -acl
+
+status is distributed under the GNU LIBRARY GENERAL PUBLIC LICENSE. See
+LICENSE for details.
+
+
+Cheers, Reuti.
+
+########################################################################
+# Reuti, reuti@staff.uni-marburg.de                                    #
+########################################################################

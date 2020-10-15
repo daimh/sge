@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<!DOCTYPE service_bundle SYSTEM "/usr/share/lib/xml/dtd/service_bundle.dtd.1">
+<!--
+/*___INFO__MARK_BEGIN__*/
+/*************************************************************************
+ * 
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ * 
+ *  Sun Microsystems Inc., March, 2001
+ * 
+ * 
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ * 
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ * 
+ *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ * 
+ *   Copyright: 2001 by Sun Microsystems, Inc.
+ * 
+ *   All Rights Reserved.
+ * 
+ ************************************************************************/
+/*___INFO__MARK_END__*/
+
+NOTE:  This service manifest is not editable; its contents will be 
+       overwritten by package or patch operations, including operating 
+       system upgrade.  Make customizations in a different file.
+-->
+
+<service_bundle type='manifest' name='sge:execd'>
+
+<service
+        name='application/sge/execd'
+        type='service'
+        version='1'>
+
+        <dependency name='fs-autofs'
+                grouping='optional_all'
+                restart_on='none'
+                type='service'>
+                <service_fmri value='svc:/system/filesystem/autofs' />
+        </dependency>
+
+        <dependency name='network'
+                grouping='require_all'
+                restart_on='none'
+                type='service'>
+                <service_fmri value='svc:/milestone/network' />
+        </dependency>
+        
+        <instance name='@@@CLUSTER_NAME@@@' enabled='false'>     
+           <exec_method
+                type='method'
+                name='start'
+                exec='@@@SGE_ROOT@@@/@@@SGE_CELL@@@/common/sgeexecd %m'
+                timeout_seconds='30'>
+                <method_context>
+                   <method_environment>
+                      <envvar name='SGE_ROOT' value='@@@SGE_ROOT@@@'/>
+                      <envvar name='SGE_CELL' value='@@@SGE_CELL@@@'/>
+                      <envvar name='SGE_QMASTER_PORT' value='@@@SGE_QMASTER_PORT@@@'/>
+                      <envvar name='SGE_EXECD_PORT' value='@@@SGE_EXECD_PORT@@@'/>
+                   </method_environment>
+                </method_context>
+           </exec_method>
+
+           <!-- TODO: Timeout 90secs now needed -->
+           <exec_method
+                type='method'
+                name='stop'
+                exec=':kill'
+                timeout_seconds='300'>
+           </exec_method>
+
+           <property_group name='startd' type='framework'>
+                <propval name='ignore_error' type='astring' value='core,signal' />
+           </property_group>
+        </instance>
+        
+        <stability value='Unstable' />
+
+        <template>
+                <common_name>
+                        <loctext xml:lang='C'>
+                        Sun Grid Engine - Execd service
+                        </loctext>
+                </common_name>
+                <documentation>
+                        <manpage title='sge_execd' section='8M' manpath='@@@SGE_ROOT@@@/man' />
+                </documentation>
+        </template>
+</service>
+
+</service_bundle>

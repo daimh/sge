@@ -1,0 +1,310 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Manop Configuration
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_manop.xmtChildren:  unmanaged XmtLayout manop_layout;
+
+Qmon*qmon_manop.manop_layout.autoUnmanage:  False
+Qmon*qmon_manop.manop_layout.resizePolicy:  RESIZE_NONE
+Qmon*qmon_manop.manop_layout.dialogTitle:  @{QMON  +++  User Configuration}
+
+Qmon*qmon_manop.manop_layout.xmtChildren: \
+   XmForm         manop_form; \
+   XmPushButton   manop_main_link, manop_delete, manop_add, manop_modify, \
+                  manop_done, manop_tickets, manop_help;
+
+Qmon*qmon_manop.manop_layout.layout: \
+   Fixed Shadowed Out 4 2 LREvenSpaced Row manopconfig_title { \
+      Fixed Centered manop_main_link \
+      Centered Color "$title_fg" "@{@fBUser Configuration}" \
+   } \
+   # \
+   Row { \
+      manop_form \
+      Fixed Shadowed Col { \
+         Fixed manop_add \
+         Fixed manop_modify \
+         Fixed manop_delete \
+         Fixed manop_tickets \
+         Fixed manop_done \
+         Fixed manop_help \
+      } \
+   }
+
+Qmon*qmon_manop.manop_layout.manop_main_link.labelType:   PIXMAP
+Qmon*qmon_manop.manop_layout.manop_main_link.labelPixmap: logo
+Qmon*qmon_manop.manop_layout.manop_main_link.shadowThickness:    1
+Qmon*qmon_manop.manop_layout.manop_main_link.highlightThickness: 0
+Qmon*qmon_manop.manop_layout.manop_main_link.marginHeight:       0
+Qmon*qmon_manop.manop_layout.manop_main_link.marginWidth:        0
+
+Qmon*qmon_manop.manop_layout.manop_delete.labelString:    @{Delete}
+Qmon*qmon_manop.manop_layout.manop_add.labelString:       @{Add}
+Qmon*qmon_manop.manop_layout.manop_modify.labelString:    @{Modify}
+Qmon*qmon_manop.manop_layout.manop_modify.sensitive:      False
+Qmon*qmon_manop.manop_layout.manop_done.labelString:      @{Done}
+Qmon*qmon_manop.manop_layout.manop_tickets.labelString:   @{Tickets}
+Qmon*qmon_manop.manop_layout.manop_help.labelString:      @{Help}
+
+Qmon*qmon_manop.manop_layout.manop_form.xmtChildren: \
+   Folder         manop_folder;
+
+Qmon*qmon_manop.manop_layout.manop_form.manop_folder.xmtChildren: \
+   XmtLayout      manager_layout, \
+                  operator_layout;
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Manager Configuration
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*manager_layout.dialogTitle: @{QMON +++ Manager Configuration}
+Qmon*manager_layout.fontList:    $dialog_font
+
+Qmon*manager_layout*XmtInputField.marginHeight:   2
+Qmon*manager_layout*XmtInputField.marginWidth:    2
+
+Qmon*manager_layout.tabLabel: @{@fBManager}
+
+Qmon*manager_layout.xmtChildren: \
+      XmScrolledList manager_list; \
+      InputField  manager_name;
+
+Qmon*manager_layout.layout: \
+   Fixed manager_name \
+   Filled Stretchable 3.5 in manager_list
+
+Qmon*manager_name*fontList:           $fixed_font
+Qmon*manager_layout*listSizePolicy:          CONSTANT
+Qmon*manager_layout*scrollBarDisplayPolicy:  AS_NEEDED
+
+Qmon*manager_layout*manager_list.fontList:           $fixed_font
+Qmon*manager_layout*manager_list.selectionPolicy:    EXTENDED_SELECT
+Qmon*manager_layout*manager_list.visibleItemCount:   7
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Operator Configuration
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*operator_layout.dialogTitle:  @{QMON +++ Operator Configuration}
+Qmon*operator_layout.fontList:     $dialog_font
+
+Qmon*operator_layout*XmtInputField.marginHeight:   2
+Qmon*operator_layout*XmtInputField.marginWidth:    2
+
+Qmon*operator_layout.tabLabel: @{@fBOperator}
+
+Qmon*operator_layout.xmtChildren: \
+      XmScrolledList operator_list; \
+      InputField  operator_name;
+Qmon*operator_layout.layout: \
+   Fixed operator_name \
+   Stretchable 3.5 in operator_list
+
+
+Qmon*operator_name*fontList:           $fixed_font
+Qmon*operator_layout*listSizePolicy:          CONSTANT
+Qmon*operator_layout*scrollBarDisplayPolicy:  AS_NEEDED
+
+Qmon*operator_layout*operator_list.fontList:         $fixed_font
+Qmon*operator_layout*operator_list.selectionPolicy:  EXTENDED_SELECT
+Qmon*operator_layout*operator_list.visibleItemCount: 7
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! User Configuration
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*user_layout.dialogTitle:   @{QMON +++ User Configuration}
+Qmon*user_layout.fontList:      $dialog_font
+
+Qmon*user_layout*XmtInputField.marginHeight:   2
+Qmon*user_layout*XmtInputField.marginWidth:    2
+
+Qmon*user_layout.tabLabel: @{@fBUser}
+
+Qmon*user_layout.xmtChildren: \
+      UserMatrix user_matrix; \
+      InputField  user_name;
+
+Qmon*user_layout.layout: \
+   Fixed user_name \
+   <> \
+   Fixed Centered user_matrix \
+   <> \
+
+Qmon*user_name*fontList:           $fixed_font
+Qmon*user_matrix*fontList:         $fixed_font
+Qmon*user_matrix.buttonLabels: True
+Qmon*user_matrix.cellMarginHeight: 2
+Qmon*user_matrix.rows: 7
+Qmon*user_matrix.visibleRows: 7
+Qmon*user_matrix.columns: 3
+Qmon*user_matrix.columnWidths: 20, 20, 20
+Qmon*user_matrix.columnMaxLengths: 200, 100, 100
+Qmon*user_matrix.columnLabels: @{User},@{Default Project},@{Delete Time}
+!Qmon*user_matrix.gridType:     GRID_CELL_SHADOW
+Qmon*user_matrix.gridType:     GRID_COLUMN_SHADOW
+Qmon*user_matrix.cellShadowType: SHADOW_IN
+Qmon*user_matrix.cellShadowThickness: 1
+Qmon*user_matrix.evenRowBackground:      white
+Qmon*user_matrix.oddRowBackground:       white
+!!Qmon*user_matrix*editable:               True
+Qmon*user_matrix.translations: #override\n\
+         Shift<Btn1Down>: SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:       SelectCell(begin)\n\
+         Ctrl<Btn2Down>:   ResizeColumns()
+Qmon*user_matrix.clip.translations: #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:       SelectCell(begin)\n\
+         Ctrl<Btn2Down>:   ResizeColumns()
+
+!Qmon*user_matrix.xmtChildren: unmanaged XmtPopupMenu del_menu;
+!Qmon*user_matrix.menuPost: <Btn3Down>
+!
+!Qmon*user_matrix*del_menu.items: \
+!   Title "@{@fBOperations}"; \
+!   ------;\
+!   "@{_Delete}" [Ctrl-D] DeleteLines(*user_matrix);
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Userset Configuration
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_userset.xmtChildren:  unmanaged XmtLayout userset_layout;
+
+Qmon*userset_layout.autoUnmanage:  False
+Qmon*userset_layout.dialogTitle:   @{QMON +++ Userset Configuration}
+Qmon*userset_layout.fontList:      $dialog_font
+
+Qmon*userset_layout.tabLabel:   @{@fBUserset}
+
+
+Qmon*userset_layout.xmtChildren: \
+   XmScrolledList userset_names, userset_user_list; \
+   XmtChooser     userset_type;
+
+Qmon*userset_layout.layout: \
+   Row { \
+      Col { \
+         4 in Caption tl "@{Usersets}" userset_names \
+         userset_type \
+      } \
+      Stretchable Caption tl "@{Users/Groups}" 2 in % 3 in userset_user_list \
+   }
+
+
+Qmon*userset_layout.userset_type.chooserType:  CheckBox
+Qmon*userset_layout.userset_type.orientation:  VERTICAL
+Qmon*userset_layout.userset_type.strings: \
+   "@{Access List}", \
+   "@{Department}"
+
+
+Qmon*userset_layout.userset_delete.labelString:    @{Delete}
+Qmon*userset_layout.userset_add.labelString:       @{Add}
+Qmon*userset_layout.userset_modify.labelString:    @{Modify}
+Qmon*userset_layout.userset_tickets.labelString:   @{Tickets}
+Qmon*userset_layout.userset_done.labelString:      @{Done}
+Qmon*userset_layout.userset_help.labelString:      @{Help}
+
+!! We can't directly specify the parent of userset_names or userset_user_list
+Qmon*userset_layout*scrollBarDisplayPolicy:       AS_NEEDED
+Qmon*userset_layout*listSizePolicy:               CONSTANT
+
+Qmon*userset_layout*userset_names.fontList:          $fixed_font
+Qmon*userset_layout*userset_names.selectionPolicy:   BROWSE_SELECT
+Qmon*userset_layout*userset_names.visibleItemCount:  10
+
+Qmon*userset_layout*userset_user_list.fontList:            $fixed_font
+Qmon*userset_layout*userset_user_list.selectionPolicy:     BROWSE_SELECT
+Qmon*userset_layout*userset_user_list.visibleItemCount:    10
+
+Qmon*userset_ask_shell.xmtChildren: unmanaged XmtLayout userset_ask_layout;
+
+Qmon*userset_ask_shell.userset_ask_layout.dialogStyle: DIALOG_FULL_APPLICATION_MODAL
+Qmon*userset_ask_shell.userset_ask_layout.autoUnmanage: False
+Qmon*userset_ask_shell.userset_ask_layout.XmtInputField.marginWidth:      2
+Qmon*userset_ask_shell.userset_ask_layout.XmtInputField.marginHeight:     2
+Qmon*userset_ask_shell.userset_ask_layout.fontList: $dialog_font
+
+Qmon*userset_ask_shell.userset_ask_layout.xmtChildren: \
+   InputField  uset_name; \
+   XmScrolledList uset_user_list; \
+   InputField  uset_user; \
+   XmtChooser     uset_type; \
+   XmPushButton   uset_ok, uset_cancel, uset_user_remove;
+
+Qmon*userset_ask_layout.layout: \
+   Row { \
+      Shadowed Col { \
+         Fixed Caption "@{Userset Name}" uset_name\
+         uset_type \
+         Row { \
+            Fixed 3 in Caption tl "@{Users/Groups}" uset_user_list\
+            Col { \
+               Fixed Centered Caption tl "@{User/Group}" uset_user \
+               <> \
+               Fixed Centered uset_user_remove \
+               <> \
+            } \
+         } \
+      } \
+      Fixed Shadowed Col { \
+         Fixed uset_ok \
+         Fixed uset_cancel \
+      } \
+   }
+
+Qmon*userset_ask_layout.uset_ok.labelString:                  @{Ok}
+Qmon*userset_ask_layout.uset_cancel.labelString:              @{Cancel}
+
+Qmon*userset_ask_layout*scrollBarDisplayPolicy:             STATIC
+Qmon*userset_ask_layout*uset_user_list.listSizePolicy:      CONSTANT
+Qmon*userset_ask_layout*uset_user_list.selectionPolicy:     EXTENDED_SELECT
+Qmon*userset_ask_layout*uset_user_list.visibleItemCount:    7
+
+Qmon*userset_ask_layout*uset_type.chooserType:   CheckBox
+Qmon*userset_ask_layout*uset_type.orientation:   HORIZONTAL
+Qmon*userset_ask_layout*uset_type.strings: \
+   "@{Access List}", \
+   "@{Department}"
+
+Qmon*userset_ask_layout.uset_user_remove.labelType:           PIXMAP
+Qmon*userset_ask_layout.uset_user_remove.labelPixmap:         trashcan
+!Qmon*userset_ask_layout.uset_user_remove.labelString:        @{Delete}
+Qmon*userset_ask_layout*uset_user_remove.activateCallback: DeleteItems(*uset_user_list);
+Qmon*userset_ask_layout*uset_user_list.xmtChildren: unmanaged XmtPopupMenu uc_menu;
+Qmon*userset_ask_layout*uset_user_list*menuPost: <Btn3Down>
+Qmon*userset_ask_layout*uset_user_list*uc_menu.items: \
+   Title "@{@fBOperations}"; \
+   ------;\
+   "@{_Delete}" [Del] DeleteItems(*uset_user_list);
+

@@ -1,0 +1,138 @@
+                      Profiling the N1GE 6 System
+   
+                               Stephan Grell
+                              05 September 2006
+
+0. Introduction:
+----------------
+
+   This document gives a brief summary on the profiling capabilities built
+   into the Grid Engine Software. The profiling facility is one component in
+   the troubleshooting and profiling environment. In addition the profiling
+   component Grid Engine provides: health monitoring through qping, monitoring
+   for the qmaster, and monitoring for the scheduler. 
+   The profiling facility can be used to analyse bottlenecks within the software
+   or outside and provide guidence for tuning Grid Engine.
+
+1. Format:
+----------
+
+   The format of the profiling output is not fixed and can change from one version
+   to another or even inbetween version. It is used as a trouble shooting tool and
+   will be adapted to new needs when ever they arise. This document is based on
+   the profiling output of SGE 6.0u8.
+
+2. Scheduler:
+-------------
+
+   switch:
+      qconf -msconf
+             params      profile=[0,1]
+
+   output: <SGE_ROOT>/<CELL>/spool/qmaster/schedd/messages
+
+   Sample Output:
+[1]      PROF: sge_mirror processed 30 events in 0.000 s
+[2]      PROF: static urgency took 0.000 s
+[3]      PROF: job ticket calculation: init: 0.000 s, pass 0: 0.000 s, 
+                                    pass 1: 0.000, pass2: 0.000, calc: 0.000 s
+[3a]     PROF: job ticket calculation: init: 0.000 s, pass 0: 0.000 s, 
+                                    pass 1: 0.000, pass2: 0.000, calc: 0.000 s
+[4]      PROF: normalizing job tickets took 0.000 s
+[5]      PROF: create active job orders: 0.000 s
+[6]      PROF: job-order calculation took 0.010 s
+[7]      PROF: job sorting took 0.000 s
+[8]      PROF: job dispatching took 0.000 s (1 fast, 0 comp, 0 pe, 0 res)
+[9]      PROF: create pending job orders: 0.000 s
+[10]     PROF: scheduled in 0.010 (u 0.010 + s 0.000 = 0.010): 
+                         1 sequential, 0 parallel, 4 orders, 2 H, 4 Q, 5 QA, 
+                         0 J(qw), 1 J(r), 0 J(s), 0 J(h), 0 J(e), 0 J(x), 1 J(all), 
+                         52 C, 4 ACL, 2 PE, 2 U, 2 D, 96 PRJ, 1 ST, 0 CKPT, 0 RU, 
+                         1 gMes, 0 jMes, 2/1 pre-send, 0/0/0 pe-alg
+[11]     PROF: send orders and cleanup took: 0.100 (u 0.000,s 0.000) s
+[12]     PROF: schedd run took: 0.120 s (init: 0.000 s, copy: 0.010 s, run:0.110, 
+                                      free: 0.000 s, jobs: 1, categories: 1/1)
+
+   Lines Explained:
+   ----------------
+   [1]  - Is generated from the event processing.
+          <NR> events - number of events processed (received from the qmaster)
+          time s      - time needed to update the internal data
+   
+   [2]  - Time needed to compute the urgency policy for all jobs in the system
+   [3]  - Time needed to compute the different steps from the ticket policy
+          init - time needed to setup the internal data structures
+          pass 0 - time for data preparation (tfirst pass)
+          pass 1 - time for data preparation (tsecond pass)
+          pass 2 - time for data preparation (third pass)
+          calc   - time for the ticket calculation
+   [3a] - Same as [3]. This step is used to correct the tickets for the running jobs.
+   [4]  - Time needed to normalize the tickets to a range of 0 to 1
+   [5]  - Time needed to create job update tickets for running jobs, and sending them.
+   [6]  - Time needed to compute the priority for each job, includes steps: 2,3,3a,4
+   
+   [7]  - Time needed to sort the job list to reflect the job priority
+
+   [8]  - Time needed to assign jobs to the compute resources and sending the job start
+          orders to the qmaster. The following numbers show the jobs, which were assigned:
+           <NR> fast - number of sequential jobs without soft requests 
+           <NR> comp - number of sequential jobs with soft requests
+           <NR> pe   - number of parallel jobs
+           <NR> res  - number of reservations
+           
+   [9]  - Time needed to create the priority update orders for all pending jobs.
+
+   [10] - Time needed to schedule the jobs. The output includes all steps between [2] and
+          [9]. The time shows the wallclock time as well as the user and system time. 
+          <NR> sequential - number of sequential jobs started 
+          <NR> parallel   - number of parallel jobs started
+          <NR> orders     - number of orders generated
+          <NR> H          - number of hosts in the grid
+          <NR> Q          - number of available queue instances in the grid
+          <NR> QA         - number of all queue instances in the grid
+          <NR> J(xxx)     - number of job in the different states in the grid
+          <NR> C          - number of complex attributes in the grid
+          <NR> ACL        - number of access list in the grid
+          <NR> PE         - number of parallel environment objects in the grid
+          <NR> U          - number of users in the grid
+          <NR> D          - number of departments in the grid
+          <NR> PRJ        - number of projects in the grid
+          <NR> ST         - number of share trees in the grid
+          <NR> CKPT       - number of check pointing objects in the grid
+          <NR> RU         - number of jobs running per user
+          <NR> gMes       - number of global messages created in this scheduling run
+          <NR> jMes       - number of job related messages created in this scheduling run
+          <1/2> pre-send  - shows the orders send during the dispatching run [8]
+                           1 - number of orders send
+                           2 - number of sends
+          <1/2/3> pe-alg  - shows which pe-range algorithm was used during this scheduling run:
+                           1 - lowest pe range first
+                           2 - binary search
+                           3 - highest pe range first
+   [11] - Time needed to send the left over orders to the qmaster and wait until they are processed.
+          In addition the scheduler cleans up.
+   [12] - Time needed for the entire scheduling run ([1] to [11]).
+          init <NR>        - time needed to setup the scheduler for the 1 run 
+          copy <NR>        - time needed to replicate the entire dataset
+          run <NR>         - time needed for the scheduling run
+          free <NR>        - time needed to free up the duplicated data set
+          jobs <NR>        - number of jobs in the system, before the duplication / filtering
+          categories <1/2> - number of categories in the system
+                            1 - number of job categories
+                            2 - number of job priority categories
+   
+3. Qmaster:
+-----------
+   The qmaster allows to profile the different threads in the qmaster.
+
+   switch:
+      qconf -mconf
+             qmaster_params  PROF_SIGNAL=[0,1],  - profile the signal handling thread
+                             PROF_MESSAGE=[0,1], - profile the message processing thread
+                             PROF_DELIVER=[0,1], - profile the event delivery thread
+                             PROF_TEVENT=[0,1]   - profile the timed event thread
+                             
+   output: <SGE_ROOT>/<CELL>/spool/qmaster/messages   
+                             
+   
+   

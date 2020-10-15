@@ -1,0 +1,784 @@
+\input texinfo  @c -*-texinfo-*-
+@comment %**start of header
+@setfilename adoc.guide
+@settitle ADOC -- Extract Autodocs from source code
+@paragraphindent 0
+@iftex
+@afourpaper
+@c @smallbook
+@finalout
+@setchapternewpage odd
+@end iftex
+@comment %**end of header
+
+@c generate only one master index for the rest
+@synindex fn cp
+@synindex vr cp
+@synindex ky cp
+@synindex pg cp
+@synindex tp cp
+
+@set RCSID $VER: $Id: adoc.texi,v 1.1 2001-07-18 11:05:53 root Exp $
+@set VERSION 1.01
+@set EDITION 0.9beta
+
+@ifinfo
+@node Top
+@c    node-name,  next,  previous,  up
+@top
+@display
+Warning: The ADOC project and this documentation are far from complete!
+         Please report bugs and direct comments to
+
+                  Tobias Ferber, <ferber@@rpk.mach.uni-karlsruhe.de>
+@end display
+
+This document describes @code{ADOC} version @value{VERSION}, which
+extracts Autodocs or Texinfo from source code.
+
+@noindent Copyright @copyright{} 1995 by Tobias Ferber,  All Rights Reserved.
+@end ifinfo
+
+@ignore
+@iftex
+@shorttitlepage ADOC
+@end iftex
+@end ignore
+
+@titlepage
+@title ADoc
+@subtitle Extract Autodocs from source code
+@subtitle Edition @value{EDITION} for Version @value{VERSION}
+@subtitle @today
+@author Tobias Ferber
+
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} 1995 by Tobias Ferber,  All Rights Reserved.
+@sp 2
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the entire
+resulting derived work is distributed under the terms of a permission
+notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation approved
+by the author.
+@end titlepage
+@headings double
+
+@comment %**end of `header.texi'
+
+
+@menu
+
+Overview & Legal stuff
+
+* Copying::           Your rights
+* Contributors::      People who have contributed to @code{ADOC}
+* Introduction::      The name of the game
+
+Controling @code{ADOC}
+
+* Options::           Running @code{ADOC}
+* Style Guide::       How to write autodocs
+
+What you should be aware of
+
+* Bugs::              Known problems
+
+Appendix
+
+* Index::             Contents and Overview
+@end menu
+
+@c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@node Copying
+@unnumbered GNU GENERAL PUBLIC LICENSE
+@input gpl.texinfo
+
+@node Contributors
+@unnumbered Contributors
+@cindex Contributors
+@cindex Author
+
+@itemize @bullet
+@item
+Tobias Ferber, @code{<ukjg@@rz.uni-karlsruhe.de>} 
+wrote @code{ADOC} and this documentation.
+
+@item
+Harald Kunze, @code{<kunze@@rpk.mach.uni-karlsruhe.de>}
+contributed most of the ideas and forced the project to come into life.
+@end itemize
+
+@c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@node Introduction
+@chapter Introduction
+@cindex Autodocs
+@cindex Autodoc comments
+
+The @code{ADOC} scanner creates Autodocs or Texinfo source from source code.
+It is an enhanced version of Bill Koesters @code{Autodoc} program as of
+21-Aug-89 which is part of C=ommodore's Native Developer Kit (NDK).
+
+@code{ADOC} scans the input files for a special kind of comments: the autodoc
+comments.  Autodoc comments start at the begining of a line with a
+string of the form
+
+@example
+?***??* lib/fun @dots{}
+@end example
+
+The @samp{?} stands for characters which are ignored, they must however
+be ``black'', i.e. they must not be tabs or spaces.  The @samp{*} ist ment
+literally, so in these places there must be an asterisk.  @samp{lib/fun}
+is the identifier which specifies the library and the name of the
+function described in the following comment.  @samp{lib} and @samp{fun} consist
+of upper- and/or lower case letters, decimal digits, a dash @samp{-} and/or
+the underscore @samp{_}.  The rest of the line is ignored.
+
+E.g.:@: A standard C language autodoc comment begins like this:
+
+@example
+/****** mylib/myfun **************************
+@end example
+
+
+The following lines make up the function description, a sequence of
+one or more sections.  A section begins with the section heading, a
+line with only --- and at least two --- capital letters.  Some common
+section headings are
+
+@example
+NAME, SYNOPSIS, FUNCTION, INPUTS, RESULT, @dots{}
+@end example
+
+Each line in the function description must be prefixed with a black
+character followed by at least one white space or the end of the line.
+An autodoc comment ends with a line beginning with a black character
+followed by at least two asterisks @samp{*}.  An example template comment
+can be found at the end of this document.
+@xref{Style Guide}, for further details.
+
+@c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@node Options
+@chapter Options
+@cindex Options
+@cindex Command line
+@cindex Switchs
+
+@code{ADOC} reads the command line from left to right and collects
+filenames and options before it starts processing your input.
+The filenames are queued and processed in the same order as they
+appear in the command line.  The list-file option @samp{@@} is replaced
+by the contents of the list file read in top-down order. If no input
+files are specified @code{ADOC} will read from the standard input stream.
+
+@menu
+* Autodoc Options::       @code{Autodoc} output only
+* IO Options::            both @code{Autodoc} and @code{Texinfo} output
+* Texinfo Options::       @code{Texinfo} output only
+* Warning Options::       influencing @code{ADOC}'s pedanticness
+* Miscellaneous Options:: everything else
+@end menu
+
+@c %--------------------------------------------------------------------------
+
+@node Autodoc Options
+@section Options for the @code{Autodoc} output
+
+@table @code
+
+@item --autodoc
+@pindex --autodoc
+@code{ADOC} creates an autodoc file. (This is the default)
+
+@item --no-form-feeds
+@pindex --no-form-feeds
+Usually the functions in @code{ADOC}s autodoc output are seperated by form feeds (@kbd{^L}).  
+With this switch @code{ADOC} omits them.
+(This switch is a no-op in @samp{--texinfo} mode).
+
+@item --table-of-contents
+@pindex --table-of-contents
+A table of contents is written to the output followed by the autodoc functions.  
+Functions and toc-entries are always in the same order, so @samp{--preserve-order} 
+also affects the table of contents.
+(This switch is a no-op in @samp{--texinfo} mode).
+
+@item --preserve-order
+@pindex --preserve-order
+With this option @code{ADOC} does not sort the functions before writing the autodoc output.
+(This switch is ignored in @samp{--texinfo} mode).
+
+@end table
+
+@c %--------------------------------------------------------------------------
+
+@node IO Options
+@section Options for @code{Autodoc} and @code{Texinfo} output
+
+@table @code
+
+@item --stdin
+@pindex --stdin
+This switch behaves like a filename for the standard input stream.
+Using it does not only force reading from stdin
+but you can also specify the files to read before and after the standard input.
+
+@item --output-file @var{filename}
+@pindex --output-file
+This option allows you to specify a filename for @code{ADOC}'s output.
+If this option is ommited @code{ADOC} will write to the standard output stream.
+
+@item --error-file @var{filename}
+@pindex --error-file
+Like @samp{--output-file} this option allows you to redirect @code{ADOC}'s output.
+The difference between the two is that this option redirects warnings and error messages
+from stderr into the file @var{filename}.
+
+@item --flip-slashes
+@pindex --flip-slashes
+This option converts @samp{\*} to @samp{/*} and @samp{*\} to @samp{*/}.
+This allows C language comments in the autodocs without nesting comments in the source code.
+
+The name of the option might give you the idea of a general conversion of backslashes into slashes.
+This is however incorrect.
+The character on the left or right of the @samp{\} must be an asterisk (@samp{*}).
+Please note that @samp{*\*} is transformed into @samp{*/*}.
+
+@item --tabs-to-spaces
+@pindex --tabs-to-spaces
+Tabs in the input are turned into spaces with a default tab size of 8.
+This is the default in @samp{--texinfo} mode.
+
+@item --tabsize @var{number}
+@pindex --tabsize
+The tab size is changed to @var{number}.  (default is @samp{--tabsize 8}).
+This option implies @samp{--tabs-to-spaces}.
+
+@item --line-length @var{number}
+@pindex --line-length
+Function headers in the autodoc output will be @var{number}
+columns wide.  (default is @samp{--line-length 80}).
+(This option has no influence on @code{ADOC}'s Texinfo output).
+
+@item --internal
+@pindex --internal
+@code{ADOC} will only read comments with an @samp{i} in column 5 or 6.
+(same as @samp{--yank-type "i"}).
+
+@item --yank-type @var{type}
+@pindex --yank-type
+@code{ADOC} will only read comments which have in column 5 or 6
+one of the chatacters in the @var{type} string.
+
+@item --indented-comments
+@pindex --indented-comments
+The autodoc comments normally have to start at column 1, i.e.:@: they
+must not be indented.  This option allows indented comments, but it
+does not check whether or not the indentation of all comment lines
+is equal or not.
+
+Additionally, if the indentation is not a multiple of @code{ADOC}'s tab size,
+the conversion of @key{TAB} characters into spaces might lead to wrong results.
+This is due to the fact that @code{ADOC} does not remember the columnar position
+of each body text line but silently assumes that they all start at a tab stop column.
+
+In general it is @strong{not} recommended to make use of @key{TAB}s in indented comments.
+If you really insist on them you can pipe these files through @code{expand} and @code{ADOC}'s
+output through @code{unexpand}:
+
+@example
+$ cat *.c | expand -t8 | adoc -I | unexpand -t8 -a > adoc.out
+@end example
+
+@item --reindent-bodytext @var{number}
+@pindex --reindent-bodytext
+This option changes the indentation of lines in the body text of all
+functions to @var{number} spaces.  If @var{number} is 0 then the
+current indentation is removed which is default in @samp{--texinfo} mode.
+
+In order to remove the current indentation @code{ADOC} cuts a columnar 
+block beginning at column 1 from the function body.
+The width of this block is the maximum width without hurting any text.
+
+There is one more thing to mention:  This option automatically converts
+all @key{TAB} characters into the apropriate number of spaces.  You want
+this because the new indentation might destroy your textual layout otherwise.
+The conversion is performed before the removal of the indentation.
+
+If you want to change the body text indentation via @samp{--reindent-bodytext} but
+insist on having @key{TAB} characters instead of spaces then you have to pipe the 
+@code{ADOC} output through @code{unexpand}:
+
+@example
+$ adoc -I *.c | unexpand -t8 -a > adoc.out
+@end example
+
+@item --preserve-indentation
+@pindex --preserve-indentation
+This option avoids reindentation of the body text (e.g.:@: in @samp{--texinfo} mode
+where @samp{--reindent-bodytext 0} is @code{ADOC}'s default).
+
+@item --sort-entries
+@pindex --sort-entries
+This option forces sorting of the functions which is default in both
+@samp{--autodoc} and @samp{--texinfo} mode.
+
+@item -M@var{macro} @var{value}
+@pindex -M
+Defines a value @var{value} for a macro @var{macro} which is expanded
+when writing the body text of a function.  (e.g.:@: the above
+mentioned conversions of for @samp{--flip-slashes} and @samp{--texinfo}
+are implemented in this manner).
+
+Note that there must @strong{not} be a space between @samp{-M} and the
+name (i.e.@: the source string) of the macro.
+
+@item -U @var{macro}
+@pindex -U
+Undefines a macro @var{macro} no matter whether @var{macro} had been
+defined with @samp{-D} or @samp{-M} or not at all.
+
+@end table
+
+@c %--------------------------------------------------------------------------
+
+@node Texinfo Options
+@section Options for @code{Texinfo} output
+
+@table @code
+
+@item --texinfo
+@pindex --texinfo
+Write texinfo source instead of autodocs.  This switch implies
+@samp{--tabs-to-spaces}. @samp{--preserve-order} and @samp{--no-form-feeds}
+are ignored.  The functions in the texinfo output are always
+sorted, tabs are always expanded and there will be no form
+feeds.
+
+Some conversions will be performed on your autodoc body text,
+especially:
+
+@example
+@@  ->  @@@@
+@{  ->  @@@{
+@}  ->  @@@}
+@end example
+
+@item --project
+@itemx --revision
+@itemx --edition
+@itemx --copyright
+@itemx --author
+@pindex --project
+@pindex --revision
+@pindex --edition
+@pindex --copyright
+@pindex --author
+@code{ADOC}'s texinfo header reserves these four macros.  Their
+value defaults to their name.  @samp{--project} is not only used
+on the title page but also as the name for the @file{.info} or
+@file{.guide} file.
+
+These options actually define the macros
+@code{PROJECT}, @code{EDTITION}, @code{REVISION}, @code{COPYRIGHT} and @code{AUTHOR}
+as if they had been defined via @samp{-D}.
+
+@item --no-references
+@pindex --no-references
+In @samp{--texinfo} mode, @code{ADOC} tries to find matching nodes for
+the identifiers in the @code{SEE ALSO} section.  You can however
+force @code{ADOC} to write this section as it is by giving this
+switch.
+
+Best results can be obtained by writing one reference per
+line in the same @samp{lib/fun} format as in the header line of
+the referenced function.  @code{ADOC} will however try to prepend
+the current functions library name to the identifiers and
+removes parens, commata, white spaces and newline characters
+in order to find the referenced @samp{lib/fun} header.
+
+@item --parse-references
+@pindex --parse-references
+This option prints one "See ..." sentence containing all references
+from the @code{SEE ALSO} section.  No itemization is used.
+
+The name of this option might insinuate the necessity of passing
+it together with other options which need to analyze the @code{SEE ALSO}
+section.  This is however incorrect.  The name of this option is somehow
+an archaic requilict from those times where @code{ADOC} learned to look
+closer at it's input.  
+It could also be called @samp{--make-one-sentence-of-references} or something
+similar.
+
+
+@item --itemize-references
+@pindex --itemize-references
+@code{ADOC} puts the parsed references as an @code{@@item} into an @code{@@itemize}
+environment.  (This is default in @samp{--texinfo} mode).
+
+Parsing the references is done automatically, even if you guess that
+you need the @samp{--parse-references} option.  This not a good guess.
+Perhaps you should better look at the above description of this option.
+
+
+@item --no-grouping
+@pindex --no-grouping
+@code{ADOC} will not make use of texinfo's grouping feature.
+(This is the default).
+
+@item --group-sections
+@pindex --group-sections
+The section body (following the title keyword) will be grouped
+into a @code{@@group} @dots{} @code{@@end group} environment in order to prevent
+@TeX{} from breaking the page inside a section.   The current
+implementation of @code{texinfo} does not allow placing the section
+keyword into the @code{@@group} as well:
+
+@example
+! @@group invalid in context where filling is enabled.
+@end example
+
+@item --body-environment @var{string}
+@pindex --body-environment
+This option allows you to specify the texinfo environment into
+which the section body text will be placed.  The internal
+default is @samp{--body-environment smallexample} and so each
+section body is placed into an environment of the form
+
+@example
+@@smallexample
+  <body text>
+@@end smallexample
+@end example
+
+If @samp{--group-sections} is specified, then this @code{@@group} is placed
+into the given environment like this:
+
+@example
+@@smallexample
+@@group
+  <body text>
+@@end group
+@@end smallexample
+@end example
+
+Please note that this environment is not used within parsed
+references in the @code{SEE ALSO} section.
+
+@item --texi-funtable
+@pindex --texi-funtable
+This switch tells the texinfo code generator to place a
+function into a @code{@@table} environment with each section keyword
+as a @code{@@b@{@}}old @code{@@item}.  This might however look ugly and lead to an
+immense amount of overfull @code{\hbox@{@}}es because @TeX{} will then
+indent the following body text twice (for the @code{@@item} and for
+the @code{@@example}) and so @code{ADOC}'s default is to write a section
+keyword like an ordinary, indented, @code{@@b@{@}}old paragraph.
+
+@item --form-feeds
+@pindex --form-feeds
+With this option a page break is forced by inserting a @code{@@page}
+command in front of each function description.  An exception is
+the first function of a library which always begins on the
+same page as the library @code{@@chapter}.
+
+@item --texi-header-file @var{filename}
+@pindex --texi-header-file
+@code{ADOC} comes up with a minimal header and titlepage when writing
+texinfo output.  This option allows you to replace @code{ADOC}'s
+internal header with the contents of @var{filename}.
+
+Note that a macro expansion of macros defined via @samp{-D} will be
+performed on the contents of @var{filename}.
+
+@item --no-texi-header
+@pindex --no-texi-header
+This option forces @code{ADOC} to ommit writing a texinfo header and
+a title page.  Texinfo output begins with the (Top) @code{@@menu}.
+
+@item --no-texi-index
+@pindex --no-texi-index
+No function index and no table of contents is used in the texinfo file.
+
+@item -D@var{macro} @var{value}
+@pindex -D
+Defines a value @var{value} for a macro @var{macro} which is expanded
+when writing the texinfo header.  These definitions are @strong{not}
+performed on the body text of a function description like
+those defined via @samp{-M}.
+
+Note that there must @strong{not} be a space between @samp{-D} and the
+name of the macro.
+
+@end table
+
+@c %--------------------------------------------------------------------------
+
+@node Miscellaneous Options
+@section Miscellaneous Options
+
+@table @code
+
+@item --no-output
+@itemx --dry-run
+@pindex --no-output
+@pindex --dry-run
+@code{ADOC} only reads your input (and eventually prints warnings).
+No output will be written.
+
+@item --silent
+@pindex --silent
+@code{ADOC} will behave more briefly with this option.
+
+@item --help
+@pindex --help
+A list of options and a short description will be printed to
+the standard output stream.  
+
+If your terminal is limited to 80 columns then you can use 
+
+@table @code
+@item -h0
+To print only the @code{usage:...} line
+@item -h1
+To print only the ``short'' options (those with one dash @samp{-}).
+@item -h2
+To print only the ``long'' options (those with two dashes @samp{--}).
+@end table
+
+@item --version
+@pindex --version
+Author and version information will be printed.
+
+@end table
+
+@c %--------------------------------------------------------------------------
+
+@node Warning Options
+@section Influencing @code{ADOC}'s pedanticness
+
+@table @code
+
+@item --no-warnings
+@pindex --no-warnings
+@code{ADOC} will not print @strong{any} warnings.
+
+@item --check-keywords
+@pindex --check-keywords
+@code{ADOC} will complain about section title keywords which are not
+in the example below.
+
+@item --check-presence
+@pindex --check-presence
+@code{ADOC} will complain if one of the keywords in the example below
+is missing in a function description.
+
+@item --pedantic
+@pindex --pedantic
+@code{ADOC} will complain about almost everything.
+
+@end table
+
+@c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@node Style Guide
+@chapter Style Guide
+@cindex Style Guide
+@cindex Example
+@cindex Template comment
+
+This chapter is under development.
+
+@section How @code{ADOC} reads your input
+
+@code{ADOC} scanns your input for autodoc comments.
+These comments begin on the leftmost column in a new line which most likely looks
+like one of those:
+
+@table @code
+@item /****** mylib/myfun ******
+This is the beginning of a standard C or Rexx Language autodoc comment for the function
+@code{myfun} in the library or module @code{mylib}.
+
+@item ;****** mylib/myfun ******
+@itemx ******* mylib/myfun ******
+Most assemblers use a semicolon (@samp{;}) or an asterisk (@samp{*}) to begin a remark.
+
+@item #****** mylib/myfun ******
+This type is known in Makefiles and shell scripts.
+
+@item %****** mylib/myfun ******
+For autodoc comments in @TeX{} or @code{METAFONT} we need the percent sign (@samp{%}).
+@end table
+
+When @code{ADOC} encounters the beginning of an autodoc comment it starts collecting section headings
+and body text lines and saves them for later use in the code generator.
+
+The lines inside autodoc comments must be prefixed by a black character.
+This character is made invisible in the output.  To be more precise:
+@code{ADOC} removes the black character in column 1 if the following character is a
+@key{TAB} or a newline character but it replaces it by a space if the following character is a space character.
+
+Each line which contains entirely capitalized letters is assumed to be a section
+heading unless it contains only one single upper case character.
+
+The indentation of section headings and body text lines does not matter.
+You should however use an indentation of 3 spaces for a section heading
+and 7 spaces for body text lines.
+Note that @code{ADOC} allows you to adjust the indentation for the output via
+the @samp{--reindent-bodytext} option.
+
+@section Example comment
+Here is a sample ``correct'' autodoc comment taken from the @file{autodoc.style}
+which is part of Commodore's Native Developer Kit (NDK):
+
+@page
+@smallexample
+/****** financial.library/StealMoney ***************************************
+*
+*  NAME
+*     StealMoney -- Steal money from the Federal Reserve Bank. (V77)
+*
+*  SYNOPSIS
+*     error = StealMoney( userName,amount,destAccount,falseTrail )
+*     D0,Z                D0       D1.W    A0         [A1]
+*
+*     BYTE StealMoney
+*          ( STRPTR,UWORD,struct AccountSpec *,struct falseTrail *);
+*
+*  FUNCTION
+*     Transfer money from the Federal Reserve Bank into the specified
+*     interest-earning checking account.  No records of the transaction
+*     will be retained.
+*
+*  INPUTS
+*     userName      - name to make the transaction under.
+*                     Popular favorites include "Ronald Reagan"
+*                     and "Mohamar Quadaffi".
+*     amount        - Number of dollars to transfer (in thousands).
+*     destAccount   - A filled-in AccountSpec structure detailing the
+*                     destination account (see financial/accounts.h).
+*                     If NULL, a second Great Depression will be triggered.
+*     falseTrail    - If the DA_FALSETRAIL bit is set in the destAccount,
+*                     a falseTrail structure must be provided.
+*
+*  RESULT
+*     error - zero for success, else an error code is returned (see
+*             financial/errors.h).  The Z condition code is guaranteed.
+*
+*  EXAMPLE
+*     Federal regulations prohibit a demonstration of this function.
+*
+*  NOTES
+*     Do not run on Tuesdays!
+*
+*  BUGS
+*     Before V88, this function would occasionally print the address and
+*     home phone number of the caller on local police 976 terminals.
+*     We are confident that this problem has been resolved.
+*
+*  SEE ALSO
+*     CreateAccountSpec(),security.device/SCMD_DESTROY_EVIDENCE,
+*     financial/misc.h
+*
+****************************************************************************
+*
+*  Private notes:
+*     A4=stringbean
+*     A3=dogbreath
+*  Must preserve A1 for taxshelter.library
+*/
+@end smallexample
+
+There are three spaces from the @samp{*} to the start of each @code{HEADING}.
+There is one tab after the @samp{*} before the start of the body text.
+No other tabs are used.
+
+Note that @code{ADOC} also allows the use of spaces to indent body text lines.
+You can even mix tabs and spaces!  (We recommend to avoid @key{TAB} characters.)
+
+@section General style notes
+
+@itemize @bullet
+@item
+It is critical that changes be noted in a sane manner.
+
+@item
+When referring to a function, the standard format is @code{FunctionName()}.
+
+@item
+Capitalization should be correct.  Here are some guidelines:
+
+@enumerate
+@item
+Trademarks, @strong{must} be capitalized.
+
+@item
+Names of ``things'' are as defined.
+For example, @code{OpenWindow()}, and ``a @code{Window} structure''.
+``fiddles with your window'' does not refer to the structure, and should not be capitalized.
+@end enumerate
+
+@item
+Lines terminate at column 79, so the autodocs are readable from within an 80 column window.
+@end itemize
+
+For further guidelines refer to @file{autodoc.style} --- Commodore's autodoc style guide
+which is part of the Native Developer Kit (NDK).
+
+@c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@node Bugs
+@chapter Bugs
+@cindex Problems
+@cindex Bugs
+@cindex Compatibility
+
+@itemize @minus
+@item
+Most of @code{ADOC}'s ``short'' options are compatible with Bill Koester's
+@code{Autodoc} Program.  @samp{-C}, @samp{-s}, @samp{-a}, @samp{-F}, @samp{-r} and @samp{-w} are
+ignored for compatibility.
+
+@item
+This documentation is far from being complete
+
+@item
+Most of the options are not tested
+
+@item
+The @samp{-M} option actually does not affect the @code{SEE ALSO} section in
+texinfo source if parsing is enabled.  This might change in the
+future when using @code{funexpand()}.
+
+@item
+@TeX{} will not break a page inside of indented paragraphs in @code{@@example} or
+@code{@@smallexample} blocks.  The result might look ugly.
+Here is a hacky workaround for this problem:
+@example
+adoc --texinfo | sed "s/^ /@w{} /" > outfile.texi
+@end example
+@end itemize
+
+@c %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+@node Index
+@unnumbered Index
+The index is under development.
+@printindex cp
+
+@page
+@contents
+@bye

@@ -1,0 +1,219 @@
+      Functional Specification: Timed Event Thread Pool 
+      =================================================
+
+      Version  Comment                                Date      Author
+      -------  -------------------------------------  --------  -------------
+      0.1      Initial version                        03-04-09  Ernst Bablick 
+      0.2      Changes according to comments from     07-04-09  Ernst Bablick
+               JG, RD, CR  
+
+1     INTRODUCTION
+      ============
+
+      In Grid Engine 6.2 qmaster threads have the possibility to define 
+      one-time and recurring events that trigger a event handler function.
+      These event handler functions are registered at and also executed by 
+      the timed event thread.
+
+      The fact that event handling functions are executed by the timed event
+      thread is no problem as long as the execution time of these event handler
+      functions is short. If the execution of such a function takes more time
+      then this will have an influence on the start time of other events.
+      Especially recurring events might then not be handled at the expected
+      point in time.
+
+      This limitation might be addressed by introducing an additional thread 
+      pool that would get the responsibility to execute event handler 
+      functions when they are triggered.
+      
+      This enhancement would make it possible to move spooling related code,
+      that is currently executed at the end of a job deletion request, into
+      a event handler function. For the job deletion request this would mean
+      that the global lock might be released earlier and as a consequence
+      cluster throughput might be increased especially in clusters with a huge
+      amounts of short running jobs.
+
+2     PROJECT OVERVIEW
+      ================
+
+2.1   Project Aim
+
+      Aim of the project is it to provide the necessary infrastructure in
+      qmaster so that event handling functions are not anymore executed by 
+      the timed event thread. Instead they will run in threads of a thread 
+      pool dedicated to handle only event handling functions.
+
+      Additionally current code should be changed so that all existing
+      event handling function will be handled by that thread pool.
+
+      A new event handling function will be introduced that executes
+      the code that removes job related spool files after a job has been 
+      finished. This is currently done within the global lock when 
+      the deletion of a job is triggered via GDI.
+
+2.2   Project Benefit
+
+      Throughput in the cluster will increase especially in high loaded
+      cluster with a huge amount of short running jobs.
+
+2.3   Project Duration
+
+      WP DURATION DESCRIPTION
+      -- -------- ------------------------------------------------
+      1  5d       (CLEANUP) Generic list implementation 
+                  - makes list implementation obsolete, where the work 
+                    packages for GDI worker threads are stored.
+                  - implementation must be thread safe 
+                  - can be used for new thread pool queue
+                  - prerequisite of additional performance tests to compare
+                    a generic list implementation with the CULL implementation
+                  - module test 
+                  - TS run / Review / Checkin
+
+      2  5d       Introduce thread pool of EHTs
+                  - bootstrap enhancements
+                  - installation enhancements
+                  - startup/shutdown 
+                  - TS run / Review / Checkin
+
+      3  1d      Introduce task queue for EHTs
+                  - EHT is consumer of tasks
+                  - statistics output for logging/profiling
+                  - TS run / Review / Checkin
+      
+      4  5d       Change timed event thread
+                  - TET is producer of tasks 
+                  - change behaviour for one-time events
+                  - change behaviour for recurring events
+                  - TS run
+  
+      5  10d      Change code that is triggered when jobs should be deleted
+                  - introduce a new state (finished but still spooled)
+                  - job ids for jobs in that state have to be stored in
+                    a global data structure that is setup during startime
+                    of the master. 
+                  - make it possible to disable the spooling part
+                    when jobs finish or when they are deleted (GDI DEL and
+                    JOB DEL ORDER)
+                  - make it possible to execute that code when a recurring
+                    event is triggered. The event handler has to handle
+                    the deletion of all job related files for all jobs
+                    since the event occured.
+                  - make it configurable where the deletion code is
+                    executed
+                  - TS run
+
+      6  4d       Performance tests
+                  - current 6.2u2
+                  - with new threads but old deletion behaviour
+                  - with new threads and new deletion behaviour
+
+      7  5d       Testsuite
+                  - Scenario: qmaster shutdown/restart when 
+                              jobs are in the new state
+                  - ...
+
+      ------------
+
+         35d 
+ 
+2.4   Project Dependencies
+
+      There are no known dependencies with other projects. Especially
+      projects that try to break the global lock or to improve qmaster 
+      performance by introducing a read only thread should be no issues.
+
+
+3     SYSTEM ARCHITECTURE
+      ===================
+
+3.1   Enhancement Functions
+
+      There are no user interface changes planned.
+
+      Additional threads will be shown in the debug output and also
+      in qping output, when profiling is enabled.
+
+3.2   Overall Block Diagram
+
+      Scenario: In the timed event thread there are two activities
+         registered. The first one can begin at point A in time. The
+         second one can begin at point B. The duration of the procedure 
+         that is triggered at A will last longer that B-A.
+
+      Current              Future 
+      -------              ------
+                                   
+        TET                TET      EHT1     EHT2    ...  EHTn
+         |                  |        |        |            |
+        +-+ ----+ A        +-+ ---> +-+       |  A         |
+        | |     |          | |      | |       |            .
+       +---+ <--+          | |      | |       |            .
+       |   |               | |      | |       |            .
+       |   | ---+ B        | | ------------> +-+ B
+       |   |    |          | |      | |      | |
+       |   |    |          | |      +-+      | |
+       |   |    |          | |       |       | |
+       +---+    |          | |       |       | |
+        | |     |          | |       |       +-+ 
+       +---+ <--+          | |       |        |
+       |   |               +-+       |        |
+       |   |                |        |        |
+       |   |  
+       |   |  
+       +---+    
+        | |       
+        +-+
+         | 
+
+      The left side shows the current behaviour of GE. All functions
+      are executed by the timed event thread (TET) itself. The execution of
+      the procedure that should be triggered at point B in time
+      is postponed till the first procedure finishes.
+
+      The right side shows the behaviour if we would implement a thread 
+      pool of event handling threads (EHT). During the time the first event 
+      handler thread executes the first function the second one
+      is started at time B.
+
+4     FUNCTIONAL DEFINITION
+      =====================
+
+4.1   Performance
+
+4.2   Reliability, Availability, Serviceability
+
+4.3   Diagnostics
+
+4.4   User Experience
+
+4.5   Manufacturing
+
+4.6   Quality Assurance
+
+4.7   Security & Privacy
+
+4.8   Mitigation Path
+
+4.9   Documentation
+
+4.10  Installation
+
+4.11  Packing
+
+4.12  Issues/Risks and Purposed Mitigation
+
+
+5     COMPONENT DESCRIPTION
+      =====================
+
+5.1   Component: Command line  
+
+5.1.1 Overview
+
+5.1.2 Functionality
+
+5.1.3 Interfaces
+
+5.1.4 Other Requirements
+

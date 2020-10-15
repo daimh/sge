@@ -1,0 +1,319 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\" $RCSfile: calendar_conf.5,v $     Last Update: $Date: 2007-09-27 14:02:27 $     Revision: $Revision: 1.10 $
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH CALENDAR_CONF 5 "$Date: 2007-09-27 14:02:27 $" "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+calendar_conf \- xxQS_NAMExx calendar configuration file format
+.\"
+.\"
+.SH DESCRIPTION
+.I calendar_conf
+defines the format of the xxQS_NAMExx calendar configuration. The definition
+of calendars is used to specify "on duty" and "off 
+duty" time periods for xxQS_NAMExx queues on a time of day, day of week, 
+or day of year basis. Various calendars can be implemented, and the 
+appropriate calendar definition for a certain class of jobs can be attached
+to a queue.
+.PP
+.I calendar_conf
+entries can be added, modified and displayed with the \fB\-Acal\fP,
+\fB\-acal\fP, \fB\-Mcal\fP, \fB\-mcal\fP, \fB\-scal\fP and \fB\-scall\fP
+options to
+.M qconf 1
+or with the calendar configuration dialog of the graphical user interface
+.M qmon 1 .
+.PP
+Note that jobs may be dispatched incorrectly into calendar windows
+which are too short unless resource reservation is turned on by setting
+.B max_reservation
+in
+.M sched_conf 5 .
+.PP
+Note, xxQS_NAMExx allows backslashes (\\) to escape newline
+characters. The backslash and the newline are replaced with a
+space (" ") character before any interpretation.
+.\"
+.\"
+.SH FORMAT
+A configuration comprises three lines of this form, whose contents are
+described in the following sections:
+.sp
+.nf
+	\fBcalendar_name\fP  \fIcalendar_name\fP
+	\fByesr\fP  \fIyear\fP
+	\fBday\fP  \fIday\fP
+.fi
+.SS calendar_name
+The name of the calendar to be used when attaching it to queues, or when 
+administering the calendar definition. See \fIcalendar_name\fP in
+.M sge_types 5
+for a precise definition of valid calendar names.  
+.\"
+.SS year
+The queue status definition on a day of the year basis. This field generally
+will specify on which days of a year (and optionally at which times on those
+days) a queue, to which the calendar is attached, will change to a certain
+state. The syntax of the
+.I year
+field is defined as follows:
+.sp 1
+.nf
+.ta \w'xxxx'u
+\fIyear\fP :=
+	\fBNONE\fP
+	| \fIyear_day_range_list\fP\fB=\fP\fIdaytime_range_list\fP[\fB=\fP\fIstate\fP]
+	| \fIyear_day_range_list\fP\fB=\fP[\fIdaytime_range_list\fP\fB=\fP]\fIstate\fP
+	| \fIstate\fP
+.fi
+.sp 1
+Where
+.IP "\(bu" 3n
+\fBNONE\fP means no definition is made on the year basis;
+.IP "\(bu" 3n
+If a definition is made on the year basis, at least one of \fIyear_day_range_list\fP, \fIdaytime_range_list\fP and
+\fIstate\fP 
+always have to be present;
+.IP "\(bu" 3n
+All day long is assumed if \fIdaytime_range_list\fP is omitted;
+.IP "\(bu" 3n
+Switching the queue to "off" (i.e. disabling it) is assumed if \fIstate\fP is
+omitted;
+.IP "\(bu" 3n
+The queue is assumed to be enabled
+for days neither referenced implicitly (by omitting the 
+\fIyear_day_range_list\fP) nor explicitly.
+.PP
+The syntactical components are defined as follows:
+.sp 1
+.nf
+.ta \w'xx'u \w'year_day_range_list :=   'u
+	\fIyear_day_range_list\fP := 	{\fIyearday\fP\fB-\fP\fIyearday\fP | \fIyearday\fP},...
+	\fIdaytime_range_list\fP := 	\fIhour\fP[\fB:\fP\fIminute\fP][\fB:\fP\fIsecond\fP]\fB-\fP\fIhour\fP[\fB:\fP\fIminute\fP][\fB:\fP\fIsecond\fP],...
+.ta \w'xx'u \w'month_day :=   'u
+	\fIstate\fP := 	\fBon\fP | \fBoff\fP | \fBsuspended\fP
+	\fIyear_day\fP :=	\fImonth_day\fP\fB.\fImonth\fP\fB.\fP\fIyear\fP
+	\fImonth_day\fP :=	\fB1\fP | \fB2\fP | ... | \fB31\fP
+	\fImonth\fP :=	\fBjan\fP | \fBfeb\fP | ... | \fBdec\fP | \fB1\fP | \fB2\fP | ... | \fB12\fP
+	\fIyear\fP :=	\fB1970\fP | \fB1971\fP | ... | \fB2037\fP
+.fi
+.\"
+.SS "week"
+The queue status definition on a day of the week basis. This field generally
+will specify on which days of the week (and optionally at which times on those
+days) a queue to which the calendar is attached will change to a certain
+state. The syntax of the
+.I week
+field is defined as follows:
+.sp 1
+.nf
+.ta \w'xxxx'u
+\fIweek\fP:=
+	\fBNONE\fP 
+	| \fIweek_day_range_list\fP[\fB=\fP\fIdaytime_range_list\fP][\fB=\fP\fIstate\fP]
+	| [\fIweek_day_range_list\fP\fB=\fP]\fIdaytime_range_list\fP[\fB=\fP\fIstate\fP]
+	| [\fIweek_day_range_list\fP\fB=\fP][\fIdaytime_range_list\fP\fB=\fP]\fIstate\fP ...
+.fi
+.sp 1
+where
+.IP "\(bu" 3n
+NONE means, no definition is made on the week basis;
+.IP "\(bu" 3n
+If a definition is made on the week basis, at least one of \fIweek_day_range_list\fP, \fIdaytime_range_list\fP and
+\fIstate\fP 
+always have to be present;
+.IP "\(bu" 3n
+Every day in the week is assumed if \fIweek_day_range_list\fP is omitted;
+.IP "\(bu" 3n
+Syntax and semantics of
+.I daytime_range_list
+and
+.I state
+are identical to the 
+definition given for the year field above;
+.IP "\(bu" 3n
+The queue is assumed to be enabled for days neither referenced implicitly 
+(by omitting the \fIweek_day_range_list\fP) nor explicitly.
+.PP
+and where
+.I week_day_range_list
+is defined as
+.sp 1
+.nf
+.ta \w'xx'u \w'year_day_range_list :=   'u
+	\fIweek_day_range_list\fP := 	{\fIweekday\fP\fB-\fP\fIweekday\fP | \fIweekday\fP},...
+.ta \w'xx'u \w'month_day :=   'u
+	\fIweek_day\fP := 	\fBmon\fP | \fBtue\fP | \fBwed\fP | \fBthu\fP | \fBfri\fP | \fBsat\fP | \fBsun\fP
+.fi
+.sp 1
+With week_day ranges the \fIweek_day\fP identifiers must be different.
+.\"
+.\"
+.SH SEMANTICS
+Successive entries to the
+.I year
+and
+.I week
+fields (separated by blanks) are combined in accordance with the
+following rule:
+.IP "\(bu" 3n
+.B off
+areas are overridden by overlapping 
+.B on
+and
+.B suspended
+areas and
+.B suspended
+areas are overridden by
+.B on
+areas.
+.PP
+Hence an entry of the form
+.sp 1
+.nf
+.ta \w'xx'u \w'week    'u
+	week 	12\-18 tue=13\-17=on
+.fi
+.sp 1
+means that queues referencing the corresponding calendar are disabled for the 
+entire week from 12.00\-18.00, with the exception of Tuesday between 13.00\-17.00, when the 
+queues are available.
+.sp 1
+.IP "\(bu" 3n
+Area overriding occurs only within a year/week basis. If a year
+entry exists for a day, then only the year calendar is taken into 
+account, and no area overriding is done with a possibly conflicting 
+week area. 
+.sp 1
+.IP "\(bu" 3n
+The second time specification in a \fIdaytime_range_list\fP may be before the 
+first one and treated as expected. Thus an entry of the form
+
+.nf
+.ta \w'xx'u \w'week    'u
+	year 	12.03.2004=12\-11=off 
+.fi
+.sp 1
+causes the queue(s) be disabled on 12.03.2004 from 00:00:00 \- 10:59:59 and
+12:00:00 \- 23:59:59.
+.\"
+.\"
+.SH EXAMPLES
+(The following examples are contained in the directory
+.IR $xxQS_NAME_Sxx_ROOT/util/resources/calendars .)
+.IP "\(bu" 3n
+Night, weekend and public holiday calendar:
+.sp 1
+On public holidays "night" queues are explicitly enabled. On working 
+days queues are disabled between 6.00 and 20.00. Saturday and Sunday 
+are implicitly handled as enabled times:
+.sp 1
+.nf
+.ta \w'xx'u \w'calendar_name    'u
+	calendar_name 	night
+	year 	1.1.1999,6.1.1999,28.3.1999,30.3.1999\-
+	31.3.1999,18.5.1999\-19.5.1999,3.10.1999,25.12.1999,26
+	.12.1999=on
+	week 	mon\-fri=6\-20
+.fi
+.sp 1
+.IP "\(bu" 3n
+Day calendar:
+.sp 1
+On public holidays "day"-queues are disabled. On working days such 
+queues are closed during the night between 20.00 and 6.00, i.e. the queues 
+are also closed on Monday from 0.00 to 6.00 and on Friday from 20.00 to 
+24.00. On Saturday and Sunday the queues are disabled.
+.sp 1
+.nf
+.ta \w'xx'u \w'calendar_name    'u
+	calendar_name 	day
+	year 	1.1.1999,6.1.1999,28.3.1999,30.3.1999\-
+	31.3.1999,18.5.1999\-19.5.1999,3.10.1999,25.12.1999,26
+	.12.1999
+	week 	mon\-fri=20\-6 sat\-sun
+.fi
+.sp 1
+.IP "\(bu" 3n
+Night, weekend and public holiday calendar with suspension:
+.sp 1
+Essentially the same scenario as the first example but queues are suspended
+instead of switching them "off".
+.sp 1
+.nf
+.ta \w'xx'u \w'calendar_name    'u
+	calendar_name 	night_s
+	year 	1.1.1999,6.1.1999,28.3.1999,30.3.1999\-
+	31.3.1999,18.5.1999\-19.5.1999,3.10.1999,25.12.1999,26
+	.12.1999=on
+	week 	mon\-fri=6\-20=suspended
+.fi
+.sp 1
+.IP "\(bu" 3n
+Day calendar with suspension:
+.sp 1
+Essentially the same scenario as the second example, but queues are suspended
+instead of switching them "off".
+.sp 1
+.nf
+.ta \w'xx'u \w'calendar_name    'u
+	calendar_name 	day_s
+	year 	1.1.1999,6.1.1999,28.3.1999,30.3.1999\-
+	31.3.1999,18.5.1999\-19.5.1999,3.10.1999,25.12.1999,26
+	.12.1999=suspended
+	week 	mon\-fri=20\-6=suspended sat\-sun=suspended
+.fi
+.sp 1
+.IP "\(bu" 3n
+Weekend calendar with suspension, ignoring public holidays:
+.sp 1
+Settings are only done on the week basis, with
+no settings on the year basis (keyword "NONE").
+.sp 1
+.nf
+.ta \w'xx'u \w'calendar_name    'u
+	calendar_name 	weekend_s
+	year 	NONE
+	week 	sat\-sun=suspended
+.fi
+.sp 1
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M xxqs_name_sxx__types 1 ,
+.M qconf 1 ,
+.M queue_conf 5 .
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

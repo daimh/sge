@@ -1,0 +1,45 @@
+# Changes by AA 15.1.96 
+# use with aimk 
+# The objects are build in the corresponding arch directory
+# The CFLAGS,XCFLAGS and the SDIR variable are delivered by aimk
+
+
+XSPIN_SDIR = ../spinbox
+XSPIN_DEFINES = -DUSE_XMTF_PEEK
+
+XSPIN_SRCS = \
+   $(XSPIN_SDIR)/Spinbox.c \
+   $(XSPIN_SDIR)/Geometry.c
+
+XSPIN_HEADERS = \
+   $(XSPIN_SDIR)/Spinbox.h \
+   $(XSPIN_SDIR)/SpinboxP.h \
+   $(XSPIN_SDIR)/Geometry.h \
+   $(XSPIN_SDIR)/GeometryP.h 
+
+XSPIN_OBJS = \
+   Spinbox.o \
+   Geometry.o
+
+XSPINLIB    = libXspin$(LIBEXT)
+
+all: $(XSPINLIB)
+   
+libXspin.a: $(XSPIN_OBJS)
+	$(AR) $(ARFLAGS) libXspin.a $(XSPIN_OBJS)
+	$(RANLIB) libXspin.a
+
+libXspin$(SHAREDEXT): $(XSPIN_OBJS)
+	$(SHAREDLD) $(XLFLAGS) $(SHARED_LFLAGS) -o libXspin$(SHAREDEXT) $(XSPIN_OBJS) $(XLIBS)
+
+Xspin_clean:
+	$(RM) $(XSPIN_OBJS) libXspin.a libXspin$(SHAREDEXT)
+
+
+
+Spinbox.o:  $(XSPIN_SDIR)/Spinbox.c $(XSPIN_HEADERS)
+	$(CC) -c $(XSPIN_DEFINES) $(CFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XSPIN_SDIR)/Spinbox.c
+
+Geometry.o:  $(XSPIN_SDIR)/Geometry.c $(XSPIN_HEADERS)
+	$(CC) -c $(XSPIN_DEFINES) $(CFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XSPIN_SDIR)/Geometry.c
+

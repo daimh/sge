@@ -1,0 +1,86 @@
+                             README.arch
+                             -----------
+              
+            Determine current operating system and return a
+             unique string by using the script 'util/arch'
+
+Content
+-------
+
+1) Description
+2) Copyright
+
+
+1) Description
+--------------
+
+   Architecture strings are used as unique identifiers for operating system
+   brands and versions in various contexts in Grid Engine. Example uses are
+   for making the compilation process generic, for installing across
+   different platforms via the same procedures and for locating the
+   appropriate binaries.  The architecture string is generated and returned
+   by the script 'dist/util/arch' by printing it to STDOUT.  The compile
+   architecture string is printed by 'scripts/compilearch -c'.
+
+   'aimk', for instance, uses the architecture string to define the names of
+   subdirectories where the binaries of a Grid Engine distribution later
+   will be stored. Thus it is possible to easily create a distribution for a
+   heterogenous cluster of Grid engine hosts in a shared directory.  'aimk'
+   will map this lower case strings to upper case strings. The name of the
+   upper case strings will be used to create subdirectories where the
+   compilation will create object files and binaries for a single
+   architecture target. This scheme makes it possible to use the same Grid
+   Engine source code distribution for compilation on a variety of different
+   operating systems.
+
+   Currently the 'arch' and 'compilearch' scripts return the following
+   strings. This list is incomplete.
+
+   arch		compile arch	description
+   ----------------------------------------------------------------------
+   aix51        AIX51 	        IBM AIX 5.1.x, 64bit kernel
+   darwin-ppc	DARWIN_PPC      Mac OS PPC
+   darwin-x86	DARWIN_X86      Mac OS X, 32bit (Leopard)
+   darwin-x64	DARWIN_X64      Mac OS X, 64bit (Snow Leopard and newer)
+   hp11		HP11		HP HP-UX 11 32bit
+   hp11-64	HP1164	        HP HP-UX 11.00 64bit
+   irix65	IRIX65		SGI Irix 6.5,
+   lx-amd64     LINUXAMD64_26   GNU/Linux AMD64, Linux 2.6
+   lx-x86	LINUX86_26	GNU/Linux x86, Linux 2.6
+   sol-sparc	SOLARIS		Sun, Sparc Solaris 7, 8, 9 32bit
+   sol-sparc64	SOLARIS64       Sun, Sparc, Solaris 7, 8, 9 64bit
+   sol-x86	SOLARIS86       Sun, x86, Solaris 8, 9, 10 32bit
+   sol-amd86	SOLARISAMD64    Sun, x86, Solaris 8, 9, 10 64bit
+   tru64	ALPHA5          Compaq Tru64 Unix 5.0, 5.1
+   win32-x86	WIN32_X86       Windows Interix/SFU 32bit
+
+   Often a binary set compiled on an older operating system will run without
+   any problems on a newer OS version. The reverse is almost never true.
+
+2) Copyright
+------------
+
+   The Contents of this file are made available subject to the terms of
+   the Sun Industry Standards Source License Version 1.2
+ 
+   Sun Microsystems Inc., March, 2001
+
+   Sun Industry Standards Source License Version 1.2  
+   =================================================
+   The contents of this file are subject to the Sun Industry Standards
+   Source License Version 1.2 (the "License"); You may not use this file
+   except in compliance with the License. You may obtain a copy of the
+   License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ 
+   Software provided under this License is provided on an "AS IS" basis,
+   WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,  
+   WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,  
+   MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+   See the License for the specific provisions governing your rights and
+   obligations concerning the Software.
+ 
+   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+
+   Copyright: 2001 by Sun Microsystems, Inc.
+ 
+   All Rights Reserved.

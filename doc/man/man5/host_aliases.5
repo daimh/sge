@@ -1,0 +1,71 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.de MO		\" external man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH HOST_ALIASES 5 "2011-05-18" "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+host_aliases \- xxQS_NAMExx host aliases file format
+.\"
+.SH DESCRIPTION
+All xxQS_NAMExx components use a hostname resolving service provided by
+the communication library to identify hosts via a unique hostname. The
+communication library itself references standard UNIX directory services
+such as DNS, NIS and /etc/hosts to resolve hostnames (through the Name
+Service Switch on systems which support it).
+In some cases, typically clusters with hosts on multiple networks,
+these standard services
+cannot be setup cleanly, and xxQS_NAMExx daemons running on
+different hosts are unable to determine automatically a unique hostname
+for one or all hosts which can be used on all hosts. In such situations
+a xxQS_NAMExx host aliases file can be used to provide the
+daemons with a private and consistent hostname resolution database.
+.PP
+The location for the host aliases file is 
+\fI<xxqs_name_sxx_root>/<cell>/common/host_aliases\fP.
+.\"
+.\"
+.SH FORMAT
+For each host a single line must be provided with a blank-, comma-, or
+semicolon-separated list of hostname aliases. The first alias
+is defined to be the \fBunique\fP hostname which will be used
+by all xxQS_NAMExx components using the hostname aliasing service
+of the communication library.
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.MO nsswitch.conf 5 .
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

@@ -1,0 +1,81 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<CQ_Type>
+   <name>${name}</name>
+   <hostlist>
+      <string>@allhosts</string>
+   </hostlist>
+   <seqNo key='@/'>0</seqNo>
+   <nsuspend key='@/'>2</nsuspend>
+   <jobSlots key='@/'>30</jobSlots>
+   <rerun key='@/'>true</rerun>
+   <sFsize key='@/'>INFINITY</sFsize>
+   <hFsize key='@/'>INFINITY</hFsize>
+   <sData key='@/'>INFINITY</sData>
+   <hData key='@/'>INFINITY</hData>
+   <sStack key='@/'>INFINITY</sStack>
+   <hStack key='@/'>INFINITY</hStack>
+   <sCore key='@/'>INFINITY</sCore>
+   <hCore key='@/'>INFINITY</hCore>
+   <sRss key='@/'>INFINITY</sRss>
+   <hRss key='@/'>INFINITY</hRss>
+   <sVmem key='@/'>INFINITY</sVmem>
+   <hVmem key='@/'>INFINITY</hVmem>
+   <sRt key='@/'>INFINITY</sRt>
+   <hRt key='@/'>INFINITY</hRt>
+   <sCpu key='@/'>INFINITY</sCpu>
+   <hCpu key='@/'>INFINITY</hCpu>
+   <suspendInterval key='@/'>00:05:00</suspendInterval>
+   <minCpuInterval key='@/'>00:05:00</minCpuInterval>
+   <notify key='@/'>00:00:60</notify>
+   <tmpdir key='@/'>/tmp</tmpdir>
+   <shell key='@/'>/bin/csh</shell>
+   <calendar key='@/'>NONE</calendar>
+   <priority key='@/'>0</priority>
+   <processors key='@/'>UNDEFINED</processors>
+   <prolog key='@/'>NONE</prolog>
+   <epilog key='@/'>NONE</epilog>
+   <shellStartMode key='@/'>posix_compliant</shellStartMode>
+   <starterMethod key='@/'>NONE</starterMethod>
+   <suspendMethod key='@/'>NONE</suspendMethod>
+   <resumeMethod key='@/'>NONE</resumeMethod>
+   <terminateMethod key='@/'>NONE</terminateMethod>
+   <initialState key='@/'>default</initialState>
+   <pe key='@allhosts'><string>make</string></pe>
+   <pe key='@/'><string>NONE</string></pe>
+   <ckpt key='@/'><string>NONE</string></ckpt>
+   <owner key='@/'><US_Type>NONE</US_Type></owner>
+   <acl key='@/'><US_Type>NONE</US_Type></acl>
+   <xacl key='@/'><US_Type>NONE</US_Type></xacl>
+   <projects key='@/'><PR_Type>NONE</PR_Type></projects>
+   <xprojects key='@/'><PR_Type>NONE</PR_Type></xprojects>
+   <loadThresholds key='@/'>
+     <CE_Type>
+         <name>np_load_avg</name>
+         <valtype>0</valtype>
+         <stringval>1.75</stringval>
+         <relop>0</relop>
+         <consumable>0</consumable>
+         <requestable>0</requestable>
+      </CE_Type>
+   </loadThresholds>
+   <suspendThresholds key='flip'>
+     <CE_Type>NONE</CE_Type>
+   </suspendThresholds>
+   <suspendThresholds key='@/'>
+      <CE_Type>
+         <name>arch</name>
+         <valtype>0</valtype>
+         <stringval>lx-x86</stringval>
+         <relop>0</relop>
+         <consumable>0</consumable>
+         <requestable>0</requestable>
+      </CE_Type>
+   </suspendThresholds>
+   <consumableConfig key='@/'>
+      <CE_Type>NONE</CE_Type>
+   </consumableConfig>
+   <subordinate key='@/'>
+      <SO_Type>NONE</SO_Type>
+   </subordinate>
+   <qtype key='@/'>3</qtype>
+</CQ_Type>

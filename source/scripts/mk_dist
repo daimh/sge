@@ -1,0 +1,370 @@
+#!/bin/sh
+#
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+# fixme: check on univa change:
+# commit 71876bf962d851ddd8806d4ce9803ec4a99ca516
+# Author: Joachim Gabler <JGabler@univa.com>
+# Date:   Thu Mar 31 10:15:57 2011 +0200
+
+#     JG-2011-03-31-0: Enhancem.:   Make sure the LICENSE file is copied by distin
+
+umask  022
+
+if type gtar 2>/dev/null >/dev/null; then TAR=gtar
+else TAR=tar
+fi
+BASEDIR=/tmp/sge8_dist
+
+RPMSPECFILE=sge.spec
+
+#---------------------------------------------------------------------------
+#
+ErrUsage()
+{
+   echo "Usage: mk_dist -vdir vdir -version version [-basedir dir] \\"
+   echo "               [-bin] [-common] [-arco] [-doc] binarchs ..." 
+   echo ""
+   echo "    -vdir vdir         use subdirectory vdir to create distribution"
+   echo "    -version <version> string to build filename of distribution"
+   echo "    -basedir <basedir> set base directory for outputfile location"
+   echo "                       default: $BASEDIR" 
+   echo "    -tar <tarcmd>      tar command which supports \"z\" option"
+   echo "    -bin               create tar.gz files from binaries in bin/,"
+   echo "                       utilbin/ and examples/jobsbin"
+   echo "    -common            create tar.gz file of \"common\" files"
+   echo "    -arco              create tar.gz file of \"arco\" files"
+   echo "    -doc               create tar.gz file of \"doc\" files"  
+   echo "    -rpm               create RPM packages instead of tar files"
+   echo ""
+   exit 1
+}
+
+#---------------------------------------------------------------------------
+#
+Execute()
+{
+   if [ "$verbose" = true ]; then
+      echo $* 
+   fi
+   $*
+   if [ $? != 0 ]; then
+      echo 
+      echo "Command failed: $*"
+      echo ""
+      exit 1  
+   fi
+}
+
+ReplaceRpmPlaceholder()
+{
+   echo "s%$1%$2%g" > sed.tmp 
+   Execute sed -f sed.tmp $RPMSPECFILE > $RPMSPECFILE.$$
+   rm sed.tmp
+   Execute mv $RPMSPECFILE.$$ $RPMSPECFILE
+}
+
+CreateRpm() # Arguments: package arch files
+{
+   PACKAGE=$1; shift
+   ARCH=$1; shift
+
+   cp scripts/rpm-template.spec "$RPMSPECFILE"
+   ReplaceRpmPlaceholder "#product#" "$PRODUCT"
+   ReplaceRpmPlaceholder "#version#" "$VERSION"
+   ReplaceRpmPlaceholder "#vdir#" "$VDIR"
+   ReplaceRpmPlaceholder "#arch#" "$ARCH"
+   ReplaceRpmPlaceholder "#basedir#" "$BASEDIR"
+   ReplaceRpmPlaceholder "#copyright#" "$COPYRIGHT"
+   ReplaceRpmPlaceholder "#vendor#" "$VENDOR"
+   ReplaceRpmPlaceholder "#packager#" "$PACKAGER"
+   ReplaceRpmPlaceholder "#provides#" "$PROVIDES"
+   ReplaceRpmPlaceholder "#summary#" "$SUMMARY"
+   ReplaceRpmPlaceholder "#description#" "$DESCRIPTION"
+
+   echo "%files $PACKAGE" >> $RPMSPECFILE
+   echo "%defattr(-,root,root)" >> $RPMSPECFILE
+   for i in $*; do
+       echo "$VDIR/$i" >> $RPMSPECFILE
+   done
+   
+   rpmbuild -bb $RPMSPECFILE
+
+}
+
+#------------------------------------------------------------------------
+#-------------------------------------------------------------------------
+# MAIN section
+#
+
+makearco=false
+makebin=false
+makecommon=false
+makedoc=false
+makesgeee=false
+makerpm=false
+target=file
+VDIR=""
+VERSION=""
+PRODUCT=sge
+SELECTED_ARCHS=""
+VENDOR="unknown"
+PACKAGER="unknown"
+COPYRIGHT="SISSL"
+PROVIDES="gridengine"
+SUMMARY="Grid Engine"
+DESCRIPTION="Grid Engine distributes computational workload"
+
+ARGC=$#
+while [ $ARGC -gt 0 ]; do
+   case $1 in
+   -basedir)
+      shift
+      ARGC=`expr $ARGC - 1`
+      if [ $ARGC -lt 1 ]; then
+         echo ""
+         echo "Error: Missing argument to -basedir switch!"
+         echo ""
+         ErrUsage
+      fi
+      BASEDIR=$1
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -bin)
+      echo "Creating tar file(s) of binaries in bin/ utilbin/ examples/jobsbin"
+      makebin=true
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -common)
+      echo "Creating tar file with common files of distribution"
+      makecommon=true
+      shift 
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -arco)
+      echo "Creating tar file with arco files of distribution"
+      makearco=true
+      shift 
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -doc)
+      echo "Creating tar file with doc files of distribution"
+      makedoc=true
+      shift 
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -h|-help)
+      ErrUsage
+      ;;
+   -tar)
+      shift
+      ARGC=`expr $ARGC - 1`
+      if [ $ARGC -lt 1 ]; then
+         echo ""
+         echo "Error: Missing argument to -tar switch!"
+         echo ""
+         ErrUsage
+      fi
+      TAR=$1
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -vdir)
+      shift
+      ARGC=`expr $ARGC - 1`
+      if [ $ARGC -lt 1 ]; then
+         echo ""
+         echo "Error: Missing argument to -dir switch!"
+         echo ""
+         ErrUsage
+      fi
+      VDIR=$1
+      shift
+      ARGC=`expr $ARGC - 1`
+      if [ -f localext/$VDIR/mk_dist.private ]; then
+         . ./localext/$VDIR/mk_dist.private
+      fi
+      ARGC=$#
+      ;;
+   -version)
+      shift
+      ARGC=`expr $ARGC - 1`
+      if [ $ARGC -lt 1 ]; then
+         echo ""
+         echo "Error: Missing argument to -version switch!"
+         echo ""
+         ErrUsage
+      fi
+      VERSION=$1
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -rpm)
+      echo "Creating RPM packages instead of tar files"
+      makerpm=true
+      shift 
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -*)
+      echo ""
+      echo "Error: Unknown option: $1"
+      ErrUsage $0
+      ;;
+   *)
+      ARGC=0
+      ;;
+   esac
+done
+
+#--- END-OF-COMMANDLINE-PARSING------------------------------------------
+
+DOC_PACKAGE=""
+COMMON_DOCS="doc/*.txt doc/*.asc doc/javadocs doc/LICENCES doc/NEWS"
+# This used to include catman, but that's probably not very useful now,
+# as all the relevant systems should have a man formatter.
+COMMON_PACKAGE="dtrace examples/jobs \
+                examples/drmaa hadoop include inst_sge install_qmaster \
+                install_execd start_gui_installer \
+	    man mpi pvm qmon util lib/JSV.jar lib/drmaa.jar lib/herd.jar lib/juti.jar lib/jgdi.jar"
+ARCO_PACKAGE="dbwriter"
+
+if [ "$VERSION" = "" -o "$VDIR" = "" ]; then
+   ErrUsage
+fi
+
+RPMSPECFILE=$VDIR/$RPMSPECFILE
+
+Execute mkdir -p $BASEDIR
+
+SELECTED_ARCHS=$*
+
+if [ $makecommon = true ]; then
+   # do any necessary postprocessing of the "common" package here
+   if [ -f localext/$VDIR/mk_dist.private.common ]; then
+      echo executing commands from mk_dist.private.common
+      . ./localext/$VDIR/mk_dist.private.common
+   fi
+
+   if [ $makerpm = true ]; then
+      CreateRpm common noarch $COMMON_PACKAGE $COMMON_DOCS
+   else
+     cd $VDIR
+     filename=$BASEDIR/${PRODUCT}-${VERSION}-common.tar.gz
+     echo Command: $TAR cvzf $filename $COMMON_PACKAGE $COMMON_DOCS
+                  $TAR cvzf $filename $COMMON_PACKAGE $COMMON_DOCS
+     cd ..
+   fi
+fi
+
+if [ $makearco = true ]; then
+   # do any necessary postprocessing of the "arco" package here
+   if [ -f localext/$VDIR/mk_dist.private.arco ]; then
+      echo executing commands from mk_dist.private.arco
+      . ./localext/$VDIR/mk_dist.private.arco
+   fi
+
+   if [ $makerpm = true ]; then
+      CreateRpm arco noarch $ARCO_PACKAGE
+   else
+     cd $VDIR
+     filename=$BASEDIR/${PRODUCT}-${VERSION}-arco.tar.gz
+     echo Command: $TAR cvzf $filename $ARCO_PACKAGE
+                  $TAR cvzf $filename $ARCO_PACKAGE
+     cd ..
+   fi
+fi
+
+if [ $makedoc = true ]; then
+   # do any necessary postprocessing of the "doc" package here
+   if [ -f localext/$VDIR/mk_dist.private.doc ]; then
+      echo executing commands from mk_dist.private.doc
+      . ./localext/$VDIR/mk_dist.private.doc
+   fi
+
+   if [ $makerpm = true ]; then
+      CreateRpm doc noarch $DOC_PACKAGE
+   else
+      cd $VDIR
+      filename=$BASEDIR/${PRODUCT}-${VERSION}-doc.tar.gz
+      echo Command: $TAR cvzf $filename $DOC_PACKAGE
+                    $TAR cvzf $filename $DOC_PACKAGE
+      cd ..
+   fi
+fi
+
+if [ $makebin = true ]; then
+
+   if [ $makerpm = true ]; then
+      ARCH=`$VDIR/util/arch`
+      if [ "`echo "$SELECTED_ARCHS" | grep $ARCH`" != "" ]; then
+         ADIR="bin/$ARCH utilbin/$ARCH examples/jobsbin/$ARCH lib/$ARCH"
+         if [ $ARCH = lx-x86 ]; then
+            CreateRpm bin i586 $ADIR
+         elif [ $ARCH = lx-amd64 ]; then
+            CreateRpm bin x86_64 $ADIR
+         else
+            echo "RPM packages are not supported for your architecture $ARCH!"
+         fi
+      else
+         echo "RPM packages can only be build on the selected architecture"
+      fi
+   else
+      if [ "$SELECTED_ARCHS" = "" ]; then
+         ErrUsage
+      fi
+
+      # do any necessary postprocessing of the "bin" package here
+      if [ -f localext/$VDIR/mk_dist.private.bin ]; then
+         echo executing commands from mk_dist.private.bin
+         . ./localext/$VDIR/mk_dist.private.bin
+      fi
+
+      cd $VDIR
+      echo creating tar.gz files for $SELECTED_ARCHS
+      for i in $SELECTED_ARCHS; do
+         if [ $i = "sol-sparc64" ]; then
+            ADIR="bin/$i utilbin/$i examples/jobsbin/$i lib/$i lib/sol-sparc"
+         else
+            ADIR="bin/$i utilbin/$i examples/jobsbin/$i lib/$i"
+         fi
+         filename=$BASEDIR/${PRODUCT}-${VERSION}-bin-${i}.tar.gz         
+         echo Command: $TAR cvzf $filename $ADIR
+                       $TAR cvzf $filename $ADIR
+      done
+      cd ..
+   fi
+fi
+
+exit 0

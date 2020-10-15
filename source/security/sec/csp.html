@@ -1,0 +1,214 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+	<meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-1"><title></title>
+	
+	<meta name="GENERATOR" content="StarOffice/5.2 (Solaris Sparc)">
+	<meta name="CREATED" content="20020220;15364700">
+	<style>
+	<!--
+		@page { size: 8.27in 11.69in }
+		P.first-line-indent { text-indent: 0.2in }
+	-->
+	</style></head><body>
+<h1>Certificate Security Protocol (CSP)</h1>
+<p>In order to make the Grid Engine internal communication more
+secure, Grid Engine has been enhanced by a certificate based security
+layer that sits on top between the GDI and comlib layer. The security
+layer is based on OpenSSLs libcrypto and uses RSA for secret key
+exchange and rc4 (keylength 128bit) for encryption. The
+implementation originated from a <a href="doc/diplomarbeit.ps">
+diploma thesis </a> realised in 1996.
+Instead of transfering messages in clear
+text, the messages are encrypted with a secret key. The secret key is
+exchanged via a public/private key protocol. The user presents its
+certificate to SGE to prove its identity and receives the certificate
+from SGE to be sure he is communicating to the correct system. After
+this initial announcement phase the communication is transparently
+continued in encrypted form. The session is valid only for a certain
+period then session has to be reannounced.<br>
+The handshake mechanism for exchanging a secret key is based on the standard SSL handshake mechanism.<br>
+</p>
+<p>Below you can find the
+steps to setup a CSP secured system.<br>
+</p>
+
+<h3>Installation and setup of CSP secured Grid Engine</h3>
+
+<p>To setup the Certificate Security Protocol enhanced version of
+Grid Engine, the steps involved are very similar to the standard
+setup. Apart from the standard setup of Grid Engine the following
+additional steps are necessary:</p>
+<ul>
+	<li>Generation of
+	the CA system keys and certificates on the master machine<br>This is
+	done by calling the install procedures with the <tt>-csp</tt> flag 
+	</li><li>Distribution
+	of the system keys and certificates to the execution and submit
+	hosts<br>It is the task of the system administrator to do it in a
+	secure way (the keys must be transmitted to the execution/submit
+	hosts in a secure manner e.g via ssh.
+	</li><li>Generation of
+	User keys and certificates<br>This can be done automatically by the
+	sysadmin after master installation. 
+	</li><li>Admittance of new users by the sysadmin
+</li></ul>
+
+<p>The security enhancement can be either added to a previously
+configured system or the system can be setup to support CSP security
+during the installation. The installation is performed as usual
+except that the install script (<tt>inst_sge</tt>) is called with the additional
+parameter <tt>-csp</tt>.</p>
+<p>To generate the CSP certificates and keys the following
+information must be supplied:</p>
+<table border="1" cellpadding="4" cellspacing="3" bgcolor="#e6e6ff">
+<tr><td>Country code         <td>C=US
+<tr><td>State                <td>ST=California
+<tr><td>Location             <td>L=San Francisco
+<tr><td>Organization         <td>O=8Bits
+<tr><td>Organizational unit  <td>OU=Support
+<tr><td>CA email address     <td>emailAddress=admin@eightbits.com
+</table>
+<p><br><br>
+</p>
+<p>The screen shots of an example installation outline the steps that
+are performed. If the system is already installed, the procedure
+looks very similar. Instead of using install_qmaster and
+install_execd, the script <tt>$SGE_ROOT/util/sgeCA/sge_ca -init</tt> is used.
+The screens below appear in the same manner.</p>
+<p>First the Certificate Authority is created. The approach taken
+here, is to have a Grid Engine specific CA at the master host. The
+directory structure that contains security relevant information
+consists of two parts. Under <tt>$SGE_ROOT/</tt>{<tt>default</tt>|<tt>$SGE_CELL</tt>}<tt>/common/sgeCA</tt> the publicly accessible CA and daemon
+certificate are stored. The corresponding private keys are stored
+under <tt>/var/lib/sgeCA/</tt>{<tt>sge_service</tt>|<tt>port$COMM_PORT</tt>}<tt>/</tt>{<tt>default</tt>|<tt>$SGE_CELL}/private</tt>. User keys and certificates go into
+      <tt>/var/lib/sgeCA/</tt>{<tt>sge_service</tt>|<tt>port$COMM_PORT</tt>}/{<tt>default</tt>|<tt>$SGE_CELL</tt>}<tt>/userkeys/$USER</tt>.</p>
+<table width="100%" border="1" cellpadding="4" cellspacing="3">
+	<col width="256*">
+		<tr>
+			<td width="100%" valign="top" bgcolor="#e6e6ff">
+				<pre>Initializing Certificate Authority (CA) for OpenSSL security framework<br>----------------------------------------------------------------------<br><br>Creating /scratch2/eddy/sge_sec/default/common/sgeCA<br>Creating /var/lib/sgeCA/port6789/default<br>Creating /scratch2/eddy/sge_sec/default/common/sgeCA/certs<br>Creating /scratch2/eddy/sge_sec/default/common/sgeCA/crl<br>Creating /scratch2/eddy/sge_sec/default/common/sgeCA/newcerts<br>Creating /scratch2/eddy/sge_sec/default/common/sgeCA/serial<br>Creating /scratch2/eddy/sge_sec/default/common/sgeCA/index.txt<br>Creating /var/lib/sgeCA/port6789/default/userkeys<br>Creating /var/lib/sgeCA/port6789/default/private<br>Hit  to continue &gt;&gt; <br>                                </pre>
+			</td>
+		</tr>
+</table>
+<p><br><br>
+</p>
+<p>After setting up the directory structure the CA specific
+certificate and private key are generated. We use either pseudo
+random data from a special file or if available <tt>/dev/random</tt> for
+seeding the PRNG (pseudo random number generator, see
+<a href="http://www.openssl.org/support/faq.html">http://www.openssl.org/support/faq.html</a>
+and <a href="http://www.cosy.sbg.ac.at/%7Eandi">http://www.cosy.sbg.ac.at/~andi</a>
+for additional info on random numbers)</p>
+<table width="100%" border="1" cellpadding="4" cellspacing="3">
+	<col width="256*">
+		<tr>
+			<td width="100%" valign="top" bgcolor="#e6e6ff">
+				<pre>Creating CA certificate and private key<br>---------------------------------------<br><br>Please give some basic parameters to create the distinguished name (DN)<br>for the certificates.<br><br>We will ask for<br><br>   - the two letter country code<br>   - the state<br>   - the location, e.g city or your buildingcode<br>   - the organization (e.g. your company name)<br>   - the organizational unit, e.g. your department<br>   - the email address of the CA administrator (you!)<br><br>Hit  to continue &gt;&gt; <br>                                </pre>
+			</td>
+		</tr>
+</table>
+<p><br><br>
+</p>
+<table width="100%" border="1" cellpadding="4" cellspacing="3">
+	<col width="256*">
+		<tr>
+			<td width="100%" valign="top" bgcolor="#e6e6ff">
+				<pre>Please enter your two letter country code, e.g. &gt;US&lt; &gt;&gt; DE    <br>Please enter your state &gt;&gt; Bavaria<br>Please enter your location, e.g city or buildingcode &gt;&gt; Regensburg<br>Please enter the name of your organization &gt;&gt; Gridware<br>Please enter your organizational unit, e.g. your department &gt;&gt; Griders<br>Please enter the email address of the CA administrator &gt;&gt; admin@griders.org<br><br><br>You selected the following basic data for the distinguished name of<br>your certificates:<br><br>Country code:         C=DE<br>State:                ST=Bavaria<br>Location:             L=Regensburg<br>Organization:         O=Gridware<br>Organizational unit:  OU=Griders<br>CA email address:     emailAddress=admin@griders.org<br><br><br>Do you want to use these data (y/n) [y] &gt;&gt;<br>                                </pre>
+			</td>
+		</tr>
+</table>
+<p><br><br>
+</p>
+<table width="100%" border="1" cellpadding="4" cellspacing="3">
+	<col width="256*">
+		<tr>
+			<td width="100%" valign="top" bgcolor="#e6e6ff">
+				<pre>Creating RANDFILE from &gt;/kernel/genunix&lt; in &gt;/var/lib/sgeCA/port6789/default/private/rand.seed&lt;<br><br>1513428 semi-random bytes loaded<br>Creating CA certificate and private key<br><br>Using configuration from /tmp/sge_ca14364.tmp<br>Generating a 1024 bit RSA private key<br>.....++++++<br>................++++++<br>writing new private key to '/var/lib/sgeCA/port6789/default/private/cakey.pem'<br>-----<br>Hit  to continue &gt;&gt;<br>                                </pre>
+			</td>
+		</tr>
+</table>
+<p><br><br>
+</p>
+<p>After the installation of the CA infrastructure application and
+user certificates and private keys are created and signed by the CA
+for the admin user, for the pseudo daemon user and for the user root.</p>
+<table width="100%" border="1" cellpadding="4" cellspacing="3">
+	<col width="256*">
+		<tr>
+			<td width="100%" valign="top" bgcolor="#e6e6ff">
+				<pre>Creating Daemon certificate and key<br>-----------------------------------<br><br>Creating RANDFILE from &gt;/kernel/genunix&lt; in &gt;/var/lib/sgeCA/port6789/default/private/rand.seed&lt;<br><br>1513428 semi-random bytes loaded<br>Using configuration from /tmp/sge_ca14364.tmp<br>Generating a 1024 bit RSA private key<br>...............++++++<br>................++++++<br>writing new private key to '/var/lib/sgeCA/port6789/default/private/key.pem'<br>-----<br>Using configuration from /tmp/sge_ca14364.tmp<br>Check that the request matches the signature<br>Signature ok<br>The Subjects Distinguished Name is as follows<br>countryName           :PRINTABLE:'DE'<br>stateOrProvinceName   :PRINTABLE:'Bavaria'<br>localityName          :PRINTABLE:'Regensburg'<br>organizationName      :PRINTABLE:'Gridware'<br>organizationalUnitName:PRINTABLE:'Griders'<br>uniqueIdentifier      :PRINTABLE:'root'<br>commonName            :PRINTABLE:'SGE Daemon'<br>emailAddress          :IA5STRING:'none'<br>Certificate is to be certified until Mar  5 13:50:57 2003 GMT (365 days)<br><br>Write out database with 1 new entries<br>Data Base Updated<br>created and signed certificate for SGE daemons<br>Creating RANDFILE from &gt;/kernel/genunix&lt; in &gt;/var/lib/sgeCA/port6789/default/userkey<br>s/root/rand.seed&lt;<br><br>1513428 semi-random bytes loaded<br>Using configuration from /tmp/sge_ca14364.tmp<br>Generating a 1024 bit RSA private key<br>............++++++<br>.................++++++<br>writing new private key to '/var/lib/sgeCA/port6789/default/userkeys/root/key.pem'<br>-----<br>Using configuration from /tmp/sge_ca14364.tmp<br>Check that the request matches the signature<br>Signature ok<br>The Subjects Distinguished Name is as follows<br>countryName           :PRINTABLE:'DE'<br>stateOrProvinceName   :PRINTABLE:'Bavaria'<br>localityName          :PRINTABLE:'Regensburg'<br>organizationName      :PRINTABLE:'Gridware'<br>organizationalUnitName:PRINTABLE:'Griders'<br>uniqueIdentifier      :PRINTABLE:'root'<br>commonName            :PRINTABLE:'SGE install user'<br>emailAddress          :IA5STRING:'none'<br>Certificate is to be certified until Mar  5 13:50:59 2003 GMT (365 days)<br><br>Write out database with 1 new entries<br>Data Base Updated<br>created and signed certificate for user &gt;root&lt; in &gt;/var/lib/sgeCA/port6789/default/userkeys/root&lt;<br>Creating RANDFILE from &gt;/kernel/genunix&lt; in &gt;/var/lib/sgeCA/port6789/default/userkeys/eddy/rand.seed&lt;<br><br>1513428 semi-random bytes loaded<br>Using configuration from /tmp/sge_ca14364.tmp<br>Generating a 1024 bit RSA private key<br>.............++++++<br>.....................................................++++++<br>writing new private key to '/var/lib/sgeCA/port6789/default/userkeys/eddy/key.pem'<br>-----<br>Using configuration from /tmp/sge_ca14364.tmp<br>Check that the request matches the signature<br>Signature ok<br>The Subjects Distinguished Name is as follows<br>countryName           :PRINTABLE:'DE'<br>stateOrProvinceName   :PRINTABLE:'Bavaria'<br>localityName          :PRINTABLE:'Regensburg'<br>organizationName      :PRINTABLE:'Gridware'<br>organizationalUnitName:PRINTABLE:'Griders'<br>uniqueIdentifier      :PRINTABLE:'eddy'<br>commonName            :PRINTABLE:'SGE admin user'<br>emailAddress          :IA5STRING:'none'<br>Certificate is to be certified until Mar  5 13:51:02 2003 GMT (365 days)<br><br>Write out database with 1 new entries<br>Data Base Updated<br>created and signed certificate for user &gt;eddy&lt; in &gt;/var/lib/sgeCA/port6789/default/userkeys/eddy&lt;<br>Hit  to continue &gt;&gt; <br>                                </pre>
+			</td>
+		</tr>
+</table>
+<p><br><br>
+</p>
+<p>The security related setup of sge_qmaster is now complete and the
+installation procedure continues as usual:</p>
+<table width="100%" border="1" cellpadding="4" cellspacing="3">
+	<col width="256*">
+		<tr>
+			<td width="100%" valign="top" bgcolor="#e6e6ff">
+				<pre>SGE startup script<br>--------------------<br><br><br>Your system wide SGE startup script is installed as:<br><br>   "/scratch2/eddy/sge_sec/default/common/rcsge"<br><br>Hit  to continue &gt;&gt;<br>                                </pre>
+			</td>
+		</tr>
+</table>
+<p><br><br>
+</p>
+<p>If the shared filesystem is not secure enough to hold the CSP
+security information in a place that can be accessed by the execution
+daemons as well, it is necessary to transfer the directory containing
+the daemon's private key and the random file to the execution host.
+Here it is installed locally before the setup of the execution daemon
+can be performed.</p>
+<table width="100%" border="1" cellpadding="4" cellspacing="3">
+	<col width="256*">
+		<tr>
+			<td width="100%" valign="top" bgcolor="#e6e6ff">
+				<pre style="margin-bottom: 0.2in;">Copy the private keys to the execd host<br>On the master machine as user root:<br># umask 077<br># (cd /; tar cvpf /var/lib/sgeCA/port6789.tar /var/lib/sgeCA/port6789/default)<br>On the execution host machine as user root:<br># scp /var/lib/sgeCA/port6789.tar@&lt;master host&gt; /<br># (cd /; tar xvpf /var/lib/sgeCA/port6789.tar )<br>Verify the file permissions:<br># ls -lR /var/lib/sgeCA/port6789/<br>/var/lib/sgeCA/port6789/:<br>total 2<br>drwxr-xr-x   4 eddy     other        512 Mar  6 10:52 default<br>/var/lib/sgeCA/port6789/default:<br>total 4<br>drwx------   2 eddy     staff        512 Mar  6 10:53 private<br>drwxr-xr-x   4 eddy     staff        512 Mar  6 10:54 userkeys<br>/var/lib/sgeCA/port6789/default/private:<br>total 8<br>-rw-------   1 eddy     staff        887 Mar  6 10:53 cakey.pem<br>-rw-------   1 eddy     staff        887 Mar  6 10:53 key.pem<br>-rw-------   1 eddy     staff       1024 Mar  6 10:54 rand.seed<br>-rw-------   1 eddy     staff        761 Mar  6 10:53 req.pem<br>/var/lib/sgeCA/port6789/default/userkeys:<br>total 4<br>dr-x------   2 eddy     staff        512 Mar  6 10:54 eddy<br>dr-x------   2 root     staff        512 Mar  6 10:54 root<br>/var/lib/sgeCA/port6789/default/userkeys/eddy:<br>total 16<br>-r--------   1 eddy     staff       3811 Mar  6 10:54 cert.pem<br>-r--------   1 eddy     staff        887 Mar  6 10:54 key.pem<br>-r--------   1 eddy     staff       2048 Mar  6 10:54 rand.seed<br>-r--------   1 eddy     staff        769 Mar  6 10:54 req.pem<br>/var/lib/sgeCA/port6789/default/userkeys/root:<br>total 16<br>-r--------   1 root     staff       3805 Mar  6 10:54 cert.pem<br>-r--------   1 root     staff        887 Mar  6 10:54 key.pem<br>-r--------   1 root     staff       2048 Mar  6 10:53 rand.seed<br>-r--------   1 root     staff        769 Mar  6 10:54 req.pem<br><br>Continue with the installation of sge_execd<br># cd $SGE_ROOT<br># ./install_execd -csp                            </pre>
+			</td>
+		</tr>
+</table>
+<p><br><br>
+</p>
+<h3>Generation of user keys and certificates</h3>
+<p>In order to let users use the CSP secured system, the user must
+have access to a user specific certificate and private key. They are
+generated by the administrator logged in as the user root on the
+master machine. To generate certificates and private keys for the
+user it is most convenient to create a file of the following format
+and to execute the commands in the next box.</p>
+<table width="100%" border="1" cellpadding="4" cellspacing="3">
+	<col width="256*">
+		<tr>
+			<td width="100%" valign="top" bgcolor="#e6e6ff">
+				<pre>Create a file containing the following information, e.g. myusers.txt<br><br>eddy:Eddy Smith:eddy@griders.org<br>sarah:Sarah Miller:sarah@griders.org<br>leo:Leo Lion:leo@griders.org<br><br>where the fields are:<br><br>Unix user:Gecos field:email address<br><br>As user root on the master machine do:<br><br>% $SGE_ROOT/util/sgeCA/sge_ca -usercert myusers.txt<br><br>% ls -l /var/lib/sgeCA/port6789/default/userkeys<br>dr-x------   2 eddy  staff        512 Mar  5 16:13 eddy<br>dr-x------   2 sarah staff        512 Mar  5 16:13 sarah<br>dr-x------   2 leo   staff        512 Mar  5 16:13 leo<br><br>Every user can then install its security related files in $HOME/.sge by:<br><br>% source $SGE_ROOT/default/common/settings.csh<br>% $SGE_ROOT/util/sgeCA/sge_ca -copy<br>Certificate and private key for user eddy have been installed<br><br>For every Grid Engine installation a subdirectory for the corresponding<br>COMMD_PORT number is installed:<br><br>% ls -lR $HOME/.sge<br>/home/eddy/.sge:<br>total 2<br>drwxr-xr-x   3 eddy staff        512 Mar  5 16:20 port6789<br><br>/home/eddy/.sge/port6789:<br>total 2<br>drwxr-xr-x   4 eddy staff        512 Mar  5 16:20 default<br><br>/home/eddy/.sge/port6789/default:<br>total 4<br>drwxr-xr-x   2 eddy staff        512 Mar  5 16:20 certs<br>drwx------   2 eddy staff        512 Mar  5 16:20 private<br><br>/home/eddy/.sge/port6789/default/certs:<br>total 8<br>-r--r--r--   1 eddy staff       3859 Mar  5 16:20 cert.pem<br><br>/home/eddy/.sge/port6789/default/private:<br>total 6<br>-r--------   1 eddy staff        887 Mar  5 16:20 key.pem<br>-r--------   1 eddy staff       2048 Mar  5 16:20 rand.seed<br>                                </pre>
+			</td>
+		</tr>
+</table>
+<p><br><br>
+</p>
+<p>For checking and looking at certificates the following commands
+might be helpful for things that <tt>sge_ca(1)</tt> doesn't do directly.</p>
+<table width="1473" border="1" cellpadding="4" cellspacing="3">
+	<col width="1457">
+		<tr>
+			<td width="1457" valign="top" bgcolor="#e6e6ff">
+				<pre>% setenv ARCH `$SGE_ROOT/util/arch`<br><br>Display a certificate:<br><br>% $SGE_ROOT/utilbin/$ARCH/openssl x509 -in ~/.sge/port6789/default/certs/cert.pem -text<br><br>Check issuer <br><br>% $SGE_ROOT/utilbin/$ARCH/openssl x509 -issuer -in ~/.sge/port6789/default/certs/cert.pem -noout<br>issuer= /C=DE/ST=Bavaria/L=Regensburg/O=Griders Org/OU=Testsystem at port 6789/CN=SGE Certificate Authority/uniqueIdentifier=CA/uniqueIdentifier=eddy/Email=eddy@griders.org<br><br>Check subject<br>% $SGE_ROOT/utilbin/$ARCH/openssl x509 -subject -in ~/.sge/port6789/default/certs/cert.pem -noout<br>subject= /C=DE/ST=Bavaria/L=Regensburg/O=Griders Org/OU=Testsystem at port 6789/CN=eddy donetti/Email=eddy@gridders.org<br><br>Show email of cert<br>% $SGE_ROOT/utilbin/$ARCH/openssl x509 -email -in ~/.sge/port6789/default/certs/cert.pem -noout<br>eddy@griders.org<br><br>Show validity<br>% $SGE_ROOT/utilbin/$ARCH/openssl x509 -dates -in ~/.sge/port6789/default/certs/cert.pem -noout<br>notBefore=Sep 25 14:48:38 2001 GMT<br>notAfter=Sep 25 14:48:38 2002 GMT<br><br>Show fingerprint<br>% $SGE_ROOT/utilbin/$ARCH/openssl x509 -fingerprint -in ~/.sge/port6789/default/certs/cert.pem -noout<br>MD5 Fingerprint=F9:FA:AB:86:F3:71:E4:7F:18:82:78:7D:5E:51:7B:B5<br></pre>
+			</td>
+		</tr>
+</table>
+<p><br>
+</p>
+<p>For renewing certificates proceed as follows:<br>
+</p>
+<table width="1473" border="1" cellpadding="4" cellspacing="3">
+
+	<col width="1457">
+		<tr>
+			<td width="1457" valign="top" bgcolor="#e6e6ff">
+				<pre>Change to $SGE_ROOT and become root on the master host (we assume $SGE_CELL is 'default'):<br># tcsh<br># source $SGE_ROOT/default/settings.csh<br><br>edit $SGE_ROOT/util/sgeCA/renew_all_certs.csh, change the number of days the certificates are valid:<br>---<br>  # extend the validity of the CA certificate by<br>  set CADAYS = 365<br>  # extend the validity of the daemon certificate by<br>  set DAEMONDAYS = 365<br>  # extend the validity of the user certificate by<br>  set USERDAYS = 365<br>---<br><br>run the changed script (default for all extension times are 365 days from the day the script is run)<br><br># util/sgeCA/renew_all_certs.csh<br><br>Then you have to replace the old certificates against the new ones on all hosts that installed them locally (i.e. under /var/lib/sgeCA/..., see above under<br>execution daemon installation).<br>If users have copied certificates and keys to $HOME/.sge they have to repeat $SGE_ROOT/util/sgeCA/sge_ca -copy to have access to the renewed certificates.<br><br></pre></td></tr>
+</table>
+<center>
+<p>Copyright 2002 Sun Microsystems, Inc. All rights reserved.
+</p></center>
+</body></html>

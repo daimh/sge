@@ -1,0 +1,229 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.79C-CCK-MCD  [en] (X11; U; SunOS 5.8 sun4u) [Netscape]">
+   <meta name="AUTHOR" content="Ernst Bablick">
+   <meta name="CREATED" content="20010712;10065900">
+   <meta name="CHANGEDBY" content="Ernst Bablick">
+   <meta name="CHANGED" content="20010713;13285500">
+<style>
+	<!--
+		@page { margin-left: 1.25in; margin-right: 1.25in; margin-top: 1in; margin-bottom: 1in }
+		H3 { margin-bottom: 0.08in; font-family: "helvetica", sans-serif }
+		H2 { margin-bottom: 0.08in; font-family: "helvetica", sans-serif; font-size: 14pt; font-style: italic }
+		TD P { margin-bottom: 0.08in }
+		P { margin-bottom: 0.08in }
+	-->
+	</style>
+</head>
+<body>
+
+<h2>
+Coding Standards for the Grid Engine Project</h2>
+
+<div STYLE="margin-bottom: 0in">In a continuous attempt to unify the structure
+and the format of the Grid Engine source code, we have collected a few
+guidelines here to which we ask you to adhere as you add new source code
+or modify the existing code. Please make every effort to follow our guidelines
+before you submit your contributions to the project. We also ask for your
+help in improving existing incompliant code as you make modifications to
+it.</div>
+
+<div STYLE="margin-bottom: 0in">We plan to use the "indent" tool in the
+future to format C source code automatically. Unfortunately, this is not
+possible yet due to technical reasons.</div>
+
+<h3>
+General</h3>
+To prevent code sections to be formated, place a disabling control comment
+<pre STYLE="margin-bottom: 0.2in">/* *INDENT-OFF* */</pre>
+
+<div STYLE="font-weight: medium">on a line by itself just before that section.
+The enabling control comment is</div>
+
+<pre STYLE="margin-bottom: 0.2in">/* *INDENT-ON* */</pre>
+
+<div STYLE="font-weight: medium">The script, which will be used in the
+future to automatically change the lookout, can be found here:</div>
+
+<pre STYLE="margin-bottom: 0.2in">gridengine/source/scripts/format.sh</pre>
+
+<h3 STYLE="font-weight: medium">
+Tabs,&nbsp; Line Length and Indentation.</h3>
+
+<div STYLE="font-weight: medium">Please do not use tabs inside of the code
+and wrap lines after the 80th character in a line. We do not like tabs
+because different editors and editor settings always lead to different
+displays. In order to be able to still use the tab key in your editing
+you can either configure your editor to replace tabs by spaces automatically
+or you use the "gridengine/source/scripts/format.sh" script to take out
+the tabs when you have finished editing.</div>
+
+<div STYLE="font-weight: medium">Lines have to be indented by three spaces
+for each code block level. The format script will also perform this automatically.
+See more details below.</div>
+
+<h3>
+Comments</h3>
+Source code documentation is essential in an increasing group of developers
+producing software collabortatively and efficiently. Comments within the
+source code are one way to create a comprehensive documentation. This insures
+that the related information is in the right place and makes it easier
+for the software engineer to maintain it.
+<p>Inside Grid Engine we use line comments to describe certain attributes,
+block comments to explain bigger code sections and Autodoc comments (ADOC)
+to declare modules, functions and other important parts of the software.
+<p>Line comments look like this
+<pre STYLE="margin-bottom: 0.2in">lList ptf_job;&nbsp; /* JL_Type */</pre>
+They are at the end of a line after the code or in the line before it just
+like block comments as shown below:
+<pre>/*
+&nbsp;* Stuff implementing fast access to the next job
+&nbsp;* that is to be dispatched accordingly to the
+&nbsp;* job sorting policy
+&nbsp;*/
+if (!so_pgr) {
+&nbsp;&nbsp; so_pgr = lParseSor ...</pre>
+ADOC comments can be extracted from the source code by the adoc tool. The
+adoc tool identifies the different sections inside an ADOC comment and
+creates a texinfo file which can be converted to man/html pages, pdf, GNU
+Info ...
+<pre>/****** src/sge_ls_get_pid() *********************************
+*
+*&nbsp; NAME
+*&nbsp;&nbsp;&nbsp;&nbsp; sge_ls_get_pid -- get pid of a loadsensor
+*
+*&nbsp; SYNOPSIS
+*&nbsp;&nbsp;&nbsp;&nbsp; static pid_t sge_ls_get_pid(lListElem *this_ls)
+*
+*&nbsp; FUNCTION
+*&nbsp;&nbsp;&nbsp;&nbsp; Returns the pid which is stored in a CULL element of
+*&nbsp;&nbsp;&nbsp;&nbsp; the type LS_Type. If the corresponding loadsensor was
+*&nbsp;&nbsp;&nbsp;&nbsp; not started until now then -1 will be returned.
+*
+*&nbsp; INPUTS
+*&nbsp;&nbsp;&nbsp;&nbsp; this_ls - pointer to a CULL element of type LS_Type
+*
+*&nbsp; RESULT
+*&nbsp;&nbsp;&nbsp;&nbsp; returns pid or -1
+*
+*************************************************************/</pre>
+This is a typical ADOC-comment describing a function. Source code inside
+ADOC comments should look like the real source code. Information about
+using ADOC can be found <a href="adoc.html">here</a>
+<h4>
+Special Comments</h4>
+Format:&nbsp;/* &lt;Initials>: &lt;Keyword> [(&lt;issue #)]: &lt;text>
+*/
+<br>&lt;Initials> = 2 character initials, same as in Changelog
+<br>&lt;Keyword> =
+<blockquote>TODO
+<br>DEBUG</blockquote>
+Optionally an IssueZilla id can be specified referencing the correspondent
+issue.
+<br>&nbsp;
+<h3>
+Statements</h3>
+Functions should have the following format:
+<br>&nbsp;
+<pre>static int qmod_queue_weakclean(lListElem *qep, u_long32 force,&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; lList **answer, char *user,&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; char *host, int isoperator, int isowner)
+{
+&nbsp;&nbsp; ...
+}</pre>
+They should start with the qualifier and return type. There is no space
+between the function name and the open parentheses. If the arguments do
+not fit into one line split the line and continue the arguments under the
+first one of the previous line. The brace in function definitions, has
+to be in column zero again. Statements inside the function body should
+be indented with 3 spaces like Statements inside a compound statement.
+In contrast to functions, the opening left brace of a compound statement
+should be at the end of the line beginning the compound statement and the
+closing right brace should be alone on a line. Some examples:
+<br>&nbsp;
+<pre>for (i = 0; i &lt; MAX; i++) {
+&nbsp;&nbsp; ...
+}
+
+
+while (1) {
+&nbsp;&nbsp; ...
+}
+
+
+do {
+&nbsp;&nbsp; ...
+} while (!found);
+
+
+if (i == 1) {
+&nbsp;&nbsp; ...
+} else if (i == -5) {
+&nbsp;&nbsp; ...
+} else {
+&nbsp;&nbsp; only_one_call();
+}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+switch (i) {
+case 1,2:
+&nbsp;&nbsp; ...
+&nbsp;&nbsp; break;
+case 3:
+&nbsp;&nbsp; ...
+&nbsp;&nbsp; break;
+default:
+&nbsp;&nbsp; ...
+}
+
+struct name {
+&nbsp;&nbsp; char *first;
+}</pre>
+
+<p><br>There is one space between the keyword and the open parentheses.
+Braces are in the same line like the keywords. They should be used even
+if it is not necessary. Function calls do not contain spaces between the
+function name and the open parentheses.
+<br>&nbsp;
+<h3>
+Declarations</h3>
+The format of a function prototype should be equivalent with the function
+definition.
+<br>&nbsp;
+<pre>static void sge_set_ls_fds(lListElem *this_ls, fd_set *fds)
+{
+&nbsp;&nbsp; int i, k, l;
+&nbsp;&nbsp; int j = -1;&nbsp;
+&nbsp;&nbsp; int name[3] = { LS_out, LS_in, LS_err };
+&nbsp;&nbsp; FILE *file;
+&nbsp;&nbsp; ...</pre>
+
+<div STYLE="margin-bottom: 0in">Multiple variables are declared in one
+line. Each pre-initialized variable has its own line. The asterisk of a
+pointer declaration is part of the variable name. The space has to be put
+in between the type name an the asterisk.</div>
+
+<h3>
+Clean use of C Constructs</h3>
+Past experience leads us to some best-practice coding advices:
+<ul>Huge parameter lists or function bodies are an indicator that it is
+time to split a function into some smaller functions which are easier to
+read and understand.
+<p>Try to avoid nested expressions where multiple assignments or the ?-operators
+are envolved.
+<p>Use #if 0 to disable code sections and add a short comment why this
+code was disabled.</ul>
+
+<h3>
+Naming</h3>
+Names for variables, functions, macros etc. should be composed of words
+separated by underscores. Upper case letters are reserved for macros, enum
+constants and for name prefixes that follow a uniform convention. For variable
+names, we suggest simply to adopt to the unwritten naming conventions used
+in different source code areas, the names always have to be or have to
+relate to English terms and expressions.
+</body>
+</html>

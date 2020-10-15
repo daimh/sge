@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="StarOffice/5.2 (Solaris Sparc)">
+	<META NAME="AUTHOR" CONTENT=" ">
+	<META NAME="CREATED" CONTENT="20010611;14564800">
+	<META NAME="CHANGEDBY" CONTENT=" ">
+	<META NAME="CHANGED" CONTENT="20010716;16471800">
+</HEAD>
+<BODY>
+<H1><FONT SIZE=6 STYLE="font-size: 28pt">Scheduling Library</FONT></H1>
+<H1>Overview</H1>
+<P>This library contains important high- and low-level functions
+mainly used by Schedd, some of the functions contained herein however
+have been proven to be used as well by clients like qstat, qhost or
+qmon, but also by qmaster. For a comprehensive functional
+segmentation of the schedulers source code refer to the <A HREF="../../daemons/schedd/schedd.html">schedd
+documentation</A>.</P>
+<H1>Reusable low-level building blocks</H1>
+<P>The scheduling library contains some functions that can be reused.
+Here is a description about their semantics:</P>
+<UL>
+	<LI><P>host list sorting</P>
+	<P>Function <I>sort_host_list() </I><SPAN STYLE="font-style: normal">sorts
+	the host list according to the load_formula (see manual page
+	sched_conf(5)). It takes into account the adjusted load situation
+	(see under 'job_load_adjustments' and 'load_adjustment_decay_time'
+	in sched_conf(5)) and the availability of consumable resources (see
+	under 'consumable' in complex(5)).</SPAN></P>
+	<LI><P STYLE="font-style: normal">check whether a queue is in
+	load/suspend alarm</P>
+	<P STYLE="font-style: normal">This is implemented in
+	<I>sge_load_alarm(). </I>The function takes into account the
+	adjusted load situation (see under 'job_load_adjustments' and
+	'load_adjustment_decay_time' in sched_conf(5)).</P>
+	<LI><P ALIGN=LEFT>verification whether a job matches a queue</P>
+	<P ALIGN=LEFT>This operation is implemented in
+	<I>sge_why_not_job2queue_static()</I><SPAN STYLE="font-style: normal">.
+	Please note that the purpose of this function is just to answer the
+	question whether a job in principle  can be dispatched to a queue.
+	The pertinent conditions are things like access permissions, job
+	type or required resources, but it does not take into account
+	dynamically changing properties like current load situation or
+	availability of consumables.</SPAN></P>
+	<LI><P ALIGN=LEFT>verification whether a job matches a host</P>
+	<P ALIGN=LEFT STYLE="font-style: normal">This operation is
+	implemented in <I>sge_why_not_job2host()</I>. This can be seen as
+	the counter-part of <I>sge_why_not_job2queue_static() </I>checking
+	for suitable hosts instead of queues and the same restrictions
+	apply.</P>
+</UL>
+<P ALIGN=CENTER STYLE="text-decoration: none">Copyright 2001 Sun
+Microsystems, Inc. All rights reserved.</P>
+<H1><BR><BR>
+</H1>
+<P><BR><BR>
+</P>
+<P><BR><BR>
+</P>
+<H1><BR><BR>
+</H1>
+</BODY>
+</HTML>

@@ -1,0 +1,319 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Share Tree Policy
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_sharetree.xmtChildren:  unmanaged XmtLayout sharetree;
+
+Qmon*qmon_sharetree.sharetree.defaultSpacing:  2
+Qmon*qmon_sharetree.sharetree.autoUnmanage:    False
+Qmon*qmon_sharetree.sharetree.resizePolicy:    RESIZE_NONE
+Qmon*qmon_sharetree.sharetree.dialogTitle:     @{QMON +++ Share Tree Policy}
+Qmon*qmon_sharetree.sharetree.fontList:        $dialog_font
+
+Qmon*qmon_sharetree.sharetree.XmtInputField.marginHeight:  2
+Qmon*qmon_sharetree.sharetree.XmtInputField.marginWidth:   2
+Qmon*qmon_sharetree.sharetree.XmText.marginHeight:  2
+Qmon*qmon_sharetree.sharetree.XmText.marginWidth:   2
+
+
+Qmon*qmon_sharetree.sharetree.xmtChildren: \
+   XmPushButton      st_main_link; \
+   ListTree          st_tree; \
+   Label             st_percentage = t_percentage, \
+                     st_simple_percentage = l_percentage, \
+                     st_actual_proportion = actual_proportion, \
+                     st_targetted_share = targetted_share, \
+                     st_usage = usage, \
+                     st_name = id, \
+                     st_share = share; \
+   XmtMsgLine        st_message; \
+   XmPushButton      st_apply, st_close, st_update, st_delete, st_add_leaf, \
+                     st_add_node, st_copy, st_cut, st_paste, st_help, st_more, \
+                     st_mod_node, st_find, st_next, st_clear_usage;
+
+Qmon*qmon_sharetree.sharetree.layout: \
+   Fixed Shadowed Out 4 2 LREvenSpaced Row sharetree_title { \
+      Fixed Centered st_main_link \
+      Centered Color "$title_fg" "@{@fBShare Tree Policy}" \
+   } \
+   # \
+   Row st_main_row { \
+      Col { \
+         Shadowed Out Stretchable 5 in % 6 in st_tree \
+         # \
+         Shadowed Out Col { \
+            Centered "@{@fBNode Attributes}" \
+            Row { Fixed 35 em "@{Identifier}"<> 20 em st_name }\
+            Row { Fixed 35 em "@{Shares}"<> 20 em st_share }\
+            Row { Fixed 35 em "@{Level Percentage}"<> 20 em st_simple_percentage }\
+            Row { Fixed 35 em "@{Total Percentage}"<> 20 em st_percentage }\
+            Row { Fixed 35 em "@{Actual Resource Share}"<> 20 em st_actual_proportion }\
+            Row { Fixed 35 em "@{Targeted Resource Share}"<> 20 em st_targetted_share }\
+            Row { Fixed 35 em "@{Combined Usage}"<> 20 em st_usage }\
+         } \
+      } \
+      Fixed Shadowed Out Col st_button_box { \
+         Fixed st_update \
+         Fixed st_apply \
+         Fixed st_close \
+         Fixed st_help \
+         #\
+         = \
+         #\
+         Fixed st_add_node \
+         Fixed st_add_leaf \
+         Fixed st_mod_node \
+         Fixed st_delete \
+         Fixed st_copy \
+         Fixed st_cut \
+         Fixed st_paste \
+         Fixed st_find \
+         Fixed st_next \
+         #\
+         = \
+         #\
+         Fixed st_clear_usage \
+         <> \
+         Fixed Centered st_more \
+         Fixed st_message \
+      } \
+   }
+
+Qmon*st_message*columns:         15
+Qmon*qmon_sharetree.sharetree.st_main_link.labelType:   PIXMAP
+Qmon*qmon_sharetree.sharetree.st_main_link.labelPixmap: logo
+Qmon*qmon_sharetree.sharetree.st_main_link.shadowThickness:    1
+Qmon*qmon_sharetree.sharetree.st_main_link.highlightThickness: 0
+Qmon*qmon_sharetree.sharetree.st_main_link.marginHeight:       0
+Qmon*qmon_sharetree.sharetree.st_main_link.marginWidth:        0
+
+Qmon*qmon_sharetree.sharetree.st_update.labelString:       @{Refresh}
+Qmon*qmon_sharetree.sharetree.st_mod_node.labelString:     @{Modify}
+Qmon*qmon_sharetree.sharetree.st_add_node.labelString:     @{Add Node}
+Qmon*qmon_sharetree.sharetree.st_add_leaf.labelString:     @{Add Leaf}
+Qmon*qmon_sharetree.sharetree.st_delete.labelString:       @{Delete}
+Qmon*qmon_sharetree.sharetree.st_copy.labelString:         @{Copy}
+Qmon*qmon_sharetree.sharetree.st_cut.labelString:          @{Cut}
+Qmon*qmon_sharetree.sharetree.st_paste.labelString:        @{Paste}
+Qmon*qmon_sharetree.sharetree.st_paste.sensitive:          False
+Qmon*qmon_sharetree.sharetree.st_find.labelString:         @{Find}
+Qmon*qmon_sharetree.sharetree.st_next.labelString:         @{Find Next}
+Qmon*qmon_sharetree.sharetree.st_apply.labelString:        @{Apply}
+Qmon*qmon_sharetree.sharetree.st_close.labelString:        @{Done}
+Qmon*qmon_sharetree.sharetree.st_help.labelString:         @{Help}
+Qmon*qmon_sharetree.sharetree.st_clear_usage.labelString:  @{Clear Usage}
+
+Qmon*qmon_sharetree.sharetree.st_more.labelType:           PIXMAP
+Qmon*qmon_sharetree.sharetree.st_more.labelPixmap:         rightarrow
+
+Qmon*qmon_sharetree.sharetree.st_new.labelType:            PIXMAP
+Qmon*qmon_sharetree.sharetree.st_new.labelPixmap:          file_link
+
+Qmon*qmon_sharetree.sharetree.st_name.width: 100
+Qmon*qmon_sharetree.sharetree.st_name.labelString:  _
+Qmon*qmon_sharetree.sharetree.st_name.alignment: ALIGNMENT_BEGINNING
+Qmon*qmon_sharetree.sharetree.st_name.recomputeSize:   False
+
+Qmon*qmon_sharetree.sharetree.st_share.labelString: _
+Qmon*qmon_sharetree.sharetree.st_share.alignment: ALIGNMENT_BEGINNING
+Qmon*qmon_sharetree.sharetree.st_share.recomputeSize:   False
+
+Qmon*qmon_sharetree.sharetree.st_simple_percentage.labelString:  _
+Qmon*qmon_sharetree.sharetree.st_simple_percentage.alignment: ALIGNMENT_BEGINNING
+Qmon*qmon_sharetree.sharetree.st_simple_percentage.recomputeSize:   False
+
+Qmon*qmon_sharetree.sharetree.st_percentage.labelString: _
+Qmon*qmon_sharetree.sharetree.st_percentage.alignment: ALIGNMENT_BEGINNING
+Qmon*qmon_sharetree.sharetree.st_percentage.recomputeSize:    False
+
+Qmon*qmon_sharetree.sharetree.st_usage.labelString: _
+Qmon*qmon_sharetree.sharetree.st_usage.alignment: ALIGNMENT_BEGINNING
+Qmon*qmon_sharetree.sharetree.st_usage.recomputeSize:         False
+
+Qmon*qmon_sharetree.sharetree.st_targetted_share.labelString:  _
+Qmon*qmon_sharetree.sharetree.st_targetted_share.alignment: ALIGNMENT_BEGINNING
+Qmon*qmon_sharetree.sharetree.st_targetted_share.recomputeSize:         False
+
+Qmon*qmon_sharetree.sharetree.st_actual_proportion.labelString: _
+Qmon*qmon_sharetree.sharetree.st_actual_proportion.alignment: ALIGNMENT_BEGINNING
+Qmon*qmon_sharetree.sharetree.st_actual_proportion.recomputeSize:         False
+
+Qmon*qmon_sharetree.sharetree.st_sharetree_type.chooserType: ChooserOption
+Qmon*qmon_sharetree.sharetree.st_sharetree_type.strings: \
+   "@{User Share Tree}", \
+   "@{Project Share Tree}"
+
+
+Qmon*qmon_sharetree.sharetree.st_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+
+Qmon*qmon_sharetree.sharetree.st_ratio.layoutIn: st_main_row
+Qmon*qmon_sharetree.sharetree.st_ratio.xmtChildren: \
+   XmScale        st_cpu = cpu_weight, \
+                  st_mem = mem_weight, \
+                  st_io = io_weight; \
+   XmToggleButton st_cpu_t, st_mem_t, st_io_t; \
+   InputField     st_halflife = halftime, \
+                  st_halflife_decay_list=halflife_decay_list, \
+                  st_compensation_factor = compensation_factor; \
+   XmtChooser     st_halflife_unit;
+
+
+Qmon*qmon_sharetree.sharetree.st_ratio.layout: \
+   Stretchable Shadowed Out 4 2 Col { \
+      "@{@fBShare Tree Policy Parameters}" \
+      Equal Even Row { \
+         Caption tc "@{CPU [%]}" Col { \
+            Fixed Centered st_cpu_t \
+            Fixed Centered st_cpu \
+         } \
+         Caption tc "@{MEM [%]}" Col { \
+            Fixed Centered st_mem_t \
+            Fixed Centered st_mem \
+         } \
+         Caption tc "@{I/O [%]}" Col { \
+            Fixed Centered st_io_t \
+            Fixed Centered st_io \
+         } \
+      } \
+      Caption tl "@{Halflife}" Row { \
+         Centered st_halflife \
+         Fixed st_halflife_unit \
+      } \
+      Caption tl "@{Halflife Decay List}" \
+         st_halflife_decay_list \
+      Caption tl "@{Compensation Factor}" st_compensation_factor \
+      <> \
+   }
+
+Qmon*sharetree.st_ratio.st_halflife_unit.chooserType: ChooserOption
+Qmon*sharetree.st_ratio.st_halflife_unit.strings: \
+   "@{Hours}", \
+   "@{Days}"
+
+Qmon*sharetree.st_ratio.st_uwm.reverseSelect:       True
+Qmon*sharetree.st_ratio.st_uwm.allowColumnResize:   True
+Qmon*sharetree.st_ratio.st_uwm.rows:        5
+Qmon*sharetree.st_ratio.st_uwm.visibleRows:  5
+Qmon*sharetree.st_ratio.st_uwm.fixedColumns: 1
+Qmon*sharetree.st_ratio.st_uwm.trailingFixedColumns: 1
+Qmon*sharetree.st_ratio.st_uwm.columns:      3
+Qmon*sharetree.st_ratio.st_uwm.columnWidths: 15, 10, 10
+Qmon*sharetree.st_ratio.st_uwm.columnMaxLengths: 150, 15, 15
+Qmon*sharetree.st_ratio.st_uwm.columnLabels: @{Category}, @{Share}, @{Percentage}
+Qmon*sharetree.st_ratio.st_uwm.boldLabels:            True
+Qmon*sharetree.st_ratio.st_uwm.gridType:              GRID_COLUMN_SHADOW
+Qmon*sharetree.st_ratio.st_uwm.cellShadowType:        SHADOW_IN
+Qmon*sharetree.st_ratio.st_uwm.cellShadowThickness:   1
+
+Qmon*sharetree.st_ratio.st_cpu_t.indicatorOn:  False
+Qmon*sharetree.st_ratio.st_cpu_t.shadowThickness: 0
+Qmon*sharetree.st_ratio.st_cpu_t.highlightThickness: 0
+Qmon*sharetree.st_ratio.st_cpu_t.labelType:    PIXMAP
+Qmon*sharetree.st_ratio.st_cpu_t.labelPixmap:  open_lock
+Qmon*sharetree.st_ratio.st_cpu_t.selectPixmap: lock
+
+Qmon*sharetree.st_ratio.st_mem_t.indicatorOn:  False
+Qmon*sharetree.st_ratio.st_mem_t.shadowThickness: 0
+Qmon*sharetree.st_ratio.st_mem_t.highlightThickness: 0
+Qmon*sharetree.st_ratio.st_mem_t.labelType:    PIXMAP
+Qmon*sharetree.st_ratio.st_mem_t.labelPixmap:  open_lock
+Qmon*sharetree.st_ratio.st_mem_t.selectPixmap: lock
+
+Qmon*sharetree.st_ratio.st_io_t.indicatorOn:   False
+Qmon*sharetree.st_ratio.st_io_t.shadowThickness: 0
+Qmon*sharetree.st_ratio.st_io_t.highlightThickness: 0
+Qmon*sharetree.st_ratio.st_io_t.labelType:     PIXMAP
+Qmon*sharetree.st_ratio.st_io_t.labelPixmap:   open_lock
+Qmon*sharetree.st_ratio.st_io_t.selectPixmap:  lock
+
+!Qmon*sharetree.st_ratio.st_cpu*troughColor:         red
+Qmon*sharetree.st_ratio.st_cpu.foreground:           red
+Qmon*sharetree.st_ratio.st_cpu.decimalPoints:        1
+Qmon*sharetree.st_ratio.st_cpu.minimum:              0
+Qmon*sharetree.st_ratio.st_cpu.maximum:              1000
+Qmon*sharetree.st_ratio.st_cpu.highlightThickness:   1
+Qmon*sharetree.st_ratio.st_cpu.scaleMultiple:        1
+Qmon*sharetree.st_ratio.st_cpu.orientation:          VERTICAL
+Qmon*sharetree.st_ratio.st_cpu.showValue:            True
+Qmon*sharetree.st_ratio.st_cpu.sliderMark:           ROUND_MARK
+
+!Qmon*sharetree.st_ratio.st_mem*troughColor:          cyan4
+Qmon*sharetree.st_ratio.st_mem.foreground:           cyan4
+Qmon*sharetree.st_ratio.st_mem.decimalPoints:        1
+Qmon*sharetree.st_ratio.st_mem.minimum:              0
+Qmon*sharetree.st_ratio.st_mem.maximum:              1000
+Qmon*sharetree.st_ratio.st_mem.highlightThickness:   1
+Qmon*sharetree.st_ratio.st_mem.scaleMultiple:        1
+Qmon*sharetree.st_ratio.st_mem.orientation:          VERTICAL
+Qmon*sharetree.st_ratio.st_mem.showValue:            True
+Qmon*sharetree.st_ratio.st_mem.sliderMark:           ROUND_MARK
+
+!Qmon*sharetree.st_ratio.st_io*troughColor:           magenta4
+Qmon*sharetree.st_ratio.st_io.foreground:            magenta4
+Qmon*sharetree.st_ratio.st_io.decimalPoints:         1
+Qmon*sharetree.st_ratio.st_io.minimum:               0
+Qmon*sharetree.st_ratio.st_io.maximum:               1000
+Qmon*sharetree.st_ratio.st_io.highlightThickness:    1
+Qmon*sharetree.st_ratio.st_io.scaleMultiple:         1
+Qmon*sharetree.st_ratio.st_io.orientation:           VERTICAL
+Qmon*sharetree.st_ratio.st_io.showValue:             True
+Qmon*sharetree.st_ratio.st_io.sliderMark:            ROUND_MARK
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! New Node Popup
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_node.xmtChildren:  unmanaged XmtLayout node_layout;
+Qmon*qmon_node.node_layout.dialogStyle: DIALOG_FULL_APPLICATION_MODAL
+Qmon*qmon_node.node_layout.xmtChildren: \
+   InputField     node_name; \
+   InputField     node_share; \
+   XmPushButton   node_ok, node_cancel;
+
+Qmon*qmon_node.node_layout.layout: \
+   Row { \
+      Shadowed Out Col { \
+         "@{@fBNode Info}" \
+         #\
+         FlushRight Caption l "@{Name}" node_name \
+         FlushRight Caption l "@{Share}" node_share \
+      } \
+      Fixed Shadowed Out Col { \
+         Fixed node_ok \
+         Fixed node_cancel \
+      } \
+   }
+
+
+Qmon*qmon_node.node_layout.node_ok.labelString:      @{Ok}
+Qmon*qmon_node.node_layout.node_cancel.labelString:  @{Cancel}

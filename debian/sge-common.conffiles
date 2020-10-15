@@ -1,0 +1,4 @@
+/opt/sge/util/install_modules/inst_template.conf
+/opt/sge/util/sgeCA/sge_ca.cnf
+/opt/sge/util/sgeCA/sge_ssl.cnf
+/opt/sge/util/sgeCA/sge_ssl_template.cnf

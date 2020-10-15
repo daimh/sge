@@ -1,0 +1,91 @@
+#! /bin/sh
+# 
+# Motif Tools Library
+# $Id: checkres,v 1.1 2001-07-18 11:06:10 root Exp $
+# 
+# Written by David Flanagan.
+# Copyright (c) 1992, 1993 by Dovetail Systems.
+# All Rights Reserved.  See the file COPYRIGHT for details.
+# This is not free software.  See the file SHAREWARE for details.
+# There is no warranty for this software.  See the file WARRANTY for details.
+#
+
+if [ "$#" = "0" ]
+then
+	echo usage: $0 filename [filename...]
+	echo "   or: $0 - (to check stdin)"
+	exit;
+fi;
+
+while [ "$#" != "0" ]; do
+
+awk '
+# initialize variables
+BEGIN { cont = 0; ok = 0; FS = "\n"; }
+
+# a comment that begins with the word okay turns off error checking
+# for the next resource specification, which may include continuation
+# lines.
+/^![	 ]*okay/ { ok = 1; }
+
+# ignore other comments, except to note that they are not
+# followed by continuation lines.
+/^!/ { cont = 0; next; }
+
+# if the ok flag is set, then we will ignore this line.
+# if the line is not blank and does not end with a backslash, then we will
+# turn off the flag to resume normal error checking.
+ok == 1 {\
+	if ($0 !~ /\\$/) if ($0 !~ /^$/) ok = 0;\
+	next;\
+}
+
+# ignore the #include directive in resoure files
+/^#[	 ]*include/ { cont = 0; next; }
+
+# warn about whitespace following backslashes at end of line
+/\\[ 	]+$/ {\
+	printf("%s: %s: whitespace follows backslash.\n",FILENAME, NR);\
+}
+
+# warn about any trailing whitespace
+/[ 	]+$/ {\
+  printf("%s: %s: warning: trailing whitespace included in resource value.\n",\
+         FILENAME, NR);\
+}	
+
+# If a line is not a continuation line or blank (or a comment)
+# then it should have a colon in it.  If not, and if the line
+# begins with whitespace, then there is probably a missing backslash
+# on the previous line.  Otherwise, it is probably just a missing colon.
+# If there is a colon, we check the lhs and rhs.  Widget names can legally
+# contain spaces and you can get away with punctuation,
+# but this is a bad idea, and we also require that the colon be
+# preceded by a well-formed widget name.  
+# Also, colons must be followed by something other than whitespace.
+cont == 0 && ($0 !~ /^[ 	]*$/) {\
+	if ($0 !~ /:/) 	{\
+		if ($0 ~ /^[ 	]/)\
+			printf("%s: %s: colon expected.  Missing \\ on previous line?\n", FILENAME, NR);\
+		else
+			printf("%s: %s: colon expected.\n", FILENAME, NR);\
+	}\
+	else {\
+	    if ($0 !~ /^[	 ]*[.*]?(([?]|[a-zA-Z0-9_-]+)[.*])*[a-zA-Z0-9_-]+[ 	]*:/)\
+		printf("%s: %s: malformed name before colon.\n",\
+		       FILENAME, NR);\
+	    if ($0 !~ /:[	 ]*[^ 	]/)\
+		printf("%s: %s: warning: no resource value follows colon.\n",\
+		       FILENAME, NR);\
+	}\
+}
+
+# if the current line ends with a backslash (or a backslash followed by
+# whitespace which will be warned about above) then set a flag to indicate
+# that the next line is a continuation line.  This flag is read above.
+/\\[	 ]*$/ { cont = 1; }
+!/\\[	 ]*$/ { cont = 0; }
+' $1
+
+shift
+done

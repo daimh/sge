@@ -1,0 +1,3 @@
+action=$1
+test$action.sh cal ckpt c p u prj 
+exit 0

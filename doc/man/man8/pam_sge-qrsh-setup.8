@@ -1,0 +1,70 @@
+'\"
+.\" Copyright (C), 2010  Dave Love <d.love@liv.ac.uk>
+.\" You may distribute this file under the terms of the GNU Free
+.\" Documentation License.
+.de URL
+\\$2 \(laURL: \\$1 \(ra\\$3
+..
+.if \n[.g] .mso www.tmac
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.\"
+.TH pam_sge-qrsh-setup 8 2010-11-25 
+.SH NAME
+pam_sge-qrsh-setup \- PAM module for tight integration with xxQS_NAMExx
+.SH SYNOPSIS
+.B pam_sge-qrsh-setup
+.SH DESCRIPTION
+This PAM module provides tight integration of SSH communication into
+xxQS_NAMExx when 
+.M ssh 1
+is used with 
+.B qrsh
+etc.  It may also work with other communication methods that run
+daemons which use PAM.  See
+.M remote_communication 5 .
+It provides to the spawned processes the group id from
+.IB $SGE_ROOT /default/spool/ hostname /active_jobs/ job_id /addgrpid
+and the environment from 
+.IB $SGE_ROOT /default/spool/ hostname /active_jobs/ job_id /environment\fR.
+.PP
+It assumes the use of a wrapper for
+.BR rshd .
+A suitable one is distributed as
+.B util/resources/wrappers/rshd-wrapper
+under the xxQS_NAMExx root directory.
+.SH OPTIONS
+The module has no options.
+.\"
+.SH EXAMPLE
+On a typical GNU/Linux system, add the following line to
+.BR /etc/pam.d/sshd ,
+e.g. at the top of the file.
+.sp 1
+.RS
+ auth required /opt/sge/lib/lx-amd64/pam_sge-qrsh-setup.so
+.sp
+.RE
+\fROn some systems it might be necessary to copy pam_sge-qrsh-setup.so
+into, say,
+.B /lib/security
+and instead use it as
+.sp 1
+.RS
+ auth required pam_sge-qrsh-setup.so
+.RE
+\fR
+.\"
+.SH FILES
+.B /var/run/sge-qrsh-setup
+.br
+.B $SGE_ROOT/util/resources/wrappers/rshd-wrapper
+.SH "SEE ALSO"
+.M ssh 1 ,
+.M remote_communication 5 ,
+.M pam 7 ,
+.M pam.conf 4 .
+.SH AUTHOR
+Andreas Haupt, man page by Dave Love.

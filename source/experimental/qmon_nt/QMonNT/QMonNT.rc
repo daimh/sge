@@ -1,0 +1,1423 @@
+//Microsoft Developer Studio generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// German (Germany) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_DEU)
+#ifdef _WIN32
+LANGUAGE LANG_GERMAN, SUBLANG_GERMAN
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE DISCARDABLE 
+BEGIN
+    "#define _AFX_NO_SPLITTER_RESOURCES\r\n"
+    "#define _AFX_NO_OLE_RESOURCES\r\n"
+    "#define _AFX_NO_TRACKER_RESOURCES\r\n"
+    "#define _AFX_NO_PROPERTY_RESOURCES\r\n"
+    "\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "#ifdef _WIN32\r\n"
+    "LANGUAGE 9, 1\r\n"
+    "#pragma code_page(1252)\r\n"
+    "#endif\r\n"
+    "#include ""res\\qmonnt.rc2""  // Nicht mit Microsoft Visual C++ bearbeitete Ressourcen\r\n"
+    "#include ""afxres.rc""         // Standardkomponenten\r\n"
+    "#include ""afxprint.rc""       // Ressourcen für Drucken/Seitenansicht\r\n"
+    "#endif\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // German (Germany) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+IDB_TREEICONS           BITMAP  DISCARDABLE     "res\\treeicon.bmp"
+IDR_MAINFRAME           BITMAP  MOVEABLE PURE   "res\\Toolbar.bmp"
+IDB_QUEUEICONS          BITMAP  DISCARDABLE     "res\\queuesta.bmp"
+IDB_INFINITY            BITMAP  DISCARDABLE     "res\\bitmap1.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_CODJOBVIEWSCRIPT DIALOG DISCARDABLE  0, 0, 216, 133
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Jobscript"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Jobscript informations",IDC_STATIC,7,7,68,8
+    LTEXT           "rechts oben",IDC_STATIC,171,7,38,8
+    LTEXT           "Mitte",IDC_STATIC,94,57,16,8
+    LTEXT           "Links mitte",IDC_STATIC,7,57,34,8
+    LTEXT           "Links unten",IDC_STATIC,7,118,38,8
+    LTEXT           "unten",IDC_STATIC,93,118,19,8
+    LTEXT           "rechts unten",IDC_STATIC,169,118,40,8
+    LTEXT           "Rechts mitte",IDC_STATIC,169,57,40,8
+    LTEXT           "Oben",IDC_STATIC,93,7,18,8
+END
+
+IDD_ABOUTBOX DIALOG DISCARDABLE  0, 0, 116, 60
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About QmonNT"
+FONT 8, "MS Sans Serif"
+BEGIN
+    ICON            IDR_MAINFRAME,IDC_STATIC,81,7,20,20,SS_REALSIZEIMAGE
+    LTEXT           "QmonNT Version 1.0",IDC_STATIC,7,7,71,8,SS_NOPREFIX
+    LTEXT           "Copyright (C) 1998",IDC_STATIC,7,18,68,8
+    DEFPUSHBUTTON   "OK",IDOK,41,39,32,14,WS_GROUP
+END
+
+IDD_SETDEBUGLEVEL DIALOGEX 0, 0, 245, 194
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Set Debug Level"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,80,169,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,133,169,50,14
+    GROUPBOX        "Class",IDC_STATIC,111,7,116,45
+    LISTBOX         IDC_LAYERLIST,15,18,74,78,LBS_NOINTEGRALHEIGHT | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Trace",IDC_TRACEPRINT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,125,18,71,10
+    CONTROL         "Info",IDC_INFOPRINT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,125,34,71,10
+    PUSHBUTTON      "Apply",IDAPPLY,186,169,50,14
+    PUSHBUTTON      "Enable all",IDC_ENABLEALLLEVELS,111,82,50,14
+    PUSHBUTTON      "Disable all",IDC_DISABLEALLLEVELS,177,82,50,14
+    EDITTEXT        IDC_BUFFERLEN,111,121,47,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Lines in debug message buffer:",IDC_STATIC,7,124,104,8
+    CONTROL         "Dump to file",IDC_FILEDUMP,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,7,144,104,10
+    EDITTEXT        IDC_FILENAME,111,142,116,14,ES_AUTOHSCROLL
+    CONTROL         "",IDC_STATIC,"Static",SS_ETCHEDHORZ,7,113,231,1
+    CONTROL         "Save as default",IDC_SAVEASDEFAULT,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,7,171,67,10
+    LTEXT           "Layer",IDC_STATIC,16,7,18,8
+    GROUPBOX        "Color",IDC_STATIC,111,52,116,25
+    LTEXT           "",IDC_STATIC_COLOR,117,61,56,13,NOT WS_GROUP,
+                    WS_EX_CLIENTEDGE
+    PUSHBUTTON      "Change...",IDC_CHANGECOLOR,178,60,42,14
+END
+
+IDD_CODTREEVIEW DIALOG DISCARDABLE  0, 0, 108, 240
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+END
+
+IDD_CODQUEUEVIEWGENERAL DIALOGEX 0, 0, 208, 109
+STYLE WS_CHILD | WS_CAPTION
+CAPTION "General"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Queue Name",IDC_STATIC_QUEUENAME,7,30,68,8
+    EDITTEXT        IDC_QUEUENAME,83,30,102,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER,WS_EX_STATICEDGE
+    LTEXT           "Queue Hostname",IDC_STATIC_QUEUEHOSTNAME,7,45,56,8
+    EDITTEXT        IDC_QUEUEHOSTNAME,83,45,102,14,ES_AUTOHSCROLL | 
+                    ES_READONLY | NOT WS_BORDER,WS_EX_STATICEDGE
+    LTEXT           "Jobslots",IDC_STATIC_QUEUEJOBSLOTS,7,60,26,8
+    EDITTEXT        IDC_QUEUEJOBSLOTS,83,60,102,14,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    LTEXT           "Internal ID",IDC_STATIC_INTERNALID,7,15,54,8
+    EDITTEXT        IDC_INTERNALID,83,15,102,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER,WS_EX_STATICEDGE
+    EDITTEXT        IDC_QUEUEPRIORITY,83,75,102,14,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin2",IDC_SPIN_QUEUEPRIORITY,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS,185,75,10,14
+    LTEXT           "Priority",IDC_STATIC_QUEUEPRIORITY,7,75,22,8
+    LTEXT           "Notify Time",IDC_STATIC_QUEUENOTIFYTIME,7,90,65,8
+    CONTROL         "DateTimePicker3",IDC_QUEUENOTIFYTIME,"SysDateTimePick32",
+                    DTS_RIGHTALIGN | DTS_UPDOWN | DTS_SHOWNONE | 
+                    DTS_APPCANPARSE | WS_TABSTOP | 0x8,83,90,102,14
+END
+
+IDD_ANSWERMESSAGE DIALOG DISCARDABLE  0, 0, 264, 158
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Answer Message"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,107,137,50,14
+    LTEXT           "The last CODINE api call didn't produce any error.",
+                    IDC_MESSAGESTATIC,7,7,250,125,SS_NOTIFY | SS_SUNKEN
+END
+
+IDD_CODMESSAGEVIEW DIALOG DISCARDABLE  0, 0, 166, 78
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_MESSAGE,7,7,152,64,ES_MULTILINE | ES_AUTOVSCROLL | 
+                    ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
+END
+
+IDD_CODJOBVIEWGENERAL DIALOGEX 0, 0, 233, 89
+STYLE WS_CHILD | WS_CAPTION
+CAPTION "General"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Job Number",IDC_STATIC_JOBNUMBER,7,30,39,8
+    EDITTEXT        IDC_JOBNUMBER,75,27,58,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER,WS_EX_STATICEDGE
+    LTEXT           "Job File",IDC_STATIC_JOBFILE,7,47,25,8
+    EDITTEXT        IDC_JOBFILE,75,44,152,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER,WS_EX_STATICEDGE
+    LTEXT           "Script File",IDC_STATIC_SCRIPTFILE,7,64,32,8
+    EDITTEXT        IDC_SCRIPTFILE,75,61,152,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER,WS_EX_STATICEDGE
+    LTEXT           "Internal ID",IDC_STATIC_INTERNALID,7,13,34,8
+    EDITTEXT        IDC_INTERNALID,75,10,58,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER,WS_EX_STATICEDGE
+END
+
+IDD_SHEETDLGBAR DIALOG DISCARDABLE  0, 0, 113, 20
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "",IDC_STATIC_LINE,"Static",SS_ETCHEDHORZ,2,0,111,1
+    PUSHBUTTON      "Send",IDC_SEND,0,6,50,14
+    PUSHBUTTON      "Revert",IDC_REVERT,57,6,50,14
+END
+
+IDD_CODNOTHINGVIEW DIALOG DISCARDABLE  0, 0, 110, 23
+STYLE WS_CHILD
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Nothing to display for this view",IDC_STATIC,7,7,96,8
+END
+
+IDD_CODQUEUEVIEWENV DIALOG DISCARDABLE  0, 0, 197, 47
+STYLE WS_CHILD | WS_CAPTION
+CAPTION "Environment"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Temp Dir",IDC_STATIC_QUEUETMPDIR,7,11,30,8
+    EDITTEXT        IDC_QUEUETMPDIR,83,8,102,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_QUEUESHELL,83,24,102,14,ES_AUTOHSCROLL
+    LTEXT           "Shell",IDC_STATIC_QUEUESHELL,7,27,16,8
+END
+
+IDD_CODHOSTVIEWGENERAL DIALOGEX 0, 0, 208, 93
+STYLE WS_CHILD | WS_CAPTION
+CAPTION "General"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Hostname",IDC_STATIC_HOSTNAME,7,27,76,8
+    EDITTEXT        IDC_HOSTNAME,83,24,102,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER,WS_EX_STATICEDGE
+    LTEXT           "Internal ID",IDC_STATIC_INTERNALID,7,11,76,8
+    EDITTEXT        IDC_INTERNALID,83,7,102,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    ES_NUMBER | NOT WS_BORDER,WS_EX_STATICEDGE
+    EDITTEXT        IDC_PROCESSORS,83,56,102,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    ES_NUMBER | NOT WS_BORDER,WS_EX_STATICEDGE
+    LTEXT           "Processors",IDC_STATIC_PROCESSORS,7,59,76,8
+    LTEXT           "Real Name",IDC_STATIC_REALNAME,7,43,36,8
+    EDITTEXT        IDC_REALNAME,83,40,102,14,ES_AUTOHSCROLL | ES_READONLY | 
+                    NOT WS_BORDER,WS_EX_STATICEDGE
+END
+
+IDD_CODQUEUEVIEWLIST DIALOG DISCARDABLE  0, 0, 49, 41
+STYLE WS_CHILD | WS_CAPTION
+CAPTION "Queues"
+FONT 8, "MS Sans Serif"
+BEGIN
+END
+
+IDD_LOGSAVEDIALOG DIALOG DISCARDABLE  0, 0, 128, 110
+STYLE WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "Static",stc32,7,7,114,58,NOT WS_VISIBLE
+    CONTROL         "Append to File",IDC_APPENDTOFILE,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,71,95,10
+    CONTROL         "Include Layer in Output",IDC_INCLUDELAYER,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,82,94,10
+    CONTROL         "Clear Buffer after Save",IDC_CLEARBUFFER,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,93,88,10
+END
+
+IDD_CODQUEUEVIEWLIMITS DIALOG DISCARDABLE  0, 0, 338, 191
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Limits"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_QUEUEHARDFILESIZE,90,65,70,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_QUEUEHARDDATASIZE,90,85,70,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_QUEUEHARDSTACKSIZE,90,105,70,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_QUEUEHARDCOREFILESIZE,90,125,70,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_QUEUESOFTFILESIZE,255,65,70,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_QUEUESOFTDATASIZE,255,85,70,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_QUEUESOFTSTACKSIZE,255,105,70,15,ES_AUTOHSCROLL
+    EDITTEXT        IDC_QUEUESOFTCOREFILESIZE,255,125,70,15,ES_AUTOHSCROLL
+    LTEXT           "Wallclock Time (sec)",IDC_STATIC_QUEUEHARDREALTIME,10,
+                    25,67,8
+    LTEXT           "CPU Time (sec)",IDC_STATIC_QUEUEHARDCPUTIME,10,45,50,8
+    LTEXT           "File Size (Byte)",IDC_STATIC_QUEUEHARDFILESIZE,10,65,47,
+                    8
+    LTEXT           "Data Size (Byte)",IDC_STATIC_QUEUEHARDDATASIZE,10,85,52,
+                    8
+    LTEXT           "Stack Size (Byte)",IDC_STATIC_QUEUEHARDSTACKSIZE,10,105,
+                    55,8
+    LTEXT           "Corefile Size (Byte)",IDC_STATIC_QUEUEHARDCOREFILESIZE,
+                    10,125,60,8
+    LTEXT           "Wallclock Time (sec)",IDC_STATIC_QUEUESOFTREALTIME,175,
+                    25,67,8
+    LTEXT           "CPU Time (sec)",IDC_STATIC_QUEUESOFTCPUTIME,175,45,50,8
+    LTEXT           "File Size (Byte)",IDC_STATIC_QUEUESOFTFILESIZE,175,65,
+                    47,8
+    LTEXT           "Data Size (Byte)",IDC_STATIC_QUEUESOFTDATASIZE,175,85,
+                    52,8
+    LTEXT           "Stack Size (Byte)",IDC_STATIC_QUEUESOFTSTACKSIZE,175,
+                    105,55,8
+    LTEXT           "Corefile Size (Byte)",IDC_STATIC_QUEUESOFTCOREFILESIZE,
+                    175,125,60,8
+    LTEXT           "Resident Set Size (Byte)",
+                    IDC_STATIC_QUEUEHARDRESIDENTSETSIZE,10,145,77,8
+    EDITTEXT        IDC_QUEUEHARDRESIDENTSETSIZE,90,145,70,15,ES_AUTOHSCROLL
+    LTEXT           "Resident Set Size (Byte)",
+                    IDC_STATIC_QUEUESOFTRESIDENTSETSIZE,175,145,77,8
+    EDITTEXT        IDC_QUEUESOFTRESIDENTSETSIZE,255,145,70,15,
+                    ES_AUTOHSCROLL
+    GROUPBOX        "Hard Limits",IDC_STATIC,5,10,160,174
+    GROUPBOX        "Soft Limits",IDC_STATIC,170,10,161,174
+    LTEXT           "Virtual Memory (Byte)",
+                    IDC_STATIC_QUEUEHARDVIRTUALMEMORY,10,165,67,8
+    EDITTEXT        IDC_QUEUEHARDVIRTUALMEMORY,90,165,70,15,ES_AUTOHSCROLL
+    LTEXT           "Virtual Memory (Byte)",
+                    IDC_STATIC_QUEUESOFTVIRTUALMEMORY,175,165,67,8
+    EDITTEXT        IDC_QUEUESOFTVIRTUALMEMORY,255,165,70,15,ES_AUTOHSCROLL
+    CONTROL         "DateTimePicker1",IDC_QUEUEHARDCPUTIME,"SysDateTimePick32",
+                    DTS_RIGHTALIGN | DTS_UPDOWN | DTS_SHOWNONE | 
+                    DTS_APPCANPARSE | WS_TABSTOP | 0x8,90,45,70,15
+    CONTROL         "DateTimePicker1",IDC_QUEUESOFTCPUTIME,"SysDateTimePick32",
+                    DTS_RIGHTALIGN | DTS_UPDOWN | DTS_SHOWNONE | 
+                    DTS_APPCANPARSE | WS_TABSTOP | 0x8,255,45,70,15
+    CONTROL         "DateTimePicker1",IDC_QUEUESOFTREALTIME,
+                    "SysDateTimePick32",DTS_RIGHTALIGN | DTS_UPDOWN | 
+                    DTS_SHOWNONE | DTS_APPCANPARSE | WS_TABSTOP | 0x8,255,25,
+                    70,15
+    CONTROL         "DateTimePicker2",IDC_QUEUEHARDREALTIME,
+                    "SysDateTimePick32",DTS_RIGHTALIGN | DTS_UPDOWN | 
+                    DTS_SHOWNONE | DTS_APPCANPARSE | WS_TABSTOP | 0x8,90,25,
+                    70,15
+END
+
+IDD_CODQUEUEVIEWCHECKPOINTING DIALOG DISCARDABLE  0, 0, 218, 149
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Checkpointing"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "List1",IDC_LIST1,"SysListView32",LVS_REPORT | 
+                    LVS_SINGLESEL | LVS_OWNERDRAWFIXED | WS_BORDER | 
+                    WS_TABSTOP,7,7,204,116
+    DEFPUSHBUTTON   "&Add",IDC_ADDBUTTON,7,128,50,14
+    PUSHBUTTON      "&Delete",IDC_DELETEBUTTON,63,128,50,14
+    PUSHBUTTON      "&Empty",IDC_EMPTYBUTTON,119,128,50,14
+END
+
+IDD_ADDCHECKDIALOG DIALOG DISCARDABLE  0, 0, 160, 151
+STYLE DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Add Checkpoint"
+FONT 8, "MS Sans Serif"
+BEGIN
+    DEFPUSHBUTTON   "OK",IDOK,43,130,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,103,130,50,14
+    EDITTEXT        IDC_CHECPOINTEDIT,7,7,93,14,ES_AUTOHSCROLL | ES_READONLY
+    CONTROL         "List1",IDC_CHECPOINTSLIST,"SysListView32",LVS_REPORT | 
+                    LVS_SINGLESEL | LVS_SHOWSELALWAYS | LVS_NOSORTHEADER | 
+                    WS_BORDER | WS_TABSTOP,7,23,146,101
+END
+
+IDD_CODCOMPLEXVIEW DIALOG DISCARDABLE  0, 0, 294, 119
+STYLE WS_CHILD | WS_DISABLED | WS_CAPTION
+CAPTION "Complex atributes"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "",IDC_STATIC,7,7,139,98
+    LTEXT           "Name:",IDC_STATIC,15,27,22,8,SS_CENTERIMAGE
+    LTEXT           "Shortcut:",IDC_STATIC,15,47,30,8,SS_CENTERIMAGE
+    LTEXT           "Type:",IDC_STATIC,15,67,19,8,SS_CENTERIMAGE
+    LTEXT           "Value:",IDC_STATIC,15,87,21,8,SS_CENTERIMAGE
+    EDITTEXT        IDC_COMPLEXNAME,49,21,91,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_COMPLEXSHORTCUT,49,41,91,14,ES_AUTOHSCROLL
+    COMBOBOX        IDC_COMPLEXTYPE,49,62,91,99,CBS_DROPDOWNLIST | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_COMPLEXVALUE,49,81,91,14,ES_AUTOHSCROLL
+    GROUPBOX        "",IDC_STATIC,151,7,136,98
+    LTEXT           "Relation:",IDC_STATIC,158,25,29,8,SS_CENTERIMAGE
+    LTEXT           "Requestable:",IDC_STATIC,158,46,43,8,SS_CENTERIMAGE
+    LTEXT           "Consumable:",IDC_STATIC,158,65,42,8,SS_CENTERIMAGE
+    LTEXT           "Default:",IDC_STATIC,158,86,26,8,SS_CENTERIMAGE
+    COMBOBOX        IDC_COMPLEXRELATION,201,22,82,93,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMPLEXREQUESTABLE,201,42,81,61,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMPLEXCONSUMABLE,201,62,81,53,CBS_DROPDOWNLIST | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_COMPLEXDEFAULT,201,81,80,14,ES_AUTOHSCROLL
+END
+
+IDD_CODJOBSLIST DIALOG DISCARDABLE  0, 0, 413, 170
+STYLE WS_CHILD | WS_CAPTION
+CAPTION "Jobs"
+FONT 8, "MS Sans Serif"
+BEGIN
+    CONTROL         "List2",IDC_PENDINGJOBLIST,"SysListView32",LVS_REPORT | 
+                    LVS_OWNERDRAWFIXED | WS_BORDER | WS_TABSTOP,39,49,319,
+                    111
+    DEFPUSHBUTTON   "Submit",IDC_SUBMITBUTTON,87,16,50,14
+    PUSHBUTTON      "Suspend",IDC_SUSPENDBUTTON,139,16,50,14
+    PUSHBUTTON      "Unsuspend",IDC_UNSUSPENDBUTTON,191,16,50,14
+    PUSHBUTTON      "Delete",IDC_DELETEJOBBUTTON,243,16,50,14
+    PUSHBUTTON      "Hold",IDC_HOLDBUTTON,295,16,50,14
+    PUSHBUTTON      "Priority",IDC_PRIORITYBUTTON,347,16,50,14
+    GROUPBOX        "",IDC_STATIC,81,7,320,29,BS_RIGHT
+    CONTROL         "List4",IDC_RUNNINGJOBLIST,"SysListView32",LVS_REPORT | 
+                    LVS_OWNERDRAWFIXED | WS_BORDER | WS_TABSTOP,7,49,319,111
+    GROUPBOX        "",IDC_STATIC,7,7,68,29
+    CONTROL         "&Running jobs",IDC_RUNNINGCHECK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,14,57,10
+    CONTROL         "&Pending jobs",IDC_PENDINGCHECK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,13,23,57,10
+END
+
+IDD_JOB_GENERAL_PAGE DIALOG DISCARDABLE  0, 0, 362, 145
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "General"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Prefix:",IDC_STATIC,14,23,20,8
+    LTEXT           "Job Script:",IDC_STATIC,14,40,34,8
+    LTEXT           "Job Name:",IDC_STATIC,14,60,38,8
+    LTEXT           "Job Args:",IDC_STATIC,14,79,30,8
+    LTEXT           "Priority:",IDC_STATIC,14,99,24,8
+    LTEXT           "Start At:",IDC_STATIC,14,117,26,8
+    LTEXT           "Stdout:",IDC_STATIC,190,79,24,8
+    LTEXT           "Stderr:",IDC_STATIC,190,97,22,8
+    LTEXT           "Shell(s):",IDC_STATIC,190,23,26,8
+    CONTROL         "Merge Output",IDC_JOBMERGEOUTPUT_CHECK,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,190,60,59,10
+    EDITTEXT        IDC_JOBPREFIX_EDIT,52,20,118,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_JOBSCRIPT_EDIT,52,39,79,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Browse",IDC_JOBSCRIPT_BTN,136,39,34,14
+    EDITTEXT        IDC_JOBNAME_EDIT,52,57,118,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_JOBPRIORITY_EDIT,52,96,61,14,ES_AUTOHSCROLL | 
+                    ES_NUMBER
+    CONTROL         "Spin1",IDC_JOBPRIORITY_SPIN,"msctls_updown32",
+                    UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | 
+                    UDS_ARROWKEYS,113,96,11,14
+    EDITTEXT        IDC_JOBARGS_EDIT,52,76,118,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_JOBSHELL_EDIT,228,20,83,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Edit",IDC_JOBSHELL_BTN,316,20,34,14
+    EDITTEXT        IDC_JOBSTDOUT_EDIT,228,76,83,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_JOBSTDERR_EDIT,228,96,83,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Edit",IDC_JOBSTDOUTBTN,316,76,34,14
+    PUSHBUTTON      "Edit",IDC_JOBSTDERRBTN,316,96,34,14
+    GROUPBOX        "",IDC_STATIC,7,7,169,130
+    CONTROL         "DateTimePicker1",IDC_JOB_STARTTIME,"SysDateTimePick32",
+                    DTS_RIGHTALIGN | DTS_UPDOWN | WS_TABSTOP | 0x8,52,115,62,
+                    15
+    PUSHBUTTON      "Request resources",IDC_BUTTON5,190,116,160,13
+    GROUPBOX        "",IDC_STATIC,183,7,172,130
+END
+
+IDD_JOB_ADVANCED_PAGE DIALOG DISCARDABLE  0, 0, 362, 143
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Advanced"
+FONT 8, "MS Sans Serif"
+BEGIN
+    GROUPBOX        "",IDC_STATIC,7,7,169,130
+    GROUPBOX        "",IDC_STATIC,183,7,172,130
+    CONTROL         "Start of Job",IDC_MAILSTART,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,204,38,52,10
+    CONTROL         "End of Job",IDC_MAILEND,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,204,51,50,10
+    CONTROL         "Abort of Job",IDC_MAILABORT,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,277,38,54,10
+    CONTROL         "Suspend of Job",IDC_MAILSUSPEND,"Button",
+                    BS_AUTOCHECKBOX | WS_TABSTOP,277,50,65,10
+    LTEXT           "Mail options",IDC_STATIC,190,27,38,8
+    LTEXT           "Mail to:",IDC_STATIC,190,68,24,8
+    EDITTEXT        IDC_MAILTOEDIT,244,65,105,14,ES_AUTOHSCROLL
+    COMBOBOX        IDC_VERIFYMODECOMBO,244,83,105,30,CBS_DROPDOWN | 
+                    CBS_SORT | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Verify mode:",IDC_STATIC,190,86,40,8
+    LTEXT           "Hard queue list:",IDC_STATIC,190,103,50,8
+    LTEXT           "Soft queue list:",IDC_STATIC,190,121,48,8
+    EDITTEXT        IDC_HARDQUEUEEDIT,244,99,105,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_SOFTQUEUEEDIT,244,117,105,14,ES_AUTOHSCROLL
+    LTEXT           "Parallel Enviroment:",IDC_STATIC,15,15,63,8
+    EDITTEXT        IDC_EDIT4,42,26,94,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT5,42,44,94,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Edit",IDC_JOBPEBTN,139,27,31,32
+    LTEXT           "Enviroment:",IDC_STATIC,15,61,38,8
+    EDITTEXT        IDC_EDIT6,42,70,94,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Edit",IDC_JOBENVBTN,139,70,31,14
+    LTEXT           "Checkpointing object:",IDC_STATIC,15,87,70,8
+    EDITTEXT        IDC_EDIT7,42,98,94,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Edit",IDC_JOBCHECKBTN,139,98,31,14
+    LTEXT           "Restart:",IDC_STATIC,15,122,26,8
+    COMBOBOX        IDC_COMBO2,42,119,128,30,CBS_DROPDOWN | CBS_SORT | 
+                    WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Notify job",IDC_CHECK5,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,190,15,45,10
+END
+
+IDD_LISTVALUESDLG DIALOG DISCARDABLE  0, 0, 190, 207
+STYLE DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Edit values"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_HOSTEDIT,33,18,100,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_PATHEDIT,33,34,100,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "&Add",IDC_ADDBUTTON,139,18,37,30
+    CONTROL         "List2",IDC_VALUESLIST,"SysListView32",LVS_REPORT | 
+                    LVS_SINGLESEL | LVS_EDITLABELS | LVS_OWNERDRAWFIXED | 
+                    WS_BORDER | WS_TABSTOP,7,59,176,122
+    DEFPUSHBUTTON   "OK",IDOK,76,186,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,133,186,50,14
+    LTEXT           "Host:",IDC_STATIC,14,21,18,8
+    LTEXT           "Path:",IDC_STATIC,14,37,18,8
+    GROUPBOX        "",IDC_STATIC,7,7,176,47
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO DISCARDABLE 
+BEGIN
+    IDD_CODJOBVIEWSCRIPT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 209
+        VERTGUIDE, 102
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 126
+        HORZGUIDE, 61
+    END
+
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 109
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 53
+    END
+
+    IDD_SETDEBUGLEVEL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 238
+        VERTGUIDE, 16
+        VERTGUIDE, 105
+        VERTGUIDE, 111
+        VERTGUIDE, 125
+        VERTGUIDE, 227
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 187
+        HORZGUIDE, 18
+        HORZGUIDE, 52
+        HORZGUIDE, 96
+        HORZGUIDE, 104
+        HORZGUIDE, 128
+        HORZGUIDE, 149
+        HORZGUIDE, 176
+    END
+
+    IDD_CODTREEVIEW, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 101
+        VERTGUIDE, 14
+        VERTGUIDE, 67
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 233
+        HORZGUIDE, 146
+    END
+
+    IDD_CODQUEUEVIEWGENERAL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 201
+        VERTGUIDE, 83
+        TOPMARGIN, 7
+        HORZGUIDE, 15
+        HORZGUIDE, 30
+        HORZGUIDE, 45
+        HORZGUIDE, 60
+        HORZGUIDE, 75
+        HORZGUIDE, 90
+    END
+
+    IDD_ANSWERMESSAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 257
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 151
+    END
+
+    IDD_CODMESSAGEVIEW, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 159
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 71
+    END
+
+    IDD_CODJOBVIEWGENERAL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        VERTGUIDE, 75
+        VERTGUIDE, 133
+        VERTGUIDE, 227
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 82
+        HORZGUIDE, 17
+        HORZGUIDE, 34
+        HORZGUIDE, 51
+        HORZGUIDE, 68
+    END
+
+    IDD_SHEETDLGBAR, DIALOG
+    BEGIN
+        HORZGUIDE, 6
+        HORZGUIDE, 12
+    END
+
+    IDD_CODNOTHINGVIEW, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 103
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 15
+    END
+
+    IDD_CODQUEUEVIEWENV, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 190
+        VERTGUIDE, 83
+        VERTGUIDE, 185
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 41
+        HORZGUIDE, 15
+        HORZGUIDE, 31
+    END
+
+    IDD_CODHOSTVIEWGENERAL, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 201
+        VERTGUIDE, 83
+        VERTGUIDE, 185
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 86
+        HORZGUIDE, 15
+        HORZGUIDE, 31
+        HORZGUIDE, 47
+        HORZGUIDE, 63
+    END
+
+    IDD_CODQUEUEVIEWLIST, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 42
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 33
+    END
+
+    IDD_LOGSAVEDIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 121
+        VERTGUIDE, 13
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 103
+        HORZGUIDE, 76
+        HORZGUIDE, 87
+        HORZGUIDE, 98
+    END
+
+    IDD_CODQUEUEVIEWLIMITS, DIALOG
+    BEGIN
+        LEFTMARGIN, 5
+        RIGHTMARGIN, 331
+        VERTGUIDE, 10
+        VERTGUIDE, 90
+        VERTGUIDE, 160
+        VERTGUIDE, 165
+        VERTGUIDE, 170
+        VERTGUIDE, 175
+        VERTGUIDE, 255
+        VERTGUIDE, 325
+        VERTGUIDE, 330
+        TOPMARGIN, 10
+        BOTTOMMARGIN, 184
+        HORZGUIDE, 10
+        HORZGUIDE, 25
+        HORZGUIDE, 40
+        HORZGUIDE, 45
+        HORZGUIDE, 60
+        HORZGUIDE, 65
+        HORZGUIDE, 80
+        HORZGUIDE, 85
+        HORZGUIDE, 100
+        HORZGUIDE, 105
+        HORZGUIDE, 120
+        HORZGUIDE, 125
+        HORZGUIDE, 140
+        HORZGUIDE, 145
+        HORZGUIDE, 160
+        HORZGUIDE, 165
+        HORZGUIDE, 180
+    END
+
+    IDD_CODQUEUEVIEWCHECKPOINTING, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 211
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 142
+    END
+
+    IDD_ADDCHECKDIALOG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 153
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 144
+    END
+
+    IDD_CODCOMPLEXVIEW, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 287
+        VERTGUIDE, 15
+        VERTGUIDE, 49
+        VERTGUIDE, 140
+        VERTGUIDE, 194
+        VERTGUIDE, 236
+        VERTGUIDE, 244
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 111
+        HORZGUIDE, 35
+        HORZGUIDE, 55
+        HORZGUIDE, 75
+        HORZGUIDE, 95
+        HORZGUIDE, 105
+        HORZGUIDE, 115
+    END
+
+    IDD_CODJOBSLIST, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 406
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 163
+    END
+
+    IDD_JOB_GENERAL_PAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 355
+        VERTGUIDE, 14
+        VERTGUIDE, 52
+        VERTGUIDE, 170
+        VERTGUIDE, 190
+        VERTGUIDE, 228
+        VERTGUIDE, 311
+        VERTGUIDE, 316
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 138
+        HORZGUIDE, 48
+        HORZGUIDE, 53
+        HORZGUIDE, 90
+        HORZGUIDE, 110
+        HORZGUIDE, 130
+        HORZGUIDE, 137
+    END
+
+    IDD_JOB_ADVANCED_PAGE, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 355
+        VERTGUIDE, 15
+        VERTGUIDE, 42
+        VERTGUIDE, 136
+        VERTGUIDE, 139
+        VERTGUIDE, 170
+        VERTGUIDE, 190
+        VERTGUIDE, 204
+        VERTGUIDE, 244
+        VERTGUIDE, 277
+        VERTGUIDE, 349
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 136
+        HORZGUIDE, 39
+        HORZGUIDE, 58
+        HORZGUIDE, 86
+        HORZGUIDE, 111
+        HORZGUIDE, 113
+        HORZGUIDE, 131
+    END
+
+    IDD_LISTVALUESDLG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 183
+        VERTGUIDE, 14
+        VERTGUIDE, 33
+        VERTGUIDE, 133
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 200
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON    DISCARDABLE     "res\\qmonnt.ico"
+IDR_QMONNTTYPE          ICON    DISCARDABLE     "res\\qmonntDoc.ico"
+IDR_DEBUGDOCTYPE        ICON    DISCARDABLE     "res\\idr_qmon.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Toolbar
+//
+
+IDR_MAINFRAME TOOLBAR DISCARDABLE  16, 15
+BEGIN
+    BUTTON      ID_FILE_NEW
+    SEPARATOR
+    BUTTON      ID_EDIT_REFRESH
+    BUTTON      ID_EDIT_CUT
+    BUTTON      ID_EDIT_COPY
+    BUTTON      ID_EDIT_PASTE
+    SEPARATOR
+    BUTTON      ID_APP_ABOUT
+    BUTTON      ID_CONTEXT_HELP
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MAINFRAME MENU PRELOAD DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM SEPARATOR
+        MENUITEM "&New Codine View\tCtrl+N",    ID_FILE_NEW
+        MENUITEM SEPARATOR
+        MENUITEM "Toggle &Debug View",          ID_VIEW_DEBUGWINDOW
+    END
+    POPUP "&Options"
+    BEGIN
+        MENUITEM "Set &Debug Level",            ID_OPTIONS_SETDEBUGLEVEL
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&Help Topics",                ID_HELP_FINDER
+        MENUITEM SEPARATOR
+        MENUITEM "&About QmonNT...",            ID_APP_ABOUT
+    END
+END
+
+IDR_QMONNTTYPE MENU PRELOAD DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&Edit"
+    BEGIN
+        MENUITEM "Refresh",                     ID_EDIT_REFRESH
+        MENUITEM SEPARATOR
+        MENUITEM "&Undo\tCtrl+Z",               ID_EDIT_UNDO, INACTIVE
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT, INACTIVE
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY, INACTIVE
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE, INACTIVE
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM SEPARATOR
+        MENUITEM "&New Codine View\tCtrl+N",    ID_FILE_NEW
+        MENUITEM SEPARATOR
+        MENUITEM "Toggle &Debug View",          ID_VIEW_DEBUGWINDOW
+    END
+    POPUP "Debug"
+    BEGIN
+        MENUITEM "blabla",                      ID_DEBUG_BLABLA, GRAYED
+    END
+    POPUP "Options"
+    BEGIN
+        MENUITEM "Set Debug Level",             ID_OPTIONS_SETDEBUGLEVEL
+    END
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&New Window",                 ID_WINDOW_NEW
+        MENUITEM "&Cascade",                    ID_WINDOW_CASCADE
+        MENUITEM "&Tile",                       ID_WINDOW_TILE_HORZ
+        MENUITEM "&Arrange Icons",              ID_WINDOW_ARRANGE
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&Help Topics",                ID_HELP_FINDER
+        MENUITEM SEPARATOR
+        MENUITEM "&About QmonNT...",            ID_APP_ABOUT
+    END
+END
+
+IDR_DEBUGDOCTYPE MENU DISCARDABLE 
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "E&xit",                       ID_APP_EXIT
+    END
+    POPUP "&Edit", INACTIVE
+    BEGIN
+        MENUITEM "&Undo\tCtrl+Z",               ID_EDIT_UNDO, INACTIVE
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT, INACTIVE
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY, INACTIVE
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE, INACTIVE
+    END
+    POPUP "&View"
+    BEGIN
+        MENUITEM "&Toolbar",                    ID_VIEW_TOOLBAR
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        MENUITEM SEPARATOR
+        MENUITEM "&New Codine View\tCtrl+N",    ID_FILE_NEW
+        MENUITEM SEPARATOR
+        MENUITEM "Toggle &Debug View",          ID_VIEW_DEBUGWINDOW
+    END
+    POPUP "Debug"
+    BEGIN
+        MENUITEM "Stop Debug Messages",         ID_DEBUG_STOPDEBUG, INACTIVE
+        MENUITEM "Start Debug Messages",        ID_DEBUG_STARTDEBUG
+        , INACTIVE
+        MENUITEM SEPARATOR
+        MENUITEM "Trennlinie einfügen",         ID_DEBUG_SEPARATOR
+        MENUITEM "Puffer löschen",              ID_DEBUG_CLEARBUFFER
+        MENUITEM SEPARATOR
+        MENUITEM "Test-Debugmeldung",           ID_DEBUG_BLABLA, GRAYED
+        MENUITEM "blabla",                      ID_DEBUG_BLABLA, GRAYED
+    END
+    POPUP "Options"
+    BEGIN
+        MENUITEM "Set Debug Level",             ID_OPTIONS_SETDEBUGLEVEL
+    END
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&New Window",                 ID_WINDOW_NEW
+        MENUITEM "&Cascade",                    ID_WINDOW_CASCADE
+        MENUITEM "&Tile",                       ID_WINDOW_TILE_HORZ
+        MENUITEM "&Arrange Icons",              ID_WINDOW_ARRANGE
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&Help Topics",                ID_HELP_FINDER
+        MENUITEM SEPARATOR
+        MENUITEM "&About QmonNT...",            ID_APP_ABOUT
+    END
+END
+
+ID_POPUP_MENU MENU DISCARDABLE 
+BEGIN
+    POPUP "Debug"
+    BEGIN
+        MENUITEM "Stop Debug Messages",         ID_DEBUG_STOPDEBUG, INACTIVE
+        MENUITEM "Start Debug Messages",        ID_DEBUG_STARTDEBUG
+        , INACTIVE
+        MENUITEM SEPARATOR
+        MENUITEM "Insert Separator",            ID_DEBUG_SEPARATOR
+        MENUITEM "Clear Buffer",                ID_DEBUG_CLEARBUFFER
+        MENUITEM "Save Buffer to File...",      ID_DEBUG_SAVEBUFFERTOFILE
+    END
+    POPUP "TreeView-Queue"
+    BEGIN
+        MENUITEM "Delete queue",                ID_TREEVIEWQUEUE_DELETEQUEUE
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Accelerator
+//
+
+IDR_MAINFRAME ACCELERATORS PRELOAD MOVEABLE PURE 
+BEGIN
+    "B",            ID_DEBUG_BLABLA,        VIRTKEY, CONTROL, NOINVERT
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
+    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
+    VK_F1,          ID_HELP,                VIRTKEY, NOINVERT
+    VK_F1,          ID_CONTEXT_HELP,        VIRTKEY, SHIFT, NOINVERT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+END
+
+
+#ifndef _MAC
+/////////////////////////////////////////////////////////////////////////////
+//
+// Version
+//
+
+VS_VERSION_INFO VERSIONINFO
+ FILEVERSION 1,0,0,1
+ PRODUCTVERSION 1,0,0,1
+ FILEFLAGSMASK 0x3fL
+#ifdef _DEBUG
+ FILEFLAGS 0x1L
+#else
+ FILEFLAGS 0x0L
+#endif
+ FILEOS 0x4L
+ FILETYPE 0x1L
+ FILESUBTYPE 0x0L
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "Comments", "\0"
+            VALUE "CompanyName", "\0"
+            VALUE "FileDescription", "qmonnt MFC Application\0"
+            VALUE "FileVersion", "1, 0, 0, 1\0"
+            VALUE "InternalName", "qmonnt\0"
+            VALUE "LegalCopyright", "Copyright (C) 1998\0"
+            VALUE "LegalTrademarks", "\0"
+            VALUE "OriginalFilename", "qmonnt.EXE\0"
+            VALUE "PrivateBuild", "\0"
+            VALUE "ProductName", "qmonnt Application\0"
+            VALUE "ProductVersion", "1, 0, 0, 1\0"
+            VALUE "SpecialBuild", "\0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+#endif    // !_MAC
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog Info
+//
+
+IDD_CODCOMPLEXVIEW DLGINIT
+BEGIN
+    IDC_COMPLEXTYPE, 0x403, 5, 0
+0x4f4c, 0x474e, "\000" 
+    IDC_COMPLEXTYPE, 0x403, 7, 0
+0x5453, 0x4952, 0x474e, "\000" 
+    IDC_COMPLEXTYPE, 0x403, 7, 0
+0x454d, 0x4f4d, 0x5952, "\000" 
+    IDC_COMPLEXTYPE, 0x403, 5, 0
+0x4954, 0x454d, "\000" 
+    IDC_COMPLEXTYPE, 0x403, 5, 0
+0x4f42, 0x4c4f, "\000" 
+    IDC_COMPLEXTYPE, 0x403, 5, 0
+0x4f48, 0x5453, "\000" 
+    IDC_COMPLEXRELATION, 0x403, 3, 0
+0x3d3d, "\000" 
+    IDC_COMPLEXRELATION, 0x403, 3, 0
+0x3d3e, "\000" 
+    IDC_COMPLEXRELATION, 0x403, 2, 0
+0x003e, 
+    IDC_COMPLEXRELATION, 0x403, 2, 0
+0x003c, 
+    IDC_COMPLEXRELATION, 0x403, 3, 0
+0x3d3c, "\000" 
+    IDC_COMPLEXRELATION, 0x403, 3, 0
+0x3d21, "\000" 
+    IDC_COMPLEXREQUESTABLE, 0x403, 3, 0
+0x4f4e, "\000" 
+    IDC_COMPLEXREQUESTABLE, 0x403, 4, 0
+0x4559, 0x0053, 
+    IDC_COMPLEXREQUESTABLE, 0x403, 7, 0
+0x4f46, 0x4352, 0x4445, "\000" 
+    IDC_COMPLEXCONSUMABLE, 0x403, 4, 0
+0x4559, 0x0053, 
+    IDC_COMPLEXCONSUMABLE, 0x403, 3, 0
+0x4f4e, "\000" 
+    0
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDP_SOCKETS_INIT_FAILED "Windows sockets initialization failed."
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    IDR_MAINFRAME           "qmonnt"
+    IDR_QMONNTTYPE          "\nQmonnt\nQmonnt\n\n\nQmonnt.Document\nQmonnt Document"
+    IDR_DEBUGDOCTYPE        "\nQmonntDebug\nQmonntDebug\n\n\nQmonntDebug.Document\nQmonntDebug.Document"
+END
+
+STRINGTABLE PRELOAD DISCARDABLE 
+BEGIN
+    AFX_IDS_APP_TITLE       "QmonNT"
+    AFX_IDS_IDLEMESSAGE     "For Help, press F1"
+    AFX_IDS_HELPMODEMESSAGE "Select an object on which to get Help"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_INDICATOR_EXT        "EXT"
+    ID_INDICATOR_CAPS       "CAP"
+    ID_INDICATOR_NUM        "NUM"
+    ID_INDICATOR_SCRL       "SCRL"
+    ID_INDICATOR_OVR        "OVR"
+    ID_INDICATOR_REC        "REC"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_NEW             "Opens new Codine view window.\nOpen New Codine Window"
+    ID_FILE_OPEN            "Opens an existing document.\nOpen"
+    ID_FILE_CLOSE           "Closes the active document.\nClose"
+    ID_FILE_SAVE            "Saves the active document.\nSave"
+    ID_FILE_SAVE_AS         "Saves the active document with a new name.\nSave As"
+    ID_FILE_PAGE_SETUP      "Changes the printing options.\nPage Setup"
+    ID_FILE_PRINT_SETUP     "Changes the printer and printing options.\nPrint Setup"
+    ID_FILE_PRINT           "Prints the active document.\nPrint"
+    ID_FILE_PRINT_PREVIEW   "Displays full pages.\nPrint Preview"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_APP_ABOUT            "Displays program information, version number and copyright.\nAbout QmonNT"
+    ID_APP_EXIT             "Closes the application; prompts to save documents.\nExit"
+    ID_HELP_INDEX           "Opens Help.\nHelp Topics"
+    ID_HELP_FINDER          "Lists Help topics.\nHelp Topics"
+    ID_HELP_USING           "Displays instructions about how to use help.\nHelp"
+    ID_CONTEXT_HELP         "Displays help for clicked on buttons, menus and windows.\nHelp"
+    ID_HELP                 "Displays help for current task or command.\nHelp"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_FILE_MRU_FILE1       "Opens this document."
+    ID_FILE_MRU_FILE2       "Opens this document."
+    ID_FILE_MRU_FILE3       "Opens this document."
+    ID_FILE_MRU_FILE4       "Opens this document."
+    ID_FILE_MRU_FILE5       "Opens this document."
+    ID_FILE_MRU_FILE6       "Opens this document."
+    ID_FILE_MRU_FILE7       "Opens this document."
+    ID_FILE_MRU_FILE8       "Opens this document."
+    ID_FILE_MRU_FILE9       "Opens this document."
+    ID_FILE_MRU_FILE10      "Opens this document."
+    ID_FILE_MRU_FILE11      "Opens this document."
+    ID_FILE_MRU_FILE12      "Opens this document."
+    ID_FILE_MRU_FILE13      "Opens this document."
+    ID_FILE_MRU_FILE14      "Opens this document."
+    ID_FILE_MRU_FILE15      "Opens this document."
+    ID_FILE_MRU_FILE16      "Opens this document."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_NEXT_PANE            "Switches to the next window pane.\nNext Pane"
+    ID_PREV_PANE            "Switches back to the previous window pane.\nPrevious Pane"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_WINDOW_NEW           "Opens another window for the active document.\nNew Window"
+    ID_WINDOW_ARRANGE       "Arranges icons at the bottom of the window.\nArrange Icons"
+    ID_WINDOW_CASCADE       "Arranges windows so they overlap.\nCascade Windows"
+    ID_WINDOW_TILE_HORZ     "Arranges windows as non-overlapping tiles.\nTile Windows"
+    ID_WINDOW_TILE_VERT     "Arranges windows as non-overlapping tiles.\nTile Windows"
+    ID_WINDOW_SPLIT         "Splits the active window into panes.\nSplit"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_EDIT_CLEAR           "Erases the selection.\nErase"
+    ID_EDIT_CLEAR_ALL       "Erases everything.\nErase All"
+    ID_EDIT_COPY            "Copies the selection and put it on the Clipboard.\nCopy"
+    ID_EDIT_CUT             "Cuts the selection and put it on the Clipboard.\nCut"
+    ID_EDIT_FIND            "Finds the specified text.\nFind"
+    ID_EDIT_PASTE           "Inserts Clipboard contents\nPaste"
+    ID_EDIT_REPEAT          "Repeats the last action.\nRepeat"
+    ID_EDIT_REPLACE         "Replaces specific text with different text.\nReplace"
+    ID_EDIT_SELECT_ALL      "Select the entire document.\nSelect All"
+    ID_EDIT_UNDO            "Undo the last action.\nUndo"
+    ID_EDIT_REDO            "Redo the previously undone action.\nRedo"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_TOOLBAR         "Shows or hides the toolbar.\nToggle ToolBar"
+    ID_VIEW_STATUS_BAR      "Shows or hides the status bar.\nToggle StatusBar"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCSIZE          "Changes the window size."
+    AFX_IDS_SCMOVE          "Changes the window position."
+    AFX_IDS_SCMINIMIZE      "Reduces the window to an icon."
+    AFX_IDS_SCMAXIMIZE      "Enlarges the window to full size."
+    AFX_IDS_SCNEXTWINDOW    "Switches to the next document window."
+    AFX_IDS_SCPREVWINDOW    "Switches to the previous document window."
+    AFX_IDS_SCCLOSE         "Closes the active window and prompts to save the documents."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_SCRESTORE       "Restores the window to normal size."
+    AFX_IDS_SCTASKLIST      "Activates Task List."
+    AFX_IDS_MDICHILD        "Activates this window."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    AFX_IDS_PREVIEW_CLOSE   "Closes print preview mode.\nCancel Preview"
+    IDS_JOBID               "Job ID"
+    IDS_JOBNAME             "Job name"
+    IDS_JOBQUEUE            "Queue"
+    IDS_JOBOWNER            "Owner"
+    IDS_JOBSCRIPT           "Script"
+    IDS_JOBSTATUS           "Status"
+    IDS_JOBSUBMITTIME       "Submit time"
+    IDS_JOBSTARTTIME        "Start time"
+    IDS_JOBSCHEDULETIME     "Schedule time"
+    IDS_JOBPRIORITY         "Priority"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    ID_VIEW_DEBUGWINDOW     "Open or close debug output window\nOpen or close Debugwindow"
+    ID_OPTIONS_SETDEBUGLEVEL 
+                            "Configure level of debug output and file dump\nConfigure debug output"
+    ID_EDIT_REFRESH         "Reload all lists from the Codine system\nRefresh Codine Lists"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_HARDTERMINATEDTHREAD 
+                            "Warning: Codine Connection Thread terminated without cleaning up! This will cause resource leaks!"
+    IDS_LOOSECHANGES        "Warning: You have changed data. If you change the selection, the changes will be lost. Do you want to loose your changes?"
+    IDS_LOOSECHANGESANDCLOSE 
+                            "Warning: You have changed data. If you close the view, the changes will be lost. Do you want to close it anyway and to loose your changes?"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_DEBUGLAYER_TOP      "Top Layer"
+    IDS_DEBUGLAYER_CULL     "Cull Layer"
+    IDS_DEBUGLAYER_BASIS    "Basis Layer"
+    IDS_DEBUGLAYER_GUI      "GUI Layer"
+    IDS_DEBUGLAYER_SCHED    "Scheduler Layer"
+    IDS_DEBUGLAYER_COMMD    "Commd Layer"
+    IDS_DEBUGLAYER_API      "API Layer"
+    IDS_DEBUGLAYER_PACK     "Packing Layer"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_DEBUGLAYER_ENDOFLIST "<Dummy to signal end of layer strings>"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_DEBUGDUMPFILEERROR  "Error: Could not open debug dump file for writing!"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_MSG_CONTACTINGCODINE "Contacting Codine. Please stand by."
+    IDS_MSG_CLOSINGCODINE   "Closing connection to codine. Please stand by."
+    IDS_MSG_QMASTERDOWN     "Cannot contact QMaster. QMaster is down."
+    IDS_MSG_CONTACTUNKNOWNERR "Unknown error on contacting QMaster."
+    IDS_MSG_NOTHINGTODISPLAY "Nothing to display for this view."
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_QUEUES              "Queues"
+    IDS_JOBS                "Jobs"
+    IDS_HOSTS               "Hosts"
+    IDS_COMPLEXES           "Complexes"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_NODEBUGDOCTEMPLATE  "Internal Error: Could not find Debug Doc Template!"
+    IDS_NODEBUGVIEW         "Internal Error: No View to assign message port!"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_MSG_SELECTEDOBJECT  "%d object selected"
+    IDS_MSG_SELECTEDOBJECTS "%d objects selected"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_MSG_AGEDDATA        "Aged Data"
+    IDS_MSG_EDIT            "Edit"
+    IDS_MSG_LOCAL           "Local"
+    IDS_MSG_SEND            "send"
+    IDS_MSG_RECV            "recv"
+    IDS_MSG_LOCAL2          "(Local)"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_QUEUELIST_NAME      "Name"
+    IDS_QUEUELIST_SLOTS     "Job Slots"
+    IDS_QUEUELIST_HOST      "Host"
+    IDS_QUEUELIST_STATUS    "Status"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_LISTCOLUMN1         "Name"
+    IDS_LISTCOLUMN2         "Type"
+    IDS_LISTCOLUMN3         "Value"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_JOBACCOUNTSTRING    "Account string"
+    IDS_JOBCELL             "Cell"
+    IDS_JOBCWD              "CWD"
+    IDS_JOBSTDERR           "Stderr paths"
+    IDS_JOBSTDOUT           "Stdout paths"
+    IDS_JOBHOLD             "Hold"
+    IDS_JOBMERGEOUTPUT      "Merge output"
+    IDS_JOBMAILOPTIONS      "Mail options"
+    IDS_JOBMAILTO           "Mail to"
+    IDS_JOBNOTIFY           "Notify"
+    IDS_JOBRESTART          "Restart"
+    IDS_JOBARGS             "Args"
+    IDS_JOBPE               "PE"
+    IDS_JOBPERANGE          "PE range"
+    IDS_JOBPREDECESSORS     "Predecessors"
+    IDS_HOST                "Host"
+END
+
+STRINGTABLE DISCARDABLE 
+BEGIN
+    IDS_PATH                "Path"
+END
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+#define _AFX_NO_SPLITTER_RESOURCES
+#define _AFX_NO_OLE_RESOURCES
+#define _AFX_NO_TRACKER_RESOURCES
+#define _AFX_NO_PROPERTY_RESOURCES
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE 9, 1
+#pragma code_page(1252)
+#endif
+#include "res\qmonnt.rc2"  // Nicht mit Microsoft Visual C++ bearbeitete Ressourcen
+#include "afxres.rc"         // Standardkomponenten
+#include "afxprint.rc"       // Ressourcen für Drucken/Seitenansicht
+#endif
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

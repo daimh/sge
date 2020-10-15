@@ -1,0 +1,490 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\" Copyright 2010 Thomas Reuter
+.\" Copyright (C) 2011, 2012 Dave Love
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de URL
+\\$2 \(laURL: \\$1 \(ra\\$3
+..
+.if \n[.g] .mso www.tmac
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.de MO		\" other man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH remote_startup 5 "2010/11/22 20:58:24" "xxRELxx" "xxQS_NAMExx User Commands"
+.\"
+.SH NAME
+remote_startup \- the xxQS_NAMExx remote startup mechanism
+.\"
+.SH DESCRIPTION
+xxQS_NAMExx
+supports several commands to facilitate interactive commands or remote startup of a tightly
+integrated parallel job. Each command can be set up with
+.M qconf 1
+(option
+.BR \-sconf )
+to use different daemons and commands to
+start the final session. Different startup methods can therefore contain different daemons and
+commands, and are not related to other startup methods in any way, although it is often desirable to have the same
+communication method for all startup methods.
+.PP
+Each method requires a separate instance of the communication daemon
+to be started by
+.M xxqs_name_sxx_shepherd 8
+for each job, which thus must use a randomly-chosen port, to which the
+client will try to connect.  This is necessary to support tight
+integration, ensuring that everything for a given job stays in the
+same process tree and can be properly controlled and accounted by
+xxQS_NAMExx.
+.SH QLOGIN
+An interactive \fBqlogin\fR session invoked by
+.M qlogin 1
+will show up in \fBqstat\fR with the default name \fBQLOGIN\fR unless changed by the \fB\-N \fIname\fR
+option.  The two entries \fBqlogin_daemon\fR and
+\fBqlogin_command\fR are responsible for establishing the communication
+to start such a session.
+.sp 1
+The default is the value \fBbuiltin\fR, which will trigger an xxQS_NAME_Sxx internal communication method:
+.sp 1
+.RS
+.PD 0
+.TP 20
+.B qlogin_command
+builtin
+.TP
+.B qlogin_daemon
+builtin
+.PD
+.RE
+.sp 1
+In cases where you want a different communication method, it
+can also be set up for the formerly-used communication
+method based on \fBtelnet\fR. Despite the fact that \fBtelnet\fR is
+used, there is no need to have
+\fBtelnetd\fR running all the time \- xxQS_NAME_Sxx will start a unique one for
+each job, even when it's from the same user, and telnet can stay disabled
+as a system service (whether under init or inetd).  Only the file
+/etc/hosts.equiv needs to contain the name of the machines from where a
+.M qlogin 1
+should be allowed. This is often the head node of a cluster, or
+particular submit machines.
+Using telnet, the traffic is not encrypted, but that may be
+reasonable on a private subnet for the cluster, especially if
+xxQS_NAME_Sxx's CSP security isn't used to secure the system generally.
+.PP
+To achieve this:
+.sp 1
+.RS
+.PD 0
+.TP 20
+.B qlogin_command
+/usr/bin/telnet
+.TP
+.B qlogin_daemon
+/usr/sbin/in.telnetd
+.PD
+.RE
+.sp 1
+must be defined in
+.M xxqs_name_sxx_conf 5 .
+The defined \fBqlogin_command\fR will then be called with two additional parameters: \[oq]HOST\[cq], and \[oq]PORT\[cq] in
+exactly that order, which refer to the machine the
+\fBqlogin_command\fR should address and the port to be used.
+.sp 1
+This can also be used to set up secure communication using \fBSSH\fR
+(which can also provide X and credential forwarding, as well as compression).
+In this case a small wrapper must be implemented,
+whose sole purpose is to swap the two given arguments and prepend
+.B \-p
+to the port argument.  A suitable one is installed as
+.IR $SGE_ROOT/util/resources/wrappers/qlogin_wrapper :
+.sp 1
+.RS
+.PD 0
+.TP 20
+.B qlogin_command
+/opt/sge/util/resources/wrappers/qlogin_wrapper
+.TP
+.B qlogin_daemon
+/usr/sbin/sshd \-i
+.PD
+.RE
+.PP
+.\"
+.\"
+.SH QRLOGIN
+An interactive \fBqrlogin\fR session invoked by
+.M qrsh 1
+\fBwithout\fR a command will show up in \fBqstat\fR having the default name \fBQRLOGIN\fR unless changed by the \fB\-N \fIname\fR option. 
+The two entries \fBrlogin_daemon\fR and \fBrlogin_command\fR are
+responsible for establishing the command to start such a session.
+.sp 1
+The default is the value \fBbuiltin\fR, which will trigger an xxQS_NAME_Sxx internal communication method:
+.sp 1
+.RS
+.PD 0
+.TP 20
+.B rlogin_command
+builtin
+.TP
+.B rlogin_daemon
+builtin
+.PD
+.RE
+.sp 1
+In cases where you want a different communication method, it
+can follow the formerly-used communication
+method based on \fBrlogin\fR.  As for telnet, rlogin can stay disabled
+as a system service (whether under init or inetd).  Only the file
+/etc/hosts.equiv needs to contain the name of the machines from where a
+.M qrsh 1
+should be allowed. This is often the head node of a cluster, or
+particular submit machines.  Using \fBrlogin\fR, the traffic is not
+encrypted, but that may be reasonable on a private subnet for the
+cluster, especially if xxQS_NAME_Sxx's CSP security isn't used to
+secure the system generally.
+.PP
+To achieve this:
+.sp 1
+.RS
+.PD 0
+.TP 20
+.B rlogin_command
+$SGE_ROOT/utilbin/\fI$ARC\fR/rlogin
+.TP
+.B rlogin_daemon
+/usr/sbin/in.rlogind
+.PD
+.RE
+.sp 1
+must be defined in
+.M xxqs_name_sxx_conf 5 .
+The value of \fI$SGE_ROOT\fR must be replaced by the root of the
+installation, and
+\fI$ARC\fR must be replaced by the particular platform architecture, as use of environment variables is
+not implemented for these entries. When the cluster is homogeneous, it can be set to e.g. \[oq]lx-amd64\[cq] or
+\[oq]lx-x86\[cq]. In a heterogeneous cluster local configurations need to be defined, where preferably the
+minority of machines will get local configurations.
+.sp 1
+The defined \fBrlogin_command\fR will then be called with three
+additional parameters: \[oq]\-p\[cq],\[oq]PORT\[cq], and \[oq]HOST\[cq] in
+exactly that order, which refer to the machine the
+\fBrlogin_command\fR should address, and the port to be used.
+.sp 1
+This can also be used to set up a secure communication using \fBSSH\fR:
+.sp 1
+.RS
+.PD 0
+.TP 20
+.B rlogin_command
+/usr/bin/ssh
+.TP
+.B rlogin_daemon
+/usr/sbin/sshd \-i
+.PD 
+.RE
+.PP
+.\"
+.\"
+.SH QRSH
+An interactive session for a remote command invoked by
+.M qrsh 1
+\fBwith\fR a command will show up in \fBqstat\fR by default with name
+of the command issued, unless changed by the \fB\-N \fIname\fR option.
+The two entries \fBrsh_daemon\fR and \fBrsh_command\fR are
+responsible for establishing the communication to start such a session.
+This startup method will also be used by the master task of
+a tightly integrated parallel job to start slave processes on other granted exechosts.
+.sp 1
+The default is the value \fBbuiltin\fR, which will trigger an xxQS_NAME_Sxx internal communication method:
+.sp 1
+.RS
+.PD 0
+.TP 20
+.B rsh_command
+builtin
+.TP
+.B rsh_daemon
+builtin
+.PD
+.RE
+.sp 1
+In cases where you want a different communication method, it
+can also be set up for the formerly-used communication
+method based on \fBrsh\fR.  As for telnet, rsh can stay disabled as a system service
+(whether under init or inetd).  Only the file /etc/hosts.equiv needs
+to contain the name of the machines from where a
+.M qrsh 1
+should be allowed. This is often the head node of a cluster, or
+particular submit machines.  Using \fBrsh\fR, the traffic is not
+encrypted, but that may be reasonable on a private subnet for the
+cluster, especially if xxQS_NAME_Sxx's CSP security isn't used to
+secure the system generally.
+.PP
+To achieve this:
+.sp 1
+.RS
+.PD 0
+.TP 20
+.B rsh_command
+$SGE_ROOT/utilbin/\fI$ARC\fR/rsh
+.TP
+.B rsh_daemon
+$SGE_ROOT/utilbin/\fI$ARC\fR/rshd \-l
+.PD
+.RE
+.sp 1
+must be defined in
+.M xxqs_name_sxx_conf 5 .
+The value of \fI$SGE_ROOT\fR must be replaced by the root of the
+installation, and
+\fI$ARC\fR must be replaced by the particular platform architecture, as use of environment variables is
+not implemented for these entries. When the cluster is homogeneous, it can be set to e.g. \[oq]lx-amd64\[cq] or
+\[oq]lx-x86\[cq]. In a heterogeneous cluster local configurations need to be defined, where preferably the
+minority of machines will get local configurations.
+.sp 1
+The defined \fBrsh_command\fR will then be called with four additional
+parameters: \[oq]\-n\[cq], \[oq]\-p\[cq], \[oq]PORT\[cq], and \[oq]HOST\[cq] in
+exactly that order, which refer to the machine the \fBrsh_command\fR should address and the port to be used.
+.sp 1
+This can also be used to set up a secure communication using \fBSSH\fR:
+.sp 1
+.RS
+.PD 0
+.TP 20
+.B rsh_command
+/usr/bin/ssh
+.TP
+.B rsh_daemon
+/usr/sbin/sshd \-i
+.PD
+.RE
+Again, this is independent of SSH as a system service, which can
+remain disabled.
+.\"
+.\"
+.SH LOCAL CONFIGURATIONS OF EXECHOSTS
+It is important to note that the communication method set up for one
+particular startup method must match at each end. This can either
+be achieved by using only a global configuration, or carefully setting up local configurations for the exechosts
+involved. Whether or not local configurations exist, which must be taken care of, can be checked with \fBqconf \-sconfl\fR.
+.sp 1
+As a general rule, for setting up a communication method between a machine A (where the \fBcommand\fR is issued) and
+a machine B (where the \fBdaemon\fR is started) it must be guaranteed that the:
+.sp 1
+.RS
+setup communication method for the \fBcommand\fR on machine A
+.br
+(either global configuration from
+.M xxqs_name_sxx_conf 5
+or local configuration \fBqconf \-sconf \fR\fBA\fR of machine A)
+.RE
+.sp 1
+matches
+.sp 1
+.RS
+setup communication method for the \fBdaemon\fR for machine B
+.br
+(either global configuration from
+.M xxqs_name_sxx_conf 5
+or local configuration \fBqconf \-sconf \fR\fBB\fR of machine B)
+.RE
+.sp 1
+This way it is also possible to use different communication methods, depending whether a connection
+from A to B is invoked, or from B to A.
+.PP
+.\"
+.\"
+.SH RESTRICTIONS
+For all three communication methods, a direct connection between the
+target and the source machine where the particular command was issued
+must exist. This can also be implemented using TCP/IP forwarding, but
+will usually fail if one machine is behind NAT which will mangle
+the machines' addresses.  The communication methods won't work with
+simple firewalling of the exec hosts since the methods use a random
+port.  It may be possible to set up application-specific firewalling,
+if necessary, or to wrap the methods and start an SSH tunnel on the
+port specified for each communication instance.
+.PP
+The \fBbuiltin\fR method does not support forwarding of X graphics
+from the compute nodes, or GSSAPI tokens to them.  If you need that
+for any of the remote methods, you will want to set up SSH
+communication instead.
+.\"
+.\"
+.SH SSH AUTHENTICATION
+To allow the \fBSSH\fR setup explained above to work, the user must be authenticated without the use
+of a \fIpassphrase\fR. While entering a \fIpassphrase\fR would still work for interactive commands,
+it will fail in case of a tightly integrated parallel job, where the master process tries to start
+a slave process on another exechost.
+.sp 1
+You can set up \fIpassphraseless\fR \fBSSH keys\fR, although this is discouraged. A simpler and
+global working setup is to use 
+.URL http://arc.liv.ac.uk/SGE/howto/hostbased-ssh.html "host-based authentication"
+for the machines inside the cluster.
+.\"
+.\"
+.SH SSH TIGHT INTEGRATION
+To have a tight integration of \fBSSH\fR into xxQS_NAME_Sxx, the started \fBsshd\fR needs an additional group ID to be attached.
+With this additional group ID, xxQS_NAME_Sxx is able to record the resource consumption and computing time in a correct way.
+Also a \fBqdel\fR of such a job will be able to succeed.
+.sp 1
+Such a tight SSH integration can be achieved by two means:
+.TP
+.B Use of PAM
+The easiest way on supported platforms (at least GNU/Linux):  a
+.MO pam 7
+module
+.M pam_sge-qrsh-setup 8
+is available for use with the system ssh; it attaches the
+necessary additional group ID to the started process to provide tight
+integration.  See also the
+.URL http://gridengine.org/assets/static/ws2007/K5SGE.pdf "workshop paper" .
+.TP
+.B Recompile xxQS_NAMExx with \fB./aimk \-tight\-ssh ...\fR
+The source of xxQS_NAMExx contains the necessary additions to compile a modified \fIsshd\fR, which will honor the
+additional group ID and attach it also to the started process. It's necessary to provide the source of \fIOpenSSH\fR
+in the directory \fI3rd_party\fR inside \fI$SGE_ROOT\fR having a plain name \[oq]openssh\[cq]. Inside this
+directory the file \fIsshd.c\fR needs to be patched:
+.sp 1
+.RS
+in main():
+.RS
+.T
+init_rng();
+.br
+#ifdef SGESSH_INTEGRATION
+.br
+sgessh_readconfig();
+.br
+#endif
+.RE
+.sp 1
+in privsep_postauth():
+.RS
+.T
+/* Drop privileges */
+.br
+#ifdef SGESSH_INTEGRATION
+.br
+sgessh_do_setusercontext(authctxt->pw);
+.br
+#else
+.br
+do_setusercontext(authctxt->pw);
+.br
+#endif
+.RE
+.sp 1
+See the
+.URL http://gridengine.org/assets/static/ws2007/SGE-openSSHTightIntegration.RonChen.pdf "original documentation" .
+.RE
+.\"
+.SH RESTRICTING ACCESS
+With the builtin method in use, there is no need to allow direct
+access for normal users to compute nodes with ssh etc.  However, you
+may want to allow users to access the nodes for debugging.  If you
+don't want to over-subscribe the nodes, so that qrsh etc. can be used
+for access, you can use PAM to restrict access for a user only to the
+nodes on which they have a running job, so as to minimize interference
+with other others.
+.PP
+There are two possible ways.  The cleanest uses
+.M pam_sge_authorize 8 .
+Otherwise you can use generic PAM modules, such as
+.MO pam_limits 8
+or
+.MO pam_access 8 ,
+with modifications to their configuration set up and taken down in the
+job prolog and epilog respectively.  See, for instance, a
+.URL http://gridengine.markmail.org/message/mu3i7haeshlevu6q?q=282211 "user list message" ,
+and other examples of similar prolog/epilog scripts provided with locking in
+the pam_authuser contribution in the Torque distribution.
+.\"
+.SH SECURITY
+See the notes above concerning security of the communication channel.
+.\"
+.SH EXAMPLES
+.\"
+Using SSH with the PAM module, forcing tty allocation, and preventing
+the delegation of GSSAPI credentials to the compute nodes:
+.T
+.RS
+rsh_daemon     /opt/sge/util/rshdwrapper
+.br
+rsh_command    ssh \-tt \-o GSSAPIDelegateCredentials=no
+.br
+qlogin_daemon  /opt/sge/util/rshdwrapper
+.br
+qlogin_command ssh \-tt \-o GSSAPIDelegateCredentials=no
+.br
+rlogin_daemon  /opt/sge/util/rshdwrapper
+.br
+rlogin_command ssh \-tt \-o GSSAPIDelegateCredentials=no
+.RE
+.PP
+Old-style method, using telnet and rlogin:
+.T
+.RS
+qlogin_command /usr/bin/telnet
+.br
+qlogin_daemon  /usr/sbin/in.telnetd
+.br
+rlogin_command /opt/sge/utilbin/lx\-x86/rlogin
+.br
+rlogin_daemon  /usr/sbin/in.rlogind
+.br
+rsh_command    /opt/sge/utilbin/lx\-x86/rsh
+.br
+rsh_daemon     /opt/sge/utilbin/lx\-x86/rshd \-l
+.RE
+.\"
+.SH FILES
+.TP
+.I $SGE_ROOT/util/resources/wrappers/qlogin_wrapper
+SSH-based wrapper for qlogin (see above)
+.\"
+.SH "SEE ALSO"
+.M qconf 1 ,
+.M qlogin 1 ,
+.M qrsh 1 ,
+.M xxqs_name_sxx_conf 5 ,
+.M pam_sge_authorize 8 ,
+.M pam_sge-qrsh-setup 8 ,
+.URL http://arc.liv.ac.uk/repos/darcs/sge/source/3rdparty/remote/remote.html "xxQS_NAMExx-specific remote programs".
+.\"
+.SH AUTHOR
+Man page written by Reuti, partly based on Sun material.  Some
+additions by Dave Love.
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

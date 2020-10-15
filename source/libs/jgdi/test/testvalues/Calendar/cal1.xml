@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<CAL_Type>
+   <name>${name}</name>
+   <yearCalendar>30.3.1997-31.3.1997=suspend</yearCalendar>
+   <weekCalendar>mon-fri=20-6=suspend sat-sun=suspend</weekCalendar>
+</CAL_Type>

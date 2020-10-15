@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
+<!--___INFO__MARK_BEGIN__
+/*************************************************************************
+ *
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ *
+ *  Sun Microsystems Inc., March, 2001
+ *
+ *
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ *
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ *
+ *  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ *
+ *  Copyright: 2001 by Sun Microsystems, Inc.
+ *
+ *  All Rights Reserved.
+ *
+ *  Portions of this code are Copyright 2011 Univa Inc.
+ *
+ ************************************************************************/
+___INFO__MARK_END__-->
+<installation version="1.0">
+    <info>
+        <appname>@PRODUCT_NAME@</appname>
+        <appversion>@SGE_VERSION@</appversion>
+        <authors>
+           <author name="Sun Microsystems, Inc." email="www.sun.com"/>
+        </authors>
+        <url>http://gridengine.org/</url>
+        <uninstaller write="no" />
+    </info>
+    <guiprefs width="940" height="720" resizable="yes">
+        <laf name="custom">
+            <os family="unix"/>
+            <!--<param name="class" value="com.sun.java.swing.plaf.gtk.GTKLookAndFeel"/>-->
+            <param name="class" value="javax.swing.plaf.metal.MetalLookAndFeel"/>
+        </laf>
+
+        <modifier key="useHelpButton" value="yes"/>
+        <modifier key="useButtonIcons" value="yes"/>
+        <modifier key="useLabelIcons" value="yes"/>
+        <modifier key="labelGap" value="2"/>
+        <modifier key="layoutAnchor" value="NORTHWEST"/>
+        <modifier key="useHeadingPanel" value="yes"/>
+        <modifier key="headingImageOnLeft" value="no"/>
+        <modifier key="headingLineCount" value="1"/>
+        <modifier key="headingFontSize" value="2.5"/>
+        <modifier key="headingBackgroundColor" value="0xffffff"/>
+    </guiprefs>
+
+    <locale>
+        <langpack iso3="eng" />
+    </locale>
+
+    <resources>
+        <res id="userInputSpec.xml" src="userInputSpec.xml"/>
+        <res id="CustomLangpack.xml_eng" src="langpack.xml_eng"/>
+        <res id="LicencePanel.licence" src="LICENSE"/>
+        <res id="Heading.image" src="logo.png"/>
+        <res id="Welcome.image" src="S-curve-left-splash.png"/>
+        <res id="customicons.xml" src="customicons.xml"/>
+    </resources>
+
+    <conditions>
+        <condition type="variable" id="cond.install.qmaster">
+            <name>install.qmaster</name>
+            <value>true</value>
+        </condition>
+        <condition type="variable" id="cond.install.execd">
+            <name>install.execd</name>
+            <value>true</value>
+        </condition>
+        <condition type="variable" id="cond.install.shadowd">
+            <name>install.shadowd</name>
+            <value>true</value>
+        </condition>
+        <condition type="variable" id="cond.install.bdb">
+            <name>install.bdb</name>
+            <value>true</value>
+        </condition>
+        <condition type="variable" id="cond.express.install">
+            <name>install.mode</name>
+            <value>${install.mode.express}</value>
+        </condition>
+        <condition type="variable" id="cond.custom.install">
+            <name>install.mode</name>
+            <value>${install.mode.custom}</value>
+        </condition>
+        <condition type="variable" id="cond.sge.jmx">
+            <name>add.sge.jmx</name>
+            <value>true</value>
+        </condition>
+        <condition type="variable" id="cond.product.mode.csp">
+            <name>add.product.mode</name>
+            <value>csp</value>
+        </condition>
+        <condition type="variable" id="cond.sge.jmx.ssl">
+            <name>cfg.sge.jmx.ssl</name>
+            <value>${cfg.sge.jmx.ssl}</value>
+        </condition>
+        <condition type="variable" id="cond.true">
+            <name>true</name>
+            <value>true</value>
+        </condition>
+        <condition type="variable" id="cond.false">
+            <name>false</name>
+            <value>true</value>
+        </condition>
+        <condition type="variable" id="T">
+            <name>true</name>
+            <value>true</value>
+        </condition>
+        <condition type="variable" id="F">
+            <name>false</name>
+            <value>true</value>
+        </condition>
+        <condition type="variable" id="cond.user.root">
+            <name>user.name</name>
+            <value>${root.user}</value>
+        </condition>
+        <condition type="variable" id="cond.no.connect.user">
+            <name>connect_user</name>
+            <value>${user.name}</value>
+        </condition>
+        <condition type="variable" id="cond.mode.install">
+            <name>mode</name>
+            <value>install</value>
+        </condition>
+        <condition type="variable" id="cond.mode.uninstall">
+            <name>mode</name>
+            <value>uninstall</value>
+        </condition>
+        <condition type="variable" id="cond.spooling.classic">
+            <name>cfg.spooling.method</name>
+            <value>${add.spooling.method.classic}</value>
+        </condition>
+        <condition type="variable" id="cond.spooling.bdb">
+            <name>cfg.spooling.method</name>
+            <value>${add.spooling.method.berkeleydb}</value>
+        </condition>
+        <condition type="java" id="cond.qmaster.on.localhost">
+            <java>
+                <class>com.sun.grid.installer.gui.Host</class>
+                <field>IS_QMASTER_ON_LOCALHOST</field>
+            </java>
+            <returnvalue type="boolean">true</returnvalue>
+        </condition>
+    </conditions>
+
+    <panels>
+        <panel classname="WelcomePanel"    id="WelcomePanel" />
+        <panel classname="LicencePanel"    id="LicensePanel" />
+        <panel classname="PreActionPanel"  id="PreActionPanel" />
+        <panel classname="UserInputPanel"  id="ComponentPanel" />
+        <panel classname="UserInputPanel"  id="MainPanel" />
+        <panel classname="IntermediateActionPanel"  id="IntermediateActionPanel" />
+        <panel classname="UserInputPanel"  id="JMXPanel" condition="cond.custom.install+cond.sge.jmx+cond.install.qmaster"/>
+        <panel classname="UserInputPanel"  id="SpoolingPanel" condition="cond.custom.install+cond.install.qmaster|cond.install.bdb"/>
+        <panel classname="UserInputPanel"  id="CSPPanel" condition="cond.custom.install+cond.install.qmaster+(cond.product.mode.csp|(cond.sge.jmx+cond.sge.jmx.ssl))"/>
+        <panel classname="HostPanel"       id="HostPanel" />
+        <panel classname="PostActionPanel" id="PostActionPanel"/>
+        <panel classname="ResultPanel"     id="ResultPanel"/>
+    </panels>
+
+   <variables>
+        <variable name="work.dir" value="${SYSTEM_user_dir}"/> <!-- TODO: Delete the work.dir -->
+        <variable name="templates.dir" value="${cfg.sge.root}/util/gui-installer/templates"/>
+        <variable name="readme.temp.file" value="${templates.dir}/readme_template.html"/>
+        <variable name="readme.file.name.1" value="/tmp/readme"/> <!-- gets the '.html' extension later -->
+        <variable name="readme.file.name.2" value="${cfg.sge.root}/${cfg.cell.name}/readme"/>
+        <variable name="silent.install.file" value="${cfg.sge.root}/${cfg.cell.name}/gui_auto_install"/> <!-- gets the '.xml' extension later -->
+        <variable name="auto.conf.temp.file" value="${templates.dir}/gui_inst_template.conf"/>
+        <variable name="auto.conf.file" value="${cfg.sge.root}/${cfg.cell.name}/gui_autoinst"/> <!-- gets the '.conf' extension later -->
+        <variable name="auto.install.component.temp.file" value="${templates.dir}/install_component"/>
+        <variable name="auto.install.component.file" value="install_component"/>
+        <variable name="install.script.file.dir" value="${cfg.sge.root}"/>
+        <variable name="install.script.file.name" value="inst_sge"/>
+        <variable name="check.host.temp.file" value="${templates.dir}/check_host"/>
+        <variable name="check.host.file" value="check_host"/>
+
+        <variable name="false" value="false"/>
+        <variable name="true" value="true"/>
+        <variable name="app-version" value="version"/>
+        <variable name="mode" value="install"/>
+        <variable name="user.name" value="${USER_NAME}"/>
+        <!--<variable name="user.group" value=""/>--> <!-- not used -->
+        <variable name="install.qmaster" value="true"/>
+        <variable name="install.execd" value="true"/>
+        <variable name="install.shadowd" value="false"/>
+        <variable name="install.bdb" value="false"/>
+        <variable name="install.mode.express" value="1"/>
+        <variable name="install.mode.custom" value="2"/>
+        <variable name="install.mode" value="${install.mode.express}"/>
+        <variable name="add.qmaster.host" value=""/>
+        <variable name="cfg.sge.root" value="${SYSTEM_user_dir}"/>
+        <variable name="cfg.sge.qmaster.port" value="6444"/>
+        <variable name="cfg.sge.execd.port" value="6445"/>
+        <variable name="cfg.qmaster.spool.dir" value="${cfg.sge.root}/${cfg.cell.name}/spool/qmaster"/>
+        <variable name="cfg.execd.spool.dir" value="${cfg.sge.root}/${cfg.cell.name}/spool"/>
+        <variable name="cfg.sge.cluster.name" value="p${cfg.sge.qmaster.port}"/>
+        <variable name="add.sge.jmx" value="false"/>
+        <variable name="cfg.sge.jmx.port" value="6446"/>
+        <variable name="cfg.sge.jmx.ssl" value="true"/>
+        <variable name="cfg.sge.jmx.ssl.client" value="true"/>
+        <variable name="cfg.sge.jmx.ssl.keystore.pw" value=""/>
+        <variable name="cfg.sge.jmx.ssl.keystore" value="/var/lib/sgeCA/port${cfg.sge.qmaster.port}/${cfg.cell.name}/private/keystore"/>
+        <variable name="cfg.sge.jvm.lib.path" value=""/>
+        <variable name="cfg.sge.additional.jvm.args" value="-Xmx256m"/>
+        <variable name="cfg.cell.name" value="default"/>
+        <variable name="cfg.admin.user" value=""/>
+        <variable name="cfg.gid.range" value="20000-20100"/>
+        <variable name="cfg.spooling.method" value=""/> <!-- init in IntermediateActionPanel -->
+        <variable name="add.spooling.method.classic" value="classic"/>
+        <variable name="add.spooling.method.berkeleydb" value="berkeleydb"/>
+        <variable name="add.spooling.method.berkeleydbserver" value="none"/>
+        <variable name="cfg.db.spooling.server" value="none"/>
+        <variable name="cfg.db.spooling.dir" value=""/> <!-- init in HostPanel -->
+        <variable name="add.db.spooling.dir.bdb" value="${cfg.sge.root}/${cfg.cell.name}/spool/spooldb"/>
+        <variable name="cfg.par.execd.inst.count" value="20"/> <!-- not used -->
+        <variable name="cfg.admin.host.list" value=""/>
+        <variable name="cfg.submit.host.list" value=""/>
+        <variable name="cfg.exec.host.list" value=""/>
+        <variable name="cfg.exec.spool.dir.local" value=""/>
+        <variable name="cfg.hostname.resolving" value="true"/>
+        <variable name="cfg.shell.name" value="ssh"/>
+        <variable name="cfg.copy.command" value="scp"/>
+        <variable name="cfg.default.domain" value="none"/>
+        <variable name="cfg.admin.mail" value="none"/>
+        <variable name="cfg.set.file.perms" value="true"/> <!-- not used -->
+        <variable name="cfg.reschedule.jobs" value="wait"/> <!-- unsupported -->
+        <variable name="cfg.schedd.conf" value="1"/> <!-- not used -->
+        <variable name="cfg.shadow.host" value=""/>
+        <variable name="cfg.exec.host.list.rm" value=""/> <!-- not used -->
+        <variable name="cfg.sge.enable.smf" value="false"/>
+        <variable name="cfg.add.to.rc" value="false"/>
+        <variable name="cfg.remove.rc" value="false"/>
+        <variable name="cfg.windows.support" value="false"/>
+        <variable name="cfg.win.admin.name" value="Administrator"/> <!-- not used -->
+        <variable name="cfg.win.domain.access" value="false"/> <!-- not used -->
+        <!--<variable name="add.product.mode.none" value="1"/>
+        <variable name="add.product.mode.csp" value="2"/>
+        <variable name="add.product.mode.afs" value="3"/>-->
+        <variable name="add.product.mode" value="none"/>
+        <variable name="cfg.csp.recreate" value="true"/>
+        <variable name="cfg.csp.copy.certs" value="false"/>
+        <variable name="cfg.csp.country.code" value="DE"/>
+        <variable name="cfg.csp.state" value="GERMANY"/>
+        <variable name="cfg.csp.location" value="Building"/>
+        <variable name="cfg.csp.orga" value="Organisation"/>
+        <variable name="cfg.csp.orga.unit" value="Organisation_unit"/>
+        <variable name="cfg.csp.mail.address" value="name@yourdomain.com"/>
+        <variable name="root.user" value="root"/>
+        <variable name="connect_user" value="${user.name}"/>
+   </variables>
+</installation>

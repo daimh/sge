@@ -1,0 +1,345 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE>SGE Scheduler</TITLE>
+	<META NAME="GENERATOR" CONTENT="StarOffice/5.2 (Solaris Sparc)">
+	<META NAME="AUTHOR" CONTENT=" ">
+	<META NAME="CREATED" CONTENT="20010608;17024100">
+	<META NAME="CHANGEDBY" CONTENT=" ">
+	<META NAME="CHANGED" CONTENT="20010716;18353200">
+</HEAD>
+<BODY>
+<H1><FONT SIZE=6 STYLE="font-size: 28pt">Scheduler</FONT></H1>
+<H1>Overview</H1>
+<P>This paper introduces the structure of the Grid Engine scheduler.
+Note that the scheduler was originally a separate daemon but is now a
+thread in the qmaster.  Some documentation may still refer to the
+separate "schedd".
+<p>
+For additional source code documentation on scheduling
+questions see also the description of the scheduling library
+<A HREF="../../libs/sched/sched.html">libsched</A>.</P>
+
+<P>A scheduling run begins with making a
+copy of the schedd internal data. This is done because this data can
+now be modified within a scheduling run without changing the state
+resulting from the event update. Then, beginning with the most
+important job (see the following sections), the scheduler tries to
+dispatch all pending jobs to queues and generates a so called <I>order</I>
+for each of these decisions. Besides these <I>dispatch-orders</I>
+also some other orders are prepared by the scheduler e.g. to
+implement the so called suspend_thresholds (see the queue_conf(5)
+manual page).</P>
+
+<H1>The default scheduler</H1>
+<H2>Priorization of jobs</H2>
+<P>The order in which runnable jobs are dispatched depends on the
+policies selected by the administrator.</P>
+
+<P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium">
+Jobs receive tickets according to 4 high level
+policies. The following is just a very brief overview. <!-- See the
+<A HREF="/project/gridengine-download/SGE5_3alpha.pdf">product documentation</A>,
+in particular the sections about scheduling in the Installation and
+Administration Guide for more information.--></P>
+<P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium">
+<BR>
+</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium">
+	Share tree:</P>
+</UL>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0in"><SPAN STYLE="font-weight: medium"><SPAN STYLE="font-style: normal">Individual
+users and projects have relative entitlements in the overall
+resources of a Grid Engine cluster, so user A might be entitled to
+receive 30% of all resources while user B might be entitled to 60%
+and a user C to 10%. Such entitlements are relative and are meant to
+be granted over time. They are relative in the sense that if user C
+never uses its 10% share then those 10% are distributed among user A
+and user B, but in a proportional 30:60 ratio. The granting over time
+means that Grid Engine tries to achieve the entitlements over a
+configurable sliding window of time, e.g. over 2 months. Such
+entit</SPAN></SPAN>lements are so called long term entitlements. In
+order to grant them, Grid Engine has to look at the usage of
+resources which users (or projects) have accumulated in the past and
+Grid Engine also has to compensate for over- or underutilization of
+resources as compared to the long term entitlements. Such
+compensations are done by assigning short term entitlements to the
+users and projects which can differ from the long term resource
+allocation.</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0in; font-style: normal; font-weight: medium">
+<BR>
+</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0in; font-style: normal; font-weight: medium">
+Long term entitlements are defined in a hierarchical fashion in a so
+called <I>share tree</I>. The share tree can represent the
+organizational structure of a site which uses GE. The
+leaves of the share tree always are individual projects and/or
+individual users. The hierarchy level above would be groups of users
+or projects, then another level above further grouping until the root
+of the tree which represents the entire organization having access to
+the cluster.</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0in; font-style: normal; font-weight: medium">
+<BR>
+</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium">
+	Functional:</P>
+</UL>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0in; font-style: normal; font-weight: medium">
+Again, entitlements are defined but based on functional attributes
+like being a certain user or being associated with a project or a
+certain user group. The entitlements are static in the sense that
+Grid Engine does not look at past usage which was accumulated. So
+there is no need to compensate for under- or overutilization and thus
+not short term entitlements exist. Functional entitlements represent
+a kind of relative priority.</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0in; font-style: normal; font-weight: medium">
+<BR>
+</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium">
+	Deadline:</P>
+</UL>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0in; font-style: normal; font-weight: medium">
+Jobs can be submitted with a definition of a deadline. The
+entitlement of deadline jobs grows automatically as they approach
+their deadline.</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0in; font-style: normal; font-weight: medium">
+<BR>
+</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium">
+	Override:</P>
+</UL>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0in; font-style: normal; font-weight: medium">
+The automatic policies above can be overridden manually via this
+policy. It allows, for instance, to double the entitlement which a
+job (but also an entire project or one user) currently receives. It
+is also often used to assign a constant level of entitlement to a
+user, a user group or a project.</P>
+<P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium">
+<BR>
+</P>
+<P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium">
+The entitlements assigned to a particular job by each of the 4
+policies above are translated into so called tickets. Each policy can
+deliver an amount of tickets to a job for which all those tickets are
+added together, thereby combining the 4 policies. The job with the
+highest amount of tickets is investigated by the Grid Engine
+scheduler first. The <I>-p</I> priority is used as a means for a user
+to increase the tickets of one job and to decrease the tickets of
+another one.</P>
+<P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium">
+<BR>
+</P>
+<P STYLE="margin-bottom: 0in"><SPAN STYLE="font-weight: medium"><SPAN STYLE="font-style: normal">Note,
+that the order in which the scheduler attempts to dispatch jobs
+often is not identical to the order in which
+jobs are started. The job with the highest priority, for instance,
+may not fit on any of the resources which are currently available.
+Hence the second job in line may get started first. The code handling 
+jobs in priority order can be found in <I>dispatch_jobs()</I> in scheduler.c.</P>
+<P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium">
+<BR>
+</P>
+<H2>Selection of queues</H2>
+<P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium">
+Usually there is more than one queue suitable for a certain job.
+The <I>queue_sort_method</I> in sched_conf(5) decides which
+queue is occupied first. If queue_sort_method is defined to be <I>load</I>,
+then the queue which resides at the host with the lowest load is
+selected first. The queue sequence number (seq_no in queue_conf(5))
+is then considered only as a second criterion in case two hosts have
+the same load index. As opposed to this, if <I>seqno</I> is used as
+<I>queue_sort_method</I> the queue's sequence number is the first
+criterion and the load index is the second one, considered only if
+two queues have the same sequence number. In both cases the
+<I>load_formula</I> in sched_conf(5) specifies how the load index is
+computed.
+A user can
+override this selection scheme by using so called <I>-soft </I>resource
+requests (see the qsub(1) manual page). The code handling queue selection
+order can be found in <I>sge_replicate_queues_suitable4job()</I> in libs/sched/sge_select_queue.c.</P>
+<P STYLE="margin-bottom: 0in; font-weight: medium"><BR>
+</P>
+<H2>Dispatch strategies</H2>
+<P STYLE="margin-bottom: 0in; font-style: normal; font-weight: medium">
+The function
+<B>sge_replicate_queues_suitable4job() </B>implements two different
+approaches to find the best suited queue(s) with the lowest effort.
+For straight sequential jobs the first matching queue is fine. For
+parallel jobs, however, and for jobs with soft requests the scheduler
+has to be more sophisticated before a decision can be taken which is
+usually more expensive.</P>
+<H1>Alternative Schedulers</H1>
+<H2>Classifying Alternative Schedulers</H2>
+<P STYLE="margin-bottom: 0in; font-style: normal">Alternative
+schedulers can be classified in three different categories and it's
+worth to become aware of the category of your scheduler, before you
+start a project:</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0in">schedulers which do not support
+	the complete set of Grid Engine features</P>
+	<P STYLE="margin-bottom: 0in">It is conceivable to have a scheduling
+	algorithm which dispatches certain jobs in a more intelligent
+	fashion, but (at first) it does not support interactive jobs, for
+	instance. Before a scheduler of this category can be used the
+	administrator must be able to assess whether the lack of certain
+	features is acceptable.</P>
+	<LI><P STYLE="margin-bottom: 0in">schedulers that support the
+	complete Grid Engine features set 
+	</P>
+	<P STYLE="margin-bottom: 0in">All types of jobs, all thresholds and
+	anything else is supported by this scheduler, but in a more
+	intelligent fashion. A scheduler of this category could be activated
+	by the administrator of a site without <I>any</I> need to change
+	anything besides 'algorithm' in <SPAN STYLE="font-style: normal">sched_conf(5).</SPAN></P>
+	<LI><P STYLE="margin-bottom: 0in; font-style: normal">schedulers
+	that extend the Grid Engine feature set</P>
+</UL>
+<UL>
+	<P STYLE="margin-bottom: 0in">While this might be a kind of a change
+	that appears straight forward and free of complications at first
+	sight, you should be aware that enhancing the Grid Engine scheduler
+	with new concepts is in many cases not possible without enhancing
+	the data structures with new parameters. This implies the need for
+	administering these new parameters and usually makes modification in
+	the user interfaces necessary. To store the settings of such new
+	parameters to disc, it becomes necessary to change the file format
+	in which qmaster and other components store their state. And
+	changing the file format makes it necessary to think about how to
+	migrate from an existing Grid Engine installation.</P>
+</UL>
+<H2>Scheduling API</H2>
+<P STYLE="margin-bottom: 0in">We know that many people are eager to
+write their own schedulers and hope to find easy-to-use interfaces
+for this purpose. As of today, there is no interface which at the
+same time</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0in">1. offers access
+to all potentially interesting information of the system,</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0in">2. has the
+potential for a well performing scheduler dispatching many thousand
+jobs in a short time frame, and which</P>
+<P STYLE="margin-left: 0.79in; margin-bottom: 0in">3. stays stable
+from release to release.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">But it should be possible to find
+compromises and to design an interface, which is usable for a
+majority of all problems. The challenge here is to keep the interface
+stable.</P>
+<H2>Scheduling Framework</H2>
+<P STYLE="margin-bottom: 0in"><SPAN STYLE="font-style: normal">The
+present scheduler framwork supports implementation of alternative
+schedulers even though a standardized and stable scheduler interface
+is not yet available. The scheduler code is organized in a way to
+allow for implementing </SPAN>alternative schedulers in the same
+manner as the default scheduler was implemented.<SPAN STYLE="font-style: normal">This
+gives you the ability to reuse the existing framework.</SPAN></P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in"><SPAN STYLE="font-style: normal">The
+first thing you will have to do will be to add your own scheduler
+function pointer to the <I>sched_funcs</I> table in sge_schedd.c. T</SPAN>wo
+samples have been added already there to point out the spots to touch
+when starting with an alternative scheduler. Schedulers implemented
+in the way suggested by the samples would be able to get activated at
+schedd runtime by changing the scheduler configuration schedd_conf(5)
+parameter 'algorithm'. 
+</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in">The picture below classifies the
+default algorithm and the two code samples:</P>
+<P STYLE="margin-bottom: 0in"><IMG SRC="schedd_layers.gif" NAME="Graphic1" ALIGN=LEFT WIDTH=745 HEIGHT=511 BORDER=0><BR CLEAR=LEFT><BR>
+</P>
+<UL>
+	<LI><P STYLE="margin-bottom: 0in">Layer 0 - Common infrastructure</P>
+	<P STYLE="margin-bottom: 0in">The code belonging to this layer
+	starts with <I>main()</I><SPAN STYLE="font-style: normal"> in
+	sge_schedd.c, o<SPAN STYLE="font-style: normal">ther important
+	modules are sge_c_event.c and sge_orders.c.</SPAN> This layer covers
+	anything which has to do with the fundamental infrastructure of
+	schedd, e.g. the event/order protocol with qmaster, daemonizing,
+	<SPAN STYLE="font-style: normal">message logging and switching
+	between </SPAN>different scheduling algorithms. </SPAN>
+	</P>
+	<LI><P STYLE="margin-bottom: 0in; font-style: normal">Layer 1 - Data
+	Model</P>
+	<P STYLE="margin-bottom: 0in; font-style: normal">The code of the
+	'default' scheduler in this layer starts below
+	<I>event_handler_default_scheduler()</I> in sge_process_events.c.
+	The responsibility of this layer is to keep the data necessary for a
+	scheduling run up-to-date by applying events. There are different
+	possible approaches how to keep this data and our experience is that
+	the way how this data is structured can have a crucial impact on the
+	performance of a scheduling algorithm as it prepares for the
+	decision-making steps. Examples substantiating this experience are
+	<I>job categories</I> and the <I>access tree</I> in sge_category.c
+	and sge_access_tree.c. The conclusion is, that it must be possible
+	to use a different data model than the 'default' schedulers one
+	without breaking the interface.</P>
+	<P STYLE="margin-bottom: 0in; font-style: normal">There is an
+	example showing how to integrate alternative schedulers which are
+	built upon a different data model. The entrance point for the
+	'ext_mysched2' scheduler is <I>event_handler_my_scheduler() </I>and
+	functionality-wise it is identical to the default scheduler as it is
+	simply calls <I>event_handler_default_scheduler()</I>. Run aimk with
+	option -DSCHEDULER_SAMPLES to activate the example. You can
+	implement your own layer 1 functionality by replacing the call to
+	<I>event_handler_default_scheduler()</I><SPAN STYLE="font-style: normal">
+	by your own implementation.</SPAN></P>
+	<LI><P STYLE="margin-bottom: 0in; font-style: normal">Layer 2 -
+	Decision-making</P>
+	<P STYLE="margin-bottom: 0in; font-style: normal">The code of the
+	'default' scheduler in this layer can be found below <I>scheduler()</I>
+	in scheduler.c. It makes decisions like: Which job should be
+	dispatched to which resource? or How to react on exceeded suspend
+	thresholds? Important functions are
+	<I>sge_replicate_queues_suitable4job()</I> and <I>dispatch_jobs()</I>.
+	Also certain code portions in sge_category.c and sge_access_tree.c
+	must be considered as part of this layer.</P>
+	<P STYLE="margin-bottom: 0in; font-style: normal">There is an
+	example showing how to integrate an alternative scheduler which
+	bases on the same data model as it is used by the 'default'
+	scheduler. The entrance point to the 'ext_mysched' scheduler is
+	<I>my_scheduler() </I>and again it simply calls it's counterpart of
+	the 'default' scheduler <I>scheduler()</I>. Run aimk with option
+	-DSCHEDULER_SAMPLES to activate the example. We suggest starting
+	with an 'ext_mysched'-like scheduler if you try to add your own
+	scheduler to Grid Engine. 
+	</P>
+	<LI><P STYLE="margin-bottom: 0in; font-style: normal">Layer 3 -
+	Low-level scheduler service functions</P>
+	<P STYLE="margin-bottom: 0in"><SPAN STYLE="font-style: normal">There
+	are many functions in use in the decision-layer of the 'default'
+	scheduler that hide all the details about jobs and queues. Examples
+	are <I>sge_why_not_job2queue_static(), sge_load_alarm()</I> or
+	<I>sort_host_list()</I><SPAN STYLE="font-style: normal">. For a
+	detailed consideration of these functions have a look at <A HREF="../../libs/sched/sched.html">libsched.</A></SPAN></SPAN></P>
+</UL>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P STYLE="margin-bottom: 0in; font-style: normal">We expect that some
+of the functionality that was implemented for the 'default' scheduler
+can be reused in many different other schedulers and it should be
+possible to accumulate a collection of well-performing functions
+shared between different scheduler implementations. But the 'default'
+scheduler uses also many functions like <I>available_slots_at_queue()
+</I>that are very specific to the approach used in the 'default'
+scheduler. In such cases it is better to reuse only parts of the
+implementation or to use them only as a pattern for an own
+implementation.</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+	<P ALIGN=CENTER STYLE="text-decoration: none">Copyright 2001 Sun
+	Microsystems, Inc. All rights reserved.</P>
+</UL>
+</BODY>
+</HTML>

@@ -1,0 +1,221 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\" $RCSfile: drmaa_misc.3,v $     Last Update: $Date: 2008-07-08 09:10:04 $     Revision: $Revision: 1.10 $
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de M    \" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH drmaa_misc 3 "$Date: 2008-07-08 09:10:04 $" "xxRELxx" "xxQS_NAMExx DRMAA"
+.\"
+.\"
+.\"
+.SH NAME
+drmaa_strerror, drmaa_get_contact, drmaa_version, drmaa_get_DRM_system \- Miscellaneous DRMAA functions.
+.PP
+.\"
+.\"
+.\"
+.SH SYNOPSIS
+.B #include """drmaa.h"""
+.PP
+.\"
+.\"
+.\"
+.nf
+\fBconst char *drmaa_strerror(\fB
+.RS
+.BI int\  drmaa_errno
+.RE
+.fi
+\fB);\fP
+.PP
+.nf
+\fBint drmaa_get_contact(\fP
+.RS
+.BI "char *" contact ,
+.BI size_t\  contact_len ,
+.BI "char *" error_diagnosis ,
+.BI size_t\  error_diag_len
+.RE
+.fi
+\fB);\fP
+.PP
+.nf
+\fBint drmaa_version(\fP
+.RS
+.BI "unsigned int *" major ,
+.BI "unsigned int *" minor ,
+.BI "char *" error_diagnosis ,
+.BI size_t\  error_diag_len
+.RE
+.fi
+\fB);\fP
+.PP
+.nf
+\fBint drmaa_get_DRM_system(\fP
+.RS
+.BI "char *" drm_system ,
+.BI size_t\  drm_system_len ,
+.BI "char *" error_diagnosis ,
+.BI size_t\  error_diag_len
+.RE
+.fi
+\fB);\fP
+.PP
+.nf
+\fBint drmaa_get_DRMAA_implementation(\fP
+.RS
+.BI "char *" drm_impl ,
+.BI size_t\  drm_impl_len ,
+.BI "char *" error_diagnosis ,
+.BI size_t\  error_diag_len
+.RE
+.fi
+\fB);\fP
+.PP
+.nf
+.\"
+.\"
+.\"
+.SH DESCRIPTION
+The drmaa_strerror() function returns a message text associated with the DRMAA error number,
+\fIdrmaa_errno\fP. For invalid DRMAA error codes `NULL' is returned.
+.\" 
+.\" 
+.\" 
+.SS "drmaa_get_contact()"
+The drmaa_get_contact() returns an opaque string containing contact 
+information related to the current DRMAA session to be used with the
+.M drmaa_init 3
+function. The opaque string contains the information required by drmaa_init()
+to reconnect to the current session instead of creating a new session.
+.M drmaa_init 3
+function.
+.PP
+The drmaa_get_contact() function returns the same value before and after
+.M drmaa_init 3
+is called.
+.PP
+.\"
+.\" 
+.\" 
+.SS "drmaa_version()"
+The drmaa_version() function returns into the integers pointed to by \fImajor\fP 
+and \fIminor\fP, the major and minor version numbers of the DRMAA library.
+For a DRMAA 1.0 compliant 
+implementation `1' and `0' will be returned in \fImajor\fP and \fIminor\fP,
+respectively.
+.PP
+.\"
+.\" 
+.\" 
+.SS "drmaa_get_DRM_system()"
+The drmaa_get_DRM_system() function returns into \fIdrm_system\fP up to 
+\fIdrm_system_len\fP characters of a string containing xxQS_NAMExx product and 
+version information.
+.PP
+The drmaa_get_DRM_system() function returns the same value before and after
+.M drmaa_init 3
+is called.
+.PP
+.\"
+.\"
+.\"
+.SS "drmaa_get_DRMAA_implementation()"
+The drmaa_get_DRMAA_implementation() function returns into \fIdrm_system\fP up to 
+\fIdrm_system_len\fP characters of a string containing the xxQS_NAMExx DRMAA
+implementation version information.  In the current implementation, the
+drmaa_get_DRMAA_implementation() function returns the same result as the
+drmaa_get_DRM_system() function.
+.PP
+The drmaa_get_DRMAA_implementation() function returns the same value before and
+after
+.M drmaa_init 3
+is called.
+.PP
+.\"
+.\"
+.\"
+.SH "ENVIRONMENTAL VARIABLES"
+.\"
+.IP "\fBxxQS_NAME_Sxx_ROOT\fP" 1.5i
+Specifies the location of the xxQS_NAMExx standard configuration files.
+.\"
+.IP "\fBxxQS_NAME_Sxx_CELL\fP" 1.5i
+If set, specifies the default xxQS_NAMExx cell to be used. To address a xxQS_NAMExx
+cell xxQS_NAMExx uses (in the order of precedence):
+.sp 1
+.RS
+.RS
+The name of the cell specified in the environment
+variable xxQS_NAME_Sxx_CELL, if it is set.
+.sp 1
+The name of the default cell, i.e. \fBdefault\fP.
+.sp 1
+.RE
+.RE
+.\"
+.IP "\fBxxQS_NAME_Sxx_DEBUG_LEVEL\fP" 1.5i
+If set, specifies that debug information
+should be written to stderr. In addition the level of
+detail in which debug information is generated is defined.
+.\"
+.IP "\fBxxQS_NAME_Sxx_QMASTER_PORT\fP" 1.5i
+If set, specifies the tcp port on which
+.M xxqs_name_sxx_qmaster 8
+is expected to listen for communication requests.
+Most installations will use a services map entry instead
+to define that port.
+.\"
+.\"
+.\"
+.SH "RETURN VALUES"
+Upon successful completion, drmaa_get_contact(), drmaa_version(), and drmaa_get_DRM_system()
+return DRMAA_ERRNO_SUCCESS. Other values indicate an error.
+Up to \fIerror_diag_len\fP characters of error related diagnosis 
+information is then provided in the buffer \fIerror_diagnosis\fP. 
+.PP
+.\"
+.\"
+.\"
+.SH "ERRORS"
+The drmaa_get_contact(), drmaa_version(), drmaa_get_DRM_system(), and
+drmaa_get_DRMAA_implementation() can fail with:
+.\" 
+.TP
+.B DRMAA_ERRNO_INTERNAL_ERROR
+Unexpected or internal DRMAA error, like system call failure, etc.
+.\" 
+.TP
+.B DRMAA_ERRNO_DRM_COMMUNICATION_FAILURE
+Could not contact DRM system for this request.
+.\" 
+.TP
+.B DRMAA_ERRNO_AUTH_FAILURE
+The specified request is not processed successfully due to authorization failure.
+.\" 
+.TP
+.B DRMAA_ERRNO_INVALID_ARGUMENT
+The input value for an argument is invalid.
+.\" 
+.TP
+.B DRMAA_ERRNO_NO_MEMORY
+Failed allocating memory.
+.PP
+The drmaa_get_contact() and drmaa_get_DRM_system() can fail with:
+.\" 
+.TP
+.B DRMAA_ERRNO_NO_ACTIVE_SESSION
+Failed because there is no active session.
+.\" 
+.\" 
+.\" 
+.SH "SEE ALSO"
+.M drmaa_session 3 .

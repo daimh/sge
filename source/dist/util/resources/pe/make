@@ -1,0 +1,14 @@
+# Version: 8
+#
+pe_name            make
+slots              999
+user_lists         NONE
+xuser_lists        NONE
+start_proc_args    NONE
+stop_proc_args     NONE
+allocation_rule    $round_robin
+control_slaves     TRUE
+job_is_first_task  FALSE
+urgency_slots      min
+accounting_summary TRUE
+qsort_args         NONE

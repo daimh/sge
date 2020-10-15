@@ -1,0 +1,640 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Host Configuration
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_host.xmtChildren:  unmanaged XmtLayout host_layout;
+
+Qmon*qmon_host.host_layout.autoUnmanage:  False
+Qmon*qmon_host.host_layout.resizePolicy:  RESIZE_NONE
+Qmon*qmon_host.host_layout.dialogTitle:  @{QMON  +++  Host Configuration}
+
+Qmon*qmon_host.host_layout.xmtChildren: \
+   XmForm         host_form; \
+   XmPushButton   host_main_link, host_delete, host_add, host_modify, \
+                  host_shutdown, host_done, host_help;
+
+Qmon*qmon_host.host_layout.layout: \
+   Fixed Shadowed Out 4 2 LREvenSpaced Row hostconfig_title { \
+      Fixed Centered host_main_link \
+      Centered Color "$title_fg" "@{@fBHost Configuration}" \
+   } \
+   # \
+   Row { \
+      host_form \
+      Fixed Shadowed Col { \
+         Fixed host_add \
+         Fixed host_modify \
+         Fixed host_delete \
+         Fixed host_shutdown \
+         Fixed host_done \
+         Fixed host_help \
+      } \
+   }
+
+Qmon*qmon_host.host_layout.host_main_link.labelType:   PIXMAP
+Qmon*qmon_host.host_layout.host_main_link.labelPixmap: logo
+Qmon*qmon_host.host_layout.host_main_link.shadowThickness:    1
+Qmon*qmon_host.host_layout.host_main_link.highlightThickness: 0
+Qmon*qmon_host.host_layout.host_main_link.marginHeight:       0
+Qmon*qmon_host.host_layout.host_main_link.marginWidth:        0
+
+Qmon*qmon_host.host_layout.host_delete.labelString:    @{Delete}
+Qmon*qmon_host.host_layout.host_shutdown.labelString:  @{Shutdown}
+Qmon*qmon_host.host_layout.host_add.labelString:       @{Add}
+Qmon*qmon_host.host_layout.host_modify.labelString:    @{Modify}
+Qmon*qmon_host.host_layout.host_modify.sensitive:      False
+Qmon*qmon_host.host_layout.host_done.labelString:      @{Done}
+Qmon*qmon_host.host_layout.host_help.labelString:      @{Help}
+
+Qmon*qmon_host.host_layout.host_form.xmtChildren: \
+   Folder         host_folder;
+
+Qmon*qmon_host.host_layout.host_form.host_folder.xmtChildren: \
+   XmtLayout      adminhost_layout, \
+                  submithost_layout, \
+                  hostgroup_layout;
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Admin Host Configuration
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*adminhost_layout.dialogTitle: @{QMON +++ Admin Host Configuration}
+Qmon*adminhost_layout.fontList:    $dialog_font
+
+Qmon*adminhost_layout*XmtInputField.marginHeight:   2
+Qmon*adminhost_layout*XmtInputField.marginWidth:    2
+
+Qmon*adminhost_layout.tabLabel: @{@fBAdministration Host}
+
+Qmon*adminhost_layout.xmtChildren: \
+      XmScrolledList adminhost_list; \
+      InputField     adminhost_hostname;
+
+Qmon*adminhost_layout.layout: \
+   Fixed Caption tl "@{@fBHost}" adminhost_hostname \
+   Stretchable 3 in adminhost_list
+
+Qmon*adminhost_layout*scrollBarDisplayPolicy:  AS_NEEDED
+Qmon*adminhost_layout*listSizePolicy:          CONSTANT
+
+Qmon*adminhost_layout*adminhost_list.fontList:          $fixed_font
+Qmon*adminhost_layout*adminhost_list.selectionPolicy:   EXTENDED_SELECT
+Qmon*adminhost_layout*adminhost_list.visibleItemCount:  7
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Submit Host Configuration
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*submithost_layout.dialogTitle: @{QMON +++ Submit Host Configuration}
+Qmon*submithost_layout.fontList:  $dialog_font
+
+Qmon*submithost_layout*XmtInputField.marginHeight:   2
+Qmon*submithost_layout*XmtInputField.marginWidth:    2
+
+Qmon*submithost_layout.tabLabel: @{@fBSubmit Host}
+
+Qmon*submithost_layout.xmtChildren: \
+   XmScrolledList submithost_list; \
+   InputField  submithost_hostname;
+
+Qmon*submithost_layout.layout: \
+   Fixed Caption tl "@{@fBHost}" submithost_hostname \
+   Stretchable 3 in submithost_list
+
+Qmon*submithost_layout*scrollBarDisplayPolicy:    AS_NEEDED
+Qmon*submithost_layout*listSizePolicy:            CONSTANT
+
+Qmon*submithost_layout*submithost_list.fontList:           $fixed_font
+Qmon*submithost_layout*submithost_list.selectionPolicy:    EXTENDED_SELECT
+Qmon*submithost_layout*submithost_list.visibleItemCount:   7
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Hostgroup Configuration
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*hostgroup_layout.dialogTitle: @{QMON +++ Hostgroup Configuration}
+Qmon*hostgroup_layout.fontList:  $dialog_font
+
+Qmon*hostgroup_layout*XmtInputField.marginHeight:   2
+Qmon*hostgroup_layout*XmtInputField.marginWidth:    2
+
+Qmon*hostgroup_layout.tabLabel: @{@fBHost Groups}
+
+Qmon*hostgroup_layout.xmtChildren: \
+   XmScrolledList hostgroup_list; \
+   XmScrolledList hostgroup_memberlist; \
+
+Qmon*hostgroup_layout.layout: \
+   Row { \
+      Stretchable 3 in Caption tl "@{@fBHostgroup}" hostgroup_list \
+      Stretchable 3 in Caption tl "@{Members}" hostgroup_memberlist \
+   }
+
+Qmon*hostgroup_layout*scrollBarDisplayPolicy:    AS_NEEDED
+Qmon*hostgroup_layout*listSizePolicy:            CONSTANT
+
+Qmon*hostgroup_layout*hostgroup_list.fontList:           $fixed_font
+Qmon*hostgroup_layout*hostgroup_list.selectionPolicy:    BROWSE_SELECT
+Qmon*hostgroup_layout*hostgroup_list.visibleItemCount:   7
+
+Qmon*hostgroup_layout*hostgroup_memberlist.fontList:           $fixed_font
+Qmon*hostgroup_layout*hostgroup_memberlist.selectionPolicy:    EXTENDED_SELECT
+Qmon*hostgroup_layout*hostgroup_memberlist.visibleItemCount:   7
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Add/ Modify Hostgroup
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*hg_ask_shell.xmtChildren: unmanaged XmtLayout hg_ask_layout;
+
+Qmon*hg_ask_shell.hg_ask_layout.autoUnmanage: False
+Qmon*hg_ask_shell.hg_ask_layout.resizePolicy:  RESIZE_NONE
+Qmon*hg_ask_shell.hg_ask_layout.XmtInputField.marginWidth:      2
+Qmon*hg_ask_shell.hg_ask_layout.XmtInputField.marginHeight:     2
+Qmon*hg_ask_shell.hg_ask_layout.fontList: $dialog_font
+Qmon*hg_ask_shell.hg_ask_layout.dialogTitle: @{Add/Modify Host Group}
+Qmon*hg_ask_shell.hg_ask_layout.dialogStyle: DIALOG_APPLICATION_MODAL
+
+Qmon*hg_ask_shell.hg_ask_layout.xmtChildren: \
+   InputField     hg_name; \
+   InputField     hg_member; \
+   XmScrolledList hg_memberlist; \
+   XmScrolledList hg_hglist; \
+   XmPushButton   hg_ok, hg_cancel, hg_add_hg, hg_add, hg_del_member;
+
+Qmon*hg_ask_layout.layout: \
+   Row { \
+      Etched Col { \
+         Fixed Centered Caption "@{@fBHostgroup} " hg_name \
+         # \
+         Row { \
+            Stretchable Caption tl "@{Members}" 2 in % 4 in hg_memberlist \
+            Col { \
+               ## \
+               Row { \
+                  Centered Fixed hg_add \
+                  Caption tl "@{Host}" hg_member \
+               } \
+               ## \
+               Row { \
+                  Centered Fixed hg_add_hg \
+                  Stretchable Caption tl "@{Defined Host Groups}" 2 in % 3 in hg_hglist \
+               } \
+               ## \
+               Centered Fixed hg_del_member \
+               <> \
+            } \
+         } \
+      } \
+      Fixed Shadowed Col { \
+         Fixed hg_ok \
+         Fixed hg_cancel \
+      } \
+   }
+
+
+Qmon*hg_ask_layout.hg_ok.labelString:     @{Ok}
+Qmon*hg_ask_layout.hg_cancel.labelString: @{Cancel}
+Qmon*hg_ask_layout.hg_name.columns: 40
+
+Qmon*hg_ask_layout.hg_add_hg.labelType:         PIXMAP
+Qmon*hg_ask_layout.hg_add_hg.labelPixmap:       leftarrow
+Qmon*hg_ask_layout.hg_add.labelType:            PIXMAP
+Qmon*hg_ask_layout.hg_add.labelPixmap:          leftarrow
+Qmon*hg_ask_layout.hg_del_member.labelType:     PIXMAP
+Qmon*hg_ask_layout.hg_del_member.labelPixmap:   trashcan
+
+Qmon*hg_ask_layout*hg_memberlist.fontList:           $fixed_font
+Qmon*hg_ask_layout*hg_memberlist.selectionPolicy:    EXTENDED_SELECT
+Qmon*hg_ask_layout*hg_memberlist.visibleItemCount:   7
+
+Qmon*hg_ask_layout*hg_hglist.fontList:           $fixed_font
+Qmon*hg_ask_layout*hg_hglist.selectionPolicy:    EXTENDED_SELECT
+Qmon*hg_ask_layout*hg_hglist.visibleItemCount:   7
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Execution Host Configuration
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*exechost_layout.dialogTitle: @{QMON +++ Execution Host Configuration}
+Qmon*exechost_layout.fontList:  $dialog_font
+
+Qmon*exechost_layout*XmtInputField.marginHeight:   2
+Qmon*exechost_layout*XmtInputField.marginWidth:    2
+
+Qmon*exechost_layout.tabLabel: @{@fBExecution Host}
+
+Qmon*exechost_layout.xmtChildren: \
+      XmScrolledList exechost_list; \
+      XmScrolledText exechost_load_scaling, \
+                     exechost_consumables, \
+                     exechost_reporting_variables, \
+                     exechost_access, \
+                     exechost_usage_scaling;
+
+Qmon*exechost_layout.layout: \
+   Row { \
+      Stretchable Caption tl "@{@fBHosts}" 3 in exechost_list \
+      Col { \
+         Caption tl "@{@fBLoad Scaling}" exechost_load_scaling \
+         Caption tl "@{@fBAccess Attributes}" exechost_access \
+         Caption tl "@{@fBConsumables/Fixed Attributes}" exechost_consumables \
+         Caption tl "@{@fBReporting Variables}" exechost_reporting_variables \
+         Caption tl "@{@fBUsage Scaling}" exechost_usage_scaling \
+      } \
+   }
+
+Qmon*exechost_layout.exechost_done.labelString:          @{Done}
+Qmon*exechost_layout.exechost_add.labelString:           @{Add}
+Qmon*exechost_layout.exechost_modify.labelString:        @{Modify}
+Qmon*exechost_layout.exechost_delete.labelString:        @{Delete}
+Qmon*exechost_layout.exechost_shutdown.labelString:      @{Shutdown}
+Qmon*exechost_layout.exechost_help.labelString:          @{Help}
+
+Qmon*exechost_layout*listSizePolicy:           CONSTANT
+Qmon*exechost_layout*scrollBarDisplayPolicy:   AS_NEEDED
+
+Qmon*exechost_layout*exechost_list.fontList:            $fixed_font
+Qmon*exechost_layout*exechost_list.selectionPolicy:     BROWSE_SELECT
+Qmon*exechost_layout*exechost_list.visibleItemCount:    7
+
+Qmon*exechost_load_scaling.fontList:              $fixed_font
+Qmon*exechost_load_scaling.editable:              False
+Qmon*exechost_load_scaling.editMode:              MULTI_LINE_EDIT
+Qmon*exechost_load_scaling.cursorPositionVisible: False
+Qmon*exechost_load_scaling.rows:                  5
+Qmon*exechost_load_scaling.columns:               25
+
+Qmon*exechost_consumables.fontList:              $fixed_font
+Qmon*exechost_consumables.editable:              False
+Qmon*exechost_consumables.editMode:              MULTI_LINE_EDIT
+Qmon*exechost_consumables.cursorPositionVisible: False
+Qmon*exechost_consumables.rows:                  5
+Qmon*exechost_consumables.columns:               25
+
+Qmon*exechost_access.fontList:              $fixed_font
+Qmon*exechost_access.editable:              False
+Qmon*exechost_access.editMode:              MULTI_LINE_EDIT
+Qmon*exechost_access.cursorPositionVisible: False
+Qmon*exechost_access.rows:                  5
+Qmon*exechost_access.columns:               25
+
+Qmon*exechost_reporting_variables.fontList:              $fixed_font
+Qmon*exechost_reporting_variables.editable:              False
+Qmon*exechost_reporting_variables.editMode:              MULTI_LINE_EDIT
+Qmon*exechost_reporting_variables.cursorPositionVisible: False
+Qmon*exechost_reporting_variables.rows:                  5
+Qmon*exechost_reporting_variables.columns:               25
+
+Qmon*exechost_usage_scaling.fontList:              $fixed_font
+Qmon*exechost_usage_scaling.editable:              False
+Qmon*exechost_usage_scaling.editMode:              MULTI_LINE_EDIT
+Qmon*exechost_usage_scaling.cursorPositionVisible: False
+Qmon*exechost_usage_scaling.rows:                  5
+Qmon*exechost_usage_scaling.columns:               25
+
+!*exechost_load_scaling.selectionPolicy:    SINGLE_SELECT
+!*exechost_load_scaling.listSizePolicy: CONSTANT
+!*exechost_load_scaling.scrollBarDisplayPolicy:  AS_NEEDED
+!*exechost_load_scaling.staticList:  True
+!*exechost_load_scaling.visibleItemCount:  10
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Add/ Modify Exechost
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*eh_ask_shell.xmtChildren: unmanaged XmtLayout eh_ask_layout;
+
+Qmon*eh_ask_shell.eh_ask_layout.autoUnmanage: False
+Qmon*eh_ask_shell.eh_ask_layout.resizePolicy:  RESIZE_NONE
+Qmon*eh_ask_shell.eh_ask_layout.XmtInputField.marginWidth:      2
+Qmon*eh_ask_shell.eh_ask_layout.XmtInputField.marginHeight:     2
+Qmon*eh_ask_shell.eh_ask_layout.fontList: $dialog_font
+Qmon*eh_ask_shell.eh_ask_layout.dialogTitle: @{Add/Modify Exec Host}
+Qmon*eh_ask_shell.eh_ask_layout.dialogStyle: DIALOG_APPLICATION_MODAL
+
+Qmon*eh_ask_shell.eh_ask_layout.xmtChildren: \
+   InputField     eh_name = name; \
+   Folder         eh_folder; \
+   XmPushButton   eh_ok, eh_cancel;
+
+Qmon*eh_ask_layout.layout: \
+   Row { \
+      Etched Col { \
+         Fixed Centered Caption "@{@fBHost} " eh_name \
+         # \
+         eh_folder \
+      } \
+      Fixed Shadowed Col { \
+         Fixed eh_ok \
+         Fixed eh_cancel \
+      } \
+   }
+
+Qmon*eh_ask_layout*eh_folder.layoutAllowResize:  false
+Qmon*eh_ask_layout*eh_folder.xmtChildren: \
+   XmtLayout   eh_scaling, \
+               eh_complexes, \
+               eh_access, \
+               eh_reporting_variables, \
+               eh_project;
+
+Qmon*eh_ask_layout*eh_folder.eh_scaling.tabLabel: @{@fBScaling}
+Qmon*eh_ask_layout*eh_folder.eh_scaling.xmtChildren: \
+   Matrix_2xN     eh_load_scaling = scaling_list; \
+   Matrix_2xN     eh_usage_scaling = usage_scaling_list;
+
+Qmon*eh_ask_layout*eh_folder.eh_scaling.layout: \
+   Row { \
+      Caption tl "@{@fBLoad Scaling}" eh_load_scaling \
+      Caption tl "@{@fBUsage Scaling}" eh_usage_scaling \
+      <> \
+   }
+
+Qmon*eh_ask_layout.eh_ok.labelString:     @{Ok}
+Qmon*eh_ask_layout.eh_cancel.labelString: @{Cancel}
+Qmon*eh_ask_layout.eh_name.columns: 40
+
+Qmon*eh_load_scaling.rows:                7
+Qmon*eh_load_scaling.fixedColumns:        1
+Qmon*eh_load_scaling.columns:             2
+Qmon*eh_load_scaling.columnWidths:        20, 10
+Qmon*eh_load_scaling.visibleRows:         3
+Qmon*eh_load_scaling.columnMaxLengths:    50,50
+Qmon*eh_load_scaling.evenRowBackground:   $matrix_even_bg
+Qmon*eh_load_scaling.oddRowBackground:    $matrix_odd_bg
+Qmon*eh_load_scaling.gridType: GRID_CELL_SHADOW
+Qmon*eh_load_scaling.cellShadowType: SHADOW_IN
+Qmon*eh_load_scaling.cellShadowThickness: 1
+Qmon*eh_load_scaling.fontList:            $matrix_font
+Qmon*eh_load_scaling.columnLabels:        @{Load}, @{Scale Factor}
+Qmon*eh_load_scaling.boldLabels:          True
+Qmon*eh_load_scaling.shadowThickness:     1
+Qmon*eh_load_scaling*editable:            True
+
+Qmon*eh_usage_scaling.rows:                3
+Qmon*eh_usage_scaling.fixedColumns:        1
+Qmon*eh_usage_scaling.columns:             2
+Qmon*eh_usage_scaling.columnWidths:        20, 10
+Qmon*eh_usage_scaling.visibleRows:         3
+Qmon*eh_usage_scaling.columnMaxLengths:    50,50
+Qmon*eh_usage_scaling.evenRowBackground:   $matrix_even_bg
+Qmon*eh_usage_scaling.oddRowBackground:    $matrix_odd_bg
+Qmon*eh_usage_scaling.gridType: GRID_CELL_SHADOW
+Qmon*eh_usage_scaling.cellShadowType: SHADOW_IN
+Qmon*eh_usage_scaling.cellShadowThickness: 1
+Qmon*eh_usage_scaling.fontList:            $matrix_font
+Qmon*eh_usage_scaling.columnLabels:        @{Usage}, @{Scale Factor}
+Qmon*eh_usage_scaling.boldLabels:          True
+Qmon*eh_usage_scaling.shadowThickness:     1
+Qmon*eh_usage_scaling*editable:            True
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! complex list 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*eh_complexes.tabLabel: @{@fBConsumables/Fixed Attributes}
+Qmon*eh_complexes.xmtChildren: \
+   Matrix_2xN     complexes_ccl = consumable_config_list; \
+   XmPushButton   complexes_ccl_remove;
+
+Qmon*eh_complexes.layout: \
+   Etched Through Caption tc "@{@fBConsumables/Fixed Attributes}" Col { \
+      Centered complexes_ccl \
+      Fixed Centered complexes_ccl_remove \
+   }
+
+
+Qmon*eh_complexes*complexes_ccl_remove.labelType: PIXMAP
+Qmon*eh_complexes*complexes_ccl_remove.labelPixmap: trashcan
+Qmon*eh_complexes*complexes_ccl_remove.activateCallback: DeleteLines(*eh_complexes*complexes_ccl);
+
+Qmon*eh_complexes*complexes_ccl.buttonLabels: True
+Qmon*eh_complexes*complexes_ccl.rows: 7
+Qmon*eh_complexes*complexes_ccl.visibleRows: 7
+Qmon*eh_complexes*complexes_ccl.columns: 2
+Qmon*eh_complexes*complexes_ccl.columnWidths: 10, 10
+Qmon*eh_complexes*complexes_ccl.columnMaxLengths: 100, 100
+Qmon*eh_complexes*complexes_ccl.columnLabels: @{Name}, @{Value}
+Qmon*eh_complexes*complexes_ccl.gridType:          GRID_CELL_SHADOW
+Qmon*eh_complexes*complexes_ccl.cellShadowType:     SHADOW_IN
+Qmon*eh_complexes*complexes_ccl.cellShadowThickness: 1
+Qmon*eh_complexes*complexes_ccl.translations: #override\n\
+         Shift<Btn1Down>: SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:       SelectCell(begin)\n\
+         Ctrl<Btn2Down>:   ResizeColumns()\n\
+         <Btn1Up>(2):      SelectCell(edit)
+Qmon*eh_complexes*complexes_ccl.clip.translations: #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:       SelectCell(begin)\n\
+         Ctrl<Btn2Down>:   ResizeColumns()\n\
+         <Btn1Up>(2):      SelectCell(edit)
+
+Qmon*eh_complexes*complexes_ccl.textTranslations: #override\n\
+         <Key>osfActivate: CommitEdit(True)\n\
+         ~Shift ~Meta ~Alt <Key>Return: CommitEdit(True)\n\
+         <Key>osfCancel: CommitEdit(True)
+
+
+Qmon*eh_complexes*complexes_ccl.xmtChildren: unmanaged XmtPopupMenu ccl_menu;
+Qmon*eh_complexes*complexes_ccl*ccl_menu.menuPost: <Btn3Down>
+
+Qmon*eh_complexes*complexes_ccl*ccl_menu.items: \
+   Title "@{@fBOperations}"; \
+   ------;\
+   "@{_Delete}" [Ctrl-D] DeleteLines(*eh_complexes*complexes_ccl);
+
+Qmon*eh_complexes*complexes_ccl.enterCellCallback: \
+      ColumnZeroNoEdit();
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! (x)access list 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*eh_access.tabLabel: @{@fBUser Access}
+Qmon*eh_access.xmtChildren: \
+   StringList     access_list, \
+                  access_allow = acl, \
+                  access_deny = xacl; \
+   XmtChooser     access_toggle; \
+   XmPushButton   access_add, access_remove, access_dialog;
+
+Qmon*eh_access.layout: \
+   Row { \
+      15 em Wide Caption tl "@{@fBAccess Lists}" access_list \
+      Fixed Col { \
+         <> \
+         Etched Through access_toggle \
+         Fixed Centered access_add \
+         Fixed Centered access_remove \
+         ### \
+         Fixed Centered access_dialog \
+         <> \
+      } \
+      15 em Wide Col { \
+         Caption tl "@{@fBAllow Access to}" access_allow \
+         Caption tl "@{@fBDeny Access to}" access_deny \
+      } \
+   }
+
+Qmon*eh_access.access_dialog.labelType:       PIXMAP
+Qmon*eh_access.access_dialog.labelPixmap:     toolbar_user
+
+Qmon*eh_access.access_add.labelType:          PIXMAP
+Qmon*eh_access.access_add.labelPixmap:        rightarrow
+Qmon*eh_access.access_remove.labelType:       PIXMAP
+Qmon*eh_access.access_remove.labelPixmap:     leftarrow
+
+Qmon*eh_access.access_toggle.chooserType:    ChooserRadioBox
+Qmon*eh_access.access_toggle.strings: \
+   "@{Allow Access}", "@{Deny Access}"
+
+Qmon*eh_access*scrollBarDisplayPolicy:  AS_NEEDED
+Qmon*eh_access*listSizePolicy:          CONSTANT
+
+Qmon*eh_access*access_list.fontList:          $fixed_font
+Qmon*eh_access*access_list.selectionPolicy:   EXTENDED_SELECT
+Qmon*eh_access*access_list.scrollingPolicy:   AUTOMATIC
+Qmon*eh_access*access_list.visualPolicy:      CONSTANT
+Qmon*eh_access*access_list.visibleItemCount:  12
+
+Qmon*eh_access*access_allow.fontList:         $fixed_font
+Qmon*eh_access*access_allow.selectionPolicy:  EXTENDED_SELECT
+Qmon*eh_access*access_allow.scrollingPolicy:  AUTOMATIC
+Qmon*eh_access*access_allow.visualPolicy:     CONSTANT
+Qmon*eh_access*access_allow.visibleItemCount: 5
+
+Qmon*eh_access*access_deny.fontList:          $fixed_font
+Qmon*eh_access*access_deny.selectionPolicy:   EXTENDED_SELECT
+Qmon*eh_access*access_deny.scrollingPolicy:   AUTOMATIC
+Qmon*eh_access*access_deny.visualPolicy:      CONSTANT
+Qmon*eh_access*access_deny.visibleItemCount:  5
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! (x)projects
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*eh_project.tabLabel: @{@fBProject Access}
+Qmon*eh_project.xmtChildren: \
+   StringList     project_list, \
+                  project_allow = prj, \
+                  project_deny = xprj; \
+   XmtChooser     project_toggle; \
+   XmPushButton   project_add, project_remove, project_dialog;
+
+Qmon*eh_project.layout: \
+   Row { \
+      15 em Wide Caption tl "@{@fBProjects}" project_list \
+      Fixed Col { \
+         <> \
+         Etched Through project_toggle \
+         Fixed Centered project_add \
+         Fixed Centered project_remove \
+         ### \
+         Fixed Centered project_dialog \
+         <> \
+      } \
+      15 em Wide Col { \
+         Caption tl "@{@fBAllow Project Access to}" project_allow \
+         Caption tl "@{@fBDeny Project Access to}" project_deny \
+      } \
+   }
+
+Qmon*eh_project.project_dialog.labelType:       PIXMAP
+Qmon*eh_project.project_dialog.labelPixmap:     toolbar_prj
+
+Qmon*eh_project.project_add.labelType:          PIXMAP
+Qmon*eh_project.project_add.labelPixmap:        rightarrow
+Qmon*eh_project.project_remove.labelType:       PIXMAP
+Qmon*eh_project.project_remove.labelPixmap:     leftarrow
+
+Qmon*eh_project.project_toggle.chooserType:    ChooserRadioBox
+Qmon*eh_project.project_toggle.strings: \
+   "@{Allow Access}", "@{Deny Access}"
+
+Qmon*eh_project*scrollBarDisplayPolicy:  AS_NEEDED
+Qmon*eh_project*listSizePolicy:          CONSTANT
+
+Qmon*eh_project*project_list.fontList:          $fixed_font
+Qmon*eh_project*project_list.selectionPolicy:   EXTENDED_SELECT
+Qmon*eh_project*project_list.scrollingPolicy:   AUTOMATIC
+Qmon*eh_project*project_list.visualPolicy:      CONSTANT
+Qmon*eh_project*project_list.visibleItemCount:  12
+
+Qmon*eh_project*project_allow.fontList:         $fixed_font
+Qmon*eh_project*project_allow.selectionPolicy:  EXTENDED_SELECT
+Qmon*eh_project*project_allow.scrollingPolicy:  AUTOMATIC
+Qmon*eh_project*project_allow.visualPolicy:     CONSTANT
+Qmon*eh_project*project_allow.visibleItemCount: 5
+
+Qmon*eh_project*project_deny.fontList:          $fixed_font
+Qmon*eh_project*project_deny.selectionPolicy:   EXTENDED_SELECT
+Qmon*eh_project*project_deny.scrollingPolicy:   AUTOMATIC
+Qmon*eh_project*project_deny.visualPolicy:      CONSTANT
+Qmon*eh_project*project_deny.visibleItemCount:  5
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! reporting_variables
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*eh_reporting_variables.tabLabel: @{@fBReporting Variables}
+Qmon*eh_reporting_variables.xmtChildren: \
+   StringList     reporting_variables_list, \
+                  reporting_variables_chosen = reporting_variables; \
+   XmPushButton   reporting_variables_add, reporting_variables_remove;
+
+Qmon*eh_reporting_variables.layout: \
+   Row { \
+      15 em Wide Caption tl "@{@fBAvailable}" reporting_variables_list \
+      Fixed Col { \
+         <> \
+         Fixed Centered reporting_variables_add \
+         Fixed Centered reporting_variables_remove \
+         <> \
+      } \
+      15 em Wide Col { \
+         Caption tl "@{@fBSelected}" reporting_variables_chosen \
+      } \
+   }
+
+Qmon*eh_reporting_variables.reporting_variables_add.labelType:          PIXMAP
+Qmon*eh_reporting_variables.reporting_variables_add.labelPixmap:        rightarrow
+Qmon*eh_reporting_variables.reporting_variables_remove.labelType:       PIXMAP
+Qmon*eh_reporting_variables.reporting_variables_remove.labelPixmap:     leftarrow
+
+Qmon*eh_reporting_variables*scrollBarDisplayPolicy:  AS_NEEDED
+Qmon*eh_reporting_variables*listSizePolicy:          CONSTANT
+
+Qmon*eh_reporting_variables*reporting_variables_list.fontList:          $fixed_font
+Qmon*eh_reporting_variables*reporting_variables_list.selectionPolicy:   EXTENDED_SELECT
+Qmon*eh_reporting_variables*reporting_variables_list.scrollingPolicy:   AUTOMATIC
+Qmon*eh_reporting_variables*reporting_variables_list.visualPolicy:      CONSTANT
+Qmon*eh_reporting_variables*reporting_variables_list.visibleItemCount:  12
+
+Qmon*eh_reporting_variables*reporting_variables_chosen.fontList:         $fixed_font
+Qmon*eh_reporting_variables*reporting_variables_chosen.selectionPolicy:  EXTENDED_SELECT
+Qmon*eh_reporting_variables*reporting_variables_chosen.scrollingPolicy:  AUTOMATIC
+Qmon*eh_reporting_variables*reporting_variables_chosen.visualPolicy:     CONSTANT
+Qmon*eh_reporting_variables*reporting_variables_chosen.visibleItemCount: 5

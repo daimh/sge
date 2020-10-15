@@ -1,0 +1,76 @@
+/* XPM */
+/*___INFO__MARK_BEGIN__*/
+/*************************************************************************
+ * 
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ * 
+ *  Sun Microsystems Inc., March, 2001
+ * 
+ * 
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ * 
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ * 
+ *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ * 
+ *   Copyright: 2001 by Sun Microsystems, Inc.
+ * 
+ *   All Rights Reserved.
+ * 
+ ************************************************************************/
+/*___INFO__MARK_END__*/
+static char *stdoutput[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 23 1",
+"  c black",
+". c #4087FE",
+"X c #448AFE",
+"o c #468BFE",
+"O c #4E90FE",
+"+ c #5091FE",
+"@ c #5C99FE",
+"# c #629DFF",
+"$ c #669FFE",
+"% c #68A0FE",
+"& c #72A7FE",
+"* c #7CADFE",
+"= c #7EAEFE",
+"- c #818181",
+"; c #959595",
+": c gray60",
+"> c #88B4FE",
+", c #94BCFE",
+"< c #A0C3FE",
+"1 c #A0C6FE",
+"2 c #AACAFE",
+"3 c gray100",
+"4 s mask c None",
+/* pixels */
+":-------------44",
+"-3333333333333-4",
+"-33 33 3 3   3-4",
+"-3 3 3 3 33 33-4",
+"-3 3 3 3 33 33-4",
+"-3 3 3 3 33 33-4",
+"-33 333 333 33-4",
+"-3333333333333-4",
+"-3.oO@%&=>,123-4",
+"-3.oO@%&=>,<23-4",
+"-3#oO@$&=>-----4",
+"-3.O+O$&=>-333-4",
+"-3.oOO%&=>-33-44",
+"-333333333-3-444",
+";-----------4444",
+"4444444444444444"
+};

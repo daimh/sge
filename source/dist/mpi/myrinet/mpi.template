@@ -1,0 +1,12 @@
+pe_name          mpi
+queue_list       <a_list_of_parallel_queues>
+slots            <the_number_of_slots>
+user_lists       NONE
+xuser_lists      NONE
+start_proc_args  <your_sge_root>/mpi/myrinet/startmpi.sh $pe_hostfile <path_of_mpirun_command>
+stop_proc_args   <your_sge_root>/mpi/myrinet/stopmpi.sh
+allocation_rule  $round_robin
+control_slaves   FALSE
+job_is_first_task TRUE
+urgency_slots     min
+accounting_summary FALSE

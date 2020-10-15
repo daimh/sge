@@ -1,0 +1,221 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\" $RCSfile: sge_priority.5,v $     Last Update: $Date: 2007-01-05 19:56:10 $     Revision: $Revision: 1.10 $
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH SGE_PRIORITY 5 "2007-01-05" "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+sge_priority \- xxQS_NAMExx job priorities
+.\"
+.\"
+.SH DESCRIPTION
+xxQS_NAMExx provides a means for controlling 
+job dispatch and run-time priorities. The dispatch priority indicates
+the relative importance of pending jobs and 
+determines the order in which xxQS_NAMExx initially considers
+dispatching jobs to queue instances, if the relevant resources are
+available.  (The actual running order may be influenced may be
+influenced by other factors, such as reservations.)  The run-time
+priority determines the CPU allocation
+that the operating system assigns to jobs.
+.\"
+.\"
+.SS "JOBS DISPATCH PRIORITY"
+.\"
+.\"
+A job's dispatch priority (display in the "reduced" output format of
+.M qstat 1 ),
+is affected by a number of factors:
+.IP "\(bu" 3n
+the identity of the submitting user;
+.IP "\(bu" 3n
+the project under which the job is submitted (or alternatively,
+the default project of the submitting user);
+.IP "\(bu" 3n
+any resources requested by the job;
+.IP "\(bu" 3n
+the job's submit time;
+.IP "\(bu" 3n
+the job's initiation deadline time (if specified);
+.IP "\(bu" 3n
+the
+.B \-p
+priority specified for the job (also known as the POSIX
+priority "\fIpprio\fP").
+.\"
+.PP
+The effect of each of these is governed by the overall policy setup,
+which is split into three top-level contributions.  Each of these is
+configured through the
+.M sched_conf 5 
+parameters \fBweight_priority\fP, \fBweight_ticket\fP and \fBweight_urgency\fP.
+These three parameters control to what degree POSIX priority, ticket policy, 
+and urgency policy are in effect. To facilitate interpretation, the raw 
+priorities ("\fItckts\fP"/"\fIurg\fP"/"\fIppri\fP") are normalized ("\fIntckts\fP"/"\fInurg\fP"/"\fInpprior\fP")
+before they are used to calculate job priorities ("\fIprio\fP").
+Normalization maps each raw urgency/ticket/priority  value into a range
+between 0 and 1.
+.PP
+.nf
+   \fInpprior\fP = normalized(\fIppri\fP)
+   \fInurg\fP    = normalized(\fIurg\fP)
+   \fIntckts\fP  = normalized(\fItckts\fP)
+
+   \fIprio\fP    = \fIweight_priority\fP * \fInpprio\fP +
+             \fIweight_urgency\fP  * \fInurg\fP +
+             \fIweight_ticket\fP   * \fIntckts\fP
+.fi
+.PP
+The higher a job's priority value, the earlier it gets dispatched.
+.\"
+.\"
+.PP
+.\" urgency policy
+The urgency policy defines an urgency value for each job. The 
+urgency value 
+.br
+   \fIurg\fP =  \fIrrcontr\fP + \fIwtcontr\fP + \fIdlcontr\fP
+.br
+consists of the resource requirement contribution (\fIrrcontr\fP), the waiting
+time contribution (\fIwtcontr\fP) and the deadline contribution (\fIdlcontr\fP).
+.PP
+The resource requirement contribution adds up all resource
+requirements of a job into a single numeric value.
+.br
+   \fIrrcontr\fP = Sum over all(\fIhrr\fP)
+.br
+with an \fIhrr\fP for each hard resource request.
+Depending on the resource type, two different methods are used to 
+determine the value to be used for \fIhrr\fP here. For numeric type resource
+requests, the \fIhrr\fP represents how much of a resource a job requests (on a
+per-slot basis for PE jobs) and how "important" this resource is
+considered in comparison to other resources. This is expressed by the
+formula:
+.br
+   \fIhrr\fP = \fIrurg\fP * \fIassumed_slot_allocation\fP * \fIrequest\fP
+.br
+where the resource's urgency value (\fIrurg\fP) is as specified
+under \fBurgency\fP in 
+.M complex 5 , 
+the job's \fIassumed_slot_allocation\fP represents the number of slots
+supposedly assigned to the job, and the per-slot request is that which was
+specified using the
+.B \-l
+.M qsub 1
+option. For string-type requests the formula is simply
+.br
+   \fIhrr\fP = \fIrurg\fP
+.br
+and directly assigns the resource urgency value
+as specified under \fBurgency\fP in 
+.M complex 5 . 
+.PP
+The waiting time contribution represents a weighted waiting time of the
+jobs
+.br
+   \Fiwtcontr\fP = \fIwaiting_time\fP * \fIweight_waiting_time\fP
+.br
+with the waiting time in seconds and the \fIweight_waiting_time\fP value
+as specified in 
+.M sched_conf 5 .
+.PP
+The deadline contribution has an increasing effect as jobs approach their
+deadline initiation time (see the
+.B \-dl
+option in
+.M qsub 1 ).
+It is defined as the quotient of the \fBweight_deadline\fP 
+value from
+.M sched_conf 5
+and the (steadily decreasing) free time in seconds until deadline
+initiation time
+.br
+   \Fidlcontr\fP = \fIweight_deadline\fP / \fIfree_time\fP
+.br
+or is set to 0 for non-deadline jobs.  After the deadline passes,
+the value is static and equal to
+.BR weight_deadline .
+The
+.M qstat 1
+.B \-urg
+option displays urgency information for jobs.
+.\"
+.\"
+.PP
+.\" ticket policy
+The ticket policy unites functional, override and share tree 
+policies in the ticket value (\fItckts\fP), defined as the sum of the
+specific ticket values (\fIftckt\fP/\fIotckt\fP/\fIstckt\fP) for each sub-policy
+(functional, override, share):
+.br
+    \Fitckts\fP = \fIftckt\fP + \fIotckt\fP + \fIstckt\fP
+.PP
+The ticket policies provide a broad range of means for influencing
+both job dispatch and runtime priorities on a per job, per user, per
+project, and per department basis.
+The
+.M qstat 1
+.B \-ext
+option displays ticket information for jobs.
+.\" See the xxQS_NAMExx
+.\" Installation and Administration Guide for details.
+.\"
+.\"
+.SS "JOB RUN-TIME PRIORITY"
+The run-time priority can be dynamically adjusted 
+in order to meet the goals set with the ticket policy when execution
+hosts are over-subscribed. Dynamic run-time
+priority adjustment can be turned on globally using
+.B reprioritize
+in
+.M sge_conf 5
+and \fBreprioritize_interval\fP in
+.M sched_conf 5 .
+If no dynamic run-time priority adjustment is done 
+at a host level, the \fBpriority\fP specification in 
+.M queue_conf 5
+is in effect.
+.PP
+Note that urgency and POSIX priorities do \fBnot\fP affect runtime
+priority.
+.PP
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M complex 5 ,
+.M qstat 1 ,
+.M qsub 1 ,
+.M sched_conf 5 ,
+.M sge_conf 5
+.\" .I xxQS_NAMExx Installation and Administration Guide
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

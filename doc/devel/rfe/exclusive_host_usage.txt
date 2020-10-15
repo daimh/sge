@@ -1,0 +1,99 @@
+Exclusive Complex Scheduling
+============================
+
+   Version 	Comments 	                   Date      Author
+   ----------------------------------------------------
+   1.0 	  	Initial Version                17-03-09  RD
+   1.1 	  	Clarified PE behavior          06-04-09  RD
+
+1 Introduction
+==============
+
+Some HPC sites require exclusive access to hosts in order to
+guarantee predictable performance and avoid interference when requesting
+less slots than available per host.  There are sites that have
+to implement workarounds because of the lack of this feature, 
+for example by forcing users to request all slots on a host and then
+reducing the available slots via scripts that use the PE context to run
+the user job on less slots per node.  This gives problems with some
+tight-integration implementations where it is hard to change the job
+distribution inherited SGE (for example Open MPI).
+
+2 Project Overview
+==================
+
+2.1 Project Aim
+
+Provide a mechanism whereby a user may request exclusive access to a host.
+
+   The issues targeted with this project are:
+
+   Issue    Description
+   2629     exclusive host usage by only one job
+
+2.2 Project Benefit
+
+Jobs can run exclusive on hosts without using all slots. By integrating into the
+complex framework exclusive requests will work with:
+  - work with resource quotas
+  - work with resource reservation
+  - work with advance reservations
+
+2.4 Project Dependencies
+
+   There are no known dependencies with other projects
+
+3 System Architecture
+=====================
+
+3.1 Enhancement Functions
+
+A new complex relation operator called EXCL will be introduced that can be used for BOOL
+consumable complexes. The consumable type can be YES, which means every node getting tasks
+of the PE job will be exclusive, or JOB, which means only the master task will be exclusive.
+The default request is always used for exclusive consumables and a value of 0 means, jobs
+not requesting the exclusive consumable are handled as non-exclusive jobs.
+
+The scheduler algorithm is:
+if (job_is_exclusive) {
+   if (!host_is_exclusive) {
+      reject
+   }
+   if (utilized_now_nonexclusive == 0 && utilized_now == 0) {
+      accept
+   } else if (is_reservation) {
+      evaluate_best_start_time(utilized_diagram)
+   }  else {
+      reject
+   }
+} else {
+   if (utilized_now == 0) {
+      accept
+   } else if (is_reservation) {
+      evaluate_best_start_time(utilized_diagram)
+   } else {
+      reject
+   }
+}
+
+3.1 Example
+
+The following example defines a exclusive consumable:
+% qconf -sc
+#name               shortcut   type        relop requestable consumable default  urgency
+#----------------------------------------------------------------------------------------
+exclusive           excl       BOOL        EXCL  YES         YES        0        1000
+...
+
+To make a host or a queue exclusive the complex needs to be attached to the
+desired object:
+
+% qconf -me host1
+>...
+>complex_values exclusive=true
+>...
+
+Because default is set to 0 all jobs not requesting the complex are considered as
+non-exclusive. to submit an exclusive job the complex needs to be requested.
+
+% qsub -l excl=true pam_crash.sh

@@ -1,0 +1,12 @@
+# Version: Grid Engine 6
+# 
+# DO NOT MODIFY THIS FILE MANUALLY!
+# 
+name        slots
+shortcut    s
+type        INT
+relop       <=
+requestable YES
+consumable  YES
+default     1
+urgency     1000

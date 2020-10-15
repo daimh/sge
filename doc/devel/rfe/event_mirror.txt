@@ -1,0 +1,91 @@
+event_mirror: Highlevel functions for mirroring (master) object lists
+
+1 General
+Lists held by qmaster can be mirrored using the event client interface.
+
+The module provides an abstraction layer on top of the event client interface, 
+that allows to mirror object lists from qmaster.
+
+This interface can be used to implement clients having to access up to date
+information from qmaster over a certain time period.
+The mirroring (event client) interface should be used instead of regularly 
+polling the actual information.
+
+Examples for such clients are 
+- schedulers
+- proxies
+- monitoring tools (also our qmon GUI)
+
+2 Functionality
+The module provides several functions described in the following text.
+
+2.1 Initialization
+Use the functions provided by the event client interface:
+ec_prepare_registration()
+ec_register()
+
+To set event client specific behaviour, the following functions of the event client interface can be used:
+ec_set_edtime()
+ec_set_busy_handling()
+
+2.2 Subscription
+Here we have to request which lists shall be mirrored.
+The following information has to be specified:
+- object type: Higher level subscription than in the event client interface, 
+  which requires to subscribe several events per object type 
+  (object type + operation)
+- callback: A callback function can be specified that will be called after an 
+  event has been processed and the lists have been updated. Special client 
+  specific handling of events can be implemented in callback functions.
+- clientdata to be passed to the callback function  
+
+A callback function will be passed the following information:
+- object type (job, queue, ...)
+- action (initial list received, add, modify, delete)
+- if an individual object has changed, the corresponding lListElem
+- clientdata 
+
+The subscribe function will store callbacks and subscribe the events using 
+the event client interface.
+
+If special handling of events (e.g. flushing) shall be used, the corresponding 
+functions of the event client interface can be called:
+ec_set_flush()
+ec_unset_flush()
+
+Do we need an unsubscribe function?
+Yes, for completeness of the interface.
+Information to be specified: 
+- object type
+The following actions will be taken by an unsubscribe function:
+- unsubscribe low level events
+- destroy mirrored lists
+
+2.3 GetData
+The user of the mirroring interface has to call the GetData function in 
+regular intervals. It will do the following actions:
+- receive events from qmaster
+- update mirrored lists
+- if requested, call callback functions
+
+2.4 Shutdown
+On shutdown of a program using the mirroring interface or when the mirroring 
+functionality is no longer needed, a shutdown function has to be called, 
+which does the following actions:
+- deregister from qmaster
+- destroy all mirrored lists
+A client that shutdown mirroring can restart mirroring by calling the 
+initialization functions.
+
+2.5 Neccessary changes in the event client interface:
+If an event is unsubscribed, qmaster has to scan the event list for the 
+associated event client and delete the unsubscribed events.
+
+3 Documentation changes:
+3.1 user/admin guide: no documentation neccessary
+3.2 man pages: no documentation neccessary
+3.3 -help output: for a demo client? qevent?
+3.4 documented interfaces: yes, gdi lib module
+3.5 messages: new messages are generated
+
+

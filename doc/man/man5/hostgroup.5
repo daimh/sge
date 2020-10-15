@@ -1,0 +1,105 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\" 
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH HOSTGROUP 5 "$Date: 2011-05-22 12:20:04 $" "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+hostgroup \- host group entry file format
+.\"
+.SH DESCRIPTION
+.PP
+A host group entry is used to merge host names to groups.
+Each  host  group  entry  file defines one group. Inside a
+group definition file you can also reference groups. These
+groups are called subgroups. A subgroup is referenced by the
+sign "@" as first character of the name.
+.PP
+A list of currently-configured host group entries can be displayed
+via the
+.M qconf 1
+\fB\-shgrpl\fP option. The contents of each listed host group entry 
+can be
+shown via the \fB\-shgrp\fP switch. The output follows the
+.I hostgroup
+format description. New host group entries can be created and existing can be
+modified via the \fB\-ahgrp\fP, \fB\-mhgrp\fP, \fB\-dhgrp\fP and 
+\fB\-?attr\fP options to
+.M qconf 1 .
+.PP
+Note, xxQS_NAMExx allows backslashes (\\) be used to escape newline
+characters. The backslash and the newline are replaced with a space
+character before any interpretation.
+.\"
+.\"
+.SH FORMAT
+A host group entry contains the following parameters:
+.SS "\fBgroup_name\fP"
+The group_name defines the host group name. Host group names have to
+begin with an '@' character as explained for \fIhostgroup_name\fP in
+.M sge_types 5 .
+.SS "\fBhostlist\fP"
+The names of all hosts and host groups (see
+\fIhost_identifier\fP in 
+.M sge_types 5 )
+which are members of the group.  Only whitespace is allowed as list
+separators. The default value for this parameter is NONE.
+.PP
+Note, if the first character of the \fIhost_identifier\fP is an "@" sign the name 
+is used to reference a 
+.M hostgroup 5 
+which is taken as a subgroup of this group.
+.\"
+.\"
+
+.SH EXAMPLE
+This is a typical host group entry:
+
+.PP
+group_name @bigMachines
+.PP
+hostlist @solaris64 @solaris32 fangorn balrog
+.PP
+
+The entry will define a new host group called 
+\fB@bigMachines\fP. In this host group are the host 
+\fBfangorn\fP, \fBbalrog\fP and all members of the host groups 
+\fB@solaris64\fP and \fB@solaris32\fP.
+
+.\"
+
+.SH "SEE ALSO"
+.M xxqs_name_sxx__types 1 ,
+.M qconf 1
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

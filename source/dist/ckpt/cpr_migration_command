@@ -1,0 +1,102 @@
+#!/bin/sh
+#
+#
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+set +u
+
+ckpt_dir=$3
+
+if [ ! -f $ckpt_dir/ckpt.log ]; then
+   touch $ckpt_dir/ckpt.log
+   chmod 666 $ckpt_dir/ckpt.log
+fi
+
+sge_root=${SGE_ROOT}
+sge_cell=${SGE_CELL}
+
+# workaround to force job to restart on same queue (svd)
+. $sge_root/${sge_cell:-default}/common/settings.sh
+qalter -q $QUEUE $JOB_ID
+
+# create temp directory for holding checkpoint info
+
+tmpdir=$ckpt_dir/ckpt.$1
+mkdir -p $tmpdir
+cd $tmpdir
+
+# create log file
+
+#F=$tmpdir/checkpoint.log
+F=$HOME/$REQUEST.co$1
+touch $F
+
+echo -------------------------------------------------------------  >> $F
+echo `basename $0` called at `date`      >> $F
+echo called by: `id`			 >> $F
+echo with args: $*			 >> $F
+
+# checkpoint the job to one of two different files (i.e. ping-pong)
+# just in case we go down while checkpointing
+
+currcpr=`cat currcpr`
+if [ "$currcpr" = "2" ]; then
+    currcpr=1
+    prevcpr=2
+else
+    currcpr=2
+    prevcpr=1
+fi
+
+# use the ASH to checkpoint if it is available.
+# otherwise, use the process group ID
+
+if [ -n "$OSJOBID" ]
+then
+    popt="$OSJOBID:ASH"
+else
+    popt="$2:GID"
+fi
+
+echo Migration command: cpr -c cpr_$1.$currcpr -p $popt -f -k >> $F
+cpr -c cpr_$1.$currcpr -p $popt -f -k >> $F
+cc=$?
+if [ $cc -eq 0 ]; then
+   echo $currcpr > currcpr
+   if [ -d cpr_$1.$prevcpr ]; then
+      echo Deleting old checkpoint file >> $F
+      cpr -D cpr_$1.$prevcpr >> $F
+   fi
+fi
+
+echo `date +"%D %T"` Job $1 "(pid=$2) checkpointed and killed, status=$cc" >> $ckpt_dir/ckpt.log

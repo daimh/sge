@@ -1,0 +1,131 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\" $RCSfile: qtask.5,v $     Last Update: $Date: 2005-03-30 14:31:37 $     Revision: $Revision: 1.5 $
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH QTASK 5 "$Date: 2005-03-30 14:31:37 $" "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+qtask \- file format of the qtask file.
+.\"
+.\"
+.SH DESCRIPTION
+A
+.I qtask
+file defines which commands are submitted
+to xxQS_NAMExx for remote execution by
+.M qtcsh 1 .
+The
+.I qtask 
+file optionally may contain
+.M qrsh 1
+command-line parameters. These parameters are passed to the
+.M qrsh 1
+command being used by
+.I qtcsh
+to submit the commands.
+.PP
+Both a cluster global
+.I qtask
+file defining cluster wide defaults, and a user specific
+.I qtask
+file eventually overriding and enhancing those definitions, are
+supported. The cluster global file resides at
+<xxqs_name_sxx_root>/<cell/common/qtask, while the user specific file
+can be found at ~/.qtask. An exclamation mark preceding command
+definitions in the cluster global file can be used by the administrator to
+deny overriding of such commands by users.
+.\"
+.\"
+.SH FORMAT
+The overall format of the
+.I qtask
+file is that of
+a tabulated list. Each line starting with a '#' character
+is a comment line. Each non-comment line defines
+a command to be started remotely.
+.sp 1
+Definition starts with the command name that must match exactly the name as
+typed in a
+.M qtcsh 1
+command-line. Pathnames are not allowed in
+.I qtask
+files. Hence absolute or relative pathnames in
+.M qtcsh 1
+command-lines always lead to local execution, even if the command itself
+is the same as defined in the
+.I qtask
+file.
+.sp 1
+The command name can be followed by an arbitrary number of
+.M qrsh 1
+option arguments which are passed on to
+.M qrsh 1
+by
+.M qtcsh 1 .
+.sp 1
+An exclamation mark
+prefixing the command in the cluster global
+.I qtask
+file prevents overriding by the user supplied
+.I qtask
+file.
+.\"
+.\"
+.SH EXAMPLES
+.\"
+The following
+.I qtask
+file
+.sp 1
+.nf
+.RS
+firefox \-l a=sol\-sparc64 \-v DISPLAY=myhost:0
+grep \-l h=filesurfer
+verilog \-l veri_lic=1
+.RE
+.fi
+.sp 1
+designates the applications firefox, grep and verilog for interactive
+remote execution through xxQS_NAMExx. Firefox is requested to run only
+on Solaris64 architectures with the DISPLAY environment variable set
+to 'myhost:0', grep only runs on the host named 'filesurfer', and verilog
+requests availability of a verilog license in order to get executed
+remotely.
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M qtcsh 1 ,
+.M qrsh 1 .
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

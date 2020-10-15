@@ -1,0 +1,762 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!
+_Messages_.en.*.@fBAttributes: @fBAttributes
+_Messages_.en.*.@fBType: @fBType
+_Messages_.en.*.@fBAFS Parameters: @fBAFS Parameters
+_Messages_.en.*.@fBAccess Attributes: @fBAccess Attributes
+_Messages_.en.*.@fBAccess Lists: @fBAccess Lists
+_Messages_.en.*.@fBAdditional Parameters: @fBAdditional Parameters
+_Messages_.en.*.@fBAdministration Host: @fBAdministration Host
+_Messages_.en.*.@fBAdvanced Settings: @fBAdvanced Settings
+_Messages_.en.*.@fBAdvanced: @fBAdvanced
+_Messages_.en.*.@fBAlgorithm: @fBAlgorithm
+_Messages_.en.*.@fBAllow Access to: @fBAllow Access to
+_Messages_.en.*.@fBAllow Project Access to: @fBAllow Project Access to
+_Messages_.en.*.@fBAvailable Access Lists: @fBAvailable Access Lists
+_Messages_.en.*.@fBAvailable Fields: @fBAvailable Fields
+_Messages_.en.*.@fBAvailable Projects: @fBAvailable Projects
+_Messages_.en.*.@fBAvailable Queues: @fBAvailable Queues
+_Messages_.en.*.@fBAvailable Resources: @fBAvailable Resources
+_Messages_.en.*.@fBBrowser: @fBBrowser
+_Messages_.en.*.@fBCalendar Configuration: @fBCalendar Configuration
+_Messages_.en.*.@fBCalendar Name: @fBCalendar Name
+_Messages_.en.*.@fBCalendar: @fBCalendar
+_Messages_.en.*.@fBCheckpoint Configuration: @fBCheckpoint Configuration
+_Messages_.en.*.@fBCheckpointing Configuration: @fBCheckpointing Configuration
+_Messages_.en.*.@fBCheckpointing: @fBCheckpointing
+_Messages_.en.*.@fBChosen Access Lists: @fBChosen Access Lists
+_Messages_.en.*.@fBChosen Projects: @fBChosen Projects
+_Messages_.en.*.@fBChosen Queues: @fBChosen Queues
+_Messages_.en.*.@fBCluster Configuration: @fBCluster Configuration
+_Messages_.en.*.@fBCompact Job Array Display: @fBCompact Job Array Display
+_Messages_.en.*.@fBComplex Configuration: @fBComplex Configuration
+_Messages_.en.*.@fBComplex Selection: @fBComplex Selection
+_Messages_.en.*.@fBComplexes Configuration: @fBComplexes Configuration
+_Messages_.en.*.@fBComplexes: @fBComplexes
+_Messages_.en.*.@fBConfiguration for Host: @fBConfiguration for Host
+_Messages_.en.*.@fBConsumables/Fixed Attributes: @fBConsumables/Fixed Attributes
+_Messages_.en.*.@fBControl Slaves: @fBControl Slaves
+_Messages_.en.*.@fBCurrent Active Tickets: @fBCurrent Active Tickets
+_Messages_.en.*.@fBDecay Time: @fBDecay Time
+_Messages_.en.*.@fBDeny Access to: @fBDeny Access to
+_Messages_.en.*.@fBDeny Project Access to: @fBDeny Project Access to
+_Messages_.en.*.@fBEdit Tickets: @fBEdit Tickets
+_Messages_.en.*.@fBEpilog: @fBEpilog
+_Messages_.en.*.@fBExample: @fBExample
+_Messages_.en.*.@fBExecution Host: @fBExecution Host
+_Messages_.en.*.@fBExecution Method: @fBExecution Method
+_Messages_.en.*.@fBExit: @fBExit
+_Messages_.en.*.@fBFilter Jobs: @fBFilter Jobs
+_Messages_.en.*.@fBFilter Queues: @fBFilter Queues
+_Messages_.en.*.@fBFilter Resources: @fBFilter Resources
+_Messages_.en.*.@fBFilter by Owner: @fBFilter by Owner
+_Messages_.en.*.@fBFinished Jobs: @fBFinished Jobs
+_Messages_.en.*.@fBFunctional Policy: @fBFunctional Policy
+_Messages_.en.*.@fBGRD Schedule Interval: @fBGRD Schedule Interval
+_Messages_.en.*.@fBGeneral Configuration: @fBGeneral Configuration
+_Messages_.en.*.@fBGeneral Parameters: @fBGeneral Parameters
+_Messages_.en.*.@fBGeneral Settings: @fBGeneral Settings
+_Messages_.en.*.@fBGeneral: @fBGeneral
+_Messages_.en.*.@fBHost Configuration: @fBHost Configuration
+_Messages_.en.*.@fBHost: @fBHost
+_Messages_.en.*.@fBHosts: @fBHosts
+_Messages_.en.*.@fBInitial State: @fBInitial State
+_Messages_.en.*.@fBJob Control: @fBJob Control
+_Messages_.en.*.@fBJob Scheduling Information: @fBJob Scheduling Information
+_Messages_.en.*.@fBJob Submission: @fBJob Submission
+_Messages_.en.*.@fBJob is first task: @fBJob is first task
+_Messages_.en.*.@fBJob's Nice: @fBJob's Nice
+_Messages_.en.*.@fBLimits: @fBLimits
+_Messages_.en.*.@fBLoad Adjustment: @fBLoad Adjustment
+_Messages_.en.*.@fBLoad Formula: @fBLoad Formula
+_Messages_.en.*.@fBLoad Scaling: @fBLoad Scaling
+_Messages_.en.*.@fBLoad Thresholds: @fBLoad Thresholds
+_Messages_.en.*.@fBLoad/Suspend Thresholds: @fBLoad/Suspend Thresholds
+_Messages_.en.*.@fBManager: @fBManager
+_Messages_.en.*.@fBMax Jobs/Group: @fBMax Jobs/Group
+_Messages_.en.*.@fBMax Jobs/User: @fBMax Jobs/User
+_Messages_.en.*.@fBMessage: @fBMessage
+_Messages_.en.*.@fBMethod Parameters: @fBMethod Parameters
+_Messages_.en.*.@fBName of Complex: @fBName of Complex
+_Messages_.en.*.@fBNode Attributes: @fBNode Attributes
+_Messages_.en.*.@fBNode Info: @fBNode Info
+_Messages_.en.*.@fBNotify Time: @fBNotify Time
+_Messages_.en.*.@fBObject Browser: @fBObject Browser
+_Messages_.en.*.@fBObjects: @fBObjects
+_Messages_.en.*.@fBOperations: @fBOperations
+_Messages_.en.*.@fBOperator: @fBOperator
+_Messages_.en.*.@fBOverride Policy: @fBOverride Policy
+_Messages_.en.*.@fBOwner List: @fBOwner List
+_Messages_.en.*.@fBOwners: @fBOwners
+_Messages_.en.*.@fBParallel Job Request - %s: @fBParallel Job Request - %s
+_Messages_.en.*.@fBParallel Environment: @fBParallel Environment
+_Messages_.en.*.@fBParallel Environment Configuration: @fBParallel Environment Configuration
+_Messages_.en.*.@fBPending Jobs: @fBPending Jobs
+_Messages_.en.*.@fBPolicy: @fBPolicy
+_Messages_.en.*.@fBProcessors: @fBProcessors
+_Messages_.en.*.@fBProject Access: @fBProject Access
+_Messages_.en.*.@fBProject Configuration: @fBProject Configuration
+_Messages_.en.*.@fBProjects: @fBProjects
+_Messages_.en.*.@fBProlog: @fBProlog
+_Messages_.en.*.@fBQueue Configuration - Add: @fBQueue Configuration - Add
+_Messages_.en.*.@fBQueue Configuration - Modify: @fBQueue Configuration - Modify
+_Messages_.en.*.@fBQueue Configuration: @fBQueue Configuration
+_Messages_.en.*.@fBQueue Control: @fBQueue Control
+_Messages_.en.*.@fBQUEUE ACTIONS: @fBQUEUE ACTIONS
+_Messages_.en.*.@fBRequested Resources: @fBRequested Resources
+_Messages_.en.*.@fBRerun Jobs: @fBRerun Jobs
+_Messages_.en.*.@fBResume Method: @fBResume Method
+_Messages_.en.*.@fBRunning Jobs: @fBRunning Jobs
+_Messages_.en.*.@fBScaling: @fBScaling
+_Messages_.en.*.@fBSchedule Interval: @fBSchedule Interval
+_Messages_.en.*.@fBSGEEE Schedule Interval: @fBSGEEE Schedule Interval
+_Messages_.en.*.@fBScheduler Configuration: @fBScheduler Configuration
+_Messages_.en.*.@fBSelect Job Fields: @fBSelect Job Fields
+_Messages_.en.*.@fBSelected Fields: @fBSelected Fields
+_Messages_.en.*.@fBSequence Nr: @fBSequence Nr
+_Messages_.en.*.@fBSerial Job: @fBSerial Job
+_Messages_.en.*.@fBSet Hold: @fBSet Hold
+_Messages_.en.*.@fBShare Tree Policy Parameters: @fBShare Tree Policy Parameters
+_Messages_.en.*.@fBShare Tree Policy: @fBShare Tree Policy
+_Messages_.en.*.@fBShell Start Mode: @fBShell Start Mode
+_Messages_.en.*.@fBShell: @fBShell
+_Messages_.en.*.@fBSlots: @fBSlots
+_Messages_.en.*.@fBStarter Method: @fBStarter Method
+_Messages_.en.*.@fBSubmit Host: @fBSubmit Host
+_Messages_.en.*.@fBSubordinates: @fBSubordinates
+_Messages_.en.*.@fBSuspend Method: @fBSuspend Method
+_Messages_.en.*.@fBSuspend Thresholds: @fBSuspend Thresholds
+_Messages_.en.*.@fBTerminate Method: @fBTerminate Method
+_Messages_.en.*.@fBTicket Configuration: @fBTicket Configuration
+_Messages_.en.*.@fBTicket Overview: @fBTicket Overview
+_Messages_.en.*.@fBTasks: @fBTasks
+_Messages_.en.*.@fBUsage Scaling: @fBUsage Scaling
+_Messages_.en.*.@fBUser Access: @fBUser Access
+_Messages_.en.*.@fBUser Configuration: @fBUser Configuration
+_Messages_.en.*.@fBUser: @fBUser
+_Messages_.en.*.@fBUserset: @fBUserset
+_Messages_.en.*.@fBtmp Directory: @fBtmp Directory
+_Messages_.en.*.@fIDeadline Initiation Tickets: @fIDeadline Initiation Tickets
+_Messages_.en.*.@fIFunctional Tickets: @fIFunctional Tickets
+_Messages_.en.*.@fIJobs suspended per interval: @fIJobs suspended per interval
+_Messages_.en.*.@fIMaximum Deadline Initiation Tickets: @fIMaximum Deadline Initiation Tickets
+_Messages_.en.*.@fIOverride Tickets: @fIOverride Tickets
+_Messages_.en.*.@fIShare Tree Tickets: @fIShare Tree Tickets
+_Messages_.en.*.@fISuspend interval: @fISuspend interval
+_Messages_.en.*.@fITotal Functional Tickets: @fITotal Functional Tickets
+_Messages_.en.*.@fITotal Share Tree Tickets: @fITotal Share Tree Tickets
+_Messages_.en.*.@f[BIG]Job Control: @f[BIG]Job Control
+_Messages_.en.*.@f[BIG]Job Submission: @f[BIG]Job Submission
+_Messages_.en.*.@f[BIG]Message: @f[BIG]Message
+_Messages_.en.*.@f[BIG]Object Browser: @f[BIG]Object Browser
+_Messages_.en.*.@f[BIG]Queue Control: @f[BIG]Queue Control
+_Messages_.en.*.@f[SMALL]Alarm: @f[SMALL]Alarm
+_Messages_.en.*.@f[SMALL]Calendar Disable: @f[SMALL]Calendar Disable
+_Messages_.en.*.@f[SMALL]Calendar Suspend: @f[SMALL]Calendar Suspend
+_Messages_.en.*.@f[SMALL]Disabled: @f[SMALL]Disabled
+_Messages_.en.*.@f[SMALL]Error: @f[SMALL]Error
+_Messages_.en.*.@f[SMALL]Running: @f[SMALL]Running
+_Messages_.en.*.@f[SMALL]Suspended: @f[SMALL]Suspended
+_Messages_.en.*.APPLICATION-LEVEL: APPLICATION-LEVEL
+_Messages_.en.*.Abort: Abort
+_Messages_.en.*.Abort of Job: Abort of Job
+_Messages_.en.*.About: About
+_Messages_.en.*.Access List: Access List
+_Messages_.en.*.Access Lists: Access Lists
+_Messages_.en.*.Account: Account
+_Messages_.en.*.AccountString: AccountString
+_Messages_.en.*.Actual Resource Share: Actual Resource Share
+_Messages_.en.*.Add: Add
+_Messages_.en.*.Add Leaf: Add Leaf
+_Messages_.en.*.Add Node: Add Node
+_Messages_.en.*.Add/Modify Calendar: Add/Modify Calendar
+_Messages_.en.*.Add/Modify Exec Host: Add/Modify Exec Host
+_Messages_.en.*.Add/Modify Project: Add/Modify Project
+_Messages_.en.*.Add/Modify PE: Add/Modify PE
+_Messages_.en.*.Admin Mail: Admin Mail
+_Messages_.en.*.Admin User: Admin User
+_Messages_.en.*.Algorithm required!: Algorithm required!
+_Messages_.en.*.All: All
+_Messages_.en.*.Allocation Rule: Allocation Rule
+_Messages_.en.*.Allow Access: Allow Access
+_Messages_.en.*.Apply: Apply
+_Messages_.en.*.Attached Complexes: Attached Complexes
+_Messages_.en.*.Attribute: Attribute
+_Messages_.en.*.Attributes for queue: Attributes for queue
+_Messages_.en.*.Attributes: Attributes
+_Messages_.en.*.Available Calendars: Available Calendars
+_Messages_.en.*.Available Complexes: Available Complexes
+_Messages_.en.*.Available Parallel Environments: Available Parallel Environments
+_Messages_.en.*.Available Queues: Available Queues
+_Messages_.en.*.Available Resources: Available Resources
+_Messages_.en.*.Available attributes: Available attributes
+_Messages_.en.*.Available checkpoint objects: Available checkpoint objects
+_Messages_.en.*.Available projects: Available projects
+_Messages_.en.*.BOOL: BOOL
+_Messages_.en.*.Batch: Batch
+_Messages_.en.*.Binary Path: Binary Path
+_Messages_.en.*.Browser Dialog: Browser Dialog
+_Messages_.en.*.Byte: Byte
+_Messages_.en.*.CPR: CPR
+_Messages_.en.*.CPU [%]: CPU [%]
+_Messages_.en.*.CPU: CPU
+_Messages_.en.*.CSTRING: CSTRING
+_Messages_.en.*.CWD: CWD
+_Messages_.en.*.Can't resolve host '%s': Can't resolve host '%s'
+_Messages_.en.*.Calendar Configuration: Calendar Configuration
+_Messages_.en.*.Calendars: Calendars
+_Messages_.en.*.Calendar name required !: Calendar name required !
+_Messages_.en.*.Can't copy the whole tree !: Can't copy the whole tree !
+_Messages_.en.*.Can't cut the whole tree !: Can't cut the whole tree !
+_Messages_.en.*.Cancel: Cancel
+_Messages_.en.*.Cannot start editor !: Cannot start editor !
+_Messages_.en.*.Category: Category
+_Messages_.en.*.Cell: Cell
+_Messages_.en.*.Add/Modify Checkpoint Object: Add/Modify Checkpoint Object
+_Messages_.en.*.Change global configuration: Change global configuration
+_Messages_.en.*.Checkpoint Command: Checkpoint Command
+_Messages_.en.*.Checkpoint Object: Checkpoint Object
+_Messages_.en.*.Checkpoint Objects: Checkpoint Objects
+_Messages_.en.*.Checkpoint Signal: Checkpoint Signal
+_Messages_.en.*.Checkpoint When: Checkpoint When
+_Messages_.en.*.Checkpoint name required !: Checkpoint name required !
+_Messages_.en.*.Checkpoint interface required !: Checkpoint interface required !
+_Messages_.en.*.Checkpoint ckpt_command required !: Checkpoint ckpt_command required !
+_Messages_.en.*.Checkpoint migr_command required !: Checkpoint migr_command required !
+_Messages_.en.*.Checkpoint rest_command required !: Checkpoint rest_command required !
+_Messages_.en.*.Checkpoint clean_command required !: Checkpoint clean_command required !
+_Messages_.en.*.Checkpoint ckpt_dir required !: Checkpoint ckpt_dir required !
+_Messages_.en.*.Checkpoint when required !: Checkpoint when required !
+_Messages_.en.*.Checkpoint signal required !: Checkpoint signal required !
+_Messages_.en.*.Checkpointing Configuration: Checkpointing Configuration
+_Messages_.en.*.Checkpointing Directory: Checkpointing Directory
+_Messages_.en.*.Checkpointing: Checkpointing
+_Messages_.en.*.Choose a script first !: Choose a script first !
+_Messages_.en.*.Clean Command: Clean Command
+_Messages_.en.*.Clear Error: Clear Error
+_Messages_.en.*.Clear Usage: Clear Usage
+_Messages_.en.*.Clear: Clear
+_Messages_.en.*.Click TRUE or FALSE: Click TRUE or FALSE
+_Messages_.en.*.Clone: Clone
+_Messages_.en.*.Cluster Configuration: Cluster Configuration
+_Messages_.en.*.Cluster Settings: Cluster Settings
+_Messages_.en.*.Combined Usage: Combined Usage
+_Messages_.en.*.Compensation Factor: Compensation Factor
+_Messages_.en.*.Complex Configuration: Complex Configuration
+_Messages_.en.*.Complexes: Complexes
+_Messages_.en.*.Configuration: Configuration
+_Messages_.en.*.Consumable: Consumable
+_Messages_.en.*.CONSUMABLE: CONSUMABLE
+_Messages_.en.*.Context Help: Context Help
+_Messages_.en.*.Context Variable List: Context Variable List
+_Messages_.en.*.Context for Job: Context for Job
+_Messages_.en.*.Context: Context
+_Messages_.en.*.Copy: Copy
+_Messages_.en.*.Credit Formula required!: Credit Formula required!
+_Messages_.en.*.Current Working Directory: Current Working Directory
+_Messages_.en.*.Customize: Customize
+_Messages_.en.*.Customize +: Customize +
+_Messages_.en.*.Cut: Cut
+_Messages_.en.*.DOUBLE: DOUBLE
+_Messages_.en.*.DTicket: DTicket
+_Messages_.en.*.Day: Day
+_Messages_.en.*.Days: Days
+_Messages_.en.*.Deadline: Deadline
+_Messages_.en.*.Default Domain: Default Domain
+_Messages_.en.*.Default Project: Default Project
+_Messages_.en.*.Default: Default
+_Messages_.en.*.DEFAULT: DEFAULT
+_Messages_.en.*.Default required !: Default required !
+_Messages_.en.*.Delete: Delete
+_Messages_.en.*.Deny Access: Deny Access
+_Messages_.en.*.Department [%]: Department [%]
+_Messages_.en.*.Department: Department
+_Messages_.en.*.Disable: Disable
+_Messages_.en.*.Done: Done
+_Messages_.en.*.Double click on values to change limits: Double click on values to change limits
+_Messages_.en.*.Edit: Edit
+_Messages_.en.*.Enable: Enable
+_Messages_.en.*.End of Job: End of Job
+_Messages_.en.*.Enforce Project: Enforce Project
+_Messages_.en.*.Enforce User: Enforce User
+_Messages_.en.*.Enter Owner: Enter Owner
+_Messages_.en.*.Enter a memory value: Enter a memory value
+_Messages_.en.*.Enter a new priority for the selected jobs: Enter a new priority for the selected jobs
+_Messages_.en.*.Enter a string value: Enter a string value
+_Messages_.en.*.Enter a time value: Enter a time value
+_Messages_.en.*.Enter a time value for: Enter a time value for
+_Messages_.en.*.Enter a uppercase string value: Enter a uppercase string value
+_Messages_.en.*.Enter a valid hostname: Enter a valid hostname
+_Messages_.en.*.Enter an integer value: Enter an integer value
+_Messages_.en.*.Enter item name: Enter item name
+_Messages_.en.*.Enter time: Enter time
+_Messages_.en.*.Environment Variable List: Environment Variable List
+_Messages_.en.*.Environment for Job: Environment for Job
+_Messages_.en.*.Environment: Environment
+_Messages_.en.*.Epilog: Epilog
+_Messages_.en.*.Error: Error
+_Messages_.en.*.Execd Parameters: Execd Parameters
+_Messages_.en.*.Execd Spool Dir: Execd Spool Dir
+_Messages_.en.*.Exit: Exit
+_Messages_.en.*.Failure: Failure
+_Messages_.en.*.FORCED: FORCED
+_Messages_.en.*.FTicket: FTicket
+_Messages_.en.*.False: False
+_Messages_.en.*.File Selection: File Selection
+_Messages_.en.*.File: File
+_Messages_.en.*.File '%s' does not exist or is no regular file !: File '%s' does not exist or is no regular file !
+_Messages_.en.*.Find Next: Find Next
+_Messages_.en.*.Find: Find
+_Messages_.en.*.Finished Jobs: Finished Jobs
+_Messages_.en.*.Force: Force
+_Messages_.en.*.GByte (1024x1024x1024): GByte (1024x1024x1024)
+_Messages_.en.*.GID Range for Job Monitoring: GID Range for Job Monitoring
+_Messages_.en.*.@fBAutomatic User Defaults: @fBAutomatic User Defaults
+_Messages_.en.*.Override Tickets: Override Tickets 
+_Messages_.en.*.Functional Shares: Functional Shares 
+_Messages_.en.*.Delete Time: Delete Time
+_Messages_.en.*.SGEEE Schedule Interval required!: SGEEE Schedule Interval required!
+_Messages_.en.*.Get Environment: Get Environment
+_Messages_.en.*.Get Queue Attributes from: Get Queue Attributes from
+_Messages_.en.*.Get Queue: Get Queue
+_Messages_.en.*.Get calendar: Get calendar
+_Messages_.en.*.HIBERNATOR: HIBERNATOR
+_Messages_.en.*.HOST: HOST
+_Messages_.en.*.Halflife: Halflife
+_Messages_.en.*.Hard Limit: Hard Limit
+_Messages_.en.*.Hard Queue List: Hard Queue List
+_Messages_.en.*.Hard Request: Hard Request
+_Messages_.en.*.Hard Resources: Hard Resources
+_Messages_.en.*.Help Index: Help Index
+_Messages_.en.*.Help: Help
+_Messages_.en.*.Hold Job: Hold Job
+_Messages_.en.*.Hold: Hold
+_Messages_.en.*.Host Configuration: Host Configuration
+_Messages_.en.*.Host: Host
+_Messages_.en.*.Hostname: Hostname
+_Messages_.en.*.Hour: Hour
+_Messages_.en.*.Hours: Hours
+_Messages_.en.*.Ignore FQDN: Ignore FQDN
+_Messages_.en.*.I/O [%]: I/O [%]
+_Messages_.en.*.INFINITY: INFINITY
+_Messages_.en.*.INT: INT
+_Messages_.en.*.Invalid script name '%s': Invalid script name '%s'
+_Messages_.en.*.IO: IO
+_Messages_.en.*.Id: Id
+_Messages_.en.*.Identifier: Identifier
+_Messages_.en.*.Infinity: Infinity
+_Messages_.en.*.Interactive: Interactive
+_Messages_.en.*.Interface: Interface
+_Messages_.en.*.J O B   C U S T O M I Z E: J O B   C U S T O M I Z E
+_Messages_.en.*.Job Args: Job Args
+_Messages_.en.*.Job Class [%]: Job Class [%]
+_Messages_.en.*.Job Control: Job Control
+_Messages_.en.*.Job Dependencies: Job Dependencies
+_Messages_.en.*.Job Name must not contain / !: Job Name must not contain / !
+_Messages_.en.*.Job Name: Job Name
+_Messages_.en.*.Job Range required!: Job Range required!
+_Messages_.en.*.Job Range: Job Range
+_Messages_.en.*.Job Script: Job Script
+_Messages_.en.*.Job Script required !: Job Script required !
+_Messages_.en.*.Job Submit: Job Submit
+_Messages_.en.*.Job Tasks: Job Tasks
+_Messages_.en.*.Job [%]: Job [%]
+_Messages_.en.*.Job: Job
+_Messages_.en.*.Job %d submitted: Job %d submitted
+_Messages_.en.*.Job %d failed: Job %d failed
+_Messages_.en.*.Job Submission failed: Job Submission failed
+_Messages_.en.*.JobArgs: JobArgs
+_Messages_.en.*.JobId: JobId
+_Messages_.en.*.JobName: JobName
+_Messages_.en.*.Jobclass: Jobclass
+_Messages_.en.*.Just verify: Just verify
+_Messages_.en.*.KByte (1024): KByte (1024)
+_Messages_.en.*.Key: Key
+_Messages_.en.*.Level Percentage: Level Percentage
+_Messages_.en.*.Load Adjustment Decay Time required!: Load Adjustment Decay Time required!
+_Messages_.en.*.Load Formula required!: Load Formula required!
+_Messages_.en.*.Load Sensor: Load Sensor
+_Messages_.en.*.Load Settings: Load Settings
+_Messages_.en.*.Load(scaled)/Consumable: Load(scaled)/Consumable
+_Messages_.en.*.Load: Load
+_Messages_.en.*.Loadreport Time: Loadreport Time
+_Messages_.en.*.Log Level: Log Level
+_Messages_.en.*.Login Shells: Login Shells
+_Messages_.en.*.MByte (1024x1024): MByte (1024x1024)
+_Messages_.en.*.MEM [%]: MEM [%]
+_Messages_.en.*.MEM: MEM
+_Messages_.en.*.MEMORY: MEMORY
+_Messages_.en.*.Mail To: Mail To
+_Messages_.en.*.Mail address: Mail address
+_Messages_.en.*.Mail: Mail
+_Messages_.en.*.MailOptions: MailOptions
+_Messages_.en.*.MailTo: MailTo
+_Messages_.en.*.Mailer: Mailer
+_Messages_.en.*.Master Parameters: Master Parameters
+_Messages_.en.*.Master Queue List: Master Queue List
+_Messages_.en.*.Master Spool Dir: Master Spool Dir
+_Messages_.en.*.Max Slots: Max Slots
+_Messages_.en.*.Max Unheard: Max Unheard
+_Messages_.en.*.cannot reach qmaster: cannot reach qmaster
+_Messages_.en.*.cannot reach %s: cannot reach %s
+_Messages_.en.*.cluster.max_aj_instances: Maximum Array\nJob Instances
+_Messages_.en.*.cluster.max_aj_tasks: Maximum Array\nJob Tasks
+_Messages_.en.*.cluster.max_job_per_user: Maximum Jobs\nPer User
+_Messages_.en.*.MaxMigrTime: MaxMigrTime
+_Messages_.en.*.MaxNoMigr: MaxNoMigr
+_Messages_.en.*.Merge Output: Merge Output
+_Messages_.en.*.MergeOutput: MergeOutput
+_Messages_.en.*.Messages: Messages
+_Messages_.en.*.Migration Command: Migration Command
+_Messages_.en.*.Migration Load Thresholds: Migration Load Thresholds
+_Messages_.en.*.Min GID: Min GID
+_Messages_.en.*.Min UID: Min UID
+_Messages_.en.*.MinCpuTime: MinCpuTime
+_Messages_.en.*.Minute: Minute
+_Messages_.en.*.Modify: Modify
+_Messages_.en.*.NO: NO
+_Messages_.en.*.No free slots for interactive job %d !: No free slots for interactive job %d !
+_Messages_.en.*.Name: Name
+_Messages_.en.*.NAME: NAME
+_Messages_.en.*.Name required !: Name required !
+_Messages_.en.*.Name of Complex required !: Name of Complex required !
+_Messages_.en.*.Netscape Help: Netscape Help
+_Messages_.en.*.No Job Name specified !: No Job Name specified !
+_Messages_.en.*.No Restart: No Restart
+_Messages_.en.*.No calendars to select: No calendars to select
+_Messages_.en.*.No load attributes available: No load attributes available
+_Messages_.en.*.No queues to clone: No queues to clone
+_Messages_.en.*.No queues to select: No queues to select
+_Messages_.en.*.No valid Queue name specified: No valid Queue name specified
+_Messages_.en.*.No valid filename specified !: No valid filename specified !
+_Messages_.en.*.No valid load parameter name !: No valid load parameter name !
+_Messages_.en.*.qaction.novalidtime: No valid time format\: hh\:mm\:ss or \nINFINITY required !
+_Messages_.en.*.No: No
+_Messages_.en.*.Notify Job: Notify Job
+_Messages_.en.*.Notify: Notify
+_Messages_.en.*.OTicket: OTicket
+_Messages_.en.*.Ok: Ok
+_Messages_.en.*.Okay: Okay
+_Messages_.en.*.On Job Suspend: On Job Suspend
+_Messages_.en.*.On Min CPU Interval: On Min CPU Interval
+_Messages_.en.*.On Shutdown of Execd: On Shutdown of Execd
+_Messages_.en.*.Operator: Operator
+_Messages_.en.*.Owner: Owner
+_Messages_.en.*.OverrideTickets: OverrideTickets
+_Messages_.en.*.PE Configuration: PE Configuration
+_Messages_.en.*.PE List: PE List
+_Messages_.en.*.PE name required !: PE name required !
+_Messages_.en.*.PE: PE
+_Messages_.en.*.PERange: PERange
+_Messages_.en.*.Parallel Environment: Parallel Environment
+_Messages_.en.*.Parallel: Parallel
+_Messages_.en.*.Paste: Paste
+_Messages_.en.*.Path: Path
+_Messages_.en.*.Percentage: Percentage
+_Messages_.en.*.Please configure a checkpoint object first !: Please configure a checkpoint object first !
+_Messages_.en.*.Please configure a Parallel Environment first !: Please configure a Parallel Environment first !
+_Messages_.en.*.Please configure a project first !: Please configure a project first !
+_Messages_.en.*.Please type or select a filename: Please type or select a filename
+_Messages_.en.*.Predecessors: Predecessors
+_Messages_.en.*.Prefix: Prefix
+_Messages_.en.*.Priority: Priority
+_Messages_.en.*.Project Configuration: Project Configuration
+_Messages_.en.*.Project Share Tree: Project Share Tree
+_Messages_.en.*.Project [%]: Project [%]
+_Messages_.en.*.Project name required !: Project name required !
+_Messages_.en.*.Project: Project
+_Messages_.en.*.Projects: Projects
+_Messages_.en.*.Prolog: Prolog
+_Messages_.en.*.Q U E U E   C U S T O M I Z E: Q U E U E   C U S T O M I Z E
+_Messages_.en.*.QMON  +++  Calendar Configuration: QMON  +++  Calendar Configuration
+_Messages_.en.*.QMON  +++  Checkpointing Configuration: QMON  +++  Checkpointing Configuration
+_Messages_.en.*.QMON  +++  Cluster Configuration: QMON  +++  Cluster Configuration
+_Messages_.en.*.QMON  +++  Host Configuration: QMON  +++  Host Configuration
+_Messages_.en.*.QMON  +++  Parallel Environment Configuration: QMON  +++  Parallel Environment Configuration
+_Messages_.en.*.QMON  +++  User Configuration: QMON  +++  User Configuration
+_Messages_.en.*.QMON +++ About: QMON +++ About
+_Messages_.en.*.QMON +++ Main Control: QMON +++ Main Control
+_Messages_.en.*.QMON +++ Admin Host Configuration: QMON +++ Admin Host Configuration
+_Messages_.en.*.QMON +++ Attributes for queue: QMON +++ Attributes for queue
+_Messages_.en.*.QMON +++ Browser: QMON +++ Browser
+_Messages_.en.*.QMON +++ Complex Add/Modify: QMON +++ Complex Add/Modify
+_Messages_.en.*.QMON +++ Complex Configuration: QMON +++ Complex Configuration
+_Messages_.en.*.QMON +++ Execution Host Configuration: QMON +++ Execution Host Configuration
+_Messages_.en.*.QMON +++ Functional Policy: QMON +++ Functional Policy
+_Messages_.en.*.QMON +++ Job Control: QMON +++ Job Control
+_Messages_.en.*.QMON +++ Job Submission: QMON +++ Job Submission
+_Messages_.en.*.QMON +++ Manager Configuration: QMON +++ Manager Configuration
+_Messages_.en.*.QMON +++ Message: QMON +++ Message
+_Messages_.en.*.QMON +++ Operator Configuration: QMON +++ Operator Configuration
+_Messages_.en.*.QMON +++ Override Policy: QMON +++ Override Policy
+_Messages_.en.*.QMON +++ Project Configuration: QMON +++ Project Configuration
+_Messages_.en.*.QMON +++ Queue Configuration: QMON +++ Queue Configuration
+_Messages_.en.*.QMON +++ Queue Control: QMON +++ Queue Control
+_Messages_.en.*.QMON +++ Scheduler Configuration: QMON +++ Scheduler Configuration
+_Messages_.en.*.QMON +++ Share Tree Policy: QMON +++ Share Tree Policy
+_Messages_.en.*.QMON +++ Submit Host Configuration: QMON +++ Submit Host Configuration
+_Messages_.en.*.QMON +++ Ticket Overview: QMON +++ Ticket Overview
+_Messages_.en.*.QMON +++ User Configuration: QMON +++ User Configuration
+_Messages_.en.*.QMON +++ Userset Configuration: QMON +++ Userset Configuration
+_Messages_.en.*.QMON: QMON
+_Messages_.en.*.QSI Common Dir: QSI Common Dir
+_Messages_.en.*.Qalter: Qalter
+_Messages_.en.*.Qlogin Command: Qlogin Command
+_Messages_.en.*.Qlogin Daemon: Qlogin Daemon
+_Messages_.en.*.Question: Question
+_Messages_.en.*.Queue Control: Queue Control
+_Messages_.en.*.Queue List: Queue List
+_Messages_.en.*.Queue: Queue
+_Messages_.en.*.Range required for Parallel Environment !: Range required for Parallel Environment !
+_Messages_.en.*.Refresh: Refresh
+_Messages_.en.*.Relation: Relation
+_Messages_.en.*.Reload: Reload
+_Messages_.en.*.RELOP: RELOP
+_Messages_.en.*.REQ: REQ
+_Messages_.en.*.Remove Lines: Remove Lines
+_Messages_.en.*.Request Resources: Request Resources
+_Messages_.en.*.Request for serial job: Request for serial job
+_Messages_.en.*.Requestable: Requestable
+_Messages_.en.*.Reschedule: Reschedule
+_Messages_.en.*.Reschedule Job: Reschedule Job
+_Messages_.en.*.Reschedule Unknown: Reschedule Unknown
+_Messages_.en.*.Reset: Reset
+_Messages_.en.*.Restart Command: Restart Command
+_Messages_.en.*.Restart Job: Restart Job
+_Messages_.en.*.Restart depends on Queue: Restart depends on Queue
+_Messages_.en.*.Restart: Restart
+_Messages_.en.*.Resume Method: Resume Method
+_Messages_.en.*.Resume: Resume
+_Messages_.en.*.Retry: Retry
+_Messages_.en.*.STRING: STRING
+_Messages_.en.*.SHORTCUT: SHORTCUT
+_Messages_.en.*.STicket: STicket
+_Messages_.en.*.Save Settings: Save Settings
+_Messages_.en.*.Save: Save
+_Messages_.en.*.Saving of job attributes failed!: Saving of job attributes failed!
+_Messages_.en.*.Scale Factor: Scale Factor
+_Messages_.en.*.Schedd Parameters: Schedd Parameters
+_Messages_.en.*.Schedule Interval required!: Schedule Interval required!
+_Messages_.en.*.ScheduleTime: ScheduleTime
+_Messages_.en.*.Scheduler Configuration: Scheduler Configuration
+_Messages_.en.*.Script: Script
+_Messages_.en.*.Second: Second
+_Messages_.en.*.Select Access Lists: Select Access Lists
+_Messages_.en.*.Select Project: Select Project
+_Messages_.en.*.Select Queues: Select Queues
+_Messages_.en.*.Select a Parallel Environment: Select a Parallel Environment
+_Messages_.en.*.Select a checkpoint object: Select a checkpoint object
+_Messages_.en.*.Select a load parameter: Select a load parameter
+_Messages_.en.*.Select a project: Select a project
+_Messages_.en.*.Select a File: Select a File
+_Messages_.en.*.Select one job for Qalter !: Select one job for Qalter !
+_Messages_.en.*.Select one pending job for Qalter !: Select one pending job for Qalter !
+_Messages_.en.*.Select only one queue !: Select only one queue !
+_Messages_.en.*.Select only one project !: Select only one project !
+_Messages_.en.*.Send mail to mail address: Send mail to mail address
+_Messages_.en.*.Share: Share
+_Messages_.en.*.Shares: Shares
+_Messages_.en.*.Shell Start Mode: Shell Start Mode
+_Messages_.en.*.Shell on host: Shell on host
+_Messages_.en.*.Shell: Shell
+_Messages_.en.*.Shepherd Command: Shepherd Command
+_Messages_.en.*.Shortcut: Shortcut
+_Messages_.en.*.Shortcut required !: Shortcut required !
+_Messages_.en.*.Show Details ...: Show Details ...
+_Messages_.en.*.Shutdown: Shutdown
+_Messages_.en.*.Skip: Skip
+_Messages_.en.*.Slot-Limits/Fixed Attributes: Slot-Limits/Fixed Attributes
+_Messages_.en.*.Slots: Slots
+_Messages_.en.*.Soft Limit: Soft Limit
+_Messages_.en.*.Soft Queue List: Soft Queue List
+_Messages_.en.*.Soft Request: Soft Request
+_Messages_.en.*.Soft Resources: Soft Resources
+_Messages_.en.*.Sort by load: Sort by load
+_Messages_.en.*.Sort by sequence number: Sort by sequence number
+_Messages_.en.*.Start At: Start At
+_Messages_.en.*.Start Job Immediately: Start Job Immediately
+_Messages_.en.*.Start Proc Args: Start Proc Args
+_Messages_.en.*.Start of Job: Start of Job
+_Messages_.en.*.StartTime: StartTime
+_Messages_.en.*.Starter Method: Starter Method
+_Messages_.en.*.Stat Log Time: Stat Log Time
+_Messages_.en.*.Status: Status
+_Messages_.en.*.Stderr Path List: Stderr Path List
+_Messages_.en.*.StderrPaths: StderrPaths
+_Messages_.en.*.Stdout Path List: Stdout Path List
+_Messages_.en.*.StdoutPaths: StdoutPaths
+_Messages_.en.*.Stop Proc Args: Stop Proc Args
+_Messages_.en.*.Submit Job: Submit Job
+_Messages_.en.*.Submit: Submit
+_Messages_.en.*.SubmitTime: SubmitTime
+_Messages_.en.*.Success: Success
+_Messages_.en.*.Sum: Sum
+_Messages_.en.*.Suspend Method: Suspend Method
+_Messages_.en.*.Suspend of Job: Suspend of Job
+_Messages_.en.*.Suspend: Suspend
+_Messages_.en.*.System: System
+_Messages_.en.*.TIME: TIME
+_Messages_.en.*.TYPE: TYPE
+_Messages_.en.*.TRANSPARENT: TRANSPARENT
+_Messages_.en.*.Targeted Resource Share: Targeted Resource Share
+_Messages_.en.*.Task: Task
+_Messages_.en.*.Tasks: Tasks
+_Messages_.en.*.TaskId(s): TaskId(s)
+_Messages_.en.*.Terminate Method: Terminate Method
+_Messages_.en.*.There are no jobs selected !: There are no jobs selected !
+_Messages_.en.*.Ticket Overview: Ticket Overview
+_Messages_.en.*.Ticket: Ticket
+_Messages_.en.*.Tickets: Tickets
+_Messages_.en.*.To modify a queue select this queue !: To modify a queue select this queue !
+_Messages_.en.*.To modify a project select this project !: To modify a project select this project !
+_Messages_.en.*.Total Percentage: Total Percentage
+_Messages_.en.*.Transfer QS Arguments: Transfer QS Arguments
+_Messages_.en.*.Transfer: Transfer
+_Messages_.en.*.True: True
+_Messages_.en.*.Type: Type
+_Messages_.en.*.USERDEFINED: USERDEFINED
+_Messages_.en.*.Usage: Usage
+_Messages_.en.*.User Configuration: User Configuration
+_Messages_.en.*.User Lists: User Lists
+_Messages_.en.*.User Share Tree: User Share Tree
+_Messages_.en.*.User [%]: User [%]
+_Messages_.en.*.User/Group: User/Group
+_Messages_.en.*.User: User
+_Messages_.en.*.Users/Groups: Users/Groups
+_Messages_.en.*.Userset Name: Userset Name
+_Messages_.en.*.Userset List Name required !: Userset List Name required !
+_Messages_.en.*.Usersets: Usersets
+_Messages_.en.*.Value: Value
+_Messages_.en.*.VALUE: VALUE
+_Messages_.en.*.Value required !: Value required !
+_Messages_.en.*.Variable: Variable
+_Messages_.en.*.Verify Mode: Verify Mode
+_Messages_.en.*.Warning: Warning
+_Messages_.en.*.Week: Week
+_Messages_.en.*.Why ?: Why ?
+_Messages_.en.*.XProjects: XProjects
+_Messages_.en.*.Xterm: Xterm
+_Messages_.en.*.Xuser Lists: Xuser Lists
+_Messages_.en.*.YES: YES
+_Messages_.en.*.Year: Year
+_Messages_.en.*.Yes: Yes
+_Messages_.en.*._Delete: _Delete
+_Messages_.en.*.default: default
+_Messages_.en.*.disabled: disabled
+_Messages_.en.*.enabled: enabled
+_Messages_.en.*.gByte (1000x1000x1000): gByte (1000x1000x1000)
+_Messages_.en.*.kByte (1000): kByte (1000)
+_Messages_.en.*.log_err: log_err
+_Messages_.en.*.log_info: log_info
+_Messages_.en.*.log_warning: log_warning
+_Messages_.en.*.mByte (1000x1000): mByte (1000x1000)
+_Messages_.en.*.pag command: pag command
+_Messages_.en.*.posix_compliant: posix_compliant
+_Messages_.en.*.script_from_stdin: script_from_stdin
+_Messages_.en.*.set_token command: set_token command
+_Messages_.en.*.stderr: stderr
+_Messages_.en.*.stdout: stdout
+_Messages_.en.*.token_extend_time: token_extend_time
+_Messages_.en.*.unix_behavior: unix_behavior
+_Messages_.en.*.rsh Daemon: rsh Daemon
+_Messages_.en.*.rsh Command: rsh Command
+_Messages_.en.*.rlogin Daemon: rlogin Daemon
+_Messages_.en.*.rlogin Command: rlogin Command
+_Messages_.en.*.@fBInteractive Parameters: @fBInteractive Parameters
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*XmtDisplayMessage.warningTitle: Warning
+Qmon*XmtDisplayMessage.errorTitle: Error
+Qmon*XmtDisplayMessage.messageTitle: Message
+Qmon*XmtDisplayMessage.helpTitle: Help
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*about_msg.message: @fBWelcome %s@@%s,@fR\n\nYou are using @fB%s@fR in cell @fB'%s'@fR.\n%s%s
+Qmon*mailto_msg.message: \nFor further information and feedback use: @fBge-feedback@@eng.sun.com@fR\n\n
+Qmon*onemailaddress.message: There must be at least one mail address.
+Qmon*cancelLabelString: Cancel
+Qmon*okLabelString: Ok
+Qmon*helpLabelString: Help
+Qmon*dirListLabelString: Directories
+Qmon*fileListLabelString: Files
+Qmon*filterLabelString: Filter
+Qmon*applyLabelString: Apply
+Qmon*xmtBooleanDialog*title: QMON
+_Messages_.en.*.XmtAskForInteger.title: Enter an integer 
+_Messages_.en.*.XmtAskForInteger.badInput: Please enter an integer.
+_Messages_.en.*.XmtAskForInteger.tooSmall: Please enter a larger number.
+_Messages_.en.*.XmtAskForInteger.tooBig: Please enter a smaller number.
+_Messages_.en.*.XmtAskForDouble.title: Enter a double
+_Messages_.en.*.XmtAskForDouble.badInput: Please enter a number.
+_Messages_.en.*.XmtAskForString.title: Enter a String
+_Messages_.en.*.XmtAskForString.title: Enter a String
+_Messages_.en.*.XmtAskForString.title: Enter a String
+_Messages_.en.*.XmtAskForFile.title: Select a File
+_Messages_.en.*.XmtAskForTime.title: Time
+_Messages_.en.*.XmtAskForMemory.title: Memory
+_Messages_.en.*.XmtAskForItem.title: Select an Item
+_Messages_.en.*.XmtAskForItem.noMatch: Please select an item that appears\non the list.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+_Messages_.en.*.XmtHelpDisplayContextHelp.noHelp: There is no help available there.
+_Messages_.en.*.XmtHelpDisplayContextHelp.dialogTitle: Help On Context
+_Messages_.en.*.XmtHelpBox.ok: Okay 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+_Messages_.en.*.qmon_fticket.Sum: Sum
+_Messages_.en.*.qmon_usage.usageTitle: usage: qmon\n
+_Messages_.en.*.qmon_usage.cmapOption: use own colormap\n
+_Messages_.en.*.qmon_usage.helpOption: show this information and exit\n
+_Messages_.en.*.qmon_usage.fontFamilyOption: use small/medium/big fonts\n
+_Messages_.en.*.qmon_usage.nologoOption: startup without logo\n
+_Messages_.en.*.qmon_usage.X11OptionInfo: Additionally the default X commandline switches can be used.\nFor further information see the manual page X(1)\n 
+
+_Messages_.en.*.pe.askdel: Do you really want to delete the\nselected Parallel Environment\nConfiguration ?
+_Messages_.en.*.project.askdel: Do you really want to delete the\nselected Project Configuration ?
+_Messages_.en.*.userset.askdel: Do you really want to delete\nthe selected userset lists ?
+_Messages_.en.*.queue.askdel: Do you really want to\ndelete the selected queues ?
+_Messages_.en.*.stree.asksave: Do you want to save your changes ?
+_Messages_.en.*.stree.askdel: Do you really want to\nclear the usage ?
+_Messages_.en.*.ticket.asksave: Do you want to save your changes ?
+_Messages_.en.*.calendar.askdel: Do you really want to delete the\nselected Calendar Configuration ?
+_Messages_.en.*.ckpt.askdel: Do you really want to delete the\nselected Checkpointing Configuration ?
+_Messages_.en.*.cluster.askdel: Do you really want to delete the\nselected cluster configuration ?
+_Messages_.en.*.cplx.Load: Load
+_Messages_.en.*.cplx.askdel: Do you really want to\ndelete the selected complexes ?
+_Messages_.en.*.oticket.load: Load
+_Messages_.en.*.tov.deadline: Users Allowed\nTo Submit\nDeadline Jobs
+_Messages_.en.*.tov.functional: Functional\nPolicy
+_Messages_.en.*.tov.override: Override\nPolicy
+_Messages_.en.*.tov.sharetree: Share Tree\nPolicy
+_Messages_.en.*.fticket.functional: Functional\nShares
+_Messages_.en.*.fticket.load: Load
+_Messages_.en.*.fticket.ratio: @fBRatio Between Sorts Of\nFunctional Tickets
+_Messages_.en.*.qaction.max_slots: If 'Max Slots' are filled in the current queue,\nthe queues in column one are suspended.
+_Messages_.en.*.submit.askdeadlinetime: Enter the deadline time in the\nfollowing format: [[CC]]YY]MMDDhhmm.[ss]\nor leave the current time and press ok
+_Messages_.en.*.submit.asksubmittime: Enter the submit time in the\nfollowing format: [[CC]]YY]MMDDhhmm[.ss]\nor leave the current time and press ok

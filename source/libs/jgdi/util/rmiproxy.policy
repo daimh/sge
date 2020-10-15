@@ -1,0 +1,22 @@
+
+grant {
+   permission java.net.SocketPermission   "*:1024-", "accept,connect";
+   permission java.lang.RuntimePermission "loadLibrary.jgdi";
+   permission java.lang.RuntimePermission "shutdownHooks";
+   permission java.io.FilePermission      "classes/*", "read";
+   permission java.io.FilePermission      "src/logging.properties", "read";
+   permission javax.security.auth.AuthPermission "createLoginContext.jgdi";
+   permission javax.security.auth.AuthPermission "doAs";
+   permission javax.security.auth.AuthPermission "getSubject";
+   permission java.util.PropertyPermission "user.name", "read";
+   permission java.util.PropertyPermission "java.class.path","read";
+   permission java.util.PropertyPermission "java.library.path","read";
+
+   permission java.util.logging.LoggingPermission "control";
+
+   permission javax.management.MBeanServerPermission "createMBeanServer";
+   permission javax.management.MBeanPermission "*", "*";
+   permission javax.management.MBeanTrustPermission "register";
+   permission java.lang.management.ManagementPermission "monitor";
+   permission java.lang.management.ManagementPermission "control";
+};

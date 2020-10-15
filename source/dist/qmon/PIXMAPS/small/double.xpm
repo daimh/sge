@@ -1,0 +1,89 @@
+/* XPM */
+/*___INFO__MARK_BEGIN__*/
+/*************************************************************************
+ * 
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ * 
+ *  Sun Microsystems Inc., March, 2001
+ * 
+ * 
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ * 
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ * 
+ *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ * 
+ *   Copyright: 2001 by Sun Microsystems, Inc.
+ * 
+ *   All Rights Reserved.
+ * 
+ ************************************************************************/
+/*___INFO__MARK_END__*/
+static char *double[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 36 1",
+"  c black",
+". c #020202",
+"X c gray2",
+"o c gray3",
+"O c gray5",
+"+ c gray6",
+"@ c #181818",
+"# c #1B1B1B",
+"$ c #1D1D1D",
+"% c gray13",
+"& c #2C2C2C",
+"* c gray19",
+"= c gray21",
+"- c gray22",
+"; c #555753",
+": c gray48",
+"> c #888A85",
+", c gray58",
+"< c gray62",
+"1 c gray67",
+"2 c gray68",
+"3 c #B2B2B2",
+"4 c gray70",
+"5 c gray87",
+"6 c gray88",
+"7 c gray91",
+"8 c #E9E9E9",
+"9 c #EFEFEF",
+"0 c #F6F6F6",
+"q c #F8F8F8",
+"w c gray98",
+"e c #FBFBFB",
+"r c gray99",
+"t c #FDFDFD",
+"y c gray100",
+"u s mask c None",
+/* pixels */
+";>>>>>>>>>>>>>>;",
+">yyyyyyyyyyyyyy>",
+">y999999999999y>",
+">y999999999999y>",
+">y999999999999e>",
+">y9 :999994#O,e>",
+">y: :99999&12$e>",
+">y9 :99999X88 0>",
+">y9 :99099 88O0>",
+">y5 :59==9$22*9>",
+">y    9==9<O@49>",
+">y9999990999999>",
+">y9999999999999>",
+">y9999999999999>",
+">yyeeeeeeee0009>",
+"u>>>>>>>>>>>>>>u"
+};

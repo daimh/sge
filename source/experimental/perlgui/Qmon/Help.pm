@@ -1,0 +1,93 @@
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+package Qmon::Help;
+
+
+use strict;
+
+BEGIN {
+   use Exporter   ();
+   use vars       qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
+
+   $VERSION     = 1.00;
+
+   @ISA         = qw(Exporter);
+   @EXPORT      = qw(init_tkHelp destroy_tkHelp);
+   @EXPORT_OK   = ();
+   %EXPORT_TAGS = ( ALL => [@EXPORT, @EXPORT_OK]);
+}
+
+use Tk;
+
+use vars @EXPORT_OK;
+
+my $Window;
+my $Frame;
+
+sub init_tkHelp {
+   my %hash;
+   if (defined ($Window)) {
+      %hash = %$Window;
+   }
+   if (! exists $hash{'_names_'}) {
+
+      $Window = MainWindow->new();
+      $Window->title("Help");
+      $Window->minsize(qw(250 250));
+  
+      $Frame = $Window->Frame(
+         -borderwidth => 3,
+#      -background => 'grey',
+         -relief => 'groove');
+   }
+   pack_tkHelp();
+}
+
+sub pack_tkHelp {
+   $Frame->pack(
+      -side => 'left',
+      -anchor => 's',
+      -fill => 'y');
+}
+
+sub destroy_tkHelp {
+   if (defined $Window) {
+      my %hash = %$Window;
+      if (exists $hash{'_names_'}) {
+         $Frame->destroy();
+         $Window->destroy();
+      }
+   }
+}
+1;
+END { }       # module clean-up code here (global destructor)
+__END__

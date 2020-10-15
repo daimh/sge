@@ -1,0 +1,436 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--___INFO__MARK_BEGIN__
+/*************************************************************************
+ * 
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ * 
+ *  Sun Microsystems Inc., March, 2001
+ * 
+ * 
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ * 
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ * 
+ *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ * 
+ *   Copyright: 2001 by Sun Microsystems, Inc.
+ * 
+ *   All Rights Reserved.
+ * 
+ ************************************************************************/
+___INFO__MARK_END__-->
+    <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+              targetNamespace="http://arc.liv.ac.uk/repos/darcs/sge/source/dist/util/resources/schemas/qstat/detailed_job_info.xsd"
+               xmlns="http://arc.liv.ac.uk/repos/darcs/sge/source/dist/util/resources/schemas/qstat/detailed_job_info.xsd"
+               elementFormDefault="qualified">
+	<xs:element name="detailed_job_info">
+		<xs:complexType>
+			<xs:annotation>
+				<xs:documentation>qstat -j number output</xs:documentation>
+			</xs:annotation>
+			<xs:sequence >
+				<xs:element name="djob_info" type="djob_info_t"/>
+				<xs:element name="messages" type="message_t"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	
+	<xs:complexType name="djob_info_t">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+		       <xs:element name="qmaster_response" type="qmaster_response_t"/>
+	    </xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="qmaster_response_t">
+		<xs:sequence >
+                        <xs:element name="JB_job_number" type="xs:unsignedInt"/>
+                        <xs:element name="JB_ar" type="xs:unsignedInt"/>
+                        <xs:element name="JB_exec_file" type="xs:string"/>
+                        <xs:element name="JB_submission_time" type="xs:dateTime" minOccurs="0"/>
+                        <xs:element name="JB_owner" type="xs:string"/>
+                        <xs:element name="JB_uid" type="xs:unsignedInt"/>
+                        <xs:element name="JB_group" type="xs:string"/>
+                        <xs:element name="JB_gid" type="xs:unsignedInt"/>
+                        <xs:element name="JB_account" type="xs:string"/>
+                        <xs:element name="JB_merge_stderr" type="xs:boolean"/>
+                        <xs:element name="JB_mail_list" type="JB_mail_t"/>
+                        <xs:element name="JB_project" type="xs:string"/>
+                        <xs:element name="JB_notify" type="xs:boolean"/>
+                        <xs:element name="JB_job_name" type="xs:string"/>
+                        <xs:element name="JB_stdout_path_list" type="JB_stdout_path_list_t"/>
+                        <xs:element name="JB_jobshare" type="xs:unsignedInt"/>
+                        <xs:element name="JB_hard_resource_list" type="JB_hard_resource_list_t"/>
+                        <xs:element name="JB_soft_resource_list" type="JB_soft_resource_list_t"/>
+                        <xs:element name="JB_hard_queue_list" type="JB_hard_queue_list_t"/>
+                        <xs:element name="JB_soft_queue_list" type="JB_soft_queue_list_t"/>
+                        <xs:element name="JB_shell_list" type="JB_shell_list_t"/>
+                        <xs:element name="JB_env_list" type="JB_env_list_t"/>
+                        <xs:element name="JB_job_args" type="JB_job_args_t"/>
+                        <xs:element name="JB_script_file" type="xs:string"/>
+                        <xs:element name="JB_ja_tasks" type="JB_ja_task_t"/>
+                        <xs:element name="JB_context" type="JB_context_t"/>
+                        <xs:element name="JB_cwd" type="xs:string"/>
+                        <xs:element name="JB_stderr_path_list" type="JB_stderr_path_list_t"/>
+                        <xs:element name="JB_jid_predecessor_list" type="JB_jid_predecessor_list_t"/>
+                        <xs:element name="JB_jid_successor_list" type="JB_jid_successor_list_t"/>
+                        <xs:element name="JB_deadline" type="xs:dateTime"/>
+                        <xs:element name="JB_execution_time" type="xs:unsignedInt"/>
+                        <xs:element name="JB_checkpoint_name" type="xs:string"/>
+                        <!-- checkpoint_attr is (common/symbols.h) bit-or of:
+                          CHECKPOINT_AT_MINIMUM_INTERVAL 0x01
+                          CHECKPOINT_AT_SHUTDOWN         0x02
+                          CHECKPOINT_SUSPEND             0x04
+                          NO_CHECKPOINT                  0x08
+                          CHECKPOINT_AT_AUTO_RES         0x10
+                         -->
+                        <xs:element name="JB_checkpoint_attr" type="xs:unsignedInt"/>
+                        <xs:element name="JB_checkpoint_interval" type="xs:unsignedInt"/>
+                        <xs:element name="JB_directive_prefix" type="xs:string"/>
+                        <xs:element name="JB_reserve" type="xs:boolean"/>
+                        <xs:element name="JB_mail_options" type="xs:unsignedInt" />
+                        <xs:element name="JB_stdin_path_list" type="JB_stdin_path_list_t"/>
+                        <xs:element name="JB_priority" type="xs:unsignedInt"/>
+                        <xs:element name="JB_restart" type="xs:unsignedInt"/>
+                        <xs:element name="JB_verify" type="xs:unsignedInt"/>
+                        <xs:element name="JB_master_hard_queue_list" type="JB_master_hard_queue_list_t"/>
+                        <xs:element name="JB_script_size" type="xs:unsignedInt"/>
+                        <xs:element name="JB_pe" type="xs:string"/>
+                        <xs:element name="JB_pe_range" type="JB_pe_range_t"/>
+                        <xs:element name="JB_jid_request_list" type="JB_jid_request_list_t"/>
+                        <xs:element name="JB_verify_suitable_queues" type="xs:unsignedInt"/>
+                        <xs:element name="JB_soft_wallclock_gmt" type="xs:unsignedInt"/>
+                        <xs:element name="JB_hard_wallclock_gmt" type="xs:unsignedInt"/>
+                        <xs:element name="JB_override_tickets" type="xs:unsignedInt"/>
+                        <xs:element name="JB_version" type="xs:unsignedInt"/>
+                        <xs:element name="JB_ja_structure" type="JB_ja_structure_t"/>
+                        <xs:element name="JB_type" type="xs:unsignedInt"/>
+                        <xs:element name="JB_binding" type="JB_binding_t" minOccurs="0"/>
+                        <xs:element name="JB_ja_task_concurrency" type="xs:unsignedInt"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+        <!-- =========== Data Types ============ -->
+        
+        <!-- JB_mail_t -->
+        <xs:complexType name="JB_mail_t">
+		<xs:sequence>
+			<xs:element name="element" type="JB_mail_element_t"/>
+		</xs:sequence>
+	</xs:complexType>
+        <xs:complexType name="JB_mail_element_t">
+		<xs:sequence>
+			<xs:element name="MR_user" type="xs:string"/>
+			<xs:element name="MR_host" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+        <!-- JB_stdout_path_list_t -->
+        <xs:complexType name="JB_stdout_path_list_t">
+		<xs:sequence >
+			<xs:element name="path_list" type="JB_stdout_path_list_element_t"/>
+		</xs:sequence>
+	</xs:complexType>
+        <xs:complexType name="JB_stdout_path_list_element_t">
+		<xs:sequence >
+			<xs:element name="PN_path" type="xs:string"/>
+			<xs:element name="PN_host" type="xs:string"/>
+			<xs:element name="PN_file_host" type="xs:string" minOccurs="0" />
+			<xs:element name="PN_file_staging" type="xs:boolean"/>
+		</xs:sequence>
+	</xs:complexType>
+        <!-- JB_hard_resource_list_t -->
+        <xs:complexType name="JB_hard_resource_list_t">
+		<xs:sequence>
+			<xs:element name="qstat_l_requests" type="JB_hard_resource_list_element_t"/>
+		</xs:sequence>
+	</xs:complexType>
+        <xs:complexType name="JB_hard_resource_list_element_t">
+		<xs:sequence>
+			<xs:element name="CE_name" type="xs:string"/>
+                        <xs:element name="CE_valtype" type="xs:unsignedInt"/>
+                        <xs:element name="CE_stringval" type="xs:unsignedInt"/>
+                        <xs:element name="CE_doubleval" type="xs:double"/>
+                        <xs:element name="CE_relop" type="xs:unsignedInt"/>
+                        <xs:element name="CE_consumable" type="xs:boolean"/>
+                        <xs:element name="CE_dominant" type="xs:unsignedInt"/>
+                        <xs:element name="CE_pj_doubleval" type="xs:double"/>
+                        <xs:element name="CE_pj_dominant" type="xs:unsignedInt"/>
+                        <xs:element name="CE_requestable" type="xs:unsignedInt"/>
+                        <xs:element name="CE_tagged" type="xs:unsignedInt"/>                        
+                </xs:sequence>
+	</xs:complexType>
+        <!-- JB_soft_resource_list_t -->
+        <xs:complexType name="JB_soft_resource_list_t">
+		<xs:sequence>
+			<xs:element name="qstat_l_requests" type="JB_soft_resource_list_element_t"/>
+		</xs:sequence>
+	</xs:complexType>
+        <xs:complexType name="JB_soft_resource_list_element_t">
+		<xs:sequence>
+			<xs:element name="CE_name" type="xs:string"/>
+                        <xs:element name="CE_valtype" type="xs:unsignedInt"/>
+                        <xs:element name="CE_stringval" type="xs:unsignedInt"/>
+                        <xs:element name="CE_doubleval" type="xs:double"/>
+                        <xs:element name="CE_relop" type="xs:unsignedInt"/>
+                        <xs:element name="CE_consumable" type="xs:boolean"/>
+                        <xs:element name="CE_dominant" type="xs:unsignedInt"/>
+                        <xs:element name="CE_pj_doubleval" type="xs:double"/>
+                        <xs:element name="CE_pj_dominant" type="xs:unsignedInt"/>
+                        <xs:element name="CE_requestable" type="xs:unsignedInt"/>
+                        <xs:element name="CE_tagged" type="xs:unsignedInt"/>                        
+                </xs:sequence>
+	</xs:complexType>
+        <!-- JB_hard_queue_list_t -->
+        <xs:complexType name="JB_hard_queue_list_t">
+		<xs:sequence>
+			<xs:element name="destin_ident_list" type="JB_hard_queue_list_element_t"/>
+		</xs:sequence>
+	</xs:complexType>
+        <xs:complexType name="JB_hard_queue_list_element_t">
+		<xs:sequence>
+			<xs:element name="QR_name" type="xs:string"/>                        
+                </xs:sequence>
+	</xs:complexType>
+        <!-- JB_soft_queue_list_t -->
+        <xs:complexType name="JB_soft_queue_list_t">
+		<xs:sequence>
+			<xs:element name="destin_ident_list" type="JB_soft_queue_list_element_t"/>
+		</xs:sequence>
+	</xs:complexType>
+        <xs:complexType name="JB_soft_queue_list_element_t">
+		<xs:sequence>
+			<xs:element name="QR_name" type="xs:string"/>                        
+                </xs:sequence>
+	</xs:complexType>
+        <!-- JB_shell_list_t -->
+        <xs:complexType name="JB_shell_list_t">
+		<xs:sequence >
+			<xs:element name="path_list" type="JB_shell_list_element_t"/>
+		</xs:sequence>
+	</xs:complexType>
+        <xs:complexType name="JB_shell_list_element_t">
+		<xs:sequence >
+			<xs:element name="PN_path" type="xs:string"/>
+			<xs:element name="PN_host" type="xs:string"/>
+			<xs:element name="PN_file_host" type="xs:string"/>
+			<xs:element name="PN_file_staging" type="xs:boolean"/>
+		</xs:sequence>
+	</xs:complexType>
+        <!-- JB_env_list_t -->
+        <xs:complexType name="JB_env_list_t">
+		<xs:sequence>
+			<xs:element name="element" type="JB_env_element_t"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="JB_env_element_t">
+		<xs:sequence>
+			<xs:element name="VA_variable" type="xs:string"/>
+			<xs:element name="VA_value" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+        <!-- JB_job_args_t -->
+        <xs:complexType name="JB_job_args_t">
+		<xs:sequence>
+			<xs:element name="element" type="JB_job_args_element_t"/>
+		</xs:sequence>
+	</xs:complexType>
+        <xs:complexType name="JB_job_args_element_t">
+		<xs:sequence>
+			<xs:element name="ST_name" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+        <!-- JB_ja_task_t -->
+        <xs:complexType name="JB_ja_task_t">
+		<xs:sequence>
+			<xs:element name="ulong_sublist" type="JB_ja_task_element_t"/>
+		</xs:sequence>
+	</xs:complexType>
+        <xs:complexType name="JB_ja_task_element_t">
+		<xs:sequence>
+			<xs:element name="JAT_status" type="xs:unsignedInt"/>
+                        <xs:element name="JAT_task_number" type="xs:unsignedInt"/>
+                        <xs:element name="JAT_scaled_usage_list" type="JAT_scaled_usage_list_t" minOccurs="0"/>
+                </xs:sequence>
+	</xs:complexType>
+        <xs:complexType name="JAT_scaled_usage_list_t">
+		<xs:sequence>
+			<xs:element name="element" type="JAT_scaled_usage_list_element_t"/>
+		</xs:sequence>
+	</xs:complexType>
+        <xs:complexType name="JAT_scaled_usage_list_element_t">
+		<xs:sequence>
+			<xs:element name="UA_name" type="xs:string"/>
+			<xs:element name="UA_value" type="xs:float"/>
+		</xs:sequence>
+	</xs:complexType>
+        <!-- JB_context_t -->
+        <xs:complexType name="JB_context_t">
+		<xs:sequence >
+			<xs:element name="context_list" type="JB_context_element_t"/>
+		</xs:sequence>
+	</xs:complexType>
+        <xs:complexType name="JB_context_element_t">
+		<xs:sequence>
+			<xs:element name="VA_variable" type="xs:string"/>
+			<xs:element name="VA_value" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+        <!-- JB_stderr_path_list_t -->
+        <xs:complexType name="JB_stderr_path_list_t">
+		<xs:sequence >
+			<xs:element name="path_list" type="JB_stderr_path_list_element_t"/>
+		</xs:sequence>
+	</xs:complexType>
+        <xs:complexType name="JB_stderr_path_list_element_t">
+		<xs:sequence >
+			<xs:element name="PN_path" type="xs:string"/>
+			<xs:element name="PN_host" type="xs:string"/>
+			<xs:element name="PN_file_host" type="xs:string" minOccurs="0" />
+			<xs:element name="PN_file_staging" type="xs:boolean"/>
+		</xs:sequence>
+	</xs:complexType>
+        <!-- JB_jid_predecessor_list_t -->
+        <xs:complexType name="JB_jid_predecessor_list_t">
+		<xs:sequence >
+			<xs:element name="job_predecessors" type="JB_jid_predecessor_list_element_t"/>
+		</xs:sequence>
+	</xs:complexType>
+        <xs:complexType name="JB_jid_predecessor_list_element_t">
+		<xs:sequence>
+			<xs:element name="JRE_job_number" type="xs:unsignedInt"/>
+		</xs:sequence>
+	</xs:complexType>
+        <!-- JB_jid_successor_list_t -->
+        <xs:complexType name="JB_jid_successor_list_t">
+		<xs:sequence >
+			<xs:element name="ulong_sublist" type="JB_jid_successor_list_element_t"/>
+		</xs:sequence>
+	</xs:complexType>
+        <xs:complexType name="JB_jid_successor_list_element_t">
+		<xs:sequence>
+			<xs:element name="JRE_job_number" type="xs:unsignedInt"/>
+		</xs:sequence>
+	</xs:complexType>
+        <!-- JB_stdin_path_list_t -->
+        <xs:complexType name="JB_stdin_path_list_t">
+		<xs:sequence>
+			<xs:element name="path_list" type="JB_stdin_path_list_element_t"/>
+		</xs:sequence>
+	</xs:complexType>
+        <xs:complexType name="JB_stdin_path_list_element_t">
+		<xs:sequence >
+			<xs:element name="PN_path" type="xs:string"/>
+			<xs:element name="PN_host" type="xs:string"/>
+			<xs:element name="PN_file_host" type="xs:string" minOccurs="0" />
+			<xs:element name="PN_file_staging" type="xs:boolean"/>
+		</xs:sequence>
+	</xs:complexType>
+        <!-- JB_master_hard_queue_list_t -->
+        <xs:complexType name="JB_master_hard_queue_list_t">
+		<xs:sequence>
+			<xs:element name="destin_ident_list" type="JB_master_hard_queue_list_element_t"/>
+		</xs:sequence>
+	</xs:complexType>
+        <xs:complexType name="JB_master_hard_queue_list_element_t">
+		<xs:sequence>
+			<xs:element name="QR_name" type="xs:string"/>                        
+                </xs:sequence>
+	</xs:complexType>
+        <!-- JB_pe_range_t -->
+        <xs:complexType name="JB_pe_range_t">
+		<xs:sequence>
+			<xs:element name="ranges" type="JB_pe_range_element_t"/>
+		</xs:sequence>
+	</xs:complexType>
+        <xs:complexType name="JB_pe_range_element_t">
+		<xs:sequence >
+			<xs:element name="RN_min" type="xs:unsignedInt"/>
+			<xs:element name="RN_max" type="xs:unsignedInt"/>
+			<xs:element name="RN_step" type="xs:unsignedInt"/>
+		</xs:sequence>
+	</xs:complexType>
+        <!-- JB_jid_request_list_t -->
+        <xs:complexType name="JB_jid_request_list_t">
+		<xs:sequence >
+			<xs:element name="element" type="JB_jid_request_list_element_t"/>
+		</xs:sequence>
+	</xs:complexType>
+        <xs:complexType name="JB_jid_request_list_element_t">
+		<xs:sequence>
+			<xs:element name="JRE_job_number" type="xs:unsignedInt"/>
+			<xs:element name="JRE_job_name" type="xs:string"/>
+		</xs:sequence>
+	</xs:complexType>
+        <!-- JB_ja_structure_t -->
+        <xs:complexType name="JB_ja_structure_t">
+		<xs:sequence>
+			<xs:element name="task_id_range" type="JB_ja_structure_element_t"/>
+		</xs:sequence>
+	</xs:complexType>
+        <xs:complexType name="JB_ja_structure_element_t">
+		<xs:sequence >
+			<xs:element name="RN_min" type="xs:unsignedInt"/>
+			<xs:element name="RN_max" type="xs:unsignedInt"/>
+			<xs:element name="RN_step" type="xs:unsignedInt"/>
+		</xs:sequence>
+	</xs:complexType>
+         <!-- JB_binding -->
+         <xs:complexType name="JB_binding_t">
+            <xs:sequence>
+               <xs:element name="binding" type="BT_binding_element_t"/>
+            </xs:sequence>
+         </xs:complexType>
+         <xs:complexType name="BT_binding_element_t">
+            <xs:sequence >
+               <xs:element name="BN_strategy" type="xs:string"/>
+      <!-- fixme:  should be uint or string "slots" -->
+               <xs:element name="BN_parameter_n" type="xs:unsignedInt"/>
+               <xs:element name="BN_parameter_socket_offset" type="xs:unsignedInt"/>
+               <xs:element name="BN_parameter_core_offset" type="xs:unsignedInt"/>
+               <xs:element name="BN_parameter_striding_first_core" type="xs:unsignedInt"/>
+               <xs:element name="BN_parameter_striding_last_core" type="xs:unsignedInt"/>
+               <xs:element name="BN_parameter_striding_step_size" type="xs:unsignedInt"/>
+            </xs:sequence>
+         </xs:complexType>
+        <!-- message_t -->	
+	<xs:complexType name="message_t">
+         <xs:annotation>
+            <xs:documentation>qstat -j output</xs:documentation>
+         </xs:annotation>
+         <xs:sequence>
+            <xs:element name="qmaster_response">
+               <xs:complexType>
+                  <xs:sequence>
+                     <xs:element name="SME_global_message_list" type="gmessage_list_t" minOccurs="0" maxOccurs="1"/>
+                  </xs:sequence>
+               </xs:complexType> 
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>   
+
+<!-- ======================================= -->
+<!-- qstat -j                                -->
+
+   <xs:complexType name="gmessage_list_t">
+         <xs:sequence>
+            <xs:element name="element" minOccurs="0" maxOccurs="unbounded">
+               <xs:complexType>
+                  <xs:sequence>
+                     <xs:element name="MES_message_number" type="xs:positiveInteger"/>
+                     <xs:element name="MES_message" type="xs:string"/>
+                  </xs:sequence>
+               </xs:complexType> 
+            </xs:element>
+         </xs:sequence>
+      </xs:complexType>   
+</xs:schema>

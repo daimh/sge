@@ -1,0 +1,221 @@
+#!/bin/sh
+#
+# Creates ASCII manual pages in ASCMAN/man/man{1,...} sudirectories from
+# nroff manual pages in SEDMAN/man/man{1,...} subdirectories.
+# The ASCMAN/man/man{1,...} sudirectories are created if they do not exist.
+# Also can create HTML version of the manpages.
+#
+# Requires groff to be installed and accessible.
+#
+# $1 = directory where aimk is installed
+# $2 = "ge" or "sge"
+# $3 = 0 or 1 - flag if man pages in ASCII format should be created
+# $4 = 0 or 1 - flag if man pages in HTML format  should be created
+# $5 = 0 or 1 - checkout man pages with "-kv" flag
+# $6 = name of the cvs module which will be checked out (default gridengine/doc/man) (not used)
+# $7 = directory where the man pages will be built (default  <source dir>/MANSBUILD_<product name>)
+#
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+umask 022
+
+MANBUILDDIR=$1/MANSBUILD_$2
+MANMODE=$2
+MANASC=$3
+MANHTML=$4
+
+if [ $# -gt 6 ]; then
+  MANBUILDDIR=$7
+fi
+
+echo "Removing old manpages in $MANBUILDDIR"
+rm -rf $MANBUILDDIR
+mkdir -p $MANBUILDDIR
+
+cd $MANBUILDDIR
+
+MANSRCDIR=$1/../doc/man
+#
+# Changes magic strings in the checked-in man page versions into SGE,
+# etc. as appropriate.
+# Creates the changed man pages in SEDMAN/man/man{1,...} subdirectories,
+# which are created if they do not exist.
+#
+# Requires sed to be installed and accessible.
+if [ $MANMODE = "ge" -o $MANMODE = "sge" ]; then
+   xxQS_NAMExx="Grid Engine"
+   xxQS_NAME_Sxx="SGE"
+   xxqs_name_sxx="sge"
+   xxRELxx="SGE 8.1.3pre"
+else
+   echo "error wrong MANMODE=$MANMODE. Exit" >&2
+   exit 1
+fi
+
+# Build the list of the available sections
+SECTION_LIST=""
+for n in 1 2 3 4 5 6 7 8; do
+   if [ -d $MANSRCDIR/man${n} ]; then
+     if [ "$SECTION_LIST" = "" ]; then
+        SECTION_LIST=$n
+     else
+        SECTION_LIST="$SECTION_LIST $n"
+     fi
+   fi
+done
+
+echo "Building SEDMAN pages"
+for n in $SECTION_LIST; do
+   mkdir -p $MANBUILDDIR/SEDMAN/man/man${n} > /dev/null 2>&1
+
+   if [ ! -d $MANBUILDDIR/SEDMAN/man/man${n} ]; then
+      echo "Error: Couldn't create subdirectory SEDMAN/man/man${n}." >&2
+      exit 1
+   fi
+
+   for f in $MANSRCDIR/man${n}/*.${n}; do
+      echo "Processing $f"
+      sed -e "s/xxQS_NAMExx/$xxQS_NAMExx/g" \
+          -e "s/xxQS_NAME_Sxx/$xxQS_NAME_Sxx/g" \
+          -e "s/xxqs_name_sxx/$xxqs_name_sxx/g" \
+          -e "s/xxRELxx/$xxRELxx/g" $f > $MANBUILDDIR/SEDMAN/man/man${n}/`basename $f`
+   done
+done
+
+
+#
+# process the seded man pages with groff
+#
+if [ "$MANASC" = 1 ]; then
+   echo "Building ASCMAN from sedman pages"
+   for n in $SECTION_LIST; do
+      mkdir -p $MANBUILDDIR/ASCMAN/man/man${n} > /dev/null 2>&1
+
+      if [ ! -d $MANBUILDDIR/ASCMAN/man/man${n} ]; then
+         echo "Error: Couldn't create subdirectory ASCMAN/man/man${n}." >&2
+         exit 1
+      fi
+
+      cd $MANBUILDDIR/SEDMAN/man
+      for f in man${n}/*.${n}; do
+         echo "Processing $f"
+         groff -man -t -Tascii $f > $MANBUILDDIR/ASCMAN/man/man${n}/`basename $f .${n}`
+      done
+   done
+fi
+
+# Echo all the names corresponding to this page, dealing with "\ " and "\-".
+altnames () {
+    # Not done on formatted version because of line breaks
+    grep -A 1 '\.SH NAME' "$1" | tail -n 1 |
+      sed -e 's/  *\\-.*$//' -e 's/, */ /g' -e 's/\\ /\&nbsp;/g' -e 's/\\-/\&ndash;/g' |
+      sed -e "s/xxQS_NAMExx/$xxQS_NAMExx/g" \
+          -e "s/xxQS_NAME_Sxx/$xxQS_NAME_Sxx/g" \
+          -e "s/xxqs_name_sxx/$xxqs_name_sxx/g" \
+          -e "s/xxRELxx/$xxRELxx/g"
+}
+
+#
+# build html man pages from sedman with man2html
+# NB, this is the html2man from http://www.nongnu.org/man2html/, not
+# the one in Debian, for instance.
+#
+if [ "$MANHTML" = 1 ]; then
+   echo "Building HTML from sedman pages"
+   for n in $SECTION_LIST; do
+      mkdir -p $MANBUILDDIR/HTMLMAN/htmlman${n}
+      for i in $MANBUILDDIR/SEDMAN/man/man${n}/*; do
+         echo "Processing $i"
+         bn=`basename $i .${n}`
+         # man -M$MANBUILDDIR/SEDMAN/man/ $bn | man2html -solaris > $MANBUILDDIR/HTMLMAN/htmlman${n}/${bn}.html
+         secopt=-s
+         if [ Linux = `uname` ]; then
+            secopt=""
+         fi
+	 # This used to use `man' on the SEDMAN files, but that loses
+	 # the overstriking.
+         groff -man -t -M$MANBUILDDIR/../scripts -my -Tascii $MANBUILDDIR/SEDMAN/man/man$n/$bn.$n | man2html -title $bn.$n -botm 4 -topm 4 -pgsize 999999 -cgiurl "../htmlman"'$section/$title'".html" | sed '2s/BODY/BODY BGCOLOR=white/' > $MANBUILDDIR/HTMLMAN/htmlman${n}/${bn}.html
+# This works, but the backend doesn't do .IP right, at least
+#          sed -e 's;\\\\fI\\\\\$1\\\\fR\\\\|(\\\\\$2)\\\\\$3;.URL ../htmlman\\\\$2/\\\\$1 \\\\fI\\\\$1\\\\fP(\\\\$2) \\\\$3;' $MANBUILDDIR/SEDMAN/man/man$n/$bn.$n | \
+#          groff -man -t -Thtml > $MANBUILDDIR/HTMLMAN/htmlman${n}/${bn}.html
+      done
+   done
+
+   #
+   # generate an index file with alternative names and links
+   #
+
+   cp $1/scripts/template.html $MANBUILDDIR/HTMLMAN/index.html
+   for n in $SECTION_LIST; do
+      echo "<H3>Section $n</H3>" >> $MANBUILDDIR/HTMLMAN/index.html
+      echo '<P><UL>' >> $MANBUILDDIR/HTMLMAN/index.html
+      for f in $MANBUILDDIR/HTMLMAN/htmlman${n}/*; do
+         base=`basename $f`
+         title=`basename $base .html`
+         names=`altnames $MANSRCDIR/man$n/$title.$n`
+         case $title in         # exceptions
+             usermapping) continue;;
+         esac
+         # duplicates fixed by sort -u if necessary
+         echo "<LI><A HREF=\"htmlman${n}/$base\" target=\"PAGE\">$title</A>"
+         for name in $names; do
+             # for utilbin/... etc., and html entities
+             name=`basename $name | sed -e 's/&ndash;/-/g'`
+             echo "<LI><A HREF=\"htmlman${n}/$base\" target=\"PAGE\">$name</A>"
+             if [ "$title" != "$name" ]; then
+                 case $name in
+                     *'&'*) ;; # exceptions
+                     *) (cd ; ln -sf "$base" "`dirname $f`/$name.html";)
+                 esac
+             fi
+         done
+      done | sort -u -t '>' -k 3 >> $MANBUILDDIR/HTMLMAN/index.html
+      echo '</UL></P>' >> $MANBUILDDIR/HTMLMAN/index.html
+   done
+   echo '</BODY></HTML>' >> $MANBUILDDIR/HTMLMAN/index.html
+
+   #
+   # generate the manual.html file
+   #
+   echo '<HTML>' > $MANBUILDDIR/HTMLMAN/manuals.html
+   echo " <HEAD><TITLE>$xxQS_NAME_Sxx Manual Pages</TITLE></HEAD>" >> $MANBUILDDIR/HTMLMAN/manuals.html
+   echo ' <frameset cols="230,*" frameborder="NO" framespacing="0" border="3">' >> $MANBUILDDIR/HTMLMAN/manuals.html
+   echo '  <frame src=' >> $MANBUILDDIR/HTMLMAN/manuals.html
+   echo "   index.html" >> $MANBUILDDIR/HTMLMAN/manuals.html
+   echo '   marginwidth="0" marginheight=0 name="TOC" noresize>' >> $MANBUILDDIR/HTMLMAN/manuals.html
+   echo '  <frame src=' >> $MANBUILDDIR/HTMLMAN/manuals.html
+   echo "   htmlman1/sge_intro.html" >> $MANBUILDDIR/HTMLMAN/manuals.html
+   echo '   marginwidth="0" marginheight=0 name="PAGE" noresize>' >> $MANBUILDDIR/HTMLMAN/manuals.html
+   echo ' </frameset>' >> $MANBUILDDIR/HTMLMAN/manuals.html
+   echo '</HTML>' >> $MANBUILDDIR/HTMLMAN/manuals.html
+fi

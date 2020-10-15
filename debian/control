@@ -1,0 +1,116 @@
+Source: sge
+Priority: optional
+Section: utils
+Maintainer: Dave Love <sge-bugs@liv.ac.uk>
+Build-Depends: debhelper (>= 7.0.50), tcsh | c-shell, libdb-dev, libssl-dev,
+ libncurses5-dev, libpam0g-dev, libxt-dev, motif-dev | lesstif2-dev | libmotif-dev,
+ libxmu-dev, default-jdk, ant-optional, junit, javacc, libxft-dev,
+ libhwloc-dev (>= 1.1), libpam0g-dev, man-db, libjemalloc-dev, libmunge-dev
+# add quilt if we acquire patches
+Standards-Version: 3.9.3
+Homepage: http://arc.liv.ac.uk/SGE
+Vcs-darcs: http://arc.liv.ac.uk/repos/darcs/sge/
+Vcs-Browser: https://arc.liv.ac.uk/trac/SGE/browser/sge
+
+Package: sge
+Architecture: any
+# procps for /bin/ps, called in some places
+Depends: ${shlibs:Depends}, ${misc:Depends}, sge-common, procps, xterm
+Suggests: openssh-client
+Recommends: sge-doc
+Replaces: gridengine-client, gridengine-qmon, gridengine-master, gridengine-exec,
+ libdrmaa-dev, libdrmaa-java
+Description: Grid Engine programs
+ Grid Engine is software that facilitates "distributed resource
+ management" (DRM).  Far more than just simple load-balancing tools or
+ batch scheduling mechanisms, DRM software typically provides the
+ following key features across large sets of distributed resources:
+ .
+   * Policy based allocation of distributed resources (CPU time,
+     software licenses, etc.)
+   * Batch queuing & scheduling
+   * Support diverse server hardware, OS and architectures
+   * Load balancing & remote job execution
+   * Detailed job accounting statistics
+   * Fine-grained user specifiable resources
+   * Suspend/resume/migrate jobs
+   * Tools for reporting Job/Host/Cluster status
+   * Job Arrays
+   * Integration & control of parallel jobs
+ .
+ This package contains the Grid Engine programs.
+
+Package: sge-common
+Architecture: all
+Section: utils
+Depends: ${misc:Depends}, adduser, bsd-mailx | mailx, tcsh | c-shell,
+ hostname, openssl
+Replaces: gridengine-common
+Description: Distributed resource management - common files
+ Grid Engine is software that facilitates "distributed resource
+ management" (DRM).  Far more than just simple load-balancing tools or
+ batch scheduling mechanisms, DRM software typically provides the
+ following key features across large sets of distributed resources:
+ .
+   * Policy based allocation of distributed resources (CPU time,
+     software licenses, etc.)
+   * Batch queuing & scheduling
+   * Support diverse server hardware, OS and architectures
+   * Load balancing & remote job execution
+   * Detailed job accounting statistics
+   * Fine-grained user specifiable resources
+   * Suspend/resume/migrate jobs
+   * Tools for reporting Job/Host/Cluster status
+   * Job Arrays
+   * Integration & control of parallel jobs
+ .
+ This package contains required shared files and the basic configuration.
+
+Package: sge-doc
+Architecture: all
+Section: doc
+Depends: ${misc:Depends}
+Description: Grid Engine documentation
+ Grid Engine is software that facilitates "distributed resource
+ management" (DRM).  Far more than just simple load-balancing tools or
+ batch scheduling mechanisms, DRM software typically provides the
+ following key features across large sets of distributed resources:
+ .
+   * Policy based allocation of distributed resources (CPU time,
+     software licenses, etc.)
+   * Batch queuing & scheduling
+   * Support diverse server hardware, OS and architectures
+   * Load balancing & remote job execution
+   * Detailed job accounting statistics
+   * Fine-grained user specifiable resources
+   * Suspend/resume/migrate jobs
+   * Tools for reporting Job/Host/Cluster status
+   * Job Arrays
+   * Integration & control of parallel jobs
+ .
+ This package contains the Grid Engine documentation.
+
+Package: sge-dbg
+Architecture: any
+Section: debug
+Priority: extra
+Depends: ${misc:Depends}, sge (= ${binary:Version})
+Description: Grid Engine programs
+ Grid Engine is software that facilitates "distributed resource
+ management" (DRM).  Far more than just simple load-balancing tools or
+ batch scheduling mechanisms, DRM software typically provides the
+ following key features across large sets of distributed resources:
+ .
+   * Policy based allocation of distributed resources (CPU time,
+     software licenses, etc.)
+   * Batch queuing & scheduling
+   * Support diverse server hardware, OS and architectures
+   * Load balancing & remote job execution
+   * Detailed job accounting statistics
+   * Fine-grained user specifiable resources
+   * Suspend/resume/migrate jobs
+   * Tools for reporting Job/Host/Cluster status
+   * Job Arrays
+   * Integration & control of parallel jobs
+ .
+ This package contains debugging versions of the Grid Engine programs.

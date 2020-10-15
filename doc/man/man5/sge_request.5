@@ -1,0 +1,155 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\" $RCSfile: sge_request.5,v $     Last Update: $Date: 2004-04-19 10:52:10 $     Revision: $Revision: 1.5 $
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH xxQS_NAME_Sxx_REQUEST 5 2004-04-19 "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+xxqs_name_sxx_request \- xxQS_NAMExx default request definition file format
+.\"
+.\"
+.SH DESCRIPTION
+.I xxqs_name_sxx_request
+reflects the format of the files defining default request profiles.
+These apply to
+.M qsub 1 ,
+.M qsh 1 ,
+.M qrsh 1 ,
+.\" fixme: qalter, qresub?
+and
+.M qlogin 1 ,
+but for convenience, only qsub is mentioned below.
+If
+available, default request files are read and processed during job
+submission, before any submit options embedded in the job script, and
+before any options in the
+.M qsub 1
+command-line are considered. Thus, the command-line and embedded script
+options may overwrite the settings in the default request files (see
+.M qsub 1
+for details).  However, where options may be repeated and accumulated,
+typically they are collected into a list from the various sources,
+which may not be what you want.
+.PP
+There is a cluster global, a user private, and a working directory local
+default request
+definition file. The working directory local default request file has the
+highest precedence and is followed by the user private and then the
+cluster global default request file.
+.PP
+\fBNote\fP, that the
+.I \-clear
+option to
+.M qsub 1
+can be used to discard any previous settings at any
+time in a default request file, in the embedded script flags
+or in a
+.M qsub 1
+command-line option.
+.PP
+.\"
+.\"
+.\"
+The format of the default request definition files is:
+.\"
+.\"
+.IP "\(bu" 3n
+The default request files may contain an arbitrary number of lines.
+Blank lines, and lines with a '#' sign in the first column, are skipped.
+.\"
+.\"
+.IP "\(bu" 3n
+Each line not to be skipped may contain any
+.M qsub 1
+option. More than one option per line is
+allowed. The batch script file and argument options to the batch script
+are not considered as
+.M qsub 1
+options and thus are not allowed in a
+default request file.
+.\"
+.\"
+.\"
+.SH "EXAMPLES"
+.PP
+The following is a simple example of a default request definition file:
+.PP
+.nf
+
+=====================================================
+# Default Requests File
+
+# request group to be sun4 and a CPU-time of 5hr
+-l arch=sun4,s_cpu=5:0:0
+
+# don't restart the job in case of system crashes
+-r n
+=====================================================
+
+.fi
+.PP
+Having defined a default request definition file like this, submitting a
+job as follows:
+.PP
+.nf
+qsub test.sh
+.fi
+.PP
+would have precisely the same effect as if the job was submitted with:
+.PP
+.nf
+qsub \-l arch=sun4,s_cpu=5:0:0 \-r n test.sh
+.fi
+.PP
+.\"
+.\"
+.\"
+.SH "FILES"
+.nf
+.ta \w'<xxqs_name_sxx_root>/   'u
+\fI<xxqs_name_sxx_root>/<cell>/common/xxqs_name_sxx_request\fP
+	global defaults file
+.ta \w'$HOME/.xxqs_name_sxx_request   'u
+\fI$HOME/.xxqs_name_sxx_request\fP	user private defaults file
+\fI$cwd/.xxqs_name_sxx_request\fP	cwd directory defaults file
+.fi
+.\"
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M qsub 1
+.\" .M qsub 1 ,
+.\" .I xxQS_NAMExx Installation and Administration Guide
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

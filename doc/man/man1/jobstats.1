@@ -1,0 +1,123 @@
+.\" Copyright (C), 2012  Dave Love, University of Liverpool
+.\" You may distribute this file under the terms of the GNU Free
+.\" Documentation License.
+.TH jobstats 1 2012-01-22 
+.SH NAME
+jobstats \- print historic job information or timeline view
+.SH SYNOPSIS
+.B jobstats
+.RB [ \-html ] \  [ \-timeline ] \  [ \-ntw ] \  [ \-usage ]
+.RB [ \-available_slots
+.IR s ]
+.RB [ \-start_jid
+.IR jid ]
+.RB [ \-end_jid
+.IR jid ]
+.RB [ \-owner
+.IR opattern ]
+.RB [ \-name
+.IR npatterm ]
+.RB [ table_width
+.IR w ]
+.RB [ \-nw
+.IR w ]
+.RB [ \-nojoblist ] \  [ \-tsort
+.IR method ]
+.RI [ file ...]
+.SH DESCRIPTION
+.I jobstats
+can show both a table of historic job information and a timeline view
+of job execution depending on output format (text or HTML).  For the
+timeline view, the job is placed as a colour block on a timeline, and
+with one line per job.  The colour of the job encodes a failed job, a
+qrsh login, a serial job and a parallel job.  The job name is
+displayed and optionally followed by the number of slots used in
+braces in the case where a parallel job was run.
+
+Note that some information may not be valid if the job failed with
+certain error codes.
+If only a certain job range is chosen, then the text output will
+be sized for the longest job name encountered.  Use the
+.B \-nw
+option to get around this if the field is very wide.
+.SH OPTIONS
+.TP
+.BI \-start_jid\  jid
+Only start at job id
+.IR jid .
+If
+.I jid
+is negative then start with this offset from
+the last job id in use (like
+.BR "tail \-n" ).
+.TP
+.BI \-end_jid\  jid
+End at job id
+.IR jid .
+.TP
+.BI \-owner\  opattern
+Only show output where the job owner matches the pattern.
+.BI \-name\  npattern
+Only show output where the job name matches the pattern.
+.TP
+.B \-ntw
+.br
+Do not show the timing window (start and end times) for each job.
+.TP
+.BI \-tformat\   fmt
+Set time format for timing windows. Can be one of:
+.br
+.BR epoch :
+use Unix epoch time
+.BR fmt :
+Specify
+.M strftime 3
+format string.
+.B \-timeline
+Produce a table with job timeline info showing visually where jobs
+ran.  This forces HTML output.
+.TP
+.BI \-tsort\  method
+Define a method to sort the timeline:
+.br
+.BR jid :
+Sort by job id (default)
+.br
+.BR start :
+Sort by start time
+.TP
+.BI \-table_width\  w
+Define width of timeline table as
+.I w
+pixels (default 1100)
+.TP
+.BI \-nw\   w
+.br
+Limit the width of the job Name field in text output to
+.IR w .
+.TP
+.B \-nojoblist
+Do not produce job list.
+.B \-html
+Produce HTML output.
+.B \-usage
+Show how each job's slot usage aggregates.
+.BI \-available_slots\   s
+Set the number of slots
+.I s
+available to jobs.
+.TP
+.I file
+Job accounting file.  If no file is given then
+.I $SGE_ROOT/$SGE_CELL/common/accounting
+will be used.
+.SH EXAMPLES
+.fi
+  jobstats \-start_jid 1070 sge_runs.acct
+  jobstats \-start_jid \-10
+  jobstats \-html
+  jobstats \-timeline \-start_jid 1080
+  jobstats \-tformat '%b_%e_%H:%M:%S'
+.fi
+.SH FILES
+.I $SGE_ROOT/$SGE_CELL/common/accounting

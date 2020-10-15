@@ -1,0 +1,864 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE>Spooling framework</TITLE>
+	<META NAME="GENERATOR" CONTENT="StarOffice 6.0  (Solaris Sparc)">
+	<META NAME="CREATED" CONTENT="20020524;12211900">
+	<META NAME="CHANGEDBY" CONTENT="Joachim Gabler">
+	<META NAME="CHANGED" CONTENT="20020621;13010600">
+	<META NAME="CLASSIFICATION" CONTENT="Analysis and Redesign">
+	<META NAME="DESCRIPTION" CONTENT="Analysis of the current spooling functionality and possibilities for a redesign">
+	<STYLE>
+	<!--
+		@page { size: 21.59cm 27.94cm; margin-left: 3.18cm; margin-right: 3.18cm; margin-top: 2.54cm; margin-bottom: 2.54cm }
+		TD P { margin-bottom: 0.21cm }
+		P { margin-bottom: 0.21cm }
+		H2.western { font-family: "Albany", sans-serif; font-size: 14pt; font-style: italic }
+		H2.cjk { font-family: "MSung Light SC"; font-size: 14pt; font-style: italic }
+		H2.ctl { font-size: 14pt; font-style: italic }
+		H3.western { font-family: "Albany", sans-serif }
+		H3.cjk { font-family: "MSung Light SC" }
+		H4.western { font-family: "Albany", sans-serif; font-size: 11pt; font-style: italic }
+		H4.cjk { font-family: "MSung Light SC"; font-size: 11pt; font-style: italic }
+		H4.ctl { font-size: 11pt; font-style: italic }
+		H5.western { font-family: "Albany", sans-serif; font-size: 11pt }
+		H5.cjk { font-family: "MSung Light SC"; font-size: 11pt }
+		H5.ctl { font-size: 11pt }
+		TH P { margin-bottom: 0.21cm; font-style: italic }
+	-->
+	</STYLE>
+</HEAD>
+<BODY LANG="de-LU">
+<H1>Spooling framework</H1>
+<H2 CLASS="western">Idea</H2>
+<P>Spooling is done through a spooling framework, that can have
+different implementations, e.g. spooing in ascii files, in a database
+...</P>
+<P>In a first step, spooling for monitoring and accounting is done in
+a separate event client subscribing a certain number of object types
+and simply spooling them through the spooling framework.</P>
+<P>Qmaster still spools its own ascii files. If spooling framework
+proves to be stable, switch qmaster to use the spooling framework and
+let the Grid Engine admin decide, which spooling type to use.</P>
+<P>If qmaster is set to spool into database, and a common production
+and reporting database is to be used, the event client is not needed.</P>
+<P><BR><BR>
+</P>
+<H2 CLASS="western">Spooled Objects &ndash; current implementation</H2>
+<P>One implementation for each object type &ndash; for the reading of
+most objects a common function call read_object is used.</P>
+<TABLE WIDTH=100% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=39*>
+	<COL WIDTH=80*>
+	<COL WIDTH=74*>
+	<COL WIDTH=64*>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=15%>
+				<P>Object</P>
+			</TH>
+			<TH WIDTH=31%>
+				<P>Implementation</P>
+			</TH>
+			<TH WIDTH=29%>
+				<P>Structure</P>
+			</TH>
+			<TH WIDTH=25%>
+				<P>Comment</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=15%>
+				<P>Accounting</P>
+			</TD>
+			<TD WIDTH=31%>
+				<P>daemons/qmaster/job_exit.c,</P>
+				<P>clients/qacct/qacct.c</P>
+			</TD>
+			<TD WIDTH=29%>
+				<P>Ascii file, one line per record, fixed delimiter</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>Nothing to do. The same information can come from spooling
+				with history.</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=15%>
+				<P>Calendar</P>
+			</TD>
+			<TD WIDTH=31%>
+				<P>common/read_write_cal.c</P>
+			</TD>
+			<TD WIDTH=29%>
+				<P>Ascii file per object, one whitespace separated name/value per
+				line</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P><BR>
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=15%>
+				<P>Checkpoint Environment</P>
+			</TD>
+			<TD WIDTH=31%>
+				<P>common/read_write_ckpt.c</P>
+			</TD>
+			<TD WIDTH=29%>
+				<P>Ascii file per object, one whitespace separated name/value per
+				line</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>sublist: queues, only names, could be stored as string</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=15%>
+				<P>Cluster configuration</P>
+			</TD>
+			<TD WIDTH=31%>
+				<P>common/rw_configuration.c</P>
+			</TD>
+			<TD WIDTH=29%>
+				<P>Ascii file per object, one whitespace separated name/value per
+				line</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>Probably merge with host objects</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=15%>
+				<P>Complex</P>
+			</TD>
+			<TD WIDTH=31%>
+				<P>common/sge_complex.c</P>
+			</TD>
+			<TD WIDTH=29%>
+				<P>Ascii file per complex, one line per complex attribute,
+				whitespace separated fields</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>Need rules for spooling of complex attributes. On/Off.
+				Min,Max,Avg in a certain interval.</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=15%>
+				<P>History</P>
+			</TD>
+			<TD WIDTH=31%>
+				<P>common/complex_history.c</P>
+			</TD>
+			<TD WIDTH=29%>
+				<P>Directory for hosts and queues, one file per timestamp,
+				complex file format</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>Nothing to do. The same information can come from spooling
+				with history.</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=15%>
+				<P>Host</P>
+			</TD>
+			<TD WIDTH=31%>
+				<P>common/read_write_host.c</P>
+			</TD>
+			<TD WIDTH=29%>
+				<P>Ascii file per object, one whitespace separated name/value per
+				line</P>
+				<P>Admin and submit hosts only contain one attribute, the name</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>Admin-/Exec-/Submit- hosts are different objects. Should be
+				merged into one object.</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=15%>
+				<P>Hostgroup</P>
+			</TD>
+			<TD WIDTH=31%>
+				<P>common/read_write_host_group.c</P>
+			</TD>
+			<TD WIDTH=29%>
+				<P><BR>
+				</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>Not active</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=15%>
+				<P>Job</P>
+			</TD>
+			<TD WIDTH=31%>
+				<P>daemons/common/read_write_job.c</P>
+			</TD>
+			<TD WIDTH=29%>
+				<P>Directory structure, multiple binary files (cull packing
+				buffer)</P>
+				<P>Job script is stored separately</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P><BR>
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=15%>
+				<P>Manager</P>
+				<P>Operator</P>
+			</TD>
+			<TD WIDTH=31%>
+				<P>daemons/qmaster/read_write_manop.c</P>
+			</TD>
+			<TD WIDTH=29%>
+				<P>Ascii files, one line per user name</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>Should better be attribute of a user object</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=15%>
+				<P>Messages</P>
+			</TD>
+			<TD WIDTH=31%>
+				<P><BR>
+				</P>
+			</TD>
+			<TD WIDTH=29%>
+				<P>Ascii files, one line per record, fixed delimiter</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>No real objects at the moment. But each message has a
+				structure well suited for storage in database tables.</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=15%>
+				<P>Parallel Environment</P>
+			</TD>
+			<TD WIDTH=31%>
+				<P>common/read_write_pe.c</P>
+			</TD>
+			<TD WIDTH=29%>
+				<P>Ascii file per object, one whitespace separated name/value per
+				line</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>sublist: queues, only names, could be stored as string</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=15%>
+				<P>Project</P>
+			</TD>
+			<TD WIDTH=31%>
+				<P>common/read_write_userprj.c</P>
+			</TD>
+			<TD WIDTH=29%>
+				<P>Ascii file per object, one whitespace separated name/value per
+				line</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>Usage and longterm usage are sublists. Stored as name/values
+				pairs: cpu, mem, io, finished jobs. Could also be stored as
+				single attributes. 
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=15%>
+				<P>Queue</P>
+			</TD>
+			<TD WIDTH=31%>
+				<P>common/read_write_queue.c</P>
+			</TD>
+			<TD WIDTH=29%>
+				<P>Ascii file per object, one whitespace separated name/value per
+				line</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>Qtype is stored as bitfield, spooled as list of type
+				identifiers</P>
+				<P>sublists: thresholds (name/value pairs), owner (string list),
+				user (string list), xuser (string list), subordinates (string
+				list), complexes (string list), complex_values (name/value
+				pairs), projects (string list), xprojects (string list)</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=15%>
+				<P>Sharetree</P>
+			</TD>
+			<TD WIDTH=31%>
+				<P>common/sge_sharetree.c</P>
+			</TD>
+			<TD WIDTH=29%>
+				<P>One ascii file, references by node ids within the file</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P><BR>
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=15%>
+				<P>User</P>
+			</TD>
+			<TD WIDTH=31%>
+				<P>common/read_write_userprj.c</P>
+			</TD>
+			<TD WIDTH=29%>
+				<P>Ascii file per object, one whitespace separated name/value per
+				line, special format for project related data</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P><BR>
+				</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=15%>
+				<P>Usermapping</P>
+			</TD>
+			<TD WIDTH=31%>
+				<P>common/read_write_ume.c</P>
+			</TD>
+			<TD WIDTH=29%>
+				<P><BR>
+				</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>Not active</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=15%>
+				<P>Userset</P>
+			</TD>
+			<TD WIDTH=31%>
+				<P>common/read_write_userset.c</P>
+			</TD>
+			<TD WIDTH=29%>
+				<P>Ascii file per object, one whitespace separated name/value per
+				line</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P><BR>
+				</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<H2 CLASS="western">Implementation</H2>
+<H3 CLASS="western">Types of spooling</H3>
+<P>Spooling is done in a certain spooling context.</P>
+<P>A spooling context defines, how objects are spooled.</P>
+<P>Multiple spooling contexts can be used within one process.</P>
+<P>Examples for spooling types/destinations:</P>
+<UL>
+	<LI><P>Ascii file, one record per file, name/value pairs per line</P>
+	<LI><P>Ascii file, fixed delimiters for objects and attributes</P>
+	<LI><P>Cull binary file (actually used for jobs, combined with a
+	sophisticated directory structure).</P>
+	<LI><P>XML files. They could easily replace the Cull binary file
+	format, as hierarchies can be implemented in a straigthforward and
+	readable way.</P>
+	<LI><P>Database files (e.g. Xbase)</P>
+	<LI><P>SQL Database</P>
+	<LI><P>LDAP Repository (for certain objects like users)</P>
+</UL>
+<P>Further information stored in a spooling context:</P>
+<UL>
+	<LI><P>spool historical data (with timestamp) or snapshot</P>
+	<LI><P>spooling type specific information, e.g. delimiters for ascii
+	file spooling, file handles, database connections etc. if they are
+	to be kept open.</P>
+</UL>
+<H3 CLASS="western">Spooling of sublists</H3>
+<P>Many Grid Engine object types contain sublists. 
+</P>
+<P>In the current implementation, these hierarchical data structures
+are stored in different ways:</P>
+<UL>
+	<LI><P>by referencing other objects using string lists, e.g. the
+	queue names in pe objects reference queue objects</P>
+	<LI><P>by using name/value pairs in string lists, e.g. complex
+	variables set for queues are stored in a string lists containing
+	tuples in the format &lt;name&gt;=&lt;value&gt;</P>
+	<LI><P>by using special formats within the same ascii file (e.g. the
+	user object or the sharetree). We should avoid these in the future.</P>
+	<LI><P>by using the cull binary format as spool file format
+	including sublists. We should not differentiate between ascii and
+	cull binary file formats in the future.</P>
+	<LI><P>by using directory hierarchies (e.g. storing array tasks
+	within the jobs spool directory). For file based storage, we'll need
+	them also in future implementations.</P>
+</UL>
+<P><BR><BR>
+</P>
+<P>For the new implementation, we'll have to differentiate between
+file based formats and database storage.</P>
+<P>For file based storage, we should use the following strategies:</P>
+<UL>
+	<LI><P>when referencing other spooled objects, we should store a
+	unique keys. Lists of such keys can be stored as string list.</P>
+	<LI><P>name/value pairs can be stored in string lists in the
+	existing format &lt;name&gt;=&lt;value&gt;</P>
+	<LI><P>We'll have to continue the use of directory hierarchies for
+	job spooling due to limitations of the number of files per
+	directory.</P>
+</UL>
+<P>For database storage, we should use the following strategies:</P>
+<UL>
+	<LI><P>referencing single other objects can be done by storing a
+	unique key.</P>
+	<LI><P>referencing lists of other objects can also be done by
+	storing a string list of keys, if we want to accept performance
+	drawbacks for certain queries, e.g. &bdquo;which pe's contain queue
+	xyz&ldquo;.<BR>Better would be to use mapping tables, e.g. a table
+	pe_queues, that links queues to pe's. Problem: Special keywords like
+	&bdquo;all&ldquo; would have to be handled by either a pseudo queue
+	&bdquo;all&ldquo; or a mapping entry without queue reference.</P>
+	<LI><P>name/value pairs have to be stored in additional tables. In
+	certain cases this can be extended mapping tables, e.g. mapping
+	complex attributes to queues and giving them a value.</P>
+	<LI><P>The hierarchy job &ndash; ja_task &ndash; pe_task can be
+	easily implemented by referencing the hierarchical superior object
+	in the subordinated object &ndash; pe_tasks reference the ja_task,
+	ja_tasks reference the job.</P>
+</UL>
+<TABLE WIDTH=100% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=64*>
+	<COL WIDTH=64*>
+	<COL WIDTH=64*>
+	<COL WIDTH=64*>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=25%>
+				<P>reference type</P>
+			</TH>
+			<TH WIDTH=25%>
+				<P>current implementation</P>
+			</TH>
+			<TH WIDTH=25%>
+				<P>new filebased</P>
+			</TH>
+			<TH WIDTH=25%>
+				<P>new database</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR VALIGN=TOP>
+			<TD WIDTH=25%>
+				<P>referencing objects</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>object id from cull</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>object id from cull</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>object id, either from cull or database internal serial number</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=25%>
+				<P>list of references</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>string list or cull sublist</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>string list</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>mapping table</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=25%>
+				<P>name/value pairs</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>string list or cull sublist</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>string list</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>mapping table with value</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=25%>
+				<P>subordinate objects</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>special format or spool in cull binary format</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>break up such hierarchies (e.g. possible in the user object)
+				or store data in additional files or directory structure and
+				reference these files</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>store them in additional tables and make them reference their
+				superior object</P>
+			</TD>
+		</TR>
+		<TR VALIGN=TOP>
+			<TD WIDTH=25%>
+				<P>job hierarchy</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>directory hierarchy</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>directory hierarchy</P>
+			</TD>
+			<TD WIDTH=25%>
+				<P>subordinate objects reference superior objects</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<H3 CLASS="western">Spooling policies dependent on component</H3>
+<H4 CLASS="western">Current implementation 
+</H4>
+<P>In the current implementation we have different spooling policies
+dependent on the component that does spooling.</P>
+<P>Main spooling component is the qmaster.</P>
+<P>But also execd has spooling of jobs and related information, e.g.
+queues, or parallel environment information. 
+</P>
+<P>The related information reflects the status of the spooled object
+at the time the job was delivered to execd.</P>
+<P>It is also possible that execd does spool other attributes of jobs
+than does qmaster.</P>
+<H4 CLASS="western">Suggestions for a new implementation</H4>
+<P>Different approaches are possible to address this issue. The
+following will discuss some ideas.</P>
+<H5 CLASS="western">Multiple writing instances to one global database</H5>
+<P>All daemons use a common database. The execds can write directly
+to the database. Qmaster is notified about changes by the database.</P>
+<P>Pros: 
+</P>
+<UL>
+	<LI><P>Reduced message transfer volume between qmaster and execd</P>
+	<LI><P>Reduced spooling overhead in qmaster</P>
+	<LI><P>More accurate data in the database, as data doesn't have to
+	go through qmaster. 
+	</P>
+</UL>
+<P>Cons:</P>
+<UL>
+	<LI><P>Danger of inconsistencies between data in qmaster and data in
+	the database. This problem exists with any implementation, but most
+	probably qmaster should be the instance that holds the most recent
+	information.</P>
+	<LI><P>Scalability issues. It takes away the possibility of local
+	spooling.</P>
+</UL>
+<P>Probably not an option for the near future.</P>
+<H5 CLASS="western">Restrict to file spooling in execd</H5>
+<P>Each execd has its own area for spooling, usually file based,
+either on a local disk (recommended) or via NFS mount.</P>
+<P>Use formats that allow the spooling of hierarchical data, i.e.
+either cull binary format or XML format.</P>
+<P>As execd spools information in a different way (not all / other
+attributes as qmaster, different strategy for sublists), the spooling
+implementation has to provide means to overwrite the spooling
+strategies defined as default for certain object types, or 2 spooling
+strategies have to be defined for object types.</P>
+<P>Pros:</P>
+<UL>
+	<LI><P>spooling load can be easily distributed by using local file
+	systems</P>
+	<LI><P>execd is the only instance that needs to spool hierarchical
+	data not normalized, as the sub objects that have to be spooled are
+	only valid for the lifetime of the only spooled object types (job
+	related data)</P>
+</UL>
+<P>Cons:</P>
+<UL>
+	<LI><P>Different spooling strategies within one cluster have to be
+	implemented</P>
+	<LI><P>spooling remains a bottleneck when NFS has to be used for
+	some reason, e.g. diskless compute engines</P>
+	<LI><P>on very big SMP machines (some hundred processors) spooling
+	could become a bottleneck due to slow file spooling</P>
+</UL>
+<H3 CLASS="western">Cull enhancements</H3>
+<H4 CLASS="western">Definition of attributes</H4>
+<P>Cull definition will have to contain information, which fields
+have to be spooled and how sublists are spooled.</P>
+<P>Replace the many similar definitions for same object types by a
+combination of flags. Example:</P>
+<P>We have now 14 definitions for the string datatype (SGE_STRING,
+SGE_STRINGH, SGE_STRING_HU, SGE_KSTRING, ...)</P>
+<P><BR><BR>
+</P>
+<P>A list element definition like 
+</P>
+<P>SGE_KULONGH(JB_job_number)</P>
+<P>could be replaced by 
+</P>
+<P>SGE_ULONG(JG_job_number, HASH | UNIQUE | SPOOL | QIDL_K)</P>
+<P>or</P>
+<P>SGE_LIST_ELEMENT(JG_job_number, ULONG | HASH | UNIQUE | SPOOL |
+SHOW | QIDL_K)</P>
+<P><BR><BR>
+</P>
+<P>A keyword DEFAULT could be used, if no special settings are done
+for a type.</P>
+<P><BR><BR>
+</P>
+<P>Descriptor field mt has lots of free space (currently only uses 4
+bit for the data types from a (32 bit) integer) that could hold the
+following additional information:</P>
+<UL>
+	<LI><P>ARRAY <BR>For an array implementation (optionally to be done
+	in a separate step)</P>
+	<LI><P>HASH<BR>Enable hashing for the field.</P>
+	<LI><P>UNIQUE<BR>Attribute has unique values within one list. This
+	is at the moment only checked for attributes that have hashing
+	enabled, but could be extended to any operations setting values.</P>
+	<LI><P>SPOOL<BR>Shall the attribute be spooled.</P>
+	<LI><P>SHOW<BR>Shall the attribute be shown (e.g. in qconf -s*,
+	qstat -j etc.)</P>
+	<LI><P>CONFIG<BR>Shall the attribute be configurable, i.e. be
+	contained in the temporary files created for qconf -m* operations or
+	for qconf -mattr operations</P>
+</UL>
+<P>Probably we should use a prefix like CULL_ or SGE_ to ensure
+uniqueness, e.g. CULL_HASH instead of HASH.</P>
+<H4 CLASS="western">Tracking of changed attributes</H4>
+<P>To be able to interface a database using mechanisms like SQL, each
+object must know, which attributes have changed. Otherwise, the whole
+object has to be spooled on each spooling function call, even if only
+few attributes have been changed or the object hasn't been changed at
+all.</P>
+<P>This could be achieved by making a struct arround the lMultiType
+enum type and reserving &bdquo;one bit&ldquo; for the changed
+attribute.</P>
+<P>Or by adding a bitfield containing this information to the
+lListElem data type &ndash; this would be less memory consuming.</P>
+<H4 CLASS="western">Attribute names</H4>
+<P>A set of attribute names are generated using the NAMEDEF macros
+for each object type.</P>
+<P>These attribute names have very limited use in the current
+implementation &ndash; they are only used for debugging purposes
+(lWrite* function calls).</P>
+<P>For spooling, information output and configuration changes we also
+need attribute names. These names are at the moment hardcoded in the
+spooling, output and parsing functions.</P>
+<P>It would be better, to extend the existing NAMEDEF macros to
+create struct objects containing both the internal attribute name and
+an attribute name to be used for the other purposes.</P>
+<H3 CLASS="western">Functions 
+</H3>
+<P>create_spooling_context</P>
+<P>free_spooling_context</P>
+<P><BR><BR>
+</P>
+<P>spool_prepare</P>
+<P>spool_commit</P>
+<P><BR><BR>
+</P>
+<P>spool_object</P>
+<P>spool_attribute</P>
+<P><BR><BR>
+</P>
+<H3 CLASS="western">Installation issues</H3>
+<P>First step:</P>
+<P>Provide an install_monitoring script to setup the event client and
+its spooling configuration.</P>
+<P>Second step:</P>
+<P>In qmaster install, decide which spooling type to use, with type
+specific further actions (for SQL database, query user for parameters
+and test the database).</P>
+<P STYLE="margin-bottom: 0cm"><BR>
+</P>
+<H2 CLASS="western">Implementation proposal</H2>
+<P>The implementation can be done in separate steps that can each
+face thorough testing. Time estimations are netto times and include
+documentation and testing.</P>
+<TABLE WIDTH=100% BORDER=1 BORDERCOLOR="#000000" CELLPADDING=4 CELLSPACING=0>
+	<COL WIDTH=203*>
+	<COL WIDTH=53*>
+	<THEAD>
+		<TR VALIGN=TOP>
+			<TH WIDTH=79% BGCOLOR="#e6e6ff">
+				<P>task</P>
+			</TH>
+			<TH WIDTH=21% BGCOLOR="#e6e6ff">
+				<P>est. time [weeks]</P>
+			</TH>
+		</TR>
+	</THEAD>
+	<TBODY>
+		<TR>
+			<TD WIDTH=79% VALIGN=TOP>
+				<P>implement the suggested cull object definition changes</P>
+			</TD>
+			<TD WIDTH=21% VALIGN=BOTTOM SDVAL="2" SDNUM="1023;">
+				<P ALIGN=RIGHT>2</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH=79% VALIGN=TOP>
+				<P>implement tracking of attribute changes</P>
+			</TD>
+			<TD WIDTH=21% VALIGN=BOTTOM SDVAL="2" SDNUM="1023;">
+				<P ALIGN=RIGHT>2</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH=79% VALIGN=TOP>
+				<P>implement file based spooling. Restrict to the following text
+				file formats:</P>
+				<UL>
+					<LI><P>one record per file, name/value pairs per line</P>
+					<LI><P>fixed delimiters for objects and attribute values</P>
+					<LI><P>XML</P>
+				</UL>
+			</TD>
+			<TD WIDTH=21% VALIGN=BOTTOM SDVAL="3" SDNUM="1023;">
+				<P ALIGN=RIGHT>3</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH=79% VALIGN=TOP>
+				<P>make a compile time switch that will make the new spooling
+				functions used by qmaster for some selected object types. Only
+				for test purposes.</P>
+			</TD>
+			<TD WIDTH=21% VALIGN=BOTTOM SDVAL="1" SDNUM="1023;">
+				<P ALIGN=RIGHT>1</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH=79% VALIGN=TOP>
+				<P>implement database storage</P>
+			</TD>
+			<TD WIDTH=21% VALIGN=BOTTOM SDVAL="8" SDNUM="1023;">
+				<P ALIGN=RIGHT>8</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH=79% VALIGN=TOP>
+				<P>create an event client that subscribes all events for all
+				object types and spools them to a database</P>
+			</TD>
+			<TD WIDTH=21% VALIGN=BOTTOM SDVAL="2" SDNUM="1023;">
+				<P ALIGN=RIGHT>2</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH=79% VALIGN=TOP>
+				<P>do extensive tests with qmaster using some of the new spooling
+				functions to files and the event client attached, continue tests
+				during the next phases.</P>
+			</TD>
+			<TD WIDTH=21% VALIGN=BOTTOM SDVAL="2" SDNUM="1023;">
+				<P ALIGN=RIGHT>2</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH=79% VALIGN=TOP BGCOLOR="#e6e6e6">
+				<P><I><B>Sum essential steps</B></I></P>
+			</TD>
+			<TD WIDTH=21% VALIGN=BOTTOM BGCOLOR="#e6e6e6" SDVAL="20" SDNUM="1023;">
+				<P ALIGN=RIGHT>20</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH=79% VALIGN=TOP>
+				<P>make qmaster and execd use the new spooling framework (compile
+				time option), test different spooling strategies</P>
+			</TD>
+			<TD WIDTH=21% VALIGN=BOTTOM SDVAL="4" SDNUM="1023;">
+				<P ALIGN=RIGHT>4</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH=79% VALIGN=TOP>
+				<P>make new spooling framework the default, create means to
+				configure spooling strategies during the installation process 
+				</P>
+			</TD>
+			<TD WIDTH=21% VALIGN=BOTTOM SDVAL="2" SDNUM="1023;">
+				<P ALIGN=RIGHT>2</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH=79% VALIGN=TOP>
+				<P>create install_monitoring that will install the event client
+				separately</P>
+			</TD>
+			<TD WIDTH=21% VALIGN=BOTTOM SDVAL="1" SDNUM="1023;">
+				<P ALIGN=RIGHT>1</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH=79% VALIGN=TOP>
+				<P>create means to update the database structure, backup and
+				purging of outdated information</P>
+			</TD>
+			<TD WIDTH=21% VALIGN=BOTTOM SDVAL="2" SDNUM="1023;">
+				<P ALIGN=RIGHT>2</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH=79% VALIGN=TOP>
+				<P>build clients that use the database as source of information
+				instead of qmaster (qhost, qstat, qacct)</P>
+			</TD>
+			<TD WIDTH=21% VALIGN=BOTTOM SDVAL="2" SDNUM="1023;">
+				<P ALIGN=RIGHT>2</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH=79% VALIGN=TOP>
+				<P>change qconf and qalter to use the new spooling framework for
+				reading information and for creating and processing the data to
+				be configured.</P>
+			</TD>
+			<TD WIDTH=21% VALIGN=BOTTOM SDVAL="2" SDNUM="1023;">
+				<P ALIGN=RIGHT>2</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH=79% VALIGN=TOP BGCOLOR="#e6e6e6">
+				<P><I><B>Sum additional steps</B></I></P>
+			</TD>
+			<TD WIDTH=21% VALIGN=BOTTOM BGCOLOR="#e6e6e6" SDVAL="13" SDNUM="1023;">
+				<P ALIGN=RIGHT>13</P>
+			</TD>
+		</TR>
+	</TBODY>
+</TABLE>
+<P><BR><BR>
+</P>
+</BODY>
+</HTML>

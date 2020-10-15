@@ -1,0 +1,179 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+Qmon*qmon_queue.xmtChildren:   XmtLayout queue_main_layout;
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Queue Main Layout 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*queue_main_layout.dialogTitle: @{QMON +++ Queue Control}
+
+Qmon*queue_main_layout.xmtChildren: \
+   XmPushButton   queue_main_link; \
+   XmScrolledWindow     queue_sw; \
+   XmLabel        q_running, \
+                  q_suspended, \
+                  q_disabled, \
+                  q_alarm, \
+                  q_error, \
+                  q_calsuspended, \
+                  q_caldisabled; \
+   XmPushButton   queue_add, queue_modify, queue_customize, queue_done, \
+                  queue_update, queue_delete, queue_suspend, \
+                  queue_unsuspend, queue_enable, queue_disable, \
+                  queue_reschedule, queue_error, queue_help, queue_tickets; \
+   XmToggleButton queue_force;
+
+Qmon*queue_main_layout.layout: \
+   Fixed Shadowed Out 4 2 LREvenSpaced Row queuecontrol_title { \
+      Fixed Centered queue_main_link \
+      Centered Color "$title_fg" "@{@fBQueue Control}" \
+   } \
+   # \
+   Row { \
+      queue_sw \
+      Fixed Shadowed Col { \
+         Fixed Etched Outside Caption tl "@{Key}" Col { \
+            q_running \
+            q_suspended \
+            q_disabled \
+            q_alarm \
+            q_error \
+            q_calsuspended \
+            q_caldisabled \
+         } \
+         Fixed queue_update \
+         Fixed queue_add \
+         Fixed queue_modify \
+         Fixed queue_tickets \
+         Etched Col { \
+            Fixed queue_force \
+            Fixed queue_suspend \
+            Fixed queue_unsuspend \
+            Fixed queue_disable \
+            Fixed queue_enable \
+            Fixed queue_reschedule \
+            Fixed queue_error \
+         } \
+         Fixed queue_delete \
+         Fixed queue_customize \
+         Fixed queue_done \
+         Fixed queue_help \
+         <> \
+      } \
+   }
+
+!!            "@f[LISTSMALL]Mouse 1        (Un)Select\nShift Mouse 1  Show Load\nMouse 3        Action Menu" \
+
+Qmon*queue_main_layout.queue_main_link.labelType:   PIXMAP
+Qmon*queue_main_layout.queue_main_link.labelPixmap: logo
+Qmon*queue_main_layout.queue_main_link.shadowThickness:    1
+Qmon*queue_main_layout.queue_main_link.highlightThickness: 0
+Qmon*queue_main_layout.queue_main_link.marginHeight:       0
+Qmon*queue_main_layout.queue_main_link.marginWidth:        0
+
+Qmon*queue_main_layout.queue_done.labelString:         @{Done}
+Qmon*queue_main_layout.queue_customize.labelString:    @{Customize}
+Qmon*queue_main_layout.queue_add.labelString:          @{Add}
+Qmon*queue_main_layout.queue_modify.labelString:       @{Modify}
+Qmon*queue_main_layout.queue_delete.labelString:       @{Delete}
+Qmon*queue_main_layout.queue_suspend.labelString:      @{Suspend}
+Qmon*queue_main_layout.queue_unsuspend.labelString:    @{Resume}
+Qmon*queue_main_layout.queue_disable.labelString:      @{Disable}
+Qmon*queue_main_layout.queue_reschedule.labelString:   @{Reschedule}
+Qmon*queue_main_layout.queue_enable.labelString:       @{Enable}
+Qmon*queue_main_layout.queue_error.labelString:        @{Clear Error}
+Qmon*queue_main_layout.queue_help.labelString:         @{Help}
+Qmon*queue_main_layout.queue_tickets.labelString:      @{Tickets}
+
+Qmon*queue_main_layout.queue_force.labelString:        @{Force}
+
+Qmon*queue_main_layout.queue_update.labelString:       @{Refresh}
+
+Qmon*queue_main_layout.q_running.labelString:       @{@f[SMALL]Running}
+Qmon*queue_main_layout.q_running.background:  $q_running_color
+Qmon*queue_main_layout.q_running.foreground:  black
+Qmon*queue_main_layout.q_suspended.labelString:       @{@f[SMALL]Suspended}
+Qmon*queue_main_layout.q_suspended.background:  $q_suspend_color
+Qmon*queue_main_layout.q_suspended.foreground:  black
+Qmon*queue_main_layout.q_disabled.labelString:       @{@f[SMALL]Disabled}
+Qmon*queue_main_layout.q_disabled.background:  $q_disable_color
+Qmon*queue_main_layout.q_disabled.foreground:  black
+Qmon*queue_main_layout.q_alarm.labelString:       @{@f[SMALL]Alarm}
+Qmon*queue_main_layout.q_alarm.background:  $q_alarm_color
+Qmon*queue_main_layout.q_alarm.foreground:  black
+Qmon*queue_main_layout.q_error.labelString:       @{@f[SMALL]Error}
+Qmon*queue_main_layout.q_error.background:  $q_error_color
+Qmon*queue_main_layout.q_error.foreground:  black
+Qmon*queue_main_layout.q_calsuspended.labelString:       @{@f[SMALL]Calendar Suspend}
+Qmon*queue_main_layout.q_calsuspended.background:  $q_calsuspend_color
+Qmon*queue_main_layout.q_calsuspended.foreground:  black
+Qmon*queue_main_layout.q_caldisabled.labelString:       @{@f[SMALL]Calendar Disable}
+Qmon*queue_main_layout.q_caldisabled.background:  $q_caldisable_color
+Qmon*queue_main_layout.q_caldisabled.foreground:  black
+
+!Qmon*queue_main_layout.queue_sw.xmtChildren:  unmanaged XmDrawingArea queue_da;
+!Qmon*queue_main_layout.queue_sw.layout:       queue_da
+!Qmon*queue_main_layout.queue_sw*queue_da.borderWidth: 0
+!Qmon*queue_main_layout.queue_sw*queue_da.highlightThickness: 0
+!Qmon*queue_main_layout.queue_sw*queue_da.shadowThickness: 0
+!Qmon*queue_main_layout.queue_sw*queue_da.marginWidth: 0
+!Qmon*queue_main_layout.queue_sw*queue_da.marginHeight: 0
+
+Qmon*queue_main_layout.queue_sw.xmtChildren:  unmanaged XmRowColumn queue_da;
+Qmon*queue_main_layout.queue_sw.layout:       queue_da
+Qmon*queue_main_layout.queue_sw*queue_da.borderWidth: 0
+Qmon*queue_main_layout.queue_sw*queue_da.highlightThickness: 0
+Qmon*queue_main_layout.queue_sw*queue_da.shadowThickness: 0
+Qmon*queue_main_layout.queue_sw*queue_da.marginWidth: 0
+Qmon*queue_main_layout.queue_sw*queue_da.marginHeight: 0
+Qmon*queue_main_layout.queue_sw*queue_da.background: $bg
+
+!
+! queue_da.numColumns:  394 resulted from a bug report for Solaris9 Xserver
+!                           the x,y,w,h params of a window must lie in the correct scope
+!                           (see also qmon_queue.h it must be set there the same) 
+!
+Qmon*queue_main_layout.queue_sw*queue_da.packing:     PACK_COLUMN
+Qmon*queue_main_layout.queue_sw*queue_da.orientation: HORIZONTAL
+Qmon*queue_main_layout.queue_sw*queue_da.numColumns:  394
+
+
+Qmon*queue_main_layout.queue_sw.height:                   300
+Qmon*queue_main_layout.queue_sw.width:                    620
+Qmon*queue_main_layout.queue_sw.borderWidth:              0
+Qmon*queue_main_layout.queue_sw.scrollBarDisplayPolicy:   AS_NEEDED
+Qmon*queue_main_layout.queue_sw.scrollingPolicy:          AUTOMATIC
+Qmon*queue_main_layout.queue_sw*XmDrawnButton.highlightThickness: 0
+Qmon*queue_main_layout.queue_sw*XmDrawnButton.shadowThickness: 0
+
+
+Qmon*queue_help.activateCallback:   XmtHelpDisplayContextHelp(self);

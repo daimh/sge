@@ -1,0 +1,12 @@
+Some of the scripts in this directory are suitable for general use,
+and installed in the SGE bin directory, with man pages.  The following
+are not installed, typically because they require some sort of
+site-specific customization.
+
+* sge-user-lists:  List per node user and excluded user lists,
+  consolidated with dshbak(1).  Assumes a genders(1) setup and needs
+  the list of exclusive-access nodes defining;
+
+* sge-restrict-nodes, sge-unrestrict-nodes:  Restrict/unrestrict
+  access to nodes by the `testing' ACL.  Assumes a genders(1) setup
+  and requires the ACL to be set up.

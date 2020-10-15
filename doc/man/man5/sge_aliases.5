@@ -1,0 +1,163 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\" $RCSfile: sge_aliases.5,v $     Last Update: $Date: 2004-04-19 10:52:09 $     Revision: $Revision: 1.4 $
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\"
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\" "
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.de MO		\" other man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH xxQS_NAME_Sxx_ALIASES 5 "2004-04-19" "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+xxqs_name_sxx_aliases \- xxQS_NAMExx path aliases file format
+.\"
+.\"
+.SH DESCRIPTION
+The xxQS_NAMExx path aliasing facility provides administrators and users with
+the means to reflect complicated and inhomogeneous file system structures
+in distributed environments (such as user home directories mounted under
+different paths on different hosts) and to ensure that xxQS_NAMExx is able to
+locate the appropriate working directories for executing batch jobs.
+.PP
+There is a system global path aliasing file and a user-local file.
+.I xxqs_name_sxx_aliases
+defines the format of both:
+.\"
+.\"
+.\"
+.IP "\(bu" 3n
+Blank lines, and lines with a '#' sign in the first column, are skipped.
+.\"
+.\"
+.IP "\(bu" 3n
+Each line other than a blank line or a line with a leading '#' has to contain
+four strings separated by any number of blanks or tabs.
+.\"
+.\"
+.IP "\(bu" 3n
+The first string specifies a source path, the second a submit host, the
+third an execution host, and the fourth the source path replacement.
+.\"
+.\"
+.IP "\(bu" 3n
+Both the submit and the execution host entries may consist of only a '*' 
+sign which matches any host.
+.PP
+.\"
+.\"
+If the
+.M qsub 1
+ \fI-cwd\fP flag is specified (and only if \- otherwise the user's
+home directory on the execution host is selected to execute the job),
+the path aliasing mechanism is activated, and the files are
+processed as follows:
+.\"
+.\"
+.IP "\(bu" 3n
+After
+.M qsub 1
+has retrieved the physical current working directory path,
+the cluster global path aliasing file is read, if present. The user path
+aliases file is read afterwards as if it were appended to the global
+file.
+.\"
+.\"
+.IP "\(bu" 3n
+Lines not to be skipped are read from the top of the file one by one
+while the translations specified by those lines are stored if
+necessary.
+.\"
+.\"
+.IP "\(bu" 3n
+A translation is stored only if the submit host entry matches the host
+.M qsub 1
+is executed on and if the source path forms the initial part of either
+the current working directory or of the source path
+replacements already stored.
+.\"
+.\"
+.IP "\(bu" 3n
+As soon as both files are read the stored, path aliasing information is
+passed along with the submitted job.
+.\"
+.\"
+.IP "\(bu" 3n
+On the execution host, the aliasing information will be evaluated. The
+leading part of the current working directory will be replaced by the
+source-path replacement if the execution-host entry of the path alias
+matches the executing host. \fBNote:\fP The current working directory
+string will be changed in this case, and subsequent path aliases
+must match the replaced working directory path to be applied.
+.\"
+.\"
+.\"
+.SH "EXAMPLES"
+.PP
+The following is a simple example of a path aliasing file resolving
+problems with inhomogeneous paths if
+.MO automount 8
+is used:
+.PP
+.nf
+
+=====================================================
+# Path Aliasing File
+# src-path   sub-host   exec-host   replacement
+/tmp_mnt/    *          *           /
+# replaces any occurrence of /tmp_mnt/ by /
+# if submitting or executing on any host.
+# Thus paths on nfs server and clients are the same
+=====================================================
+
+.fi
+.PP
+.\"
+.\"
+.\"
+.SH "FILES"
+.nf
+.ta \w'<xxqs_name_sxx_root>/   'u
+\fI<xxqs_name_sxx_root>/<cell>/common/xxqs_name_sxx_aliases\fP
+	global aliases file
+.ta \w'$HOME/.xxqs_name_sxx_aliases   'u
+\fI$HOME/.xxqs_name_sxx_aliases\fP	user local aliases file
+.fi
+.\"
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M qsub 1
+.\" .M qsub 1 ,
+.\" .I xxQS_NAMExx Installation and Administration Guide
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

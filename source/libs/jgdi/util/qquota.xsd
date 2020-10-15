@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            elementFormDefault="qualified">
+
+   <xsd:element name="QQuotaResult">
+      <xsd:sequence>
+       <xsd:element name="limit" type="QQuota" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+   </xsd:element>
+   
+   <xsd:complexType name="QQuota">
+      <xsd:annotation>
+        <xsd:documentation xml:lang="en">
+           
+        </xsd:documentation>
+      </xsd:annotation>
+      <xsd:sequence>
+         <xsd:element name="user" type="xsd:string" minOccurs="0" maxOccurs="unbounded">
+            <xsd:annotation>
+               <xsd:documentation>
+                  
+               </xsd:documentation>
+            </xsd:annotation>
+         </xsd:element>
+         <xsd:element name="project" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+         <xsd:element name="pe" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+         <xsd:element name="queue" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+         <xsd:element name="host" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+         <xsd:element name="limit" type="ResourceLimit" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+      <xsd:attribute name="rulename" type="xsd:string" use="required"/>
+   </xsd:complexType>
+   
+   <xsd:complexType name="ResourceLimit">
+      <xsd:attribute name="resource" type="xsd:string" use="required"/>
+      <xsd:attribute name="limit" type="xsd:string" use="required"/>
+      <xsd:attribute name="value" type="xsd:string" use="optional"/>
+   </xsd:complexType>
+   
+</xsd:schema>
+

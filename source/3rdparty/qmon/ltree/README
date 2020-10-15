@@ -1,0 +1,160 @@
+README for ListTree Widget, version 2.0
+Robert W. McMullen <rwmcm@orion.ae.utexas.edu>
+2 Oct 1995
+
+SOURCE LOCATION
+
+Source code for the ListTree Widget is available via anonymous ftp on
+ftp.x.org in /contrib/widgets as ListTree-?.?.tar.gz.  I have also set up the
+Offical ListTree Web Site (tm) at http://www.ae.utexas.edu/~rwmcm/ListTree.html
+that should always include the latest patchlevel update.
+
+
+OVERVIEW
+
+The ListTree Widget is small list widget capable of displaying lists of text
+strings (with an optional pixmap) in a heirarchal directory list sort of
+format. Unlike all of the other freely available tree widgets that I could
+find, this widget does not use widgets for each item displayed in the tree.
+Instead, it is a list of text strings that contain pointers to parents and
+children in the tree. This reduces memory usage over widget tree widgets, and
+also simplifies use. 
+
+This widget was designed for use in file manager type programs, so an optional
+pixmap is available for displaying to the left of the text item. The pixmap
+has an open and closed state, and different types of pixmaps are available
+for items with and without children. Currently, pixmaps for different file
+types are not available. 
+
+The lists are activated by clicking the left mouse button on the Pixmap
+of the item, or double clicking ond the name of the item.  The state of the
+item is then toggled, and if the item is open, its children are displayed.
+Ranges of items can also be toggled by clicking and dragging the left mouse
+button over the names of the items you want to highlight.
+
+Because everyone has different tastes in scrollbar asthetics, the ListTree
+widget doesn't have any built-in scrolling capability. It is designed to be
+placed in some sort of container widget, and use the container's functions to
+scroll around. 
+
+
+FEATURES
+
+Features provided in the widget include the following: 
+
+   Pixmap displayed to the left of the text string 
+   Different pixmaps for open and closed states 
+   Item highlighting (single or multiple items)
+   Double click name or single click on icon to open or close
+   Callbacks: (called when selected or unselected) 
+      Changing state
+      Highlighting
+      Historical (Superceded, but still exist in version 2.0.)
+   Selectable line width 
+   Selectable font 
+   Various spacing options 
+   Convenience Functions: 
+      Add Item 
+      Delete Item (also deletes dependent children) 
+      Reparent Item 
+      Reparent item's children 
+      Alphabetize items 
+      Alphabetize item's children 
+      Search for item text 
+      Highlight item 
+
+
+REQUIREMENTS
+
+The ListTree code requires X11R4 or later and an ANSI C compiler.  The
+code may compile on a non-ANSI compiler if it supports new style function
+definitions.
+
+The widget is compatible with MOTIF, but does not require it. It looks great
+with the Athena 3D widgets. 
+
+
+BUILDING THE DEMO PROGRAMS
+
+Shipped with the source code distribution are two demo programs.  One is a
+very simplistic demo that creates a heirarchy of items and allows you to
+play around with the widget controls.  The other demo program is a file
+selector widget that shows the ListTree widget used like a file manager.
+
+If you have the program imake installed, you may use the supplied Imakefile
+to generate a Makefile.  Otherwise, copy the file Makefile.noImake to Makefile,
+and edit that to conform to your system.  Actually, other than specifying the
+C compiler to use, the Makefile should require little customization.
+
+Then, type "make" creates the programs demo and fsdemo.  fsdemo requires the
+Athena Widget Set, and demo is built by default using Athena.  To create the
+program demo using the Motif Widget Set, type "make motif".
+
+
+RUNNING THE DEMO PROGRAMS
+
+The ListTree widget is operated by clicking the left mouse button on either
+the list item or the item's pixmap.  A single click on the item's pixmap or
+a double click on the text of the item toggles the state.  If an item is
+open, its children are indented and displayed below it.
+
+Single clicking on an item's text and dragging the mouse (while holding
+down the left button) highlights a range of items.
+
+I am shipping fsdemo, the file selector demo program, as an unsupported demo
+program to show how the ListTree widget could be used in a more advanced
+program.  It is intended to be very intuitive to operate, so I'll leave it
+as an exercise to the reader to figure it out. :)  Trust me, it is pretty
+easy.
+
+
+USING THE WIDGET
+
+Instructions on how to use the ListTree widget in your own code is documented
+in the manual page (ListTree.html) included with the source code.  The
+documentation provided only in HTML format.
+
+
+IMPROVEMENTS/PATCHES/BUG REPORTS
+
+If you make improvements in this widget (or, YIKES!, if you find bugs)
+please let me know at rwmcm@orion.ae.utexas.edu, or through the ListTree
+Widget home page at http://www.ae.utexas.edu/~rwmcm/ListTree.html
+
+
+AUTHOR
+
+Robert W. McMullen <rwmcm@orion.ae.utexas.edu>
+
+This widget is supplied as freeware, in the hope that it will be useful for
+developers in the X community. If you do use this widget, I do request that
+you include mention of the ListTree widget in the documentation. Also,
+remember to include a copy of the entire copyright and permission notice!
+Thanks. 
+
+Patches, improvements, suggestions, bug reports, job offers, volleyball games,
+and money you love donating to programmers who make your life so much easier
+are welcome at <rwmcm@orion.ae.utexas.edu>.  I will periodically post patches
+and improvements to ftp.x.org and the ListTree web page at
+http://www.ae.utexas.edu/~rwmcm/ListTree.html 
+
+
+COPYRIGHT
+
+Copyright (c) 1995 Robert W. McMullen 
+
+Permission to use, copy, modify, distribute, and sell this software and its
+documentation for any purpose is hereby granted without fee, provided that
+the above copyright notice appear in all copies and that both that copyright
+notice and this permission notice appear in supporting documentation. All
+work developed as a consequence of the use of this program should duly
+acknowledge such use. The author makes no representations about the
+suitability of this software for any purpose. It is provided "as is" without
+express or implied warranty. 
+
+THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING
+ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE
+AUTHOR BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY
+DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. 

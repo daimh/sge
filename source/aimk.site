@@ -1,0 +1,166 @@
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+#
+# Set default aimk switches
+#
+switch($buildarch)
+   case "aix51":
+   case "darwin":
+   case "darwin-x64":
+   case "win32-x86":
+   case cygwin-*:
+      set argv = ( -no-jni -no-java $* )
+      breaksw
+   case "usol-sparc64"
+      set argv = ( -no-intl -no-java -no-jni $* )
+      breaksw
+   case lx-*:
+      # Might as well do PAM on GNU/Linux
+      set argv = ( -pam $* )
+      breaksw
+   default:
+      set argv = ( $* )
+      breaksw
+endsw
+
+# Link -lbdb${BDB_LIB_SUFFIX}, so set to, say, "5.1" to get the right version
+set BDB_LIB_SUFFIX = 
+
+# 
+# KRB_HOME the directory where the include and lib directory of kerberos is
+# installed
+#
+set KRB_HOME = /usr
+
+#
+# man2html path
+#
+#set MAN2HTMLPATH = ""
+#
+# groff path
+#
+#set GROFFPATH = ""
+
+# for some platforms we cannot use dynamic loading of the spooling libraries.
+# fallback to berkeleydb spooling
+switch ($BUILDARCH)
+   case "HP11":
+      # for HP11.00 we don't have dynamic loading of shared libraries
+      # build with berkeleydb
+   case "AIX51":
+   case "IRIX65":
+      # for these platforms, reverse resolving of global symbols doesn't
+      # work as expected: Instead of reverse resolving global symbols
+      # (variables as well as functions), the code of dynamic libraries uses
+      # duplicates of the global symbols.
+      set argv = ( -spool-berkeleydb $argv )
+   breaksw
+endsw
+
+if ( ! $?JAVA_HOME ) then
+   set JAVAC_BIN = `which \javac`
+
+   # Resolve any symbolic links to find true absolute path to the executable,
+   # assuming we have readlink(1).
+   if ( $status == 0 && { test -L "$JAVAC_BIN" } ) then
+       if ( -f /usr/bin/readlink || -f /bin/readlink ) then
+          if($buildarch == "darwin-x64") then
+             set JAVAC_BIN=`readlink "$JAVAC_BIN"`
+          else
+             set JAVAC_BIN=`readlink -f "$JAVAC_BIN"`
+          endif
+       endif
+   endif
+
+   if ( -e "$JAVAC_BIN" ) then
+      set JAVAV = `$JAVAC_BIN -version |& head -1`
+      set JAVAV = `expr "$JAVAV" : 'javac 1\.\([0-9]\).*'`
+
+      if ( $JAVAV >= 4 ) then
+         setenv JAVA_HOME `expr //$JAVAC_BIN : '//\(.*\)/bin/.*'`
+      endif
+   endif
+endif
+
+# set some variables which are necessary to compile GE for win32 architecture
+#
+# WIN32_VS_BASE:  Base directory of Visual Studio installation
+# WIN32_VS_SDK:   SDK subdirectory within WIN32_VS_BASE
+# WIN32_VS_CORE:  Compiler subdirectory within WIN32_VS_BASE
+switch($buildarch)
+   case "win32-x86":
+#     default path for a default installation
+#      set WIN32_VS_BASE = "C:\Programme\Microsoft Visual Studio .NET 2003"
+      # set WIN32_VS_BASE = "C:\VisualStudio"
+      # set WIN32_VS_I1 = "${WIN32_VS_BASE}\Vc7\include"
+      # set WIN32_VS_I2 = "${WIN32_VS_BASE}\Vc7\PlatformSDK\Include"
+      # set WIN32_VS_I3 = "${WIN32_VS_BASE}\Vc7\atlmfc\include"
+      # set WIN32_VS_L1 = "${WIN32_VS_BASE}\Vc7\Lib"
+      # set WIN32_VS_L2 = "${WIN32_VS_BASE}\Vc7\PlatformSDK\Lib"
+      # set WIN32_VS_L3 = "${WIN32_VS_BASE}\Vc7\atlmfc\lib"
+      set WIN32_VS_BASE = "C:\Program Files (x86)\Microsoft Visual Studio 9.0"
+      set WIN32_VS_I1 = "${WIN32_VS_BASE}\VC\include"
+      set WIN32_VS_L1 = "${WIN32_VS_BASE}\VC\lib"
+      set WIN32_VS_I2 = "C:\Program Files\Microsoft SDKs\Windows\v6.0A\Include"
+      set WIN32_VS_L2 = "C:\Program Files\Microsoft SDKs\Windows\v6.0A\Lib"
+      set WINTEMPDIR  = "C:\\TEMP"
+      set path = ( "/dev/fs/C/Program Files (x86)/Microsoft Visual Studio 9.0/VC/bin" "/dev/fs/C/Program Files (x86)/Microsoft Visual Studio 9.0/Common7/IDE" $path )
+      set OPENSSL_HOME = /usr/local/ssl
+      set SSL_LIB_SUFFIX = /x86
+      breaksw
+endsw
+
+# use MIT Kerberos
+set GSSHEIMDAL = 0
+# These are appropriate for Debian with the krb5-multidev package
+# set SGE_INPUT_CFLAGS = -I/usr/include/mit-krb5
+# set GSSLIBS = -L/usr/lib/mit-krb5
+# or -L/usr/lib/x86_64-linux-gnu/mit-krb5 on multiarch versions
+
+# use Heimdal Kerberos
+# set GSSHEIMDAL = 1
+
+if ( ! $?GSSLIBS ) then
+   set GSSLIBS = ""
+endif
+
+switch($buildarch)
+   case "darwin-x64":
+      set MOTIFHOME = "/opt/local/"
+      breaksw
+   default:
+      breaksw
+endsw
+
+# Prefix for OpenSSH compilation, for tight integration
+set OPENSSH_PREFIX = "/usr/local"

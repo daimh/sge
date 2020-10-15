@@ -1,0 +1,92 @@
+'\"
+.\" Copyright (C), 2010  Dave Love <d.love@liv.ac.uk>
+.\" You may distribute this file under the terms of the GNU Free
+.\" Documentation License.
+.de URL
+\\$2 \(laURL: \\$1 \(ra\\$3
+..
+.if \n[.g] .mso www.tmac
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.\"
+.TH pam_sge_authorize 8 2010-11-25 
+.SH NAME
+pam_sge_authorize \- PAM module to control access to SGE hosts
+.SH SYNOPSIS
+.BR pam_sge_authorize
+.RI [ options ]
+.SH DESCRIPTION
+This PAM module limits access via
+.M ssh 1
+etc. to xxQS_NAMExx hosts only to users who currently have a job running on
+the host.  The expectation is that this limits their impact on any
+other users of the host.
+.\"
+.SH OPTIONS
+.PP
+\fBexecd_spool_dir=\fR\fIdir\fR
+.RS 4
+Specify the spool directory in which to find the 
+.B active_jobs
+directory as
+.IB dir / hostname /active_jobs\fR.
+Default:
+.BR /opt/sge/default/spool .
+.RE
+.PP
+\fBbypass_users=\fR\fB\fIuser_list\fR\fR
+.RS 4
+The module ignores access by users with unames in the comma-separated
+.IR user_list .
+There is a limit of 30 users.  root is always allowed access.
+.RE
+.PP
+\fBmax_sleep=\fR\fB\fImax_sleep\fR\fR
+.RS 4
+A non-zero
+.I max_sleep
+allows desynchronization of accesses to the spool directory.  The
+module sleeps for a random period
+.IR t ,
+where
+.RI 0<= t <= max_sleep
+microseconds before accessing the spool directory.  This probably
+isn't useful.
+Default: 0.
+.RE
+.PP
+\fBdebug\fP
+.RS 4
+Send debugging information to syslog.
+.RE
+.PP
+.\"
+.SH EXAMPLE
+On a typical GNU/Linux system, add something like the following to
+.BR /etc/pam.d/sshd ,
+e.g. at the top.
+.RS 2
+.nf
+
+account required /opt/sge/lib/lx-amd64/pam_sge_authorize.so \\
+  bypass_users=foo,bar,baz,qux spool_dir=/opt/sge/execd_spool
+
+.fi
+.RE
+On some systems it might be necessary to copy pam_sge_authorize.so
+into, say,
+.BR /lib/security ,
+and instead use it as
+.RS 2
+
+auth required pam_sge_authorize.so
+.RE
+.\"
+.SH "SEE ALSO"
+.M ssh 1 ,
+.M pam 7 ,
+.M pam.conf 4 .
+.SH AUTHOR
+TACC.  Man page by Dave Love, based on material from Bill Barth, TACC.

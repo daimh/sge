@@ -1,0 +1,93 @@
+            Compiling PVM programs for Grid Engine Parallel Environment 
+            -----------------------------------------------------------
+
+Content
+-------
+   1) Introduction
+   2) How aimk works
+   3) What "make" creates
+
+1) Introduction
+---------------
+
+The programs:
+    
+   start_pvm
+   stop_pvm
+
+will ususally be called from your start and stop procedure which you
+defined in your Grid Engine/Grid Engine Enterprise Edition parallel
+enviroment. Since PVM programs should be linked with the PVM version which
+is running at your site, you must compile and link
+
+   start_pvm.c
+   stop_pvm.c
+
+before setting up and using a Grid Engine/Grid Engine Enterprise Edition
+parallel environment using PVM.
+
+You should invoke the make procedure by calling the shell script
+
+  aimk
+
+in this directory.
+
+2) How aimk works:
+------------------
+
+'aimk' first checks if the environment variables PVM_ROOT and PVM_ARCH are
+set and point to a directory. Then aimk guesses on which machine type it is
+running and sets the environment variable $ARCH, which has the same value as
+it is used for the Grid Engine/Grid Engine Enterprise Edition binary
+subdirectory (e.g. "solaris" for a Solaris 2.x system).
+
+You can verify this setting by calling aimk with the "no make" option:
+
+   % ./aimk -nomk
+
+This will print the name of the $ARCH variable.
+
+You will have to adjust aimk in most cases for your own needs.  You can
+check what compiler settings are used, when aimk calls make, by checking the
+sections
+
+   "common compiler and linker settings"
+
+at the beginning of aimk and by checking the architecture specific
+sections later in aimk, e.g. "case sol-sparc:" or "case irix65:"
+
+Aimk will then create a subdirectory for the architecture. It will invoke
+make from this subdirectory. Binaries and objects are created in the $ARCH
+subdirectory.
+
+You can call aimk with command line parameters. 
+
+   % ./aimk -help
+
+will show all possible command line parameters. Other command line
+parameters will be passed to make. This makes it possible creating only
+selected targets, e.g.
+
+  % ./aimk start_pvm
+
+will only create "start_pvm".
+ 
+  % ./aimk -n
+
+will pass the "-n" flag to make (which causes make to print the commands
+that would be executed, but does not execute them).
+ 
+
+3) What "make" creates
+----------------------
+
+The default rule of the Makefile creates the binaries:
+
+   start_pvm    (start PVM - only use with startpvm.sh) 
+   stop_pvm     (shutdown pvm - only use with stop_pvm.sh)
+   spmd         (a small sample program from the PVM distribution)
+
+
+If you don't have "libgpvm3", you may delete "spmd" from the "all:" rule in
+the Makefile. "Spmd" is not necessary for setting up the Grid Engine
+parallel environment (PE).

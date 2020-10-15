@@ -1,0 +1,675 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!
+!! the part to : is the key
+!! the part after the : is the translation there are additional font attributes
+!!                      that have to be kept (@fB, @fR, @fI, @f[BIG]) in the
+!!                      translated string as well
+!! the language identifier after _Messages_ is what you would specify in LANG
+!! e.g. for german it is 'de' but this can be changed automatically with 
+!! a script
+!!
+_Messages_.de.@fBAttributes: @fBEigenschaften
+_Messages_.de.@fBType: @fBTyp
+_Messages_.de.@fBAFS Parameters: @fBAFS Parameter
+_Messages_.de.@fBAccess Attributes: @fBZugriffseigenschaften
+_Messages_.de.@fBAccess Lists: @fBZugriffsliste
+_Messages_.de.@fBAdditional Parameters: @fBZusätzliche Parameter
+_Messages_.de.@fBAdministration Host: @fBVerwalterechner
+_Messages_.de.@fBAdvanced Settings: @fBFortgeschrittene Einstellungen
+_Messages_.de.@fBAdvanced: @fBFortgeschritten
+_Messages_.de.@fBAlgorithm: @fBAlgorithmus
+_Messages_.de.@fBAllow Access to: @fBZugriffserlaubnis
+_Messages_.de.@fBAllow Project Access to: @fBProjektzugriffserlaubis
+_Messages_.de.@fBAvailable Access Lists: @fBVerfügbare Berechtigungslisten
+_Messages_.de.@fBAvailable Fields: @fBVerfügbare Felder
+_Messages_.de.@fBAvailable Projects: @fBVerfügbare Projekte
+_Messages_.de.@fBAvailable Queues: @fBVerfügbare Warteschlangen
+_Messages_.de.@fBAvailable Resources: @fBVerfügbare Betriebsmittel
+_Messages_.de.@fBBrowser: @fBBetrachter
+_Messages_.de.@fBCalendar Configuration: @fBKalenderkonfiguration
+_Messages_.de.@fBCalendar Name: @fBKalendername
+_Messages_.de.@fBCalendar: @fBKalender
+_Messages_.de.@fBCheckpoint Configuration: @fBCheckpointkonfiguration
+_Messages_.de.@fBCheckpointing Configuration: @fBCheckpointkonfiguration
+_Messages_.de.@fBCheckpointing: @fBCheckpointing
+_Messages_.de.@fBChosen Access Lists: @fBAusgewählte Berechtigungslisten
+_Messages_.de.@fBChosen Projects: @fBAusgewählte Projekte
+_Messages_.de.@fBChosen Queues: @fBAusgewählte Warteschlangen
+_Messages_.de.@fBCluster Configuration: @fBRechnerverbundkonfiguration
+_Messages_.de.@fBCompact Job Array Display: @fBKompakte Auftragsbereichsanzeige
+_Messages_.de.@fBComplex Configuration: @fBKomplexkonfiguration
+_Messages_.de.@fBComplex Selection: @fBKomplexauswahl
+_Messages_.de.@fBComplexes Configuration: @fBKomplexkonfiguration
+_Messages_.de.@fBComplexes: @fBKomplexe
+_Messages_.de.@fBConfiguration for Host: @fBKonfiguration für Rechner 
+_Messages_.de.@fBConsumables/Fixed Attributes: @fBVerbrauchswerte/Festwerte
+_Messages_.de.@fBControl Slaves: @fBKontrolliere Sklaven
+_Messages_.de.@fBCurrent Active Tickets: @fBAktuell Aktive Anteilsscheine
+_Messages_.de.@fBDecay Time: @fBVerfallszeit
+_Messages_.de.@fBDeny Access to: @fBZugriffsverbot
+_Messages_.de.@fBDeny Project Access to: @fBProjektzugriffsverbot
+_Messages_.de.@fBEdit Tickets: @fBAnteilsscheine editieren
+_Messages_.de.@fBEpilog: @fBAbspann
+_Messages_.de.@fBExample: @fBBeispiel
+_Messages_.de.@fBExecution Host: @fBAusführrechner
+_Messages_.de.@fBExecution Method: @fBAusführmethode
+_Messages_.de.@fBExit: @fBBeenden
+_Messages_.de.@fBFilter Jobs: @fBAuftragsfilter
+_Messages_.de.@fBFilter Queues: @fBWarteschlangenfilter
+_Messages_.de.@fBFilter Resources: @fBBetriebsmittelfilter
+_Messages_.de.@fBFilter by Owner: @fBBesitzerfilter
+_Messages_.de.@fBFinished Jobs: @fBBeendete Aufträge
+_Messages_.de.@fBFunctional Policy: @fBFunktionale Politik
+_Messages_.de.@fBGRD Schedule Interval: @fBGRD Zuordnungsinterval
+_Messages_.de.@fBGeneral Configuration: @fBAllgemeine Konfiguration
+_Messages_.de.@fBGeneral Parameters: @fBAllgemeine Parameter
+_Messages_.de.@fBGeneral Settings: @fBAllgemeine Einstellungen
+_Messages_.de.@fBGeneral: @fBAllgemein
+_Messages_.de.@fBHost Configuration: @fBRechnerkonfiguration
+_Messages_.de.@fBHost: @fBRechner
+_Messages_.de.@fBHosts: @fBRechner
+_Messages_.de.@fBInitial State: @fBAnfangszustand
+_Messages_.de.@fBJob Control: @fBAuftragsüberwachung
+_Messages_.de.@fBJob Scheduling Information: @fBAuftragzuordnungsinformation
+_Messages_.de.@fBJob Submission: @fBAuftragsversand
+_Messages_.de.@fBJob is first task: @fBAuftrag ist erste Aufgabe
+_Messages_.de.@fBJob's Nice: @fBNice des Auftrags
+_Messages_.de.@fBLimits: @fBGrenzwerte
+_Messages_.de.@fBLoad Adjustment: @fBLastanpassung
+_Messages_.de.@fBLoad Formula: @fBLastformel
+_Messages_.de.@fBLoad Scaling: @fBLastskalierung
+_Messages_.de.@fBLoad Thresholds: @fBLastschwellwerte
+_Messages_.de.@fBLoad/Suspend Thresholds: @fBLast-/Anhalteschwellwerte
+_Messages_.de.@fBManager: @fBVerwalter
+_Messages_.de.@fBMax Jobs/Group: @fBMax Aufträge/Gruppe
+_Messages_.de.@fBMax Jobs/User: @fBMax Aufträge/Benutzer
+_Messages_.de.@fBMethod Parameters: @fBMethodenparameter
+_Messages_.de.@fBName of Complex: @fBKomplexname
+_Messages_.de.@fBNode Attributes: @fBKnoteneigenschaften
+_Messages_.de.@fBNode Info: @fBKnoteninformation
+_Messages_.de.@fBNotify Time: @fBBenachrichtigungszeit
+_Messages_.de.@fBObjects: @fBObjekte
+_Messages_.de.@fBOperations: @fBMassnahmen
+_Messages_.de.@fBOperator: @fBDurchführer
+_Messages_.de.@fBOverride Policy: @fBÜberrunde Politik
+_Messages_.de.@fBOwner List: @fBBesitzerliste
+_Messages_.de.@fBOwners: @fBBesitzer
+_Messages_.de.@fBParallel Environment Configuration: @fBParallelumgebungskonfiguration
+_Messages_.de.@fBPending Jobs: @fBWartende Aufträge
+_Messages_.de.@fBPolicy: @fBPolitik
+_Messages_.de.@fBProcessors: @fBProzessoren
+_Messages_.de.@fBProject Access: @fBProjektzugriff
+_Messages_.de.@fBProject Configuration: @fBProjektkonfiguration
+_Messages_.de.@fBProjects: @fBProjekte
+_Messages_.de.@fBProlog: @fBVorspann
+_Messages_.de.@fBQueue Configuration: @fBWarteschlangenkonfiguration
+_Messages_.de.@fBQueue Control: @fBWarteschlangenüberwachung
+_Messages_.de.@fBRequested Resources: @fBAngeforderte Betriebsmittel
+_Messages_.de.@fBRerun Jobs: @fBAuftragsneustart
+_Messages_.de.@fBResume Method: @fBWiederaufnahmemethode
+_Messages_.de.@fBRunning Jobs: @fBLaufende Aufträge
+_Messages_.de.@fBScaling: @fBSkalierung
+_Messages_.de.@fBSchedule Interval: @fBZuordnungszeitspanne
+_Messages_.de.@fBScheduler Configuration: @fBZuordnungskonfiguration
+_Messages_.de.@fBSelect Job Fields: @fBAuftragsfelder auswählen
+_Messages_.de.@fBSelected Fields: @fBAusgewählte Felder
+_Messages_.de.@fBSequence Nr: @fBFolgenummer
+_Messages_.de.@fBSet Hold: @fBHaltepunkt setzen
+_Messages_.de.@fBShare Tree Policy Parameters: @fBAnteilsscheinbaumpolitikparameter
+_Messages_.de.@fBShare Tree Policy: @fBAnteilsscheinbaumpolitik 
+_Messages_.de.@fBShell Start Mode: @fBShell Startmodus
+_Messages_.de.@fBShell: @fBShell
+_Messages_.de.@fBSlots: @fBSchlitze
+_Messages_.de.@fBStarter Method: @fBStartmethode
+_Messages_.de.@fBSubmit Host: @fBVersenderechner
+_Messages_.de.@fBSubordinates: @fBUnterlinge
+_Messages_.de.@fBSuspend Method: @fBAnhaltemethode
+_Messages_.de.@fBSuspend Thresholds: @fBAnhalteschwellwerte
+_Messages_.de.@fBTerminate Method: @fBBeendemethode
+_Messages_.de.@fBTicket Configuration: @fBAnteilsscheinkonfiguration
+_Messages_.de.@fBTicket Overview: @fBAnteilsscheinübersicht
+_Messages_.de.@fBUsage Scaling: @fBVerbrauchsskalierung
+_Messages_.de.@fBUser Access: @fBBenutzerzugriff
+_Messages_.de.@fBUser Configuration: @fBBenutzerkonfiguration
+_Messages_.de.@fBUser: @fBBenutzer
+_Messages_.de.@fBUserset: @fBBenutzermenge
+_Messages_.de.@fBtmp Directory: @fBtmp Verzeichnis
+_Messages_.de.@fIDeadline Initiation Tickets: @fIStichterminbeginnanteilsscheine
+_Messages_.de.@fIFunctional Tickets: @fIFuntionalanteilsscheine
+_Messages_.de.@fIJobs suspended per interval: @fIIm Zeitraum angehaltene Aufträge
+_Messages_.de.@fIMaximum Deadline Initiation Tickets: @fIMaximale Anzahl von Stichterminbeginnanteilsscheinen 
+_Messages_.de.@fIOverride Tickets: @fIÜberrundeanteilsscheine
+_Messages_.de.@fIShare Tree Tickets: @fIAnteilsbaumanteilsscheine
+_Messages_.de.@fISuspend interval: @fIAnhaltezeitraum
+_Messages_.de.@fITotal Functional Tickets: @fIGesamtanzahl an Funktionalanteilsscheinen
+_Messages_.de.@fITotal Share Tree Tickets: @fIGesamtanzahl an Anteilsbaumanteilsscheinen
+_Messages_.de.@f[BIG]Job Control: @f[BIG]Auftragsüberwachung 
+_Messages_.de.@f[BIG]Job Submission: @f[BIG]Auftragsversand
+_Messages_.de.@f[BIG]Message: @f[BIG]Meldung
+_Messages_.de.@f[BIG]Object Browser: @f[BIG]Objektbetrachter
+_Messages_.de.@f[BIG]Queue Control: @f[BIG]Warteschlangenüberwachung
+_Messages_.de.APPLICATION-LEVEL: ANWENDUNGS-EBENE
+_Messages_.de.Abort of Job: Auftragsabbruch
+_Messages_.de.About: Über Qmon
+_Messages_.de.Access List: Berechtigungsliste
+_Messages_.de.Access Lists: Berechtigungslisten
+_Messages_.de.Account: Konto
+_Messages_.de.AccountString: Kontierungsmarke
+_Messages_.de.Actual Resource Share: Aktueller Betriebsmittelanteil
+_Messages_.de.Add Leaf: Blatt hinzufügen
+_Messages_.de.Add Node: Knoten hinzufügen
+_Messages_.de.Add/Modify Calendar: Kalender hinzufügen/ändern
+_Messages_.de.Add/Modify Exec Host: Ausführrechner hinzufügen/ändern 
+_Messages_.de.Add/Modify Project: Projekt hinzufügen/ändern 
+_Messages_.de.Add: Hinzufügen
+_Messages_.de.Admin Mail: Verwalteranschrift
+_Messages_.de.Admin User: Verwalter
+_Messages_.de.Algorithm required!: Algorithmus erforderlich !
+_Messages_.de.Allocation Rule: Bereitstellungsregel
+_Messages_.de.Allow Access: Zugriffserlaubnis
+_Messages_.de.Apply: Anwenden
+_Messages_.de.Attached Complexes: Hinzugefügte Komplexe
+_Messages_.de.Attribute: Eigenschaft
+_Messages_.de.Attributes for queue %s: Eigenschaften für Warteschlange %s
+_Messages_.de.Attributes: Eigenschaften
+_Messages_.de.Available Calendars: Verfügbare Kalender
+_Messages_.de.Available Complexes: Verfügbare Komplexe 
+_Messages_.de.Available Parallel Environments: Verfügbare Parallelumgebungen
+_Messages_.de.Available Queues: Verfügbare Warteschlangen
+_Messages_.de.Available Resources: Verfügbare Betriebsmittel
+_Messages_.de.Available attributes: Verfügbare Eigenschaften
+_Messages_.de.Available checkpoint objects: Verfügbare Checkpoint Objekte
+_Messages_.de.Available projects: Verfügbare Projekte
+_Messages_.de.BOOL: WAHRHEITSWERT
+_Messages_.de.Batch: Stapelbetrieb
+_Messages_.de.Binary Path: Programmpfad
+_Messages_.de.Browser Dialog: Betrachter Dialog
+_Messages_.de.Byte: Byte
+_Messages_.de.CPR: CPR
+_Messages_.de.CPU [%]: CPU [%]
+_Messages_.de.CPU: CPU
+_Messages_.de.CSTRING: ZEICHENKETTE (ohne Gross/Kleinschreibung)
+_Messages_.de.CWD: Aktuelles Verzeichnis
+_Messages_.de.Calendar Configuration: Kalenderkonfiguration
+_Messages_.de.Calendars: Kalender
+_Messages_.de.Can't copy the whole tree !: Kann den gesamten Baum nicht kopieren !
+_Messages_.de.Can't cut the whole tree !: Kann den gesamten Baum nicht ausschneiden !
+_Messages_.de.Cancel: Verwerfen
+_Messages_.de.Cannot start editor !: Kann den Editor nicht starten !
+_Messages_.de.Category: Kategorie
+_Messages_.de.Cell: Zelle
+_Messages_.de.Change Checkpoint Object: Ändere Checkpoint Objekt
+_Messages_.de.Change global configuration: Globale Konfiguration ändern
+_Messages_.de.Checkpoint Command: Checkpointkommando
+_Messages_.de.Checkpoint Object: Checkpoint Objekt
+_Messages_.de.Checkpoint Objects: Checkpoint Objekte
+_Messages_.de.Checkpoint Signal: Checkpointsignal
+_Messages_.de.Checkpoint When: Checkpointzeitpunkt
+_Messages_.de.Checkpointing Configuration: Checkpoint Konfiguration
+_Messages_.de.Checkpointing Directory: Checkpoint Verzeichnis
+_Messages_.de.Checkpointing: Checkpointing
+_Messages_.de.Choose a script first !: Wählen Sie zuerst ein Skript !
+_Messages_.de.Clean Command: Aufräumkommando 
+_Messages_.de.Clear Error: Fehler zurücksetzen
+_Messages_.de.Clear: Löschen
+_Messages_.de.Click TRUE or FALSE: Wählen Sie Wahr oder Falsch
+_Messages_.de.Clone: Vervielfältigen
+_Messages_.de.Cluster Configuration: Rechnerverbundkonfiguration
+_Messages_.de.Cluster Settings: Rechnerverbundeinstellungen
+_Messages_.de.Combined Usage: Kombinierter Verbrauch
+_Messages_.de.Compensation Factor: Ausgleichsmaßzahl
+_Messages_.de.Complex Configuration: Komplexkonfiguration
+_Messages_.de.Complexes: Komplexe
+_Messages_.de.Configuration: Konfiguration
+_Messages_.de.Consumable: Verbrauchbar
+_Messages_.de.Context Help: Kontexthilfe
+_Messages_.de.Context Variable List: Kontextvariablenliste
+_Messages_.de.Context for Job: Auftragskontext
+_Messages_.de.Context: Kontext
+_Messages_.de.Copy: Kopieren
+_Messages_.de.Credit Formula required!: Kreditformel erforderlich !
+_Messages_.de.Current Working Directory: Aktuelles Verzeichnis
+_Messages_.de.Customize: Anpassen
+_Messages_.de.Cut: Ausschneiden
+_Messages_.de.DOUBLE: FLIESSKOMMAZAHL
+_Messages_.de.DTicket: DTicket
+_Messages_.de.Day: Tag
+_Messages_.de.Days: Tage
+_Messages_.de.Deadline: Stichtermin
+_Messages_.de.Default: Standard
+_Messages_.de.Delete: Löschen
+_Messages_.de.Deny Access: Zugriffsverbot
+_Messages_.de.Department [%]: Abteilung [%]
+_Messages_.de.Department: Abteilung
+_Messages_.de.Disable: Abschalten
+_Messages_.de.pe.askdel: Wollen Sie die markierte Parallelumgebungskonfiguration wirklich loeschen ?
+_Messages_.de.project.askdel: Wollen Sie die markierte Projektkonfiguration wirklich loeschen ?
+_Messages_.de.userset.askdel: Wollen Sie die markierte Benutzermenge wirklich loeschen ?
+_Messages_.de.queue.askdel: Wollen Sie die markierten Warteschlangen wirklich loeschen ?
+_Messages_.de.stree.asksave: Wollen Sie Ihre Änderungen speichern ?
+_Messages_.de.ticket.asksave: Wollen Sie Ihre Änderungen speichern ?
+_Messages_.de.Done: Erledigt
+_Messages_.de.Double click on values to change limits: Doppelklicken, um die Grenzwerte zu ändern
+_Messages_.de.Edit: Editieren
+_Messages_.de.Enable: Einschalten
+_Messages_.de.End of Job: Auftragsende
+_Messages_.de.Enforce Project: Erzwinge Projekt
+_Messages_.de.Enter Owner: Besitzer eingeben
+_Messages_.de.Enter a memory value: Speicherwert eingeben
+_Messages_.de.Enter a new priority for the selected jobs: Neue Priorität für markierte Aufträge eingeben
+_Messages_.de.Enter a string value: Bezeichner eingeben
+_Messages_.de.Enter a time value: Zeit eingeben
+_Messages_.de.Enter a uppercase string value: Großbuchstabenbezeichner eingeben
+_Messages_.de.Enter a valid hostname: Gültigen Rechnernamen eingeben
+_Messages_.de.Enter an integer value: Ganzzahl eingeben
+_Messages_.de.Enter item name: Bezeichner eingeben
+_Messages_.de.submit.askdeadlinetime:  Stichtermin im folgenden Format eingeben: [[CC]]YY]MMDDhhmm.[ss]\noder aktuelle Zeit belassen und 'Erledigt' wählen
+_Messages_.de.submit.asksubmittime:  Versandzeit im folgenden Format eingeben: [[CC]]YY]MMDDhhmm.[ss]\noder aktuelle Zeit belassen und 'Erledigt' wählen
+_Messages_.de.Enter time: Zeitwert eingeben
+_Messages_.de.Environment Variable List: Umgebungsvariablenliste
+_Messages_.de.Environment for Job: Auftragsumgebung
+_Messages_.de.Environment: Umgebung
+_Messages_.de.Epilog: Abspann
+_Messages_.de.Error: Fehler
+_Messages_.de.Execd Parameters: Ausführer Parameter
+_Messages_.de.Execd Spool Dir: Ausführdämonspulverzeichnis
+_Messages_.de.Exit: Beenden
+_Messages_.de.FORCED: ERZWUNGEN
+_Messages_.de.FTicket: FTicket
+_Messages_.de.False: Falsch
+_Messages_.de.File Selection: Dateiauswahl
+_Messages_.de.File: Datei
+_Messages_.de.Find Next: Nächsten finden
+_Messages_.de.Find: Finden
+_Messages_.de.Finished Jobs: Beendete Aufträge
+_Messages_.de.Force: Erzwingen
+_Messages_.de.GByte (1024x1024x1024): GByte (1024x1024x1024)
+_Messages_.de.GID Range for Job Monitoring: GID Bereich für Auftragsverfolgung
+_Messages_.de.@fBAutomatic User Defaults: xxxxxxxxxxxxxxxxxxxxxx
+_Messages_.de.Override Tickets: xxxxxxxxxxxxxxxxxxxxxx
+_Messages_.de.Functional Shares: xxxxxxxxxxxxxxxxxxxxxx
+_Messages_.de.Default Project: xxxxxxxxxxxxxxxxxxxxxx
+_Messages_.de.Delete Time: xxxxxxxxxxxxxxxxxxxxxx
+_Messages_.de.GRD Schedule Interval required!: GRD Zuordnungszeitraum erforderlich !
+_Messages_.de.Get Environment: Umgebung laden
+_Messages_.de.Get Queue Attributes from: Warteschlangeneigenschaften übernehmen von
+_Messages_.de.Get Queue: Warteschlange anfordern
+_Messages_.de.Get calendar: Kalendar anfordern
+_Messages_.de.HIBERNATOR: HIBERNATOR
+_Messages_.de.HOST: RECHNER
+_Messages_.de.Halflife: Halbwertszeit
+_Messages_.de.Hard Limit: Harter Grenzwert
+_Messages_.de.Hard Queue List: Warteschlangenanforderungsliste
+_Messages_.de.Hard Request: Harte Anforderung
+_Messages_.de.Hard Resources: Harte Betriebsmittel
+_Messages_.de.Help Index: Hilfeindex
+_Messages_.de.Help: Hilfe
+_Messages_.de.Hold Job: Auftrag anhalten
+_Messages_.de.Hold: Halt
+_Messages_.de.Host Configuration: Rechnerkonfiguration
+_Messages_.de.Host: Rechner
+_Messages_.de.Hostname: Rechnername
+_Messages_.de.Hour: Stunde
+_Messages_.de.Hours: Stunden
+_Messages_.de.I/O [%]: I/O [%]
+_Messages_.de.INFINITY: UNENDLICH
+_Messages_.de.INT: GANZZAHL
+_Messages_.de.IO: IO 
+_Messages_.de.Id: Id
+_Messages_.de.Identifier: Identifizierer
+_Messages_.de.qaction.max_slots: Wenn 'Max Schlitze' in der aktuellen Warteschlange gefuellt sind,\nwerden die Warteschlangen in Spalte eins angehalten.
+_Messages_.de.Infinity: Unendlich
+_Messages_.de.Interactive: Interaktiv
+_Messages_.de.Interface: Schnittstelle
+_Messages_.de.J O B   C U S T O M I Z E: A U F T R A G S A N P A S S U N G
+_Messages_.de.Job Args: Auftragsargumente
+_Messages_.de.Job Class [%]: Auftragsklasse [%]
+_Messages_.de.Job Control: Auftragsüberwachung
+_Messages_.de.Job Dependencies: Auftragsabhängigkeiten
+_Messages_.de.Hold Array Dependencies: Haltepunkt Kompakte Auftragsabhängigkeiten
+_Messages_.de.Job Name must not contain / !: Auftragsname darf / nicht enthalten !
+_Messages_.de.Job Name: Auftragsname
+_Messages_.de.Job Range required!: Auftragsbereich erforderlich!
+_Messages_.de.Job Range: Auftragsbereich
+_Messages_.de.Job Script: Auftragsskript
+_Messages_.de.Job Submit: Auftragsversand
+_Messages_.de.Job Tasks: Auftragsaufgaben
+_Messages_.de.Job [%]: Auftrag [%]
+_Messages_.de.Job: Auftrag
+_Messages_.de.JobArgs: Auftragsargumente
+_Messages_.de.JobId: Auftragsnummer
+_Messages_.de.JobName: Auftragsname
+_Messages_.de.Jobclass: Auftragsklasse
+_Messages_.de.Just verify: Nur prüfen
+_Messages_.de.KByte (1024): KByte (1024)
+_Messages_.de.Key\:: Schlüssel\:
+_Messages_.de.Level Percentage: Ebenenprozente
+_Messages_.de.Load Adjustment Decay Time required!: Lastanpassungsverfallszeit erforderlich!
+_Messages_.de.Load Formula required!: Lastformel erforderlich!
+_Messages_.de.Load Sensor: Lastfühler
+_Messages_.de.Load Settings: Einstellungen laden
+_Messages_.de.Load(scaled)/Consumable: Last(skaliert)/Verbrauchswert
+_Messages_.de.Load: Last
+_Messages_.de.Loadreport Time: Lastberichtzeit
+_Messages_.de.Log Level: Protokollierstufe
+_Messages_.de.Login Shells: Login Shells
+_Messages_.de.MByte (1024x1024): MByte (1024x1024)
+_Messages_.de.MEM [%]: MEM [%]
+_Messages_.de.MEM: MEM 
+_Messages_.de.MEMORY: SPEICHER
+_Messages_.de.Mail To: Post an 
+_Messages_.de.Mail address: Anschrift
+_Messages_.de.Mail: Post 
+_Messages_.de.MailOptions: PostOptionen
+_Messages_.de.MailTo: PostAn 
+_Messages_.de.Mailer: Postler
+_Messages_.de.Master Parameters: Meister Parameter
+_Messages_.de.Master Queue List: Meister Warteschlangenliste
+_Messages_.de.Master Spool Dir: Meisterspulverzeichnis
+_Messages_.de.Max Slots: Max. Schlitze
+_Messages_.de.Max Unheard: Max. Schweigezeit
+_Messages_.de.MaxMigrTime: MaxMigrTime
+_Messages_.de.MaxNoMigr: MaxNoMigr
+_Messages_.de.Merge Output: Ausgabe mischen 
+_Messages_.de.MergeOutput: Ausgabe mischen 
+_Messages_.de.Messages: Meldungen 
+_Messages_.de.Migration Command: Migrationskommando
+_Messages_.de.Migration Load Thresholds: 
+_Messages_.de.Min GID: Min GID
+_Messages_.de.Min UID: Min UID
+_Messages_.de.MinCpuTime: MinCpuTime 
+_Messages_.de.Minute: Minute
+_Messages_.de.Modify: Ändern
+_Messages_.de.NO: NEIN
+_Messages_.de.Name: Name
+_Messages_.de.Netscape Help: Netscape Hilfe
+_Messages_.de.No Job Name specified !: Kein Auftragsname angegeben !
+_Messages_.de.No Restart: Kein Neustart
+_Messages_.de.No calendars to select: Keine Kalender zur Auswahl
+_Messages_.de.No load attributes available: Keine Lastwerte verfügbar
+_Messages_.de.No queues to clone: Keine Warteschlangen zum Vervielfältigen
+_Messages_.de.No queues to select: Keine Warteschlangen zur Auswahl
+_Messages_.de.No valid Queue name specified\n: Kein gültiger Warteschlangenname !
+_Messages_.de.No valid filename specified !: Kein gültiger Dateiname !
+_Messages_.de.No valid time format: Kein gültiges Zeitformat
+_Messages_.de.No: Nein
+_Messages_.de.Notify Job: Auftrag benachrichtigen
+_Messages_.de.Notify: Benachrichtigung
+_Messages_.de.OTicket: OTicket
+_Messages_.de.Ok: In Ordnung
+_Messages_.de.On Job Suspend: Bei Auftragssuspendierung
+_Messages_.de.On Min CPU Interval: Bei Min CPU Interval
+_Messages_.de.On Shutdown of Execd: Bei Herunterfahren des Execd
+_Messages_.de.Operator: Adjutant
+_Messages_.de.Owner: Besitzer
+_Messages_.de.OverrideTickets: Überrundeanteilsscheine
+_Messages_.de.PE Configuration: PE Konfiguration
+_Messages_.de.PE List: PE Liste
+_Messages_.de.PE name required !: PE Name erforderlich !
+_Messages_.de.PE: PE
+_Messages_.de.PERange: PEBereich
+_Messages_.de.Parallel Environment: Parallelumgebung
+_Messages_.de.Parallel: Parallel
+_Messages_.de.Paste: Einfügen
+_Messages_.de.Path: Pfad
+_Messages_.de.Percentage: Prozente
+_Messages_.de.Please configure a checkpoint object first !: Bitte konfigurieren Sie zuerst ein Checkpointobjekt !
+_Messages_.de.Please configure a Parallel Environment first !: Bitte konfigurieren Sie zuerst eine Parallelumgebung !
+_Messages_.de.Please type or select a filename: Geben Sie einen Dateinamen ein oder wählen Sie einen
+_Messages_.de.Predecessors: Vorgänger
+_Messages_.de.Prefix: Prefix
+_Messages_.de.Priority: Priorität 
+_Messages_.de.Project Configuration: Projektkonfiguration
+_Messages_.de.Project Share Tree: Projektanteilsscheinbaum
+_Messages_.de.Project [%]: Projekt [%]
+_Messages_.de.Project name required !: Projektname erforderlich !
+_Messages_.de.Project: Projekt
+_Messages_.de.Projects: Projekte
+_Messages_.de.Prolog: Vorspann
+_Messages_.de.Q U E U E   C U S T O M I Z E: W A R T E S C H L A N G E N A N P A S S U N G
+_Messages_.de.QMON  +++  Calendar Configuration: QMON  +++  Kalenderkonfiguration
+_Messages_.de.QMON  +++  Checkpointing Configuration: QMON  +++  Checkpointkonfiguration
+_Messages_.de.QMON  +++  Cluster Configuration: QMON  +++  Rechnerverbundkonfiguration
+_Messages_.de.QMON  +++  Host Configuration: QMON  +++  Rechnerkonfiguration
+_Messages_.de.QMON  +++  Parallel Environment Configuration: QMON  +++  Parallelumgebungskonfiguration
+_Messages_.de.QMON  +++  User Configuration: QMON  +++  Benutzerkonfiguration
+_Messages_.de.QMON +++ About: QMON +++ Über Qmon
+_Messages_.de.QMON +++ Main Control: QMON +++ Kontrollzentrum
+_Messages_.de.QMON +++ Admin Host Configuration: QMON +++ Verwalterechnerkonfiguration
+_Messages_.de.QMON +++ Attributes for queue: QMON  +++  Warteschlangeneigenschaften
+_Messages_.de.QMON +++ Browser: QMON +++ Objektbetrachter
+_Messages_.de.QMON +++ Complex Add/Modify: QMON +++ Komplex hinzufügen/ändern
+_Messages_.de.QMON +++ Complex Configuration: QMON +++ Komplexkonfiguration
+_Messages_.de.QMON +++ Execution Host Configuration: QMON +++ Ausführrechnerkonfiguration
+_Messages_.de.QMON +++ Functional Policy: QMON +++ Funktionale Politik
+_Messages_.de.QMON +++ Job Control: QMON +++ Auftragsüberwachung
+_Messages_.de.QMON +++ Job Submission: QMON +++ Auftragsversand
+_Messages_.de.QMON +++ Manager Configuration: QMON +++ Verwalterkonfiguration
+_Messages_.de.QMON +++ Message: QMON +++ Meldung
+_Messages_.de.QMON +++ Operator Configuration: QMON +++ Adjutantenkonfiguration
+_Messages_.de.QMON +++ Override Policy: QMON +++ Überrunde Politik
+_Messages_.de.QMON +++ Project Configuration: QMON +++ Projektkonfiguration
+_Messages_.de.QMON +++ Queue Configuration: QMON +++ Warteschlangenkonfiguration
+_Messages_.de.QMON +++ Queue Control: QMON +++ Warteschlangenüberwachung
+_Messages_.de.QMON +++ Scheduler Configuration: QMON +++ Zuordnerkonfiguration
+_Messages_.de.QMON +++ Share Tree Policy: QMON +++ Anteilsbaumpolitik
+_Messages_.de.QMON +++ Submit Host Configuration: QMON +++ Versenderechnerkonfiguration
+_Messages_.de.QMON +++ Ticket Overview: QMON +++ Anteilsscheinübersicht
+_Messages_.de.QMON +++ User Configuration: QMON +++ Benutzerkonfiguration
+_Messages_.de.QMON +++ Userset Configuration: QMON +++ Benutzermengenkonfiguration
+_Messages_.de.QMON: QMON
+_Messages_.de.QSI Common Dir: QSI Verzeichnis
+_Messages_.de.Qalter: Auftrag ändern
+_Messages_.de.Qlogin Command: Qlogin Kommando
+_Messages_.de.Qlogin Daemon: Qlogin Dämon
+_Messages_.de.Question: Frage
+_Messages_.de.Queue Control: Warteschlangenüberwachung
+_Messages_.de.Queue List: Warteschlangenliste
+_Messages_.de.Queue: Warteschlange
+_Messages_.de.Refresh: Abgleichen
+_Messages_.de.Relation: Beziehung
+_Messages_.de.Reload: Erneut laden
+_Messages_.de.Remove Lines: Zeilen entfernen
+_Messages_.de.Request Resources: Betriebsmittel anfordern
+_Messages_.de.Request for serial job: Anforderung für seriellen Auftrag
+_Messages_.de.Requestable: Anforderbar
+_Messages_.de.Reset: Zuruecksetzen
+_Messages_.de.Restart Command: Restartkommando
+_Messages_.de.Restart Job: Auftragsneustart
+_Messages_.de.Restart depends on Queue: Warteschlangenabhängiger Neustart
+_Messages_.de.Restart: Neustart
+_Messages_.de.Resume Method: Wiederaufnahmemethode
+_Messages_.de.Resume: Wiederaufnehmen
+_Messages_.de.STRING: ZEICHENKETTE
+_Messages_.de.STicket: STicket
+_Messages_.de.Save Settings: Einstellungen speichern 
+_Messages_.de.Save: Speichern
+_Messages_.de.Saving of job attributes failed!: Speichern der Auftragseigenschaften schlug fehl!
+_Messages_.de.Scale Factor: Skalierungsmaßzahl
+_Messages_.de.Schedd Parameters: Zuordnungsparameter
+_Messages_.de.Schedule Interval required!: Zuordnungszeitraum erforderlich!
+_Messages_.de.ScheduleTime: Zuordnungszeit
+_Messages_.de.Scheduler Configuration: Zuordnerkonfiguration
+_Messages_.de.Script: Skript
+_Messages_.de.Second: Sekunde
+_Messages_.de.Select Access Lists: Berechtigungslisten wählen
+_Messages_.de.Select Project: Projekt wählen
+_Messages_.de.Select Queues: Warteschlangen wählen
+_Messages_.de.Select a Parallel Environment: Parallelumgebung wählen
+_Messages_.de.Select a checkpoint object: Checkpointobjekt wählen
+_Messages_.de.Select a load parameter: Lastparameter wählen
+_Messages_.de.Select a project: Projekt wählen
+_Messages_.de.Select a File: Datei waehlen
+_Messages_.de.Select one job for Qalter !: Einen Auftrag für 'Auftrag ändern' wählen!
+_Messages_.de.Select one pending job for Qalter !: Einen wartenden Auftrag für 'Auftrag ändern' wählen!
+_Messages_.de.Select only one queue !: Nur eine Warteschlange wählen !
+_Messages_.de.Select only one project !: Nur ein Projekt wählen !
+_Messages_.de.Send mail to mail address: Post an Postadresse senden
+_Messages_.de.Share: Anteil
+_Messages_.de.Shares: Anteile
+_Messages_.de.Shell Start Mode: Shell Startmodus
+_Messages_.de.Shell on host: Shell auf Rechner
+_Messages_.de.Shell: Shell
+_Messages_.de.Shepherd Command: Aufpasser Parameter
+_Messages_.de.Shortcut: Kürzel
+_Messages_.de.Show Details ...: Details anzeigen ...
+_Messages_.de.Shutdown: Herunterfahren
+_Messages_.de.Skip: Überspringen
+_Messages_.de.Slot-Limits/Fixed Attributes: Schlitzgrenzwerte/Festwerteigenschaften
+_Messages_.de.Slots: Schlitze
+_Messages_.de.Soft Limit: Weiche Grenzwerte
+_Messages_.de.Soft Queue List: Weiche Warteschlangenanforderungsliste
+_Messages_.de.Soft Request: Weiche Anforderung
+_Messages_.de.Soft Resources: Weiche Betriebsmittel
+_Messages_.de.Sort by load: Nach Last sortieren
+_Messages_.de.Sort by sequence number: Nach Folgenummer sortieren 
+_Messages_.de.Start At: Starten um
+_Messages_.de.Start Job Immediately: Auftrag sofort starten
+_Messages_.de.Start Proc Args: Startprozedurargumente
+_Messages_.de.Start of Job: Auftragsstart
+_Messages_.de.StartTime: Startzeit
+_Messages_.de.Starter Method: Startmethode
+_Messages_.de.Stat Log Time: Statprotokollierzeit
+_Messages_.de.Status: Zustand
+_Messages_.de.Stderr Path List: Standardfehlerpfadliste
+_Messages_.de.StderrPaths: Standardfehlerpfade
+_Messages_.de.Stdout Path List: Standardausgabepfadliste
+_Messages_.de.StdoutPaths: Standardausgabepfade
+_Messages_.de.Stop Proc Args: Stopprozedurargumente
+_Messages_.de.Submit Job: Auftarg versenden
+_Messages_.de.Submit: Versenden
+_Messages_.de.SubmitTime: Versnadzeit
+_Messages_.de.Sum: Summe
+_Messages_.de.Suspend Method: Suspendiermethode
+_Messages_.de.Suspend of Job: Auftragshalt
+_Messages_.de.Suspend: Anhalten
+_Messages_.de.System: System
+_Messages_.de.TIME: ZEIT
+_Messages_.de.TRANSPARENT: TRANSPARENT
+_Messages_.de.Targeted Resource Share: Angestrebter Betriebsmittelanteil
+_Messages_.de.Task: Aufgabe
+_Messages_.de.TaskId(s): Aufgabenkennung(en)
+_Messages_.de.Terminate Method: Beendemethode
+_Messages_.de.There are no jobs selected !: Es sind keine Aufträge gewählt !
+_Messages_.de.Ticket Overview: Anteilsscheinübersicht
+_Messages_.de.Ticket: Anteilsschein
+_Messages_.de.Tickets: Anteilsscheine 
+_Messages_.de.To modify a queue select this queue !: Um eine Warteschlange zu ändern, wählen Sie diese !
+_Messages_.de.To modify a project select this project !: Um ein Projekt zu ändern, wählen Sie dieses !
+_Messages_.de.Total Percentage: Gesamtprozente
+_Messages_.de.Transfer QS Arguments: Transfer QS Argumente
+_Messages_.de.Transfer: Transfer
+_Messages_.de.True: Wahr
+_Messages_.de.Type: Typ
+_Messages_.de.USERDEFINED: BENUTZERDEFINIERT
+_Messages_.de.Usage: Verbrauch
+_Messages_.de.User Configuration: Benutzerkonfiguration
+_Messages_.de.User Lists: Benutzerliste
+_Messages_.de.User Share Tree: Benutzeranteilsscheinbaum
+_Messages_.de.User [%]: Benutzer [%]
+_Messages_.de.User/Group: Benutzer/Gruppe
+_Messages_.de.User: Benutzer
+_Messages_.de.Users/Groups: Benutzer/Gruppen
+_Messages_.de.Userset Name: Benutzermengenname 
+_Messages_.de.Usersets: Benutzermengen
+_Messages_.de.Value: Wert
+_Messages_.de.Variable: Variable
+_Messages_.de.Verify Mode: Prüfmodus
+_Messages_.de.Warning: Warnung
+_Messages_.de.Week: Woche
+_Messages_.de.Why ?: Warum ?
+_Messages_.de.XProjects: Nichtprojekte
+_Messages_.de.Xterm: XTerminal 
+_Messages_.de.Xuser Lists: Nichtbenutzerliste
+_Messages_.de.YES: JA
+_Messages_.de.Year: Jahr
+_Messages_.de.Yes: Ja
+_Messages_.de._Delete: _Löschen
+_Messages_.de.calendar.askdel: Wollen Sie wirklich die markierten Kalenderkonfigurationen löschen ?
+_Messages_.de.calendar.year_example: Jahr\n1.1.1997,30.3.1997-31.3.1997,26.12.1997[=suspended]
+_Messages_.de.calendar.week_example: Woche\nmon-fri=20-6[=suspended] sat-sun[=suspended]
+_Messages_.de.ckpt.askdel: Wollen Sie wirklich die markierten Checkpoint Konfigurationen löschen ?
+_Messages_.de.cluster.askdel: Wollen Sie die markierte Rechnerverbundkonfiguration wirklich löschen ?
+_Messages_.de.cplx.Load: Laden
+_Messages_.de.cplx.askdel: Wollen Sie die makierten Komplexe wirklich löschen ?
+_Messages_.de.default: standard
+_Messages_.de.disabled: ausgeschaltet
+_Messages_.de.enabled: eingeschaltet
+_Messages_.de.fticket.functional: Funktionale\nAnteile
+_Messages_.de.fticket.load: Laden
+_Messages_.de.fticket.ratio: @fBVerhältnis zwischen Arten\nFunctionaler Anteilsscheine
+_Messages_.de.gByte (1000x1000x1000): gByte (1000x1000x1000)
+_Messages_.de.kByte (1000): kByte (1000)
+_Messages_.de.log_err: Protokollstufe Fehler
+_Messages_.de.log_info: Protokollstufe Info
+_Messages_.de.log_warning: Protokollstufe Warnung 
+_Messages_.de.mByte (1000x1000): mByte (1000x1000)
+_Messages_.de.oticket.load: Laden
+_Messages_.de.pag command: pag Kommando
+_Messages_.de.posix_compliant: Posixkonform
+_Messages_.de.script_from_stdin: Skript von der Standardeingabe
+_Messages_.de.set_token command: set_token Kommando
+_Messages_.de.stderr: Standardfehlerausgabe
+_Messages_.de.stdout: Standardausgabe
+_Messages_.de.token_extend_time: Token Verlängerungszeit
+_Messages_.de.tov.deadline: Benutzer mit\nErlaubnis fuer\nStichterminauftraege
+_Messages_.de.tov.functional: Funktionale\nPolitik
+_Messages_.de.tov.override: Ueberrunde\nPolitik
+_Messages_.de.tov.sharetree: Anteilsbaum\nPolitik
+_Messages_.de.unix_behavior: Unix Verhalten
+_Messages_.de.rsh Daemon: rsh Dämon
+_Messages_.de.rsh Command: rsh Kommando
+_Messages_.de.rlogin Daemon: rlogin Dämon
+_Messages_.de.rlogin Command: rlogin Kommando
+_Messages_.de.@fBInteractive Parameters: @fBInteraktive Parameter
+_Messages_.de.XmtDisplayMessage.warningTitle: Warnung
+_Messages_.de.XmtDisplayMessage.errorTitle: Fehler
+_Messages_.de.XmtDisplayMessage.messageTitle: Meldung
+_Messages_.de.XmtDisplayMessage.helpTitle: Hilfe
+_Messages_.de.qmon_fticket.Sum: Summe
+_Messages_.de.qmon_usage.usageTitle: Kommandozeile: qmon\n
+_Messages_.de.qmon_usage.cmapOption: eigene Farbtabelle benutzen\n
+_Messages_.de.qmon_usage.helpOption: Optionen anzeigen und beenden\n
+_Messages_.de.qmon_usage.fontFamilyOption: kleine/mittlere/grosse Schrift benutzen\n
+_Messages_.de.qmon_usage.nologoOption: ohne Logo starten\n
+_Messages_.de.qmon_usage.X11OptionInfo: Zusätzlich können die Standard X Kommandozeilenoptionen verwendet werden.\nWeitere Informationen in der Handbuchseite X(1).\n
+Qmon*about_msg.message: @f[BIG]Willkommen @fB%s@@%s\nbei %s qmon\n\n@fRCopyright \251 1996-1999\n\n\nGridware, Inc.\n1265 S. Bascom Ave.\nSuite 110\nSan Jose, CA 95128\nU.S.A.\nPhone: (+1) 408 866-4100\nFax: (+1) 408 559-2090\nEmail: support@@gridware.com\nhttp://www.gridware.com\n\nGridware GmbH\nErzgebirgstr. 2\nD-93073 Neutraubling\nGermany\nTel.: (+49) 9401 9200-0\nFax: (+49) 9401 9200-92\nEmail: support@@gridware.de\nhttp://www.gridware.de
+Qmon*cancelLabelString: Verwerfen
+Qmon*okLabelString: Erledigt
+Qmon*helpLabelString: Hilfe
+Qmon*dirListLabelString: Verzeichnisse
+Qmon*fileListLabelString: Dateien
+Qmon*filterLabelString: Filter
+Qmon*applyLabelString: Filtern
+Qmon*xmtBooleanDialog*title: Frage
+Qmon*xmtAskForString*title: Bezeichner eingeben

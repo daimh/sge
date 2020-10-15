@@ -1,0 +1,1431 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us"><head>
+
+ <style type="text/css">
+/* tables */
+table.topic {border-collapse:collapse;border: 1px solid black;border-spacing: 0px}
+table.topic tr th {text-align:left;font-weight: bold; padding: 2px;}
+table.topic tr td {padding: 2px;}
+table.topic tr td ul {padding-left:0em; margin-left:1.5em;}
+
+/* contents */
+blockquote {border: thin solid black; padding: 1%; margin: 2%;} 
+dt { font-weight: bold;float: left;display:inline;margin-right: 1em}
+dd { display:block; margin-left: 2em}
+dl.block dt {float: none;display:block;margin-right: 0em}
+dl.signature dd {margin-left: 30em}
+
+ </style></head>
+<title>ResourceQuotaSpecification</title>
+
+<body bgcolor="#ffffff">
+<p>
+</p><h1>Specification Resource Quota </h1>
+<p>
+Roland Dittel<br>
+20 November 2006<br>
+</p><p>
+</p><h2><a name="1_Introduction"> </a> 1 Introduction </h2>
+<p>
+In large enterprise clusters it is necessary to prevent users from
+consuming all available resources. In order to achieve this, N1GE6
+supports complex attributes which can be configured on a global, queue
+or host layer. This feature is sufficient in certain cases, especially
+in small clusters, but has shortcomings and drawbacks for enterprise
+usage.
+</p><p>Customers have asked for a feature to enhance resource limits
+so that they apply to several kinds of resources, several kinds of
+resource consumers, to all jobs in the cluster and to combinations of
+consumers. In this context, "resources" are any defined complex
+attribute (see complex(5)) known by the Grid Engine configuration. For
+example this can be slots, arch, mem_total, num_proc, swap_total or any
+custom-defined resource like compiler_license.
+Resource consumers are (per) users, (per) queues, (per) hosts, (per)
+projects, (per) parallel environments. This specification describes a
+user interface to define such flexible resource limits.
+</p><p>This feature provides a way for administrators to limit the
+resources used at a single time by a consumer. However, it is not a way
+to define priorities by which user should obtain a resource. Priorities
+can be defined by using the Share Tree feature released with N1GE6.
+</p><p>
+</p><h2><a name="2_Project_Overview"> </a> 2 Project Overview </h2>
+<p>
+</p><h3><a name="2_1_Project_Aim"> </a> 2.1 Project Aim </h3>
+<p>The aim of this project is a solution that allows utilization of
+built-in and user-defined resources to be managed in a more flexible
+manner. In particular, this is a means to limit resources on a per user
+basis and a per project basis. Similarly, resource limitations on the
+basis of a user groups and project groups are also required.
+</p><p>
+The Issues targeted with this project are:
+</p><table border="0" cellpadding="0" cellspacing="1" frame="void">
+<tbody><tr><th class="twikiFirstCol" align="center" bgcolor="#0080a1"><font color="#ffffff"> Issue</font></th><th align="center" bgcolor="#0080a1"><font color="#ffffff">  Description</font></th></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> <a href="http://gridengine.sunsource.net/issues/show_bug.cgi?id=74">74</a> </font></td><td bgcolor="#ffffff"><font color="#000000"> Support maxujobs on a per host level </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> <a href="http://gridengine.sunsource.net/issues/show_bug.cgi?id=1532">1532</a> </font></td><td bgcolor="#bdbec0"><font color="#000000"> Max jobs per user on a queue basis </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> <a href="http://gridengine.sunsource.net/issues/show_bug.cgi?id=1644">1644</a> </font></td><td bgcolor="#ffffff"><font color="#000000"> Per-user slot limits for limiting PE usage </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> CR 6298406 </font></td><td bgcolor="#bdbec0"><font color="#000000"> Hostgroups should be added as another configuration layer b/w global and host </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> CR 6289250 </font></td><td bgcolor="#ffffff"><font color="#000000"> Request for Job limit per User of Queue </font></td></tr>
+</tbody></table>
+<p>
+</p><h3><a name="2_2_Project_Benefit"> </a> 2.2 Project Benefit </h3>
+<p>The expectation is that the management of N1GE cluster resources
+will be possible in a much more targeted manner. The enhancement must
+make it easy to freely manage limits for arbitrary resources in
+relation to existing N1GE objects, such as project/user/host/queue/pe,
+without the burden of doing micro-management with countless
+projects/users/hosts/queues.
+</p><p>
+Suggestions for future enhancements are:
+</p><ul>
+<li> express these resource limits by means of percentages of a wider
+context (e.g. (a) memory limit of 4G available for project1 and
+project2 (b) up to 70 percent available for project1 and (c) up to 60
+percent available for project2) </li>
+<li> add a new built-in complex attribute "jobs", that always counts 1 for a job in all resource containers
+</li>
+<li> define operators which can modify a set of resource limits as a means to allow hierarchical management
+</li>
+</ul>
+<p>
+</p><h2><a name="4_Functional_Definition"> </a> 4 Functional Definition </h2>
+<h3><a name="4_1_Performance"> </a> 4.1 Performance </h3>
+<h3><a name="4_2_Reliability_Availability_Ser"> </a> 4.2 Reliability, Availability, Serviceability (RAS) </h3>
+<p>
+</p><ul>
+<li> Enhancement of Scheduler Profiling
+</li>
+</ul>
+<p>
+</p><h3><a name="4_3_Diagnostics"> </a> 4.3 Diagnostics </h3>
+<p>
+</p><ul>
+<li> qquota (new command)
+</li>
+<li> qstat -j job_id (enhancm.)
+</li>
+</ul>
+<p>
+</p><h3><a name="4_4_User_Experience"> </a> 4.4 User Experience </h3>
+<p>
+</p><h4><a name="4_4_1_Obsolete_Configuration"> </a> 4.4.1 Obsolete Configuration </h4>
+<p>
+</p><h4><a name="4_4_2_Command_Line_CLI"> </a><a name="4_4_2_Command_Line_CLI_"> </a> 4.4.2 Command Line (CLI) </h4>
+<h5><a name="4_4_2_1_CLI_enhancements"> </a> 4.4.2.1 CLI enhancements </h5>
+<p>
+</p><ul>
+<li> qconf switches:
+</li>
+</ul>
+<table border="0" cellpadding="0" cellspacing="1" frame="void">
+<tbody><tr><th class="twikiFirstCol" align="center" bgcolor="#0080a1"><font color="#ffffff">switch</font></th><th align="center" bgcolor="#0080a1"><font color="#ffffff">Description</font></th></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -aattr obj_nm attr_nm val obj_id_lst </font></td><td bgcolor="#ffffff"><font color="#000000"> add to a list attribute of an object </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -Aaatr obj_nm fname obj_id_lst </font></td><td bgcolor="#bdbec0"><font color="#000000"> add to a list attribute of an object </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -dattr obj_nm attr_nm val obj_id_lst </font></td><td bgcolor="#ffffff"><font color="#000000"> delete from a list attribute of an object </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -Dattr obj_nm fname obj_id_lst </font></td><td bgcolor="#bdbec0"><font color="#000000"> delete from a list attribute of an object </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -mattr obj_nm attr_nm val obj_id_lst </font></td><td bgcolor="#ffffff"><font color="#000000"> modify an attribute (or element in a sublist) of an object </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -Mattr obj_nm fname obj_id_lst </font></td><td bgcolor="#bdbec0"><font color="#000000"> modify an attribute (or element in a sublist) of an object </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -rattr obj_nm attr_nm val obj_id_lst </font></td><td bgcolor="#ffffff"><font color="#000000"> replace an attribute (or element in a sublist) of an object </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -Rattr obj_nm fname obj_id_lst </font></td><td bgcolor="#bdbec0"><font color="#000000"> replace an attribute (or element in a sublist) of an object </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> obj_nm </font></td><td bgcolor="#ffffff"><font color="#000000"> rqs - resource quota set </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> attr_nm </font></td><td bgcolor="#bdbec0"><font color="#000000"> name or enabled or description or limit </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> val </font></td><td bgcolor="#ffffff"><font color="#000000"> new value of attr_nm </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> obj_id_lst </font></td><td bgcolor="#bdbec0"><font color="#000000"> rule set or rule for limit </font></td></tr>
+</tbody></table>
+<p>
+</p><ul>
+<li> qstat switches:
+</li>
+</ul>
+<table border="0" cellpadding="0" cellspacing="1" frame="void">
+<tbody><tr><th class="twikiFirstCol" align="center" bgcolor="#0080a1"><font color="#ffffff"> switch</font></th><th align="center" bgcolor="#0080a1"><font color="#ffffff"> description</font></th></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -j job_identifier_list </font></td><td bgcolor="#ffffff"><font color="#000000"> show scheduler job information </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -u user_list </font></td><td bgcolor="#bdbec0"><font color="#000000"> view only jobs of this user </font></td></tr>
+</tbody></table>
+<p>
+</p><h5><a name="4_4_2_2_CLI_additions"> </a> 4.4.2.2 CLI additions </h5>
+<p>
+</p><ul>
+<li> qconf switches:
+</li>
+</ul>
+<table border="0" cellpadding="0" cellspacing="1" frame="void">
+<tbody><tr><th class="twikiFirstCol" align="center" bgcolor="#0080a1"><font color="#ffffff"> switch</font></th><th align="center" bgcolor="#0080a1"><font color="#ffffff"> Description</font></th></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -arqs [name] </font></td><td bgcolor="#ffffff"><font color="#000000"> add resource quota set(s) </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -Arqs fname </font></td><td bgcolor="#bdbec0"><font color="#000000"> add resource quota set(s) from file </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -mrqs [name] </font></td><td bgcolor="#ffffff"><font color="#000000"> modify resource quota set(s) </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -Mrqs fname [name] </font></td><td bgcolor="#bdbec0"><font color="#000000"> modify resource quota set(s) from file </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -srqs [name_list] </font></td><td bgcolor="#ffffff"><font color="#000000"> show resource quota set(s) </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -srqsl </font></td><td bgcolor="#bdbec0"><font color="#000000"> show resource quota set list </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -drqs [name_list] </font></td><td bgcolor="#ffffff"><font color="#000000"> delete resource quota set(s) </font></td></tr>
+</tbody></table>
+<p>
+</p><ul>
+<li> qquota switches:
+</li>
+</ul>
+<table border="0" cellpadding="0" cellspacing="1" frame="void">
+<tbody><tr><th class="twikiFirstCol" align="center" bgcolor="#0080a1"><font color="#ffffff"> switch</font></th><th align="center" bgcolor="#0080a1"><font color="#ffffff"> description</font></th></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -help </font></td><td bgcolor="#ffffff"><font color="#000000"> print this help </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -h host_list </font></td><td bgcolor="#bdbec0"><font color="#000000"> display only selected host </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -l resource_attributes </font></td><td bgcolor="#ffffff"><font color="#000000"> request the given resources </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -u user_list </font></td><td bgcolor="#bdbec0"><font color="#000000"> display only selected users </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -pe pe_list </font></td><td bgcolor="#ffffff"><font color="#000000"> display only selected parallel environments </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -P project_list </font></td><td bgcolor="#bdbec0"><font color="#000000"> display only selected projects </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#ffffff"><font color="#000000"> -q wc_queue_list </font></td><td bgcolor="#ffffff"><font color="#000000"> display only selected queues </font></td></tr>
+<tr><td class="twikiFirstCol" bgcolor="#bdbec0"><font color="#000000"> -xml </font></td><td bgcolor="#bdbec0"><font color="#000000"> display the information in XML-Format </font></td></tr>
+</tbody></table>
+<p>
+</p><h4><a name="4_4_3_Graphical_User_Interface_G"> </a> 4.4.3 Graphical User Interface (GUI) </h4>
+<p>
+</p><h5><a name="4_4_3_1_Configuration"> </a> 4.4.3.1 Configuration </h5>
+<p>
+Qmon will be enhanced to allow the configuration of resource resource
+quota sets. The configuration will be the same as on CLI with an
+editor. </p><p>
+</p><h5><a name="4_4_3_2_Diagnose"> </a> 4.4.3.2 Diagnose </h5>
+<p>
+No Diagnose Support will be provided by qmon
+</p><p>
+</p><h3><a name="4_5_Manufacturing"> </a> 4.5 Manufacturing </h3>
+<p>
+</p><ul>
+<li> aimk - not affected
+</li>
+<li> Makefiles - minor changes, new source objects
+</li>
+</ul>
+<p>
+</p><h3><a name="4_6_Quality_Assurance"> </a> 4.6 Quality Assurance </h3>
+<p>
+</p><ul>
+<li> New testsuite tests needed
+</li>
+<li> Modules tests for core module testing
+</li>
+</ul>
+<p>
+</p><h3><a name="4_7_Security_Privacy"> </a> 4.7 Security &amp; Privacy </h3>
+<p>
+   Not affected
+</p><p>
+</p><h3><a name="4_8_Migration_Path"> </a> 4.8 Migration Path </h3>
+<ul>
+<li> imposes no need for DB update
+</li>
+<li> imposes no need for update script
+</li>
+</ul>
+<p>
+</p><h3><a name="4_9_Documentation"> </a> 4.9 Documentation </h3>
+<p>
+   This Specification is used by Doc writer.
+</p><p>
+</p><h4><a name="4_9_1_Man_Page_Changes"> </a><a name="4_9_1_Man_Page_Changes_"> </a> 4.9.1 Man Page Changes: </h4>
+<p>
+</p><ul>
+<li> qquota(1) - new man page
+</li>
+<li> sge_resource_quota(5) - new man page
+</li>
+<li> qconf(5) - new switches
+</li>
+</ul>
+<p>
+</p><h3><a name="4_10_Installation"> </a> 4.10 Installation </h3>
+<p> Installation will not not change. For future releases the
+installation may change if complex configuration for global/queue/host
+becomes obsolete.
+</p><p>
+   At installation time no default rules sets are created. 
+</p><p>
+</p><h3><a name="4_11_Packaging"> </a> 4.11 Packaging </h3>
+<p>
+   Does not change
+</p><p>
+<p>
+</p><h2><a name="5_Component_Descriptions"> </a> 5 Component Descriptions </h2>
+<h3><a name="5_1_Component_Resource_Quota_Rul"> </a> 5.1 Component Resource Quota Rules </h3>
+<h4><a name="5_1_1_Overview"> </a> 5.1.1 Overview </h4>
+<p>According to customers and the filed RFEs it's desired to define a
+limit only for specific consumers like users or projects and only for
+specific providers like hosts or queues. To achieve this administrators
+must be able to define a rule set which consists of the limiting
+resource and the limit value, and additionally the consumers or
+providers to whom this rule should apply. Because every rule can be
+expressed by a tuple of filter specifiers we decided to implement the
+rule sets in style of firewall rules.
+</p><p>
+In practice a rule is defined by:
+</p><ul>
+<li> <strong>who</strong>
+<ul>
+<li> users (list of user or usersets/departments)
+</li>
+<li> projects (list of project)
+</li>
+</ul>
+</li>
+<li> <strong>where</strong>
+<ul>
+<li> parallel_environments (list of pe's)
+</li>
+<li> hosts (list of host or hostgroups)
+</li>
+<li> queues (list of cluster queues)
+</li>
+</ul>
+</li>
+<li> <strong>what</strong> 
+<ul>
+<li> resource_attribute=max value
+</li>
+</ul>
+</li>
+</ul>
+<p>The Resource Quota Rules are separate configuration objects and only
+used for scheduling decisions. They don't affect the overall cluster
+configuration like cluster queues, hosts or projects.
+</p><p>
+Deliberate use of restrictions in first step of implementation:
+</p><ul>
+<li> Limits are counted per task as done in the current implementation.
+For example if a pe job got 10 slots it will consume 10 licenses.
+</li>
+<li> Limitation can only be done for fixed and consumable resources, not for load values. <br>
+future enhancement: see "Migration Path". That means to have resource
+configuration for load values in either global, host for queue level.
+</li>
+</ul>
+<p>
+</p><h4><a name="5_1_2_Functionality"> </a> 5.1.2 Functionality </h4>
+<p>
+</p><h5><a name="Integration_with_current_impleme"> </a> Integration with current implementation </h5>
+<p>The Resource Quotas are an addition to the current global, host and
+queue instance based scheduling order. The old implementation is still
+valid and can be used without the new rules. The rules enhances the old
+implementation and adds a new order layer on top of global to define a
+more precise limitation. </p><p>
+The implications of the layer order on resources are described in
+complexes(5) under "Overriding attributes". In general the layers are
+AND associated and if one layer denies the job, then the next layer is
+ignored. For example, a limit value of "slots=4" can be overwritten in
+global, host or queue layer if the layer value is more restrictive, eg,
+"slots=2". The exception (see complexes(5)) is for boolean values; for
+example "is_linux=true" defined in the tree can not be overwritten to
+"is_linux=false" in global host or queue definition. </p><p>
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>resource quotas
+  |-DENIED-&gt;break
+  |
+global
+  |-DENIED-&gt;break
+  |
+host
+  |-DENIED-&gt;break
+  |
+queue
+  |-DENIED-&gt;break
+  |
+ OK
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><h5><a name="Resource_Reservation"> </a> Resource Reservation </h5>
+<p>
+Resource Reservation will for Resource Quotas analogue to the current
+global/host/queue resource configuration. No changes on client side
+necessary.
+</p><p>
+</p><h4><a name="5_1_3_Interfaces"> </a> 5.1.3 Interfaces </h4>
+<p>
+</p><h5><a name="Resource_Quota_Set_Syntax"> </a> Resource Quota Set Syntax </h5>
+<table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>ALL:          '*'
+SEPARATOR:    ','
+STRING:       [^\n]*
+QUOTE:        '\"'
+S_EXPANDER:   '{'
+E_EXPANDER:   '}'
+NOT:          '!'
+BOOL:         [tT][rR][uU][eE]
+              | 1
+              | [fF][aA][lL][sS][eE]
+              | 0
+NAME:         [a-zA-Z][a-zA-Z0-9_-]*
+LISTVALUE:    ALL | [NOT]STRING
+LIST:         LISTVALUE [SEPARATOR VALUE]*
+NOTSCOPE:     LIST | S_EXPANDER LIST E_EXPANDER
+SCOPE:        ALL | STRING [SEPARATOR STRING]*
+RESOURCEPAIR: STRING=STRING
+RESOURCE:     RESOURCEPAIR [SEPARATOR RESOURCEPAIR]*
+
+rule: "limit" ["name" NAME] ["users" NOTSCOPE] ["projects" SCOPE] ["pes" SCOPE] \  
+["queues" SCOPE] ["hosts" NOTSCOPE] "to" RESOURCE NL
+
+ruleset_attributes: ("name" NAME NL)
+                    ("enabled" BOOL NL)?
+                    ("description" QUOTE STRING QUOTE)?
+
+ruleset: "{" 
+         (ruleset_attributes)
+         (rule)+
+         "} NL"
+
+rulesets: (ruleset)*
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><h5><a name="Resource_Quota_Sets_Format"> </a> Resource Quota Sets Format </h5>
+<p>
+</p><h6><a name="users"> </a> users </h6>Contains a comma separated
+list of UNIX users or ACLs (see access_list(5)). This parameter filters
+for jobs by a user in the list or one of the ACLs in the list. Any user
+not in the list will not be considered for the resource quota. The
+default value is '*' which means any user.
+An ACL is differentiated from a UNIX user name by prefixing the ACL
+name with an '@' sign. To exclude a user or ACL from the rule the name
+can be prefixed with the '!' sign. Defined UNIX user or ACL names need
+not be known in the Grid Engine Configuration.
+<p>
+</p><h6><a name="projects"> </a> projects </h6>Contains a comma
+separated list of projects (see project(5)). This parameter filters for
+jobs requesting a project of the list. Any project not in the list will
+not be considered for the resource quota. If no project filter is
+specified all projects and jobs with no requested project matches the
+rule. The value '*' means all jobs with requested projects. To exclude
+a project from the rule the name can be prefixed with the '!' sign. The
+value '!*' means only jobs with no project requested.
+<p>
+</p><h6><a name="pes"> </a> pes </h6>Contains a comma separated list of
+PEs (see sge_pe(5)). This parameter filters for jobs requesting a pe of
+the list. Any PE not in the list will not be considered for the
+resource quota. If no pe filter is specified all pe and jobs with no
+requested pe matches the rule. The value '*' means all jobs with
+requested pe. To exclude a pe from the rule the name can be prefixed
+with the '!' sign. The value '!*' means only jobs with no pe requested.
+<p>
+</p><h6><a name="queues"> </a> queues </h6>Contains a comma separated
+list of cluster queues (see queue_conf(5)). This parameter filters for
+jobs may be scheduled in a queue of the list. Any queue not in the list
+will not considered be for the resource quota. The default value is '*'
+which means any queue. To exclude a queue from the rule the name can be
+prefixed with the '!' sign.
+<p>
+</p><h6><a name="hosts"> </a> hosts </h6>Contains a comma separated
+list of host or hostgroups (see host(5) and hostgroup(5)). This
+parameter filters for jobs may be scheduled on a host of the list or a
+host contained in the hostgroup. Any host not in the list will not be
+considered for the resource quota. The default value is '*' which means
+any hosts.
+To exclude a host or hostgroup from the rule, the name can be prefixed
+with the '!' sign.
+<p>
+</p><h5><a name="Basic_Configuration"> </a> Basic Configuration </h5>
+<p>
+</p><h6><a name="Single_Resource_Quota_Rule"> </a> Single Resource Quota Rule </h6>
+<p>Resource Quota rules specify the filter criteria that a job must
+match and the resulting limit that is taken when a match is found.
+</p><p>A rule must always begin with the keyword "limit". The order of
+the filter criteria is not important to define and input a rule. After
+sending the new rule set to the qmaster the rules will be ordered
+automatically to a human readable form.
+</p><p>
+</p><h6><a name="Scope_Lists"> </a> Scope Lists </h6>
+<p>To define a rule for more than one filter scope, it is possible to
+group scopes to a list. The defined resource limit counts for all
+objects listed in the scope in sum. <br>
+For example we have a consumable virtual_free defined as:
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>#name               shortcut   type        relop requestable consumable default  urgency 
+#----------------------------------------------------------------------------------------
+virtual_free        vf         MEMORY      &lt;=    YES         YES        1g       0
+</pre>
+</td></tr></tbody></table>
+<p>
+In the rule defined below, both users can use together only 5g of virtual_free:
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>  limit users roland, andre to virtual_free=5g
+</pre>
+</td></tr></tbody></table>
+<p>
+If the administrator wants to limit each of the two users to 5g virtual_free he could define two rules:
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>  limit users roland to virtual_free=5g
+  limit users andre to virtual_free=5g
+</pre>
+</td></tr></tbody></table>
+<p>
+This is very cumbersome for large numbers of users or user groups. For
+this case a rule can be defined with an expanded list. This would look
+like:
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>  limit users {roland, andre} to virtual_free=5g
+</pre>
+</td></tr></tbody></table>
+<p>
+If the scope contains a usergroup then it gets also expanded and the limit counts also for each member of that group.<br>
+For example if a hostgroup @lx_hosts contains host durin and carc both rules are equivalent:
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>1)
+  limit users * hosts durin to virtual_free=10g
+  limit users * hosts carc to virtual_free=10g
+2)
+  limit users * hosts {@lx_hosts} to virtual_free=10g
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><h6><a name="NOT_Operator"> </a> NOT Operator </h6>
+<p>Sometimes it is necessary to define a rule for a userset but exclude
+some users of that set. This can be defined by using the NOT operator
+('!' sign) in front of the user name. A rule so defined will not affect
+the excluded user, even if the user is explicitly added to the rule.
+</p><p>
+For example, user "roland" is also member of usergroup "staff". If a resource quota rule looks like this:
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>  limit users @staff,!roland to slots=10
+</pre>
+</td></tr></tbody></table>
+the limit will not be effective for user "roland".  Even if the resource quota rule looks like this:
+<table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>  limit users @staff,!roland,roland to slots=10
+</pre>
+</td></tr></tbody></table>
+the rule will not be effective for user "roland"
+<p>
+</p><h6><a name="Dynamical_Limits"> </a> Dynamical Limits </h6>
+<p>Resource Quota rules always define a maximal value of a resource
+that can be used. In the most cases these values are static and equal
+for all matching filter scopes. If administrators want different rule
+limits on different scopes then they have to define multiple rules;
+this leads to a duplication of nearly identical rules. With the concept
+of dynamical limits this kind of duplication can be avoided.
+</p><p>A dynamical limit is a simple algebraic expression used to
+derive the rule limit value. To be dynamical the formula can reference
+a complex attribute whose value is used for the calculation of the
+resulting limit. The limit formula expression syntax is that of a
+summation weighted complex values, that is:
+</p><p>
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>   {w1|$complex1[*w1]}[{+|-}{w2|$complex2[*w2]}[{+|-}...]]
+</pre>
+</td></tr></tbody></table>
+Note, no blanks are allowed in the limit formula.
+<p>
+The following example clarifies the use of dynamical limits:
+Users are allowed to use 5 slots per CPU on all linux hosts.
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>  limit hosts {@linux_hosts} to slots=$num_proc*5
+</pre>
+</td></tr></tbody></table>
+<p>The complex attribute num_proc is defined on all hosts and its value
+is the processor count on every host. The limit is calculated by the
+formula "$num_proc*5" and so is different on some hosts. On a 2 CPU
+host users can run 10 slots whereas on a 1 CPU host users only can run
+5 slots.
+</p><p>
+To be able to set the limitation to a well-defined value some prerequisites must be fulfilled
+</p><ul>
+<li> limit formulas are only possible for INT and DOUBLE.
+</li>
+<li> The complex must be already defined in the complex list
+</li>
+<li> The complex must be defined either on global, or queue, or host layer to resolve the value
+</li>
+<li> The limitation complex must be the same value definition as the
+referenced complex value definition (for example slots=INT,
+num_proc=INT)
+</li>
+<li> The resource quota rule must be defined as an expanded list for
+the layer the complex is defined. (for example hosts {*} for $num_proc
+reference) It's not allowed to reference a complex for a sum of scopes
+(for example hosts * for $num_proc).
+</li>
+</ul>
+<p>In principle all INT or DOUBLE kind of complex values could be
+referenced but due to time constrains the first implementation allows
+only $num_proc in combination with an expanded host list.
+</p><p>
+</p><h6><a name="Resource_Quota_Rules_and_Resourc"> </a> Resource Quota Rules and Resource Quota Set Interaction </h6>
+<p>In practice administrators define some global limits and some limits
+that only apply for some resource consumers. These resource quota rules
+are equitable. But in some cases it's necessary to define exceptions
+for some resource consumers. These resource quota rules are not equal
+and dominate some others. As a matter of that fact it is necessary to
+allow the definition of a prioritized rule list and a rule list that
+apply all of the time. This is done by grouping one or more singe rules
+into a number of rule sets.
+</p><p>Inside one rule set the rules are ordered and the first rule
+found is used. This is analogous to firewall rules and generally
+understood by administrators and allows the prioritization of some
+rules. A rule set always results in one or none effective resource
+quota for a specific request.
+</p><p>All of the configured rule sets apply all of the time. This
+means if multiple rule sets are defined the most restrictive set is
+used and allows to define equitable limits.
+</p><p>
+The following example clarifies the combination of rules and rule sets. We have a consumable defined as:
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>#name               shortcut   type        relop requestable consumable default  urgency 
+#----------------------------------------------------------------------------------------
+compiler_lic        cl         INT         &lt;=    YES         YES        0        0
+</pre>
+</td></tr></tbody></table>
+<p>
+The resource quota sets are defined as:
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>{
+  name ruleset1
+  limit users roland to compiler_lic=3
+  limit projects * to compiler_lic=2
+  limit users * to compiler_lic=1
+
+}
+{
+  name ruleset2
+  limit users * to compiler_lic=20
+}
+</pre>
+</td></tr></tbody></table>
+<p>
+The first rule set ruleset1 express:
+</p><ul>
+<li> user roland is allowed to use 3 compiler_lic resources
+</li>
+<li> any request submitted in a project is allowed to use 2 compiler_lic resources
+</li>
+<li> the default value for all other users is 1 compiler_lic resource
+</li>
+</ul>
+The second rule set ruleset2 express:
+<ul>
+<li> all requests together are only allowed to use 20 compiler_lic resources.
+</li>
+</ul>
+<p>Inside ruleset1 the priority is clear defined, user roland will
+always get 3 compiler_lic resources even though he matches to "users *"
+of the last rule in the rule set and even if he would submit his
+request in a project. Also the interaction between ruleset1 and
+ruleset2 is clear defined and results in a reject if 20 compiler_lic
+resources are already in use, even if user roland does not use all of
+his 2 compiler_lic resources.
+</p><p>
+</p><p>
+</p><h5><a name="CLI_Command_Line_Interface"> </a> CLI - Command Line Interface </h5>
+<p>
+</p><h6><a name="qconf"> </a> qconf </h6>
+<p>With qconf it is possible to edit the rule sets in an editor session
+like with the most qconf switches. To reduce the amount of data
+presented to the administrator its possible to select only one rule set
+for editing. </p><p>
+It's not possible to edit single rules. Because the rules inside the
+rule set are ordered, the meaning of a single rule depends on the
+context of all other rules. Therefore it doesn't make sense to edit a
+single rule without presenting the context of the rule.
+</p><p>
+Switch Descriptions:
+</p><ul>
+<li> <em>-Arqs fname (add RQS configuration)</em>
+</li>
+</ul>Add the resource quota set (RQS) defined in fname to the Grid
+Engine cluster. Returns 0 on success and 1 if rqs is already defined.
+Requires root or manager privileges.
+<table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>$ more rule_set.txt
+{
+  name rule_set_2
+  enabled true
+  description "rule set 2"
+}
+
+$ qconf -Arqs rule_set.txt
+rd141302@es-ergb01-01 added "rule_set_2" to resource quota set list
+
+$ qconf -Arqs rule_set.txt
+resource quota set "rule_set_2" already exists
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><ul>
+<li> <em>-Mrqs fname [rqs_name] (modify RQS configuration)</em>
+</li>
+</ul>Same as -mrqs (see below) but instead of invoking an editor to
+modify the RQS configuration the file fname is considered to contain a
+changed configuration. The name of the rule set in fname must be the
+same as rqs_name. If rqs_name is empty all rule sets are overwritten by
+the rule sets in fname. Refer to sge_rqs(5) for details on the RQS
+configuration format. Returns 0 on success and 1 on error. Requires
+root or manager privilege.
+<table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>$ more rule_set.txt
+{
+  name rule_set_3
+  enabled true
+  description "rule set 2"
+}
+
+$ qconf -Mrqs rule_set.txt rule_set_3
+resource quota set "rule_set_3" does not exist
+
+$ qconf -Mrqs rule_set.txt rule_set_4
+resource quota set "rule_set_4" does not match rule set definition
+
+$ qconf -Mrqs rule_set.txt
+rd141302@es-ergb01-01 modified resource quota set list
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><ul>
+<li> <em>-arqs [name] (add new RQS)</em>
+</li>
+</ul>Adds a Resource Quota Set (RQS) description under the name
+lsr_name to the list of RQSs maintained by Grid Engine (see sge_rqs(5)
+for details on the format of a RQS definition). Qconf retrieves a
+default RQS configuration and executes vi(1) (or $EDITOR if the EDITOR
+environment variable is set) to allow you to customize the RQS
+configuration. Upon exit from the editor, the RQS is registered with
+sge_qmaster(8). Returns 0 on success and 1 if rqs is already defined.
+Requires root/manager privileges.
+<table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>$ qconf -arqs
+&lt;- {
+&lt;-   name template
+&lt;-   enabled true
+&lt;-   description ""
+&lt;- }
+-&gt; :q
+resource quota set name "template" is not valid
+
+$ qconf -arqs rule_set_1
+&lt;- {
+&lt;-   name rule_set_1
+&lt;-   enabled true
+&lt;-   description ""
+&lt;- }
+-&gt; :wq
+rd141302@es-ergb01-01 added "rule_set_1" to resource quota set list
+
+$ qconf -arqs rule_set_1
+resource quota set "rule_set_1" already exists
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><ul>
+<li> <em>-mrqs [name] (modify RQS configuration)</em>
+</li>
+</ul>Retrieves the whole rules or only the specified current
+configuration for the resource quota set (RQS), executes an editor
+(either vi(1) or the editor indicated by the EDITOR environment
+variable) and registers the new configuration with the sge_qmaster(8).
+Refer to sge_rqs(5) for details on the RQS configuration format.
+Returns 0 on success and 1 on error. Requires root or manager
+privilege.
+<table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>$ qconf -mrqs rule_set_1
+&lt;- {
+&lt;-   name rule_set_1
+&lt;-   enabled true
+&lt;-   description ""
+&lt;- }
+-&gt; :wq
+rd141302@es-ergb01-01 modified "rule_set_1" in resource quota set list
+
+$ qconf -mrqs unknown_set
+resource quota set "unknown_set" does not exist
+
+$ qconf -mrqs
+&lt;- ...
+&lt;-   name rule_set_1
+&lt;- ...
+&lt;-   name rule_set_2
+&lt;- ...
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><ul>
+<li> <em>-srqs [name_list] (show RQS configuration)</em>
+</li>
+</ul>
+Show the definition of the resource quota set (RQS) specified by the argument.
+<table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>$ qconf -srqs
+...
+  name rule_set_1
+...
+  name rule_set_2
+...
+
+$ qconf -srqs rule_set_1
+...
+  name rule_set_1
+...
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><ul>
+<li> <em>-srqsl (show resource quota sets list)</em>
+</li>
+</ul>
+Show a list of the names of all resource quota sets currently configured.
+<p>
+</p><ul>
+<li> <em>-drqs name_list (delete RQS)</em>
+</li>
+</ul>Deletes the specified resource quota sets (RQS). Returns 0 on
+success and 1 if rqs_name is unknown. Requires root/manager privileges.
+<table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>$ qconf -drqs rule_set_1
+rd141302@es-ergb01-01 removed "rule_set_1" from resource quota set list
+
+$ qconf -drqs unknown_rule_set
+denied: resource quota set "unknown_rule_set" does not exist
+
+$ qconf -drqs
+rd141302@es-ergb01-01 removed resource quota set list
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><ul>
+<li> <em>-aattr obj_nm attr_nm val obj_id_lst</em>
+</li>
+</ul>
+See qconf(1)
+<table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>$ qconf -srqs ruleset_1
+{
+  name ruleset_1
+  enabled true
+  limit users @eng to slots=10
+  limit name arch_rule users @eng to arch=lx24-amd64
+}
+
+$ qconf -aattr resource_quota limit slots=20 ruleset_1/1
+No modification because "slots" already exists in "limit" of "ruleset_1/1"
+
+$ qconf -aattr resource_quota limit compiler_lic=5 rule_1/1
+rd141302@es-ergb01-01 modified "ruleset_1/1" in rqs list
+
+$ qconf -aattr resource_quota limit arch=sol-sparc64 rule_1/arch_rule
+No modification because "arch" already exists in "limit" of "ruleset_1/1"
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><ul>
+<li> <em>-Aaatr obj_nm fname obj_id_lst</em>
+</li>
+</ul>
+See qconf(1)
+<table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>$ more resource.txt
+limit slots=20
+
+$ qconf -Aattr resource_quota resource.txt ruleset_1/1
+No modification because "slots" already exists in "limit" of "ruleset_1/1"
+
+$ more resource2.txt
+limit compiler_lic=5
+
+$ qconf -Aattr resource_quota resource2.txt ruleset_1/1
+rd141302@es-ergb01-01 modified "ruleset_1/1" in resource_quota list
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><ul>
+<li> <em>-dattr obj_nm attr_nm val obj_id_lst</em>
+</li>
+</ul>
+See qconf(1)
+<table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>$ qconf -dattr resource_quota limit compiler_lic=5 rule_1/1
+rd141302@es-ergb01-01 modified "ruleset_1/1" in rqs list
+
+$ qconf -dattr resource_quota limit compiler_lic=5 rule_1/1
+"compiler_lic" does not exist in "limit" of "resource_quota"
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><ul>
+<li> <em>-Dattr obj_nm fname obj_id_lst</em>
+</li>
+</ul>
+See qconf(1)
+<table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>$ more resource.txt
+limit compiler_lic=20
+
+$ qconf -Dattr resource_quota resource.txt rule_1/1
+rd141302@es-ergb01-01 modified "ruleset_1/1" in resource_quota list
+
+$ qconf -Dattr resource_quota resource.txt rule_1/1
+"compiler_lic" does not exist in "limit" of "resource_quota"
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><ul>
+<li> <em>-mattr obj_nm attr_nm val obj_id_lst</em>
+</li>
+</ul>
+See qconf(1)
+<table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>$ qconf -mattr resource_quota limit slots=5 rule_1/1
+rd141302@es-ergb01-01 modified "ruleset_1/1" in resource_quota list
+
+$ qconf -mattr resource_quota limit new_resource=5 rule_1/1
+Unable to find "new_resource" in "limit" of "resource_quota" - Adding new element.
+
+$ qconf -mattr resource_quota enabled false rule_1
+rd141302@es-ergb01-01 modified "ruleset_1" in resource_quota list
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><ul>
+<li> <em>-Mattr obj_nm fname obj_id_lst</em>
+</li>
+</ul>
+See qconf(1)
+<table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>$ more resource.txt
+limit slots=20
+
+$ qconf -Mattr resource_quota resource.txt ruleset_1/1
+rd141302@es-ergb01-01 modified "ruleset_1/1" in resource_quota list
+
+$ more resource2.txt
+limit new_resource=5
+
+$ qconf -Mattr resource_quota resource2.txt ruleset_1/1
+Unable to find "new_resource" in "limit" of "resource_quota" - Adding new element.
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><ul>
+<li> <em>-rattr obj_nm attr_nm val obj_id_lst</em>
+</li>
+</ul>
+See qconf(1)
+<p>
+</p><ul>
+<li> <em>-Rattr obj_nm fname obj_id_lst</em>
+</li>
+</ul>
+See qconf(1)
+<p>
+</p><h6><a name="qstat"> </a> qstat </h6>
+<p>
+Switch Descriptions:
+</p><p>
+</p><ul>
+<li> <em>-j job_identifier_list</em>
+</li>
+</ul>
+<p>
+Additional Output
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>Example:
+   cannot run on cluster because exceeds limit in rule_set_1
+   cannot run on host "bla" because exceeds limit in rule_set_1
+   cannot run on queue instance "all.q@host" because exceeds limit in rule_set_1
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><ul>
+<li> <em>-u user_list</em>
+</li>
+</ul>
+<p>
+To be consistent with qquota the default value of user_list changes from * (all users) to the calling user.
+</p><p>
+</p><h6><a name="qquota"> </a> qquota </h6>
+<p>
+The qquota command is a diagnose tool for the resource resource quotas. The output is a table with the following rows:
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>resource quota rule |    limit  |               filter
+</pre>
+</td></tr></tbody></table>
+<p>For each matched rule per rule set a line is printed if the usage
+count is not 0 for this rule. If one rule contains more than one
+resource attribute then one line is printed per resource attribute.
+By default it shows the effective limits for the calling user and for
+all other filter criteria like project or pe the wildcard "*" is used
+which means not explicit is used.
+</p><p>
+The output for the limit table is:
+</p><ul>
+<li> for consumable resources
+</li>
+</ul>
+<table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>   complex=used/limit (for example slots 2/20)
+</pre>
+</td></tr></tbody></table>
+<ul>
+<li> for static resources
+</li>
+</ul>
+<table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>   complex=value (for example arch lx24-amd64)
+</pre>
+</td></tr></tbody></table>
+<p>The administrator and the user may define files (analogue to
+sge_qstat(5)), which can contain any of the options described below. A
+cluster-wide sge_qquota file may be placed under
+$SGE_ROOT/$SGE_CELL/common/sge_qquota The user private file is searched
+at the location $HOME/.sge_qquota. The home directory request file has
+the highest precedence over the cluster global file. Command line can
+be used to override the flags contained in the files.
+</p><p>
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+Example:
+<ul>
+<li> All users together should never take more than 20 slots
+</li>
+<li> All users should maximal take 5 slots on all linux hosts
+</li>
+<li> Every user is restricted to one slot per linux host, only user
+"roland" is restricted to 2 slots and all other slots on hosts are set
+to 0
+</li>
+</ul>
+<p>
+Rule Set:
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>{
+ name maxujobs
+ limit users * to slots=20
+}
+
+{
+ name max_linux
+ limit users * hosts @linux to slots=5
+}
+
+{
+ name max_per_host
+ limit users roland hosts {@linux} to slots=2
+ limit users {*} hosts {@linux} to slots=1
+ limit users * hosts * to slots=0
+}
+</pre>
+</td></tr></tbody></table>
+<p>
+qstat Output:
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>$ qstat
+job-ID  prior   name       user         state submit/start at     queue        slots ja-task-ID 
+-----------------------------------------------------------------------------------------------
+     27 0.55500 Sleeper    roland       r     02/21/2006 15:53:10 all.q@carc    1        
+     29 0.55500 Sleeper    roland       r     02/21/2006 15:53:10 all.q@carc    1        
+     30 0.55500 Sleeper    roland       r     02/21/2006 15:53:10 all.q@durin   1        
+     26 0.55500 Sleeper    roland       r     02/21/2006 15:53:10 all.q@durin   1        
+     28 0.55500 Sleeper    user1        r     02/21/2006 15:53:10 all.q@durin   1        
+</pre>
+</td></tr></tbody></table>
+<p>
+qquota Output:
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>$ qquota # as user roland
+resource quota rule    limit            filter
+--------------------------------------------------------------------------------
+maxujobs/1         slots=5/20           -
+max_linux/1        slots=5/5            hosts @linux
+max_per_host/1     slots=2/2            users roland hosts durin
+max_per_host/1     slots=2/2            users roland hosts carc
+
+$ qquota -h durin # as user roland
+resource quota    limit                filter
+--------------------------------------------------------------------------------
+maxujobs/1         slots=5/20           -
+max_linux/1        slots=5/5            hosts @linux
+max_per_host/1     slots=2/2            users roland hosts durin
+
+$ qquota -u user1
+resource quota    limit                filter
+--------------------------------------------------------------------------------
+maxujobs/1         slots=5/20           -
+max_linux/1        slots=5/5            hosts @linux
+max_per_host/1     slots=1/2            users user1 hosts durin
+
+$ qquota -u *
+resource quota    limit                filter
+--------------------------------------------------------------------------------
+maxujobs/1         slots=5/20           -
+max_linux/1        slots=5/5            hosts @linux
+max_per_host/1     slots=2/2            users roland hosts carc
+max_per_host/1     slots=2/2            users roland hosts durin
+max_per_host/1     slots=1/2            users user1 hosts durin
+</pre>
+</td></tr></tbody></table>
+</td></tr></tbody></table>
+<p>
+qquota XML Schema:
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+
+&lt;xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            elementFormDefault="qualified"&gt;
+
+   &lt;xsd:element name="qquota_result"&gt;
+      &lt;xsd:sequence&gt;
+       &lt;xsd:element name="qquota_rule" type="QQuotaRuleType" minOccurs="0" maxOccurs="unbounded"/&gt;
+      &lt;/xsd:sequence&gt;
+   &lt;/xsd:element&gt;
+   
+   &lt;xsd:complexType name="QQuotaRuleType"&gt;
+      &lt;xsd:sequence&gt;
+         &lt;xsd:element name="user" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/&gt;            
+         &lt;xsd:element name="xuser" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/&gt;            
+         &lt;xsd:element name="project" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/&gt;
+         &lt;xsd:element name="xproject" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/&gt;
+         &lt;xsd:element name="pe" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/&gt;
+         &lt;xsd:element name="xpe" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/&gt;
+         &lt;xsd:element name="queue" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/&gt;
+         &lt;xsd:element name="xqueue" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/&gt;
+         &lt;xsd:element name="host" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/&gt;
+         &lt;xsd:element name="xhost" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/&gt;
+         &lt;xsd:element name="limit" type="ResourceLimitType" minOccurs="0" maxOccurs="unbounded"/&gt;
+      &lt;/xsd:sequence&gt;
+      &lt;xsd:attribute name="name" type="xsd:string" use="required"/&gt;
+   &lt;/xsd:complexType&gt;
+   
+   &lt;xsd:complexType name="ResourceLimitType"&gt;
+      &lt;xsd:attribute name="resource" type="xsd:string" use="required"/&gt;
+      &lt;xsd:attribute name="limit" type="xsd:string" use="required"/&gt;
+      &lt;xsd:attribute name="value" type="xsd:string" use="optional"/&gt;
+   &lt;/xsd:complexType&gt;
+   
+&lt;/xsd:schema&gt;
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><h5><a name="Internal_data_structures"> </a><a name="Internal_data_structures_"> </a> Internal data structures: </h5>
+<p>
+</p><h6><a name="Additional_Cull_Lists"> </a> Additional Cull Lists </h6>
+<p>
+All lists are used by qmaster and scheduler
+</p><p>
+File sge_resource_quotaL.h
+</p><table bgcolor="#ffffff" border="1" cellpadding="3" cellspacing="1" width="100%"><tbody><tr><td>
+<pre>#ifndef __SGE_RESOURCE_QUOTAL_H
+#define __SGE_RESOURCE_QUOTAL_H
+
+#include "sge_boundaries.h"
+#include "cull.h"
+
+#ifdef  __cplusplus
+extern "C" {
+#endif
+
+/* *INDENT-OFF* */
+
+/* Resource Quota Set */
+enum {
+   RQS_name = RQS_LOWERBOUND,
+   RQS_description,
+   RQS_enabled,
+   RQS_rule
+};
+
+LISTDEF(RQS_Type)
+ JGDI_ROOT_OBJ(ResourceQuotaSet, SGE_RQS_LIST, ADD | MODIFY | DELETE | GET | GET_LIST)
+ JGDI_EVENT_OBJ(ADD(sgeE_RQS_ADD) | MODIFY(sgeE_RQS_MOD) | DELETE(sgeE_RQS_DEL) | GET_LIST(sgeE_RQS_LIST))
+ SGE_STRING(RQS_name, CULL_PRIMARY_KEY | CULL_HASH | CULL_UNIQUE | CULL_SPOOL)
+ SGE_STRING(RQS_description, CULL_DEFAULT | CULL_SPOOL)
+ SGE_BOOL(RQS_enabled, CULL_DEFAULT | CULL_SPOOL)
+ SGE_LIST(RQS_rule, RQR_Type, CULL_DEFAULT | CULL_SPOOL)
+LISTEND
+
+NAMEDEF(RQSN)
+   NAME("RQS_name")
+   NAME("RQS_description")
+   NAME("RQS_enabled")
+   NAME("RQS_rule")
+NAMEEND
+
+#define RQSS sizeof(RQSN)/sizeof(char*)
+
+/* Resource Quota Rule */
+enum {
+   RQR_name = RQR_LOWERBOUND,
+   RQR_filter_users,
+   RQR_filter_projects,
+   RQR_filter_pes,
+   RQR_filter_queues,
+   RQR_filter_hosts,
+   RQR_limit,
+   RQR_level
+};
+
+LISTDEF(RQR_Type)
+ JGDI_OBJ(ResourceQuotaRule)
+ SGE_STRING(RQR_name, CULL_PRIMARY_KEY | CULL_HASH | CULL_UNIQUE | CULL_SPOOL)
+ SGE_OBJECT(RQR_filter_users, RQRF_Type, CULL_DEFAULT | CULL_SPOOL)
+ SGE_OBJECT(RQR_filter_projects, RQRF_Type, CULL_DEFAULT | CULL_SPOOL)
+ SGE_OBJECT(RQR_filter_pes, RQRF_Type, CULL_DEFAULT | CULL_SPOOL)
+ SGE_OBJECT(RQR_filter_queues, RQRF_Type, CULL_DEFAULT | CULL_SPOOL)
+ SGE_OBJECT(RQR_filter_hosts, RQRF_Type, CULL_DEFAULT | CULL_SPOOL)
+ SGE_LIST(RQR_limit, RQRL_Type, CULL_DEFAULT | CULL_SPOOL)
+ SGE_ULONG(RQR_level, CULL_DEFAULT | CULL_JGDI_RO)
+LISTEND
+
+NAMEDEF(RQRN)
+   NAME("RQR_name")
+   NAME("RQR_filter_users")
+   NAME("RQR_filter_projects")
+   NAME("RQR_filter_pes")
+   NAME("RQR_filter_queues")
+   NAME("RQR_filter_hosts")
+   NAME("RQR_limit")
+   NAME("RQR_level")
+NAMEEND
+
+#define RQRS sizeof(RQRN)/sizeof(char*)
+
+enum {
+   FILTER_USERS = 0,
+   FILTER_PROJECTS,
+   FILTER_PES,
+   FILTER_QUEUES,
+   FILTER_HOSTS
+};
+
+enum {
+   RQR_ALL = 0,
+   RQR_GLOBAL,
+   RQR_CQUEUE,
+   RQR_HOST,
+   RQR_QUEUEI
+};
+
+/* Resource Quota Rule Filter */
+enum {
+   RQRF_expand = RQRF_LOWERBOUND,
+   RQRF_scope,
+   RQRF_xscope
+};
+
+LISTDEF(RQRF_Type)
+ JGDI_OBJ(ResourceQuotaRuleFilter)
+ SGE_BOOL(RQRF_expand, CULL_DEFAULT | CULL_SPOOL)
+ SGE_LIST(RQRF_scope, ST_Type, CULL_DEFAULT | CULL_SPOOL)
+ SGE_LIST(RQRF_xscope, ST_Type, CULL_DEFAULT | CULL_SPOOL)
+LISTEND
+
+NAMEDEF(RQRFN)
+   NAME("RQRF_expand")
+   NAME("RQRF_scope")
+   NAME("RQRF_xscope")
+NAMEEND
+
+#define RQRFS sizeof(RQRFN)/sizeof(char*)
+
+/* Resource Quota Rule Limit */
+enum {
+   RQRL_name = RQRL_LOWERBOUND,
+   RQRL_value,
+   RQRL_type,
+   RQRL_dvalue,
+   RQRL_usage,
+   RQRL_dynamic
+};
+
+LISTDEF(RQRL_Type)
+ JGDI_OBJ(ResourceQuotaRuleLimit)
+ SGE_STRING(RQRL_name, CULL_PRIMARY_KEY | CULL_HASH | CULL_UNIQUE | CULL_SPOOL)
+ SGE_STRING(RQRL_value, CULL_DEFAULT | CULL_SPOOL)
+ SGE_ULONG(RQRL_type, CULL_DEFAULT | CULL_SPOOL | CULL_JGDI_RO)
+ SGE_DOUBLE(RQRL_dvalue, CULL_DEFAULT | CULL_SPOOL | CULL_JGDI_RO)
+ SGE_LIST(RQRL_usage, RUE_Type, CULL_DEFAULT | CULL_JGDI_RO)
+ SGE_BOOL(RQRL_dynamic, CULL_DEFAULT | CULL_JGDI_RO)
+LISTEND
+ 
+NAMEDEF(RQRLN)
+   NAME("RQRL_name")
+   NAME("RQRL_value")
+   NAME("RQRL_type")
+   NAME("RQRL_dvalue")
+   NAME("RQRL_usage")
+   NAME("RQRL_dynamic")
+NAMEEND
+
+#define RQRLS sizeof(RQRLN)/sizeof(char*)
+
+/* *INDENT-ON* */ 
+
+#ifdef  __cplusplus
+}
+#endif
+#endif /* __SGE_RESOURCE_QUOTAL_H */
+</pre>
+</td></tr></tbody></table>
+<p>
+</p><h6><a name="Additional_GDI_requests"> </a> Additional GDI requests </h6>
+<p>
+</p><ul>
+<li> SGE_GDI_ADD(RQS, resource_quota)
+</li>
+</ul>This request allows for adding a new resource quota set. It
+contains the complete rule set configuration and is used for
+implementing the qconf option '-arqs' and '-Arqs'.
+<p>
+</p><ul>
+<li> SGE_GDI_MOD(RQS, resource_quota)
+</li>
+</ul>This request allows for changing the complete resource quota set
+configuration. It contains a full rule set configuration and is used
+for implementing qconf option '-mrqs' and '-Mrqs'.
+<p>
+</p><ul>
+<li> SGE_GDI_DEL(RQS, resource_quota)
+</li>
+</ul>This request allows for removing a complete resource quota set
+configuration. It contains only the name of the resource quota to be
+removed and is used for implementing the qconf option '-drqs'.
+<p>
+</p><ul>
+<li> SGE_GDI_GET(RQS,where,what)
+</li>
+</ul>This request allows for retrieving resource quota sets. CULL
+'where' expressions can be used for selecting particular rule sets,
+CULL 'what' expressions can be used for selecting particular rule set
+fields. The SGE_GDI_GET request is used for implementing the qconf
+option '-srqs'.
+<p>
+</p><ul>
+<li> SGE_GDI_MOD(LISR, resource_quota, fields)
+</li>
+<li> SGE_GDI_MOD(LISR, resource_quota, fields) + SGE_GDI_SET()
+</li>
+</ul>These requests are a SGE_GDI_MOD(LISR, resource_quota) variation
+and allow for replacing the selected fields within a resource quota.
+Field selection is done by means of an incomplete resource quota set
+configuration structure. The requests are used for implementing qconf
+options '-rattr' and '-Rattr'.
+<p>
+</p><ul>
+<li> SGE_GDI_MOD(LISR, resource_quota, fields) + SGE_GDI_APPEND(rule_identifiers, list_elements)
+</li>
+</ul>This request allows for adding one or more list elements regarding
+to one or more rule identifiers to each of the selected list fields
+within a resource quota set configuration. Field selections are done by
+means of an incomplete rule set configuration structure. The
+rule_identifiers of each tuple below each selected rule set field are
+used to define which rule should be modified. All list elements
+belonging to each tuple are added. Already existing list elements are
+silently overwritten, also if the selected rule configuration is not a
+list field this silently overwrites the current setting.The request is
+for implementing the qconf option '-aatrr' and '-Aattr'.
+<p>
+</p><ul>
+<li> SGE_GDI_MOD(LISR, resource_quota, fields) + SGE_GDI_CHANGE(rule_identifiers, list_elements)
+</li>
+</ul>This request allows for replacing one or more list elements
+regarding to one or more rule identifiers to each of the selected list
+fields within a resource quota set configuration. Field selections are
+done by means of an incomplete rule set configuration structure. The
+request is for implementing the qconf option -mattr' and '-Mattr'
+<p>
+</p><ul>
+<li> SGE_GDI_MOD(RQS, resource_quota, fields) + SGE_GDI_REMOVE(rule_identifiers, list_elements)
+</li>
+</ul>This request allows for removing one or more list elements
+regarding to one or more rule identifiers to each of the selected list
+fields within a resource quota set configuration. Field selections are
+done by means of an incomplete rule set configuration structure. The
+request is for implementing the qconf option -dattr' and '-dattr'
+<p>
+</p><h6><a name="Additional_Event_Client_requests"> </a> Additional Event Client requests </h6>
+<p>
+</p><ul>
+<li> sgeE_RQS_LIST
+</li>
+</ul>This event is sent once directly after event client registration
+to initialize the resource quota set list and contains the complete
+list of all resource quota sets with all configuration.
+<p>
+</p><ul>
+<li> sgeE_RQS_ADD(resource_quota)
+</li>
+</ul>This event is sent each time when a new resource quota set
+configuration has been created. It contains the full resource quota set
+configuration, but no usage information.
+<p>
+</p><ul>
+<li> sgeE_RQS_DEL(resource_quota)
+</li>
+</ul>This event is sent each time when an existing resource quota set
+configuration is removed and contains only the name of the resource
+quota to be removed.
+<p>
+</p><ul>
+<li> sgeE_RQS_MOD(resource_quota)
+</li>
+</ul>This event is sent each time when an existing resource quota set
+configuration changes. It contains the full resource quota set
+configuration.
+<p>
+</p><ul>
+<li> sgeE_RQS_ADD(resource_quota, rule_identifier, usage)
+</li>
+<li> sgeE_RQS_MOD(resource_quota, rule_identifier, usage)
+</li>
+<li> sgeE_RQS_DEL(resource_quota, rule_identifier, usage)
+</li>
+</ul>These events are send each time when a usage object was added,
+modified or deleted. The resource_quota and rule_identifier contains
+only the name of the object to be edited. The usage object is the
+object to be modified.
+<p>
+</p><h6><a name="Qmaster_additions"> </a><a name="Qmaster_additions_"> </a> Qmaster additions: </h6>
+<ul>
+<li> add cull rule set definition (Internal data structures)
+</li>
+<li> spooling code for the rule sets (mainly for classic spooling)
+</li>
+<li> update resource usage in all rules
+</li>
+</ul>
+<p>
+</p><h6><a name="Scheduler_additions"> </a><a name="Scheduler_additions_"> </a> Scheduler additions: </h6>
+<ul>
+<li> Create Resource Reservation Structure
+<ul>
+<li> prepare_resource_schedules()
+</li>
+</ul>
+</li>
+<li> Scheduling matching code
+<ul>
+<li> sge_sequential_assignment()
+</li>
+<li> sge_select_parallel_environment()
+</li>
+</ul>
+</li>
+<li> Debit Code
+<ul>
+<li> debit_scheduled_job()
+</li>
+</ul>
+</li>
+</ul>
+<p>
+</p><h6><a name="lib_additions"> </a><a name="lib_additions_"> </a> lib additions: </h6>
+<ul>
+<li> add code for book keeping of resource usage
+</li>
+</ul>
+<p>
+</p><h6><a name="Book_keeping_of_usage"> </a><a name="Book_keeping_of_usage_"> </a> Book keeping of usage: </h6>
+<ul>
+<li> started jobs
+</li>
+<li> finished/deleted/running jobs
+</li>
+<li> (suspended jobs)
+</li>
+<li> object modify (queue host)
+</li>
+<li> object add/delete (queue host)
+</li>
+</ul>
+<hr>
+</body></html>

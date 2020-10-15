@@ -1,0 +1,620 @@
+'\" t e
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004-2007 by Sun Microsystems, Inc.
+.\" Copyright 2013 Dave Love, Liverpool University
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.de MO		\" other man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.\" Fixme: check for missing definitions
+.TH xxQS_NAME_Sxx_TYPES 5 2011-06-22 "xxRELxx" "xxQS_NAMExx User Commands"
+.\"
+.SH NAME
+sge_types \- xxQS_NAMExx type descriptions
+.\"
+.SH DESCRIPTION
+.\"
+The xxQS_NAMExx
+user interface consists of several programs and files. Some command-line 
+switches and several file attributes are types. The syntax for these
+types is explained in this page.
+.PP
+.\"
+.\" expression        => a regular boolean expression
+.\" pattern           => a pattern definition
+.\" qdomain           => wc_qdomain without expression
+.\" qinstance         => wc_qinstance without expression
+.\" range             := n[-m[:s]][,n[-m[:s]],...]
+.\" wc_ar             := ar_id|ar_name|pattern
+.\" wc_ar_list        := wc_ar[,wc_ar,...]
+.\" wc_host           := wildcard expression matching a host
+.\" wc_hostgroup      := wildcard expression matching a hostgroup
+.\" wc_job            := job-id|job_name|pattern
+.\" wc_job_range      := wc_job[ -t range]
+.\" wc_job_list       := wc_job[,wc_job,...]
+.\" wc_job_range_list := wc_job_range[,wc_job_range,...]
+.\" wc_qdomain        := wc_cqueue@wc_hostgroup
+.\" wc_qinstance      := wc_cqueue@wc_host
+.\" wc_queue          := wc_cqueue|wc_qdomain|wc_qinstance
+.\" wc_queue_list     := wc_queue[,wc_queue,...]
+.\" wc_user           := user_name|pattern
+.\" wc_user_list      := wc_user[,wc_user,...]
+.\" wc_project        := project|pattern
+.\" wc_pe_name        := pe_name|pattern
+.\" parallel_env      := wc_pe_name \fBn\fP[\fB-\fP[\fBm\fP]]|[\fB-\fP]\fBm\fP,...\fP
+.\" date_time         := [[CC]]YY]MMDDhhmm[.SS]
+.\" time              := hh:mm:ss|seconds   
+.\" name              := ASCII alphanumeric string   
+.\"
+.SH "OBJECT TYPES"
+These types are used for defining xxQS_NAMExx configuration:
+.\"
+.SS "\fBobject_name\fP"
+An object name is a sequence of up to 512 ASCII printing characters except 
+SPACE, "/", ":", "\'", "\\", "[", "]", "{", "}", 
+"|", "(", ")", "@", "%", "," or the '"' character itself.         \" "
+.\"
+.SS "\fBcalendar_name\fP"
+A calendar name is the name of a xxQS_NAMExx calendar described in
+.M calendar_conf 5 . 
+.nf
+\fIcalendar_name\fP := \fIobject_name\fP
+.fi
+.\"
+.SS "\fBckpt_name\fP"
+A "ckpt_name" is the name of a xxQS_NAMExx checkpointing interface described in
+.M checkpoint 5 . 
+.nf
+\fIckpt_name\fP := \fIobject_name\fP
+.fi
+.\"
+.SS "\fBcomplex_name\fP"
+A complex name is the name of a xxQS_NAMExx resource attribute described in 
+.M complex 5 . 
+.nf
+\fIcomplex_name\fP := \fIobject_name\fP
+.fi
+.\"
+.SS "\fBhost_identifier\fP"
+A host identifier can be either a host name or a host group name. 
+.nf
+\fIhost_identifier\fP := \fIhost_name\fP | \fIhostgroup_name\fP
+.fi
+.\"
+.SS "\fBhostgroup_name\fP"
+A host group name is the name of a xxQS_NAMExx host group described in
+.M hostgroup 5 .
+Note, to allow host group names to be distinguished easily from host names,
+a "@" prefix is used.
+.nf
+\fIhostgroup_name\fP := @\fIobject_name\fP
+.fi
+.\"
+.SS "\fBhost_name\fP"
+A host name is the official name of a host node. Host names with a domain 
+specification such as "gridmaster.sun.com" are called fully-qualified host names, 
+whereas host names like "gridmaster" are called short host names. Note that
+the install time parameters \fBdefault_domain\fP and \fBignore_fqdn\fP (see
+.M bootstrap 5 )
+affect how xxQS_NAMExx deals with host names in general.
+.PP
+The following host names are generally invalid or reserved:
+.\" fixme:  list is from old doc, but can't see where "all" &
+.\" "default" are excluded
+.BR global ,\  template ,\  all ,\  default ,\  unknown ,\  none .
+However, it may sometimes be useful to define a dummy host name of
+.B global
+for convenient use of
+.M qhost 1 .
+.fi
+.SS "\fBjsv_url\fP"
+The \fBjsv_url\fP has following format:
+.PP
+\fIjsv_url\fP := \fIjsv_client_url\fP | \fIjsv_server_url\fP
+.PP
+\fIjsv_server_url\fP := [ \fItype\fP '\fB:\fP' ] [ \fIuser\fP '\fB@\fP' ] \fIpath\fP
+.PP
+\fIjsv_client_url\fP := [ \fItype\fP '\fB:\fP' ] \fIpath\fP
+.PP
+\fItype\fP := '\fBscript\fP'
+.PP
+At the moment only the \fItype\fP \fBscript\fP is allowed. This means
+that \fIpath\fP is either the path to a script or to a binary application
+which will be used to instantiate a JSV process. The \fItype\fP is optional until
+other \fItypes\fP are supported by xxQS_NAMExx. 
+.PP
+Specifying a \fIuser\fP is only allowed for server JSVs. Client JSVs
+will automatically be started as the submit user, and server JSVs as the admin
+user if not otherwise specified.
+.PP
+The \fIpath\fP has always to be the absolute path to a binary or application.
+.PP
+.\"
+.\"
+.SS "\fBmemory_specifier\fP"
+Memory specifiers are positive decimal, hexadecimal or octal
+integer constants which may be followed by a multiplier
+letter. Valid multiplier letters are
+.BR k ,\  K ,\  m ,\  M ,\  g ,\  G ,\  t ,
+and
+.BR T ,
+where \fBk\fP means multiply the value by 1000, \fBK\fP multiply by
+1024, \fBm\fP multiply by 1000\(mu1000, \fBM\fP multiply by 1024\(mu1024, \fBg\fP
+multiply by 1000\(mu1000\(mu1000, \fBG\fP multiply by 1024\(mu1024\(mu1024, \fBt\fP multiply
+by 1000\(mu1000\(mu1000\(mu1000, and \fBT\fP multiply by 1024\(mu1024\(mu1024\(mu1024.
+If no multiplier is present, the value is just counted in
+bytes.
+Whether memory values above the 32-bit limit are representable
+on 32-bit systems, even for disk space, is system-dependent.
+.\"
+.SS "\fBpe_name\fP"
+A PE name is the name of a xxQS_NAMExx parallel environment described in
+.M sge_pe 5 . 
+.nf
+\fIpe_name\fP := \fIobject_name\fP
+.fi
+.\"
+.SS "\fBproject_name\fP"
+A project name is the name of a xxQS_NAMExx project described in
+.M project 5 . 
+.nf
+\fIproject_name\fP := \fIobject_name\fP
+.fi
+.\"
+.SS "\fBqueue_name\fP"
+A queue name is the name of a xxQS_NAMExx queue described in
+.M queue_conf 5 .
+.nf
+\fIqueue_name \fP := \fIobject_name\fP
+.fi
+.\"
+.SS "\fBtime_specifier\fP"
+A time specifier either consists of a positive decimal, hexadecimal or 
+octal integer constant, in which case the value is interpreted to be in 
+seconds, or is built from 3 decimal integer numbers separated by colon
+signs, where the first number counts the hours, the second the minutes
+and the third the seconds. If a number would be zero it can be left
+out but the separating colon must remain (e.g. \fB1:0:1\fP = \fP1::1\fP means 1
+hour and 1 second).
+.\"
+.SS "\fBuser_name\fP"
+A user name can be the name of a 
+.M login 1 
+user or of the xxQS_NAMExx user object described in
+.M user 5 . 
+.nf
+\fIuser_name\fP := \fIobject_name\fP
+.fi
+.\"
+.SS "\fBuserset_name\fP"
+A user set name is the name of a xxQS_NAMExx access list or department described in
+.M access_list 5 . 
+.nf
+\fIuserset_name\fP := \fIobject_name\fP
+.fi
+.PP
+.SS "\fBdate_time\fP"
+A \fIdate_time\fP value must conform to
+.RI [[ CC ] YY ] MMDDhhmm [\fB.\fP SS ],
+where:
+.PP
+.nf
+.RS
+.ta \w'XXXXXXXXXX'u
+\fICC\fP	denotes the century in 2 digits.
+\fIYY\fP	denotes the year in 2 digits.
+\fIMM\fP	denotes the month in 2 digits.
+\fIDD\fP	denotes the day in 2 digits.
+\fIhh\fP	denotes the hour in 2 digits.
+\fImm\fP	denotes the minute in 2 digits.
+\fIss\fP	denotes the seconds in 2 digits (default 00).
+.fi
+.sp 1
+If any of the optional date fields are omitted, the corresponding value of
+the current date is assumed. If
+.I CC
+is not specified, a
+.I YY
+of <70 means
+.RI 20 YY .
+.br
+Use of this option may cause unexpected results if the clocks of the
+hosts in the xxQS_NAMExx pool are out of sync. Also, the proper behavior of
+this option very much depends on the correct setting of the
+appropriate timezone, e.g. in the TZ environment variable (see
+.MO date 1
+for details), when the xxQS_NAMExx daemons
+.M xxqs_name_sxx_qmaster 8
+and
+.M xxqs_name_sxx_execd 8
+are invoked.
+.SS "\fBtime\fP"
+A \fItime\fP value must conform to \fIhh\fP\fB:\fP\fImm\fP\fB:\fP\fIss\fP, or \fIseconds\fP where:
+.PP
+.nf
+.RS
+.ta \w'XXXXXXXXXX'u
+\fIhh\fP	denotes the hour in 2 digits.
+\fImm\fP	denotes the minute in 2 digits.
+\fIss\fP	denotes the seconds in 2 digits (default 00).
+\fIseconds\fP	is a number of seconds (used for duration values)
+.fi
+.\"
+.SS "\fBname\fP"
+A \fIname\fP is an arbitrary string of ASCII printing characters,
+but may not contain  "/", ":", "@", "\\", "*",  or "?".
+.SS \fBaccount_name\fP
+Identifies the account to which the resource consumption of a job
+should be charged.
+.nf
+\fIaccount_name\fP := \fIname\fP
+.fi
+.\"
+.SS \fBjob_name\fP
+A job name is a
+.I name
+as above, with the restriction that it cannot start with a digit (to
+avoid ambiguity with a job number in some contexts).
+.\"
+.SS \fBar_name\fP
+An advance reservation name is a
+.I name
+as above, with the restriction that it cannot start with a digit (to
+avoid ambiguity with an AR number in some contexts).
+.\"
+.SH "MATCHING TYPES"
+These types are used for matching xxQS_NAMExx configuration:
+.\"
+.\"
+.SS "\fBexpression\fP"
+A wildcard expression is a regular boolean expression that consists of
+one or more \fIpattern\fPs joined by boolean operators. 
+When a wildcard expression is used, the following definition applies:
+.PP
+.\"
+.nf
+.ta \w'XXXXXXXX'u
+expression	= ["!"] ["("] valExp [")"] [ AND_OR expression ]*
+valExp	= pattern | expression
+AND_OR	= "&" | "|"
+.fi
+where:
+.PP
+.\"
+.nf
+.ta \w'XXXXXXXXXX'u
+"!"	not operator: negate the following pattern or expression
+"&"	and operator: logically and with the following expression
+"|"	or operator: logically or with the following expression
+"("	open bracket: begin an inner expression.
+")"	close bracket: end an inner expression.
+"pattern"	see the \fBpattern\fP definition that follows
+.fi
+.PP
+.\"
+If typed at a shell, the expression itself should be quoted to ensure
+that it is not expanded by the shell.
+.PP
+.\"
+.ta
+e.g.
+.RS
+.nf
+.ta \w'XXXXXXXXXXXXXXX'u
+"(lx*|sol*)&*64*" any string beginning with either "lx" or
+                  "sol" and containing "64"
+"rh_3*&!rh_3.1"   any string beginning with "rh_3", except
+                  "rh_3.1"
+.fi
+.\"
+.SS "\fBpattern\fP"
+When patterns are used the following definitions apply:
+.PP
+.nf
+.ta \w'XXXXXXXX'u
+"*"	matches any character and any number of characters 
+	(between 0 and infinity).
+"?"	matches any single character.
+"."	is the character ".". It has no other meaning.
+"\\"	escape character, making the following character match literally;
+	 "\\\\" matches "\\", "\\*" matches "*", "\\?" matches "?".
+"[...]"	specifies an array or a range of allowed 
+	characters for one character at a specific position.
+        Character ranges may be specified using the a\-z notation.
+        The caret symbol (\fB^\fP) is \fInot\fP interpreted as a logical
+        not; it is interpreted literally.
+.fi
+.PP
+For more details please see
+.MO fnmatch 5 ,
+.MO glob 7 .
+.PP
+A pattern on a shell command line should normally be quoted to avoid
+it being interpreted by the shell as a file match.
+.PP
+.SS "\fBrange\fP"
+The task range specifier has the form 
+.sp 1
+.IR n [ \fB\-\fPm [ \fB:\fPs ]][ \fB,\fPn [ \fB\-\fPm [ \fB:\fPs ]] \fB,\fP ...]
+or 
+.IR n [ \fB\-\fPm [ \fB:\fPs ]][\  n [ \fB\-\fPm [ \fB:\fPs ]] \  ...]
+.sp 1
+and thus consists of a comma- or blank-separated
+list of range specifiers
+.IR  n [ \fB\-\fPm [ \fB:\fPs ]].
+The ranges are concatenated to the
+complete task id range. Each range may be a single number, a simple
+range of the form \fIn\fP\fB\-\fP\fIm\fP, or a range with a step size.
+.PP
+.SS "\fBwc_ar\fP"
+The wildcard advance reservation (AR) specification is a placeholder
+for AR ids and AR names including AR name patterns. An AR id always references one
+AR, while the name and pattern might reference multiple ARs.
+.sp 1
+\fIwc_ar\fP := \fIar_id\fP | \fIar_name\fP | \fIpattern\fP
+.PP
+.SS "\fBwc_ar_list\fP"
+The wildcard advance reservation (AR) list specification allows referencing
+multiple ARs with one command.
+.PP
+\fIwc_ar_list\fP := \fIwc_ar\fP[\fB,\fP \fIwc_ar\fP \fB,\fP ...]
+.PP
+.SS "\fBwc_host\fP"
+A wildcard host specification (\fIwc_host\fP) is a 
+wildcard expression which might match one or more hosts used in the cluster.
+The first character of that string never begins with an at-character ('@'), even
+if the expression begins with a wildcard character.
+.PP
+.\"
+.nf
+.ta
+e.g.
+.RS
+.ta \w'XXXXXXXXXXXXX'u
+*	all hosts
+a*	all host beginning with an 'a'	
+.fi
+.\"
+.SS "\fBwc_hostgroup\fP"
+A wildcard hostgroup specification (\fIwc_hostgroup\fP) is a 
+wildcard expression which might match one or more hostgroups.
+The first character of that string is always an at-character ('@').
+.PP
+More information concerning hostgroups can be found in
+.M hostgroup 5
+.PP
+.nf
+.ta
+e.g.
+.RS
+.ta \w'XXXXXXXXXXXXX'u
+@*	all hostgroups in the cluster
+@solaris	the @solaris hostgroup
+.fi
+.\"
+.SS "\fBwc_job\fP"
+The wildcard job specification is a placeholder for job ids, and job names
+including job name patterns. A job id always references one
+job, while the name and pattern might reference multiple jobs.
+.sp 1
+\fIwc_job\fP := \fIjob-id\fP | \fIjob_name\fP | \fIpattern\fP
+.PP
+.SS "\fBwc_job_range\fP"
+The wildcard job range specification allows referencing specific array
+tasks for one or multiple jobs. The job is referenced via \fIwc_job\fP and in
+addition gets a range specifier for the array tasks.
+.sp 1
+\fIwc_job_range\fP := \fIwc_job\fP [\fB\-t\fP \fIrange\fP]
+.sp 1
+If present, the \fItask_range\fP restricts the effect of the
+\fIqalter\fP etc.
+operation to the array job task range specified as a suffix to the job id.
+(See the \fB\-t\fP option to
+.M qsub 1
+for further details on array jobs.)
+.PP
+.SS "\fBwc_job_list\fP"
+The wildcard job list specification allows referencing multiple jobs
+with one command.
+.PP
+\fIwc_job_list\fP := \fIwc_job\fP[\fB,\fP \fIwc_job\fP, ...]
+.PP
+.SS "\fBwc_job_range_list\fP"
+The wildcard job range list (\fIwc_job_range_list\fP) allows
+referencing multiple job ranges with one command.
+one of the following forms:
+.sp 1
+\fIwc_job_range_list\fP := \fIwc_job_range\fP[\fB,\fP\fIwc_job_range\fP...]
+.PP
+.SS "\fBwc_qdomain\fP"
+\fIwc_qdomain\fP := \fIwc_cqueue\fP "@" \fIwc_hostgroup\fP
+.PP
+A wildcard expression queue domain specification (\fIwc_qdomain\fP) starts with a wildcard
+expression cluster queue name (\fIwc_cqueue\fP) followed by an at-character '@' 
+and a wildcard expression hostgroup specification (\fIwc_hostgroup\fP).
+.PP
+A \fIwc_qdomain\fP is used to address a group of queue instances.
+All queue instances residing on a host which is part of matching hostgroups
+will be addressed. Please note, that \fIwc_hostgroup\fP always begins with
+an at-character.
+.PP
+.nf
+.ta
+e.g.
+.RS
+.ta \w'XXXXXXXXXXXXX'u
+*@@*	all queue instances whose underlying
+	host is part of at least one hostgroup
+a*@@e*	all queue instances beginning with a whose underlying
+	host is part of at least one hostgroup beginning with e
+*@@solaris	all queue instances on hosts in
+	the @solaris hostgroup
+.fi
+.\"
+.SS "\fBwc_cqueue\fP"
+A wildcard expression cluster queue specification (\fIwc_cqueue\fP) is a 
+wildcard expression which might match one or more cluster queues used in the cluster.
+That string never contains an at-character ('@'), even if the expression begins with a 
+wildcard character.
+.PP
+.\"
+.nf
+.ta
+e.g.
+.RS
+.ta \w'XXXXXXXXXXXXX'u
+*	all cluster queues
+a*	all cluster queues beginning with an 'a'
+a*&!adam	all cluster queues beginning with an 'a', but not adam
+.fi
+.\"
+.SS "\fBwc_qinstance\fP"
+\fIwc_qinstance\fP := \fIwc_cqueue\fP "@" \fIwc_host\fP
+.PP
+A wildcard expression queue instance specification (\fIwc_qinstance\fP) starts 
+with a wildcard expression cluster queue name (\fIwc_cqueue\fP) followed by an 
+at-character '@' and a wildcard expression hostname (\fIwc_host\fP).
+.PP
+\fIwc_qinstance\fP expressions are used to address a group
+of queue instances whose underlying hostname matches the given expression.
+Please note that the first character of \fIwc_host\fP never matches
+the at-character '@'. 
+.PP
+.nf
+.ta
+e.g.
+.RS
+.ta \w'XXXXXXXXXXXXX'u
+*@*	all queue instances in the cluster
+*@b*	all queue instances whose 
+	hostname begins with a 'b'
+*@b*|c*	all queue instances whose 
+	hostname begins with a 'b' or 'c'
+.fi
+.\"
+.SS "\fBwc_queue\fP"
+\fIwc_queue\fP := \fIwc_cqueue\fP | \fIwc_qdomain\fP | \fIwc_qinstance\fP 
+.PP
+A wildcard queue expression (\fIwc_queue\fP) might either be a
+wildcard expression, cluster queue specification (\fIwc_cqueue\fP), a
+wildcard expression queue domain specification (\fIwc_qdomain\fP), or
+a wildcard expression queue instance specification (\fIwc_qinstance\fP).
+.PP
+.nf
+.ta 
+e.g.
+.RS
+.ta \w'XXXXXXXXXXXXXXXXX'u
+big_*1	cluster queues which begin with 
+	"big_" and end with "1" 
+big_*&!*1	cluster queues which begin with 
+	"big_", but do not end with "1"
+*@fangorn	all qinstances residing on host 
+	fangorn
+.fi
+.\"
+.SS "\fBwc_queue_list\fP"
+\fIwc_queue_list\fP := \fIwc_queue\fP ["," \fIwc_queue\fP "," ...]
+.PP
+Comma-separated list of \fIwc_queue\fP elements.
+.PP
+e.g. 
+.RS
+big, medium_*@@sol*, *@fangorn.sun.com
+.PP
+.SS "\fBwc_user\fP"
+A wildcard user name pattern is either a wildcard user name specification
+or a full user name.
+.PP
+\fIwc_user\fP := \fIuser_name\fP | \fIpattern\fP
+.PP
+.SS "\fBwc_user_list\fP"
+A list of user names.
+.PP
+\fIwc_user_list\fP := \fIwc_user\fP[\fB,\fP\fIwc_user\fP\fB,\fP...]
+.PP
+.SS "\fBwc_project\fP"
+A wildcard project name pattern is either a wildcard project name specification
+or a full project name.
+.PP
+\fIwc_project\fP := \fIproject\fB | \fIpattern\fP
+.PP
+.SS "\fBwc_pe_name\fP"
+A wildcard parallel environment name pattern is either a wildcard PE name specification
+or a full PE name.
+.PP
+\fIwc_pe_name\fP := \fIpe_name\fP | \fIpattern\fP
+.PP
+.SS "\fBparallel_env\fP"
+The
+.B parallel_env
+specification has the format
+.PP
+\fIwc_pe_name\fP \fIn\fP[\fB\-\fP[\fIm\fP]]|[\fB\-\fP]\fIm\fP,...
+.PP
+specifying a parallel programming environment (PE) to select for a
+submitted job or an AR. The
+range descriptor following the wildcard PE name specifies the number of
+slots to allocate, which is usually equivalent to the total number of
+parallel processes to be run (for simple distributed memory jobs) or the
+number of threads (for shared memory or mixed
+distributed/threaded jobs), as implied by the PE
+definition. xxQS_NAMExx will allocate the appropriate resources, as available.
+.M xxqs_name_sxx_pe 5
+contains information about the definition of PEs.
+.PP
+You can specify a PE name which uses wildcards.  Thus the request
+"mpi*" will match any parallel environment with a name starting with
+the string "mpi". In the case of multiple parallel environments whose
+names match a name string, when it is required to select one the one
+with the most available slots is chosen.
+.PP
+The range specification is a list of range expressions of the
+form "\fIn\fP\fB\-\fP\fIm\fP", where \fIn\fP and \fIm\fP are positive,
+non-zero integers.  The form "\fIn\fP" is equivalent to
+"\fIn\fP\fB\-\fP\fIn\fP".  The form "\fB\-\fP\fIm\fP" is equivalent to
+"\fB1\-\fP\fIm\fP".  The form "\fIn\fP\fB\-\fP" is equivalent to
+"\fIn\fP\fB\-\fPinfinity".  The
+range specification is processed as follows: The largest
+number of queues requested is checked first. If enough queues
+meeting the specified attribute list are available, all are
+reserved. If not, the next smaller number of queues is checked,
+and so forth.
+.\"
+.SH SEE ALSO
+.M qacct 1 ,
+.M qconf 1 ,
+.M qquota 1 ,
+.M qsub 1 ,
+.M qrsub 1
+.\"
+.SH COPYRIGHT
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

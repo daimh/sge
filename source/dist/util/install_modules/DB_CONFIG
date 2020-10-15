@@ -1,0 +1,4 @@
+set_lk_max_lockers 10
+set_lk_max_objects 10000
+set_lk_max_locks 200000
+set_lk_detect DB_LOCK_DEFAULT

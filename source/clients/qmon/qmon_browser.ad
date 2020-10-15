@@ -1,0 +1,95 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Browser Layout
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*browser_shell.xmtChildren:  XmtLayout browser_layout;
+Qmon*browser_layout.autoUnmanage: False
+Qmon*browser_layout.dialogTitle: @{QMON +++ Browser}
+!Qmon*browser_layout*fontList:   $dialog_font
+Qmon*browser_layout.xmtChildren: \
+      XmPushButton   browser_main_link; \
+      XmtChooser     browser_object; \
+      XmPushButton   browser_close, browser_clear, \
+                     browser_help; \
+      XmtScrolledCli browser;
+
+Qmon*browser_layout.layout: \
+   Fixed Shadowed Out 4 2 LREvenSpaced Row browser_title { \
+      Fixed Centered browser_main_link \
+      Centered Color "$title_fg" "@{@fBObject Browser}" \
+   } \
+   # \
+   Row { \
+      Stretchable 8 in browser \
+      Fixed Shadowed Col { \
+         Etched Through 4 2 Caption tl "@{@fBObjects}" browser_object \
+         <> \
+         browser_clear browser_close browser_help \
+      } \
+   }
+
+
+Qmon*browser_layout*browser_main_link.labelType:          PIXMAP
+Qmon*browser_layout*browser_main_link.labelPixmap:        logo
+Qmon*browser_layout*browser_main_link.shadowThickness:    1
+Qmon*browser_layout*browser_main_link.highlightThickness: 0
+Qmon*browser_layout*browser_main_link.marginHeight:       0
+Qmon*browser_layout*browser_main_link.marginWidth:        0
+
+
+Qmon*browser_layout.browser_object.chooserType: CheckPalette
+Qmon*browser_layout.browser_object.strings: \
+   "@{stdout}", \
+   "@{stderr}", \
+   "@{Queue}", \
+   "@{Job}", \
+   "@{Messages}"
+
+Qmon*browser_layout.browser_close.labelString:       @{Done}
+Qmon*browser_layout.browser_clear.labelString:       @{Clear}
+Qmon*browser_layout.browser_help.labelString:        @{Help}
+
+Qmon*browser_layout*browser*columns:       100
+Qmon*browser_layout*browser*saveLines:     2000
+Qmon*browser_layout*browser*editable:      False
+Qmon*browser_layout*browser*cursorPositionVisible:  False
+Qmon*browser_layout*browser*autoShowCursorPosition:  False
+Qmon*browser_layout*browser*translations:  #override\n\
+   Shift<Key>osfUp: scroll-backward()\n\
+   Shift<Key>osfDown: scroll-forward()
+
+Qmon*browser_layout*browser.fontList:  $browser_font
+
+!Qmon*browser_layout*browser_icon.labelType:   PIXMAP
+
+Qmon*browser_help.activateCallback:   XmtHelpDisplayContextHelp(self);

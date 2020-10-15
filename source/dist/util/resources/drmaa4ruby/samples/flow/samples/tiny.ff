@@ -1,0 +1,1 @@
+TEST = {cmd=do_test, args=-w 15}

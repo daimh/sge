@@ -1,0 +1,2461 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\" Copyright (C), 2011, 2012 Dave Love, University of Liverpool
+.\"
+.\" Portions of this code are Copyright 2011 Univa Inc.
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\"
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\" "
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.de MO		\" external man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH SUBMIT 1 "2011-11-27" "xxRELxx" "xxQS_NAMExx User Commands"
+.SH NAME
+qsub, qsh, qlogin, qrsh, qalter, qresub \- submit jobs to xxQS_NAMExx
+.PP
+.SH SYNTAX
+.B qsub
+.RI [ options ]
+.RI [ command
+.RI [ command_args ]
+|
+.B \-\-
+.RI [ command_args ]]
+.PP
+.B qsh
+.RI [ options ]
+.RB [ \-\-
+.IR xterm_args ]
+.PP
+.B qlogin
+.RI [ options ]
+.PP
+.B qrsh
+.RI [ options ]
+.RI [ command
+.RI [ command_args ]]
+.PP
+.B qalter
+.RI [ options ]
+.I wc_job_range_list
+.RB [ \-\-
+.RI [ command_args ]]
+.PP
+.B qalter
+.RI [ options ]
+.B \-u 
+.I user_list
+|
+.B \-u *
+.RB [ \-\-
+.RI [ command_args ]]   
+.PP
+.B qresub
+.RI [ options ]
+.I job_id_list
+.\"
+.\"
+.SH DESCRIPTION
+
+.I Qsub
+submits batch jobs to the xxQS_NAMExx queuing system. xxQS_NAMExx supports
+single- and multiple-node jobs. \fIcommand\fP can be a path to a
+binary or a script (see \fB\-b\fP below) which contains the commands to be
+run by the job using a shell (for example,
+.M sh 1
+or
+.M csh 1 ).
+Arguments to the command are given as \fIcommand_args\fP to
+.IR qsub .
+If \fIcommand\fP is handled as a script then it is possible to embed flags
+in the script.  If the first two characters of a script line either
+match '#$' or are equal to the prefix string defined with the \fB\-C\fP option
+described below, the line is parsed for embedded command flags.
+.PP
+.I Qsh
+submits an interactive X-windows session to xxQS_NAMExx. An
+.M xterm 1
+is brought up from the executing machine with the display directed either to
+the X-server indicated by the DISPLAY environment variable or as specified
+with the \fB\-display\fP option of \fIqsh\fP. Interactive jobs are not spooled if no
+resource is
+available to execute them. They are either dispatched to a suitable machine
+for execution immediately or the user submitting the job is notified by
+.I qsh
+that appropriate resources to execute the job are not available.
+\fIxterm_args\fP are passed to the
+.M xterm 1
+executable.  Note, however, that the \fI\-e\fP and \fI\-ls\fP xterm options
+do not work with
+.IR qsh .
+.PP
+.I Qlogin
+is similar to
+.I qsh
+in that it submits an interactive job
+to the queuing system. It does not open an
+.M xterm 1
+window on the
+X display, but uses the current terminal for user I/O.  It establishes a
+.M telnet 1 -like
+connection with the remote host, using the configured mechanisms described in
+.M remote_startup 5 .
+.I Qlogin
+is invoked exactly like
+.I qsh
+and its jobs can only run on INTERACTIVE queues.
+.I Qlogin
+jobs can only be used if the
+.M xxqs_name_sxx_execd 8
+is running under the root account.
+.PP
+.I Qrsh
+is similar to 
+.I qlogin
+in that it submits an interactive job to the queuing system. 
+It uses the current terminal for user I/O.  With a command, it establishes a
+.M rsh 1 -like
+connection with the remote host. If no command is given to \fIqrsh\fP, an 
+.M rlogin 1 -like
+session is established.
+It uses the configured mechanisms described in
+.M remote_startup 5 .
+.I Qrsh
+jobs can only run in INTERACTIVE queues unless the option \fB\-now no\fP is
+used (see below).
+They can also only be run if the
+.M xxqs_name_sxx_execd 8
+is running under the root account.
+.PP
+.I Qrsh
+provides an additional useful feature for integrating with
+interactive tools providing a specific command shell. If the environment
+variable
+.B QRSH_WRAPPER
+is set when
+.I qrsh
+is invoked, the command interpreter pointed to by
+.B QRSH_WRAPPER
+will be executed to run
+.I qrsh
+commands instead of the user's login shell or any shell specified in the
+.I qrsh
+command-line.
+The options \fB\-cwd\fP,  \fB\-v\fP,  \fB\-V\fP,  and \fB\-display\fP only 
+apply to batch jobs.
+.PP
+.I Qalter
+can be used to change the attributes of pending jobs. For array jobs
+with a mix of running and pending tasks
+(see the \fB\-t\fP option below), modification with
+.I qalter
+only affects the pending tasks.
+.I Qalter
+can change most of the 
+characteristics of a job (see the corresponding statements in the OPTIONS 
+section below), including those which were defined as embedded flags in the 
+script file (see above).  An option specified with
+.I qalter
+completely replaces any parameters previously specified for the job by
+that option, e.g. if the job has a resource requirement corresponding to
+.BR "\-l\ h_rt=3600,h_vmem=2G" ,
+then after a \fBqalter \-l h_rt=7200\fP, the resource requirement is
+simply \fBh_rt=7200\fP; it is not currently possible to override one
+or more values.
+.PP
+Some submit options, such as the job script, cannot
+be changed with
+.IR qalter .
+If parameters are set with
+.IR qalter ,
+the output from
+.B qstat \-j
+acquires an additional field,
+.BR version ,
+which is incremented each time.
+.PP
+If a server JSV is defined, modifications are forbidden unless they
+are explicitly allowed by the
+.M sge_conf 5
+parameter
+.BR jsv_allowed_mod .
+(See also
+.M jsv 1 .)
+.PP
+.I Qresub
+allows the user to create jobs as copies of existing pending or running
+jobs. The copied jobs will have exactly the same attributes as the ones
+from which they were copied, except with a new job ID and with a cleared
+hold state. The only modification to
+the copied jobs supported by
+.I qresub
+is assignment of a new hold state with the
+\fB\-h\fP option. This option can be used to first copy a job and then change
+its attributes via \fIqalter\fP.
+.PP
+Only a manager can use
+.I qresub
+on jobs submitted by another user.  Regular users can only use
+.I qresub
+on their own jobs.
+.PP
+See
+.M xxqs_name_sxx_shepherd 8
+for the significance of exit codes returned by the submitted job.
+.PP
+For \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP, and \fIqlogin\fP
+the administrator and the user may define
+default request files (see
+.M xxqs_name_sxx_request 5 )
+which can contain any of the
+options described below.
+If an option in a default request file is understood by
+.I qsub
+and
+.I qlogin
+but not by
+.I qsh
+the option is silently ignored if
+.I qsh
+is invoked. Thus you can 
+maintain shared default request files for both
+.I qsub
+and \fIqsh\fP.
+.PP
+A cluster-wide default request file
+may be placed under
+.IR $xxQS_NAME_Sxx_ROOT/$xxQS_NAME_Sxx_CELL/common/xxqs_name_sxx_request .
+User private default request files are processed under the
+locations
+.I $HOME/.xxqs_name_sxx_request
+and
+.IR $cwd/.xxqs_name_sxx_request .
+The working
+directory local default request file has the highest precedence,
+then the home directory file and then the cluster global
+file.
+The option arguments, the embedded script flags and the options
+in the default request files are
+processed in the following order:
+.PP
+.RS
+.nf
+left to right in the script line,
+left to right in the default request files,
+from top to bottom of the script file (\fIqsub\fP only),
+from top to bottom of default request files,
+from left to right of the command line.
+.fi
+.RE
+.PP
+In other words, the command line can be used to override
+the embedded flags and the default request settings.
+The embedded flags, however, will override the default
+settings.
+.PP
+\fBNote\fP, that the
+.B \-clear
+option can be used to discard any previous settings at any
+time in a default request file, in the embedded script flags, or
+in a
+command-line option. It is, however, not available with \fIqalter\fP.
+.PP
+The request
+options described below can be requested either hard or soft.
+By default, all requests are considered hard until the \fB\-soft\fP option (see
+below) is encountered. The hard/soft status remains in effect
+until its counterpart is encountered again.
+If all the hard requests for a job cannot 
+be met, the job will not be scheduled.
+Jobs which cannot be run at the present time
+remain spooled.
+.\"
+.\"
+.SH OPTIONS
+.IP "\fB\-@\fP \fIoptionfile\fP"
+Forces
+\fIqsub\fP, \fIqrsh\fP, \fIqsh\fP, or \fIqlogin\fP
+to use the
+options contained in \fIoptionfile\fP. The indicated
+file may contain all valid
+options. Comment lines must start with a "#" sign.
+.\"
+.IP "\fB\-a\fP \fIdate_time\fP"
+Available for \fIqsub\fP and \fIqalter\fP only.
+.sp 1
+Defines or redefines
+the time and date at which a job is eligible for execution. \fIdate_time\fP
+is of the form [[\fICC\fP]\fIYY\fP]\fIMMDDhhmm\fP[\fB.\fP\fISS\fP]; for the details, please see \fBdate_time\fP in
+.M sge_types 5 .
+.sp 1
+If this option is used with \fIqsub\fP or if a corresponding value is 
+specified in \fIqmon\fP then a parameter named \fBa\fP and the value
+in the format CCYYMMDDhhmm.SS will be passed to the defined JSV instances.
+(See \fB\-jsv\fP option below or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-ac\fP \fIvariable\fP[\fB=\fP\fIvalue\fP]\fB,\fP..."
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP, \fIqlogin\fP and
+\fIqalter\fP only.
+.sp 1
+Adds the given name/value pair(s) to the job's context. \fIvalue\fP may be
+omitted. xxQS_NAMExx appends the given argument to the list of context
+variables for the job.
+Multiple \fB\-ac\fP, \fB\-dc\fP, and \fB\-sc\fP options may be given.
+The order is important here.
+.sp 1
+The outcome of the evaluation of all \fB\-ac\fP, \fB\-dc\fP, and \fB\-sc\fP 
+options or corresponding values in \fIqmon\fP is passed to defined JSV 
+instances as parameter with the name \fBac\fP.
+(See \fB\-jsv\fP option below or find more information concerning JSV in
+.M jsv 1 .)
+.sp 1
+.I Qalter
+allows changing this option even while the job executes.
+.\"
+.IP "\fB\-ar\fP \fIar_id\fP"
+Available for \fIqsub\fP, \fIqalter\fP, \fIqrsh\fP, \fIqsh\fP, or \fIqlogin\fP
+only.
+.sp 1
+Assigns the submitted job to be a part of an existing Advance
+Reservation with id \fIar_id\fP.
+The complete list of existing Advance Reservations can be obtained using the
+.M qrstat 1
+command.
+.sp 1
+Note that the
+\fB\-ar\fP
+option implicitly adds the \fB\-w e\fP option if not otherwise requested.
+.sp 1
+.I Qalter
+allows changing this option even while the job executes. The modified
+parameter will only be in effect after a restart or migration of the
+job however.
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified then
+this value will be passed to defined JSV
+instances as parameter with the name \fB\aar\fP. 
+(See \fB\-jsv\fP option below or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-A\fP \fIaccount_string\fP"
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP, \fIqlogin\fP and
+\fIqalter\fP only.
+.sp 1
+Identifies the account to which the resource consumption of the job
+should be charged. The \fIaccount_string\fP should conform to the
+\fIaccount_name\fP definition in
+.M sge_types 5 .
+In the absence of this parameter xxQS_NAMExx 
+will place the default account string "xxqs_name_sxx" in the accounting record
+of the job.
+.sp 1
+.I Qalter
+allows changing this option even while the job executes.
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified then
+this value will be passed to defined JSV
+instances as parameter with the name \fBA\fP.
+(See \fB\-jsv\fP option below or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-b y\fP[\fBes\fP]|\fBn\fP[\fBo\fP]"
+Available for \fIqsub\fP, \fIqrsh\fP only. \fIQalter\fP does not allow
+changing this option. This option cannot be embedded in the script file itself.
+.sp 1
+Gives the user the possibility to indicate explicitly whether
+\fIcommand\fP should be treated as binary or script. If the argument
+of \fB\-b\fP is 'y', then \fIcommand\fP  may be a binary or script.
+The \fIcommand\fP might not be accessible from the submission host.
+Nothing except the path of the \fIcommand\fP will be transferred
+from the submission host to the execution host. Path aliasing will
+be applied to the path of \fIcommand\fP before it is executed.
+.sp 1
+If the argument of \fB\-b\fP is 'n' then \fIcommand\fP needs to be a
+script, and it will be handled as such. The script file has to be
+accessible by the submission host. It will be transferred to the
+execution host. \fIqsub\fP/\fIqrsh\fP will search directive prefixes
+within scripts.
+.sp 1
+\fIqsub\fP will implicitly use \fB\-b n\fP, whereas \fIqrsh\fP will apply
+the \fB\-b\ y\fP option if nothing else is specified.
+.sp 1
+The value specified with this option or the corresponding value specified in
+\fIqmon\fP will only be passed to defined JSV instances if the value is \fIyes\fP.
+The name of the parameter will be \fBb\fP. The value will be \fBy\fP also
+when the long form \fByes\fP was specified during submission.
+(See \fB\-jsv\fP option below or find more information concerning JSV in
+.M jsv 1 .)
+.sp
+Please note that submission of \fIcommand\fP as a script (\fB\-b n\fP) can have a significant
+performance impact, especially for short running jobs and big job scripts.
+Script submission adds a number of operations to the submission process:
+The job script needs to be
+.nf
+\- parsed at client side (for special comments)
+\- transferred from submit client to qmaster
+\- spooled in qmaster
+\- transferred to execd at job execution
+\- spooled in execd
+\- removed from spooling both in execd and qmaster once the job is done
+.fi
+If job scripts are available on the execution nodes, e.g. via NFS, binary 
+submission can be the better choice.
+.\"
+.IP "\fB\-binding\fP [\fIbinding_instance\fP] \fIbinding_strategy\fP"
+A job can request a specific processor core binding (processor affinity)
+with this parameter. This request is neither a hard nor a soft request,
+it is a hint for the execution host to do this if possible.
+Please note that the requested binding strategy is not used for
+resource selection within xxQS_NAMExx.  As a result an execution host
+might be selected where xxQS_NAMExx does not even know the hardware topology
+and therefore is not able to apply the requested binding.  (The
+binding facility depends on the platform, and on xxQS_NAMExx being
+compiled with appropriate support.)
+.sp
+To make xxQS_NAMExx select hardware on which the binding can be applied,
+please use the \fB\-l\fP switch in combination with the complex
+attribute \fBm_topology\fP.
+.sp
+\fIbinding_instance\fP is an optional parameter. It might either be
+\fBenv\fP, \fBpe\fP or \fBset\fP depending on which instance should accomplish the
+job to core binding. If the value for \fIbinding_instance\fP is
+not specified then \fBset\fP will be used.
+.sp
+\fBenv\fP means that only the environment variable \fBxxQS_NAME_Sxx_BINDING\fP will be
+exported to the job environment of the job. This variable contains the
+selected operating system internal processor numbers.
+In presence of SMT or CMT it may contain more than the number of cores selected,
+because each core could be represented by multiple processor identifiers.
+The processor numbers are space-separated.
+.sp
+\fBpe\fP means that the information about the selected cores appears in
+the fourth column of the \fBpe_hostfile\fP. Here the logical core and socket
+numbers are printed (they start at 0 and have no holes) in colon-separated
+pairs (e.g. "0,0:1,0", which means core 0 on socket 0 and core 0 on socket 1).
+For more information about the $pe_hostfile check
+.M xxqs_name_sxx_pe 5 .
+In addition, \fBxxQS_NAME_Sxx_BINDING\fP is set as for \fBenv\fP binding.
+.sp
+\fBset\fP (the default if nothing else is specified) means that the
+binding strategy is applied by xxQS_NAMExx.  Each shepherd (on the
+master host, or those connected to with qrsh \-inherit) is bound to
+the relevant cores.  The binding is inherited by the task that is
+started, so that processes or threads it spawns are bound to those
+cores, but it is up to the task to make any more specific bindings of
+its sub-tasks within the set of bound cores it inherits.  How
+xxQS_NAMExx does this depends on the underlying hardware architecture
+of the execution host where the submitted job will be started.
+In addition, \fBxxQS_NAME_Sxx_BINDING\fP is set as for \fBenv\fP binding.
+.sp
+Binding will be done to restrict the job to run exclusively on the
+selected cores, if possible on the platform; otherwise bound processes
+may still be able to use other cores.  The operating system will
+probably allow other unbound processes to use these cores.  Note that
+if all cores on a node are specified to be bound by one job, that is
+probably equivalent to no binding, with the task free to use all the
+cores.
+.sp
+The \fIloadcheck\fP tool in the
+\fIutilbin\fP directory can be used to check the host's capabilities.
+You can also use \fB\-sep\fP in combination with \fB\-cb\fP of
+.M qconf 5
+to find whether xxQS_NAMExx is able to recognize the
+hardware topology.
+.MO hwloc-ps 1
+can be used to check the bindings in force on a host.
+.sp
+Possible values for \fIbinding_strategy\fP are as follows:
+.sp
+.nf
+.ta \w''u
+    \fBlinear:\fP[\fInumber\fP[\fB:\fP\fIsocket\fP\fB,\fP\fIcore\fP]]
+    \fBstriding:\fP\fInumber\fP\fB:\fP\fIn\fP[\fB:\fP\fIsocket\fP\fB,\fP\fIcore\fP]
+    \fBexplicit:\fP\fIsocket\fP\fB,\fP\fIcore\fP[\fB:\fP\fIsocket\fP\fB,\fP\fIcore\fP]...
+.fi
+.sp
+For the binding strategies "linear" and "striding" there is an optional
+socket and core pair attached. These denote the mandatory
+starting point for the first core to bind on.  Logical socket and core
+numbers are used, per
+.MO hwloc 7 .
+.sp
+\fBlinear\fP means that xxQS_NAMExx tries to bind the job on \fInumber\fP
+successive cores. If \fIsocket\fP and \fIcore\fP are omitted then xxQS_NAMExx
+first allocates successive cores on the first empty socket found.
+("Empty" means that there are no jobs bound to the socket by xxQS_NAMExx.)
+If this is not  possible, or is not sufficient, xxQS_NAMExx tries to find
+(further) cores on the socket with the most unbound cores, and so on.
+If \fIsocket\fP and \fIcore\fP are specified,
+then xxQS_NAMExx tries to find empty cores with this
+starting point. If the binding request cannot be satisfied, then
+binding is not done on the host concerned.  \fInumber\fP may be
+omitted or specified as
+\fBslots\fP.  In that case it will be taken as the number of slots
+assigned to the job on a per-host basis, on the assumption that one
+slot per core is used.  That allows binding to work when parallel
+jobs run across nodes with variable slot counts per node.
+Multiple processing units (hardware threads) per core are currently not taken
+into account in this, but systems running such parallel jobs will
+typically have only a single thread per core.  \fB\-binding linear\fP
+is a reasonable overall default for
+.M sge_request 5
+in many cases.
+.sp
+\fBstriding\fP means that xxQS_NAMExx tries to find cores with a certain offset.
+It will select \fInumber\fP of empty cores with an offset of \fBn\fP\-1 cores
+in between. Start point for the search algorithm is socket 0 core 0. As soon as
+\fInumber\fP cores are found they will be used to do the job binding.
+If there are not enough empty cores, or if the correct offset cannot
+be achieved, then no binding will be done on the host concerned.
+.sp
+\fBexplicit\fP binds the specified sockets and cores that are mentioned in the
+provided socket/core list. Each socket/core pair has to be specified only once. If a
+socket/core pair is already in use by a different job, the whole binding request
+will be ignored.
+.sp
+.\" Discussion following http://markmail.org/message/lffc44tyo25wbhk2
+Note that a binding like "\fBpe\ linear:\fP\fInumber\fP..."
+is only useful if the job has exclusive access to its multiple compute
+nodes, they all have the same topology, and the PE has a fixed
+allocation rule
+.RB ( allocation_rule
+.IR n ).
+(The $pe_hostfile content is created on the job's master host, with the
+same <socket,core> specification for each.)  This method can't be used
+for job isolation.  Similarly,
+.B set
+requires a fixed allocation per host for distributed parallel jobs.
+.sp
+\fBQalter\fP allows changing this option even while the job executes. The
+modified parameter will only be in effect after a restart or migration
+of the job, however.
+.sp
+If this option, or a corresponding value in qmon, is specified then these
+values will be passed to defined JSV instances as parameters with the names 
+\fBbinding_strategy\fP, \fBbinding_type\fP, \fBbinding_amount\fP,
+\fBbinding_step\fP, \fBbinding_socket\fP, \fBbinding_core\fP,
+\fBbinding_exp_n\fP, \fBbinding_exp_socket\fP\fIid\fP, \fBbinding_exp_core\fP\fIid\fP.
+.sp
+Please note that the length of the socket/core value list of the explicit 
+binding is reported as \fBbinding_exp_n\fP. \fIid\fP will be replaced
+by the position of the socket/core pair within the explicit list (0 <= \fIid\fP < \fBbinding_exp_n\fP).
+The first socket/core pair of the explicit binding will be reported 
+with the parameter names \fBbinding_exp_socket0\fP
+and \fBbinding_exp_core0\fP.
+.sp
+Values that do not apply for the specified binding will not be reported to JSV.
+E.g. \fBbinding_step\fP will only be reported for the striding binding and all
+\fBbinding_exp_*\fP values will passed to JSV if explicit binding was specified.  
+(See \fB\-jsv\fP option below or find more information concerning JSV in
+.M jsv1 .)
+.\"
+.IP "\fB\-c\fP \fIoccasion_specifier\fP"
+Available for \fIqsub\fP and \fIqalter\fP only.
+.sp 1
+Defines or redefines whether the job should be checkpointed, and if so,
+under what circumstances. The specification of the checkpointing occasions
+with this option overwrites the definitions of the \fIwhen\fP parameter in
+the checkpointing environment (see
+.M checkpoint 5 )
+referenced by the \fBqsub\ \-ckpt\fP switch.
+Possible values for \fIoccasion_specifier\fP are
+.RS
+.TP
+.B n
+No checkpoint is performed;
+.TP
+.B s
+Checkpoint when batch server is shut down;
+.TP
+.B m
+Checkpoint at minimum CPU interval;
+.TP
+.B x
+Checkpoint when job gets suspended;
+.TP
+.B r
+Reschedule when execution host goes into the "unknown" state;
+.TP
+.I interval
+Checkpoint in the specified interval (a
+.B time_specifier
+per
+.M sge_types 5 ).
+.RE
+.IP
+The minimum CPU interval is defined in the queue configuration (see
+.M queue_conf 5
+for details).  If \fIinterval\fP is specified, the maximum of that and
+the queue's minimum CPU interval is used (to ensure that a machine is
+not overloaded by checkpoints being generated too frequently).
+.sp 1
+The value specified with this option or the corresponding value specified in
+\fIqmon\fP will be passed to defined JSV instances.
+The \fIinterval\fP will be available as parameter with the name \fBc_interval\fP.
+The character sequence specified will be available as parameter with the name
+\fBc_occasion\fP. Please note that if you change \fBc_occasion\fP via JSV, then
+the last setting of \fBc_interval\fP will be overwritten, and vice versa.
+(See \fB\-jsv\fP option below or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-ckpt\fP \fIckpt_name\fP"
+Available for \fIqsub\fP and \fIqalter\fP only.
+.sp 1
+Selects the checkpointing environment (see
+.M checkpoint 5 )
+to be used for 
+checkpointing the job. Also declares the job to be a checkpointing job. 
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified then
+this value will be passed to defined JSV
+instances as parameter with the name \fBckpt\fP.
+(See \fB\-jsv\fP option below or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-clear\fP"
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP, and \fIqlogin\fP
+only.
+.sp 1
+Causes all elements of the job to be reset to the initial default status
+prior to applying any modifications (if any) appearing in this specific
+command.
+.\"
+.IP "\fB\-cwd\fP"
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP and
+\fIqalter\fP only.
+.sp 1
+Execute the job from the current working directory.
+This switch will activate xxQS_NAMExx's path aliasing facility, if the
+corresponding
+configuration files are present (see
+.M xxqs_name_sxx_aliases 5 ).
+.sp 1
+In the case of \fIqalter\fP, the previous definition of the current working
+directory will be overwritten if \fIqalter\fP is executed from a
+different directory than the preceding \fIqsub\fP or \fIqalter\fP.
+.sp 1
+.I Qalter
+allows changing this option even while the job executes. The modified
+parameter will only be in effect after a restart or migration of the job,
+however.
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified then
+this value will be passed to defined JSV
+instances as parameter with the name \fBcwd\fP. The value of this parameter
+will be the absolute path to the current working directory. JSV scripts can
+remove the path from jobs during the verification process by setting the 
+value of this parameter to an empty string. As a result the job
+behaves as if \fB\-cwd\fP was not specified during job submission.
+(See \fB\-jsv\fP option below or find more information concerning JSV in
+.M jsv 1 .)
+
+.\"
+.IP "\fB\-C\fP \fIprefix_string\fP"
+Available for \fIqsub\fP and \fIqrsh\fP with script submission (\fB\-b n\fP).
+.sp 1
+.I Prefix_string
+defines the prefix that declares a directive in the
+job's command. The prefix is not a job attribute, but
+affects the behavior of \fIqsub\fP and \fIqrsh\fP. If \fIprefix\fP is a
+null string, the command will not be scanned for embedded directives.
+.br
+The directive prefix consists of two ASCII characters which,
+when appearing in the first two bytes of a script line,
+indicate that what follows is an xxQS_NAMExx command.
+The default is "#$".
+.br
+The user should be aware that changing the first delimiting character can
+produce unforeseen side effects. If the script file contains anything
+other than a "#" character in the first byte position of the line, the shell
+processor for the job will reject the line and may exit the job
+prematurely.
+.br
+If the \-C option is present in the script file, it is ignored.
+.\"
+.IP "\fB\-dc\fP \fIvariable\fP,...\fP"
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP, \fIqlogin\fP and
+\fIqalter\fP only.
+.sp 1
+Removes the given variable(s) from the job's context. 
+Multiple \fB\-ac\fP, \fB\-dc\fP, and \fB\-sc\fP options may be given.
+The order is important.
+.sp 1
+.I Qalter
+allows changing this option even while the job executes.
+.sp 1
+The outcome of the evaluation of all \fB\-ac\fP, \fB\-dc\fP, and \fB\-sc\fP
+options or corresponding values in \fIqmon\fP is passed to defined JSV
+instances as parameter with the name \fBac\fP.
+(See \fB\-jsv\fP option below or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-display\fP \fIdisplay_specifier\fP"
+Available for \fIqsh\fP and \fIqrsh\fP with a command.
+.sp 1
+Directs
+.M xterm 1
+to use
+.I display_specifier
+in order to contact the X server.
+The \fIdisplay_specifier\fP has to contain the hostname part of the display name (e.g. myhost:1).
+Local display names (e.g. :0) cannot be used in grid environments.
+Values set with the \fB\-display\fP option overwrite settings from the submission environment 
+and from \fB\-v\fP command line options.
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified then
+this value will be passed to defined JSV
+instances as parameter with the name \fBdisplay\fP. This value will also
+be available in the job environment which might optionally be passed to JSV
+scripts. The variable name will be \fBDISPLAY\fP.
+(See \fB\-jsv\fP option below or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-dl\fP \fIdate_time\fP"
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP, \fIqlogin\fP and
+\fIqalter\fP only.
+.sp 1
+Specifies the deadline initiation time in [[\fICC\fP]\fIYY\fP]\fIMMDDhhmm\fP[\fB.\fP\fISS\fP] format (see
+\fB\-a\fP option above). The deadline initiation time is the time at
+which a deadline job has to reach top priority to be able to complete
+within a given deadline. Before the deadline initiation time the
+priority of a deadline job will be raised steadily until it reaches the
+maximum as configured by the xxQS_NAMExx administrator.
+.sp 1
+This option is applicable only for users allowed to submit deadline jobs.
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified then
+this value will be passed to defined JSV
+instances as parameter with the name \fBdl\fP. The format for the date_time value
+is CCYYMMDDhhmm.SS.
+(See \fB\-jsv\fP option below or find more information concerning JSV in
+.M jsv 1 .)
+
+.\"
+.IP "\fB\-e\fP [[\fIhostname\fP]\fB:\fP]\fIpath\fP\fB\fP..."
+Available for \fIqsub\fP and \fIqalter\fP only, but currently silently
+ignored by \fIqsh\fP, \fIqrsh\fP, and \fIqlogin\fP.
+.sp 1
+Defines or redefines
+the path used for the standard error stream of the job. For
+\fIqsh\fP, \fIqrsh\fP and \fIqlogin\fP only the standard error
+stream of prolog and epilog is redirected.
+If the \fIpath\fP constitutes an absolute path name, the
+error-path attribute of the job is set to \fIpath\fP, including
+the \fIhostname\fP. If the path name is relative, xxQS_NAMExx
+expands \fIpath\fP, either relative to the current working directory
+(if the \fB\-cwd\fP switch \- see above \- is also
+specified) or to the home directory. If
+\fIhostname\fP is present, the standard error stream will be
+placed in the corresponding location only if the job runs on
+the specified host. If the path contains a ":" without a
+\fIhostname\fP, a leading ":" has to be specified.
+.sp 1
+By default the file name for interactive jobs is \fI/dev/null\fP. For
+batch jobs the default file name has the form \fIjob_name\fP\fB.e\fP\fIjob_id\fP and
+\fIjob_name\fP\fB.e\fP\fIjob_id\fP\fB.\fP\fItask_id\fP for array job tasks (see
+\fB\-t\fP option below).
+.sp 1
+If \fIpath\fP is a directory, the standard error stream of the
+job will be put in this directory under the default file name.
+If the pathname contains certain pseudo environment variables,
+their value will be expanded at runtime of the job and will be used
+to constitute the standard error stream path name. The following
+pseudo environment variables are supported currently; note the lack of
+an
+.B xxQS_NAMExx_
+prefix in this context:
+.sp 1
+.nf
+.ta \w'$JOB_NAME   'u
+$HOME	home directory on execution machine
+$USER	user ID of job owner
+$JOB_ID	current job ID
+$JOB_NAME	current job name (see \fB\-N\fP option)
+$HOSTNAME	name of the execution host
+$TASK_ID	array job task index number
+.fi
+.sp 1
+The tilde sign "~" can be used as an alternative to $HOME, as in
+.M csh 1 ,
+.M bash 1 ,
+or
+.M ksh 1 .
+Note that the "~" sign also works in combination with user names,
+so that "~\fIuser\fP" expands to the home directory of \fIuser\fP. Using
+another user ID than that of the job owner
+requires corresponding permissions, of course.
+.sp 1
+.I Qalter
+allows changing this option even while the job executes. The modified
+parameter will only be in effect after a restart or migration of the job,
+however.
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified then
+this value will be passed to defined JSV
+instances as parameter with the name \fBe\fP.
+(See \fB\-jsv\fP option below or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-hard\fP"
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP, \fIqlogin\fP and
+\fIqalter\fP only.
+.sp 1
+Signifies that all \fB\-q\fP and \fB\-l\fP resource requirements following in the
+command line will be hard requirements and must be satisfied
+in full before a job can be scheduled.
+.br
+As xxQS_NAMExx scans the command line and script file for xxQS_NAMExx
+options and parameters it builds a list of resources required
+by a job. All such resource requests are normally considered as
+absolutely essential for the job to commence.  However, if the
+\fB\-soft\fP option (see below) is encountered during the scan
+then all following resources are designated as "soft
+requirements" for execution, or "nice-to-have, but not
+essential". If the \fB\-hard\fP flag is encountered at a later
+stage of the scan, all resource requests following it once
+again become essential. The \fB\-hard\fP and \fB\-soft\fP
+options in effect act as toggles during the scan.
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified then
+the corresponding \fB\-q\fP and \fB\-l\fP resource requirements will be
+passed to defined JSV instances as parameter with the names \fBq_hard\fP and
+\fBl_hard\fP. Find for information in the sections describing \fB\-q\fP and \fB\-l\fP.
+(See \fB\-jsv\fP option below or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-h\fP | \fB\-h\fP {\fBu\fP|\fBs\fP|\fBo\fP|\fBn\fP|\fBU\fP|\fBO\fP|\fBS\fP}..."
+Available for \fIqsub\fP (only \fB\-h\fP), \fIqrsh\fP, \fIqalter\fP
+and \fIqresub\fP (hold state is removed when not set explicitly).
+.sp 1
+List of holds to place on a job, a task or some tasks of a job.
+.sp 1
+.nf
+.ta \w'|u|  'u
+`u'	denotes a user hold.
+`s'	denotes a system hold.
+`o'	denotes a operator hold.
+`n'	denotes no hold (requires manager privileges).
+.fi
+.sp 1
+As long as any hold other than `n' is assigned to the job
+the job is not eligible for execution. Holds can be released
+via
+.I qalter
+and
+.M qrls 1 .
+In case of
+.I qalter
+this is supported by the following additional option specifiers for 
+the
+.B \-h
+switch:
+.sp 1
+.nf
+.ta \w'|U|  'u
+`U'	removes a user hold.
+`S'	removes a system hold.
+`O'	removes a operator hold.
+.fi
+.sp 1
+xxQS_NAMExx managers can assign and remove all hold types, xxQS_NAMExx 
+operators can assign and remove user and operator holds, and users can 
+only assign or remove user holds.
+.sp 1
+In the case of
+.I qsub
+only user holds can be placed on a job and thus only the first
+form of the option with the \fB\-h\fP switch alone is allowed.
+As opposed to this,
+.I qalter
+requires the second form described above.
+.sp 1
+An alternate means to assign a hold is provided by the
+.M qhold 1
+facility.
+.sp 1
+If the job is an array job (see the \fB\-t\fP option below), all tasks
+specified via \fB\-t\fP are affected by the \fB\-h\fP operation
+simultaneously.
+.sp 1
+.I Qalter
+allows changing this option even while the job executes. The modified
+parameter will only be in effect after a restart or migration of the job,
+however.
+.sp 1
+If this option is specified with \fIqsub\fP or during the submission of a job in
+\fIqmon\fP then the parameter \fBh\fP with the value \fBu\fP will be passed to the 
+defined JSV instances indicating that the job will be in user hold after the 
+submission finishes. 
+(See \fB\-jsv\fP option below or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-help\fP"
+Prints  a listing of all options.
+.\"
+.IP "\fB\-hold_jid\fP \fIwc_job_list\fP"
+Available for \fIqsub\fP, \fIqrsh\fP, and \fIqalter\fP only. See 
+.M sge_types 5 .
+For the definition of \fIwc_job_list\fP.
+.sp 1
+Defines or redefines the job dependency list of the submitted job. A 
+reference by job name or pattern is only accepted if the 
+referenced job is owned by the same user as the referring job. The 
+submitted job is not eligible for execution unless all jobs 
+referenced in the comma-separated job id and/or job name list have 
+completed.  If any of the referenced jobs exits with exit code 100, the
+submitted job will remain ineligible for execution.
+.sp 1
+With the help of job names or regular patterns, one can specify
+a job dependency on multiple jobs satisfying the regular pattern,
+or on all jobs with the requested name. The name dependencies are
+resolved at submit time and can only be changed via qalter. New
+jobs or name changes of other jobs will not be taken into account.
+To remove a job dependency list with
+.IR qalter ,
+use a null \fIwc_job_list\fP, i.e. use
+.br
+.B "   qalter \-hold_jid '' ..."
+.sp 1
+.I Qalter
+allows changing this option even while the job executes. The modified
+parameter will only be in effect after a restart or migration of the job,
+however.
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified then
+this value will be passed to defined JSV
+instances as parameter with the name \fBhold_jid\fP.
+(See \fB\-jsv\fP option below or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-hold_jid_ad\fP \fIwc_job_list\fP"
+Available for \fIqsub\fP, \fIqrsh\fP, and \fIqalter\fP only. See 
+.M sge_types 5
+for the definition of \fIwc_job_list\fP.
+.sp 1
+Defines or redefines the job array dependency list of the submitted job. A 
+reference by job name or pattern is only accepted if the 
+referenced job is owned by the same user as the referring job. Each sub-task of the 
+submitted job is not eligible for execution unless the corresponding sub-tasks 
+of all jobs referenced in the comma-separated job id and/or job name list have 
+completed.
+If dependent jobs have a different array stride to referenced jobs,
+the dependency may be many-to-one or one-to-many, e.g. if an array is
+submitted with
+.BR "\-t 1:50:2" ,
+depending on one submitted with
+.BR "\-t 1:50" ,
+then task
+.I n
+of the dependent depends on task
+.IR n +1
+of the other.
+.sp 1
+If any array task of the referenced jobs exits with exit code 100, the
+dependent tasks of the submitted job will remain ineligible for execution.
+.sp 1
+With the help of job names or regular patterns, one can specify
+a job dependency on multiple jobs satisfying the regular pattern,
+or on all jobs with the requested name. The name dependencies are
+resolved at submit time and can only be changed via qalter. New
+jobs or name changes of other jobs will not be taken into account.
+.sp 1
+If either the submitted job or any job in \fIwc_job_list\fP are not array
+jobs with the same range of sub-tasks (see \fB\-t\fP option below), the request list will be
+rejected and the job create or modify operation will return an error.
+.sp 1
+.I qalter
+allows changing this option even while the job executes. The modified
+parameter will only be in effect after a restart or migration of the job,
+however.
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified, then
+this value will be passed to defined JSV
+instances as a parameter with the name \fBhold_jid_ad\fP.
+(See \fB\-jsv\fP option below or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-i\fP [[\fIhostname\fP]\fB:\fP]\fIpath\fP\fB,\fP..."
+Available for \fIqsub\fP, and \fIqalter\fP only.
+.sp 1
+Defines or redefines the path used for the standard input stream of
+the job.  The
+\fIpath\fP is handled as described in the \fB\-e\fP option for
+the standard error stream.
+.sp 1
+By default \fI/dev/null\fP is the input stream for the job.
+.sp 1
+It is possible to use certain pseudo variables, whose values will be
+expanded at runtime of the job and will be used to express the
+standard input stream as described in the \fI\-e\fP option for the standard
+error stream.
+.sp 1
+.I Qalter
+allows changing this option even while the job executes. The
+modified parameter will only be in effect after a restart or migration
+of the job, however.
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified then
+this value will be passed to defined JSV
+instances as parameter with the name \fBi\fP.
+(See \fB\-jsv\fP option below or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-inherit\fP"
+Available only for \fIqrsh\fP and
+.M qmake 1 .
+.sp 1
+.I qrsh 
+allows the user to start a task in an already scheduled parallel job.
+The option \fB\-inherit\fP tells 
+.I qrsh
+to read a job id from the environment variable JOB_ID and start the 
+specified command as a task in this job. Please note that in this case,
+the hostname of the host where the command will be executed must precede 
+the command to execute; the syntax changes to
+.sp 1
+.B qrsh \-inherit
+.RI [ "other options" ]
+.I hostname command
+.RI [ command_args ]
+.sp 1
+Note also, that in combination with \fB\-inherit\fP, most other command
+line options will be ignored.
+Only the options \fB\-verbose\fP, \fB\-v\fP and \fB\-V\fP 
+will be interpreted. 
+As a replacement to option \fB\-cwd\fP please use \fB\-v PWD\fP.
+.sp 1
+Usually a task should have the same environment (including the current 
+working directory) as the corresponding job, so specifying the option
+\fB\-V\fP should be suitable for most applications.
+.sp 1
+\fINote:\fP If in your system the qmaster tcp port is not configured as a
+service, but rather via the environment
+variable xxQS_NAME_Sxx_QMASTER_PORT, make sure that this variable is set in the environment when
+calling
+.I qrsh
+or
+.I qmake
+with the \fB\-inherit\fP option. If you call
+.I qrsh
+or
+.I qmake
+with the \fB\-inherit\fP
+option from within a job script, export xxQS_NAME_Sxx_QMASTER_PORT with the 
+option "\-v xxQS_NAME_Sxx_QMASTER_PORT" either as a command argument or an
+embedded directive.
+.sp 1
+This parameter is not available in the JSV context.
+(See \fB\-jsv\fP option below or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-j\fP \fBy\fP[\fBes\fP]|\fBn\fP[\fBo\fP]"
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP, \fIqlogin\fP and
+\fIqalter\fP only.
+.sp 1
+Specifies whether or not the standard error stream of the job
+is merged into the standard output stream.
+.br
+If both the \fB\-j y\fP and the \fB\-e\fP options are present,
+xxQS_NAMExx sets, but ignores, the error-path attribute.
+.sp 1
+.I Qalter
+allows changing this option even while the job executes. The modified
+parameter will only be in effect after a restart or migration of the job,
+however.
+.sp 1
+The value specified with this option or the corresponding value specified in
+\fIqmon\fP will only be passed to defined JSV instances if the value is \fByes\fP.
+The name of the parameter will be \fBj\fP. The value will be \fBy\fP also
+when the long form \fByes\fP was specified during submission.
+(See \fB\-jsv\fP option below or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-js\fP \fIjob_share\fP"
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP, \fIqlogin\fP and
+\fIqalter\fP only.
+.sp 1
+Defines or redefines the job share of the job relative to other jobs.
+Job share is an unsigned integer value.
+The default job share value for jobs is 0.
+.sp 1
+The job share influences the Share Tree Policy and the Functional
+Policy. It has no effect on the Urgency and Override Policies (see
+.M share_tree 5 ,
+.M sched_conf 5
+.\" and the
+.\" .I "xxQS_NAMExx Installation and Administration Guide"
+for further information on the resource management policies supported by xxQS_NAMExx).
+.sp 1
+In case of the Share Tree Policy, users can distribute the tickets to
+which they are currently entitled among their jobs using different
+shares assigned via \fB\-js\fP. If all jobs have the same job share
+value, the tickets are distributed evenly. Otherwise, jobs receive tickets
+relative to the different job shares. Job shares are treated like
+an additional level in the share tree in the latter case.
+.sp 1
+In connection with the Functional Policy, the job share can be used to
+weight jobs within the functional job category.
+Tickets are distributed relative to any
+uneven job share distribution treated as a virtual share distribution level
+underneath the functional job category.
+.sp 1
+If both the Share Tree and the Functional Policy are active, the job
+shares will have an effect in both policies, and the tickets
+independently derived in each of them are added to the total number of
+tickets for each job.
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified then
+this value will be passed to defined JSV
+instances as parameter with the name \fBjs\fP.
+(See \fB\-jsv\fP option below or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-jsv\fP \fIjsv_url\fP"
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP and \fIqlogin\fP only.
+.sp 1
+Defines a client JSV instance which will be executed to verify the
+job specification before the job is sent to qmaster. 
+.sp 1
+In contrast to other options this switch will not be overwritten 
+if it is also used in xxqs_name_sxx_request files. Instead all specified JSV
+instances will be executed to verify the job to be submitted.
+.sp 1
+The JSV instance which is directly passed with the command line of a client
+is executed first to verify the job specification. After that the JSV
+instance which might have been defined in various xxqs_name_sxx_request files will
+be triggered to check the job. Find more details in man page 
+.M jsv 1 
+and 
+.M xxqs_name_sxx_request 5 .
+.sp 1
+The syntax of the \fBjsv_url\fP is specified in 
+.M sge_types 5 .
+.\"
+.IP "\fB\-l\fP \fIresource\fP\fB=\fP\fIexpression\fP\fB,\fP..."
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP, \fIqlogin\fP and
+\fIqalter\fP only.
+.sp 1
+Launch the job in a xxQS_NAMExx queue meeting the given resource request list.
+In case of
+.I qalter
+the previous definition is replaced by the specified one.
+.sp 1
+.M complex 5
+describes how a list of available resources and their
+associated valid value specifiers can be obtained, and section
+"MATCHING TYPES" in
+.M sge_types 5
+describes the possible forms of the expression for the requested
+resources.
+.sp 1
+There may be multiple \fB\-l\fP switches in a single
+command. You may request multiple \fB\-l\fP options to be
+soft or hard both in the same command line. In case of a
+serial job multiple \fB\-l\fP switches refine the definition
+for the sought queue.
+.sp 1
+.I Qalter
+allows changing the value of this option even while the job is
+running, but only if no change is made to requests for resources
+marked as consumable.  However the modification will only be  
+effective after a restart or migration of the job.
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified 
+the these hard and soft resource requirements will be
+passed to defined JSV instances as parameter with the names \fBl_hard\fP and
+\fBl_soft\fP. If regular expressions will be used for resource requests,
+then these expressions will be passed as they are. Also shortcut names
+will not be expanded.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-m\fP \fBb\fP|\fBe\fP|\fBa\fP|\fBs\fP|\fBn,\fP..."
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP, \fIqlogin\fP and
+\fIqalter\fP only.
+.sp 1
+Defines or redefines under which circumstances mail is to be sent
+to the job owner or to the users defined with the
+\fB\-M\fP option described below. The option arguments
+have the following meaning:
+.sp 1
+.nf
+.ta \w'|b|  'u
+`b'     Mail is sent at the beginning of the job.
+`e'     Mail is sent at the end of the job.
+`a'     Mail is sent when the job is aborted or 
+        rescheduled.
+`s'     Mail is sent when the job is suspended.
+`n'     No mail is sent.
+.fi
+.sp 1
+Currently no mail is sent when a job is suspended.
+.sp 1
+.I Qalter
+allows changing the "b", "e", and "a" option arguments even while the job
+executes. The modification of the option arguments will only be in
+effect after a restart or migration of the job, however.
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified then
+this value will be passed to defined JSV
+instances as parameter with the name \fBm\fP.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.\"
+.IP "\fB\-M\fP \fIuser\fP[\fB@\fP\fIhost\fP]\fB,\fP..."
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP, \fIqlogin\fP and
+\fIqalter\fP only.
+.sp 1
+Defines or redefines the list of users to which the server that executes
+the job has to send mail, if the server sends mail about the job.
+Default is the job owner at the originating host.
+.sp 1
+.I Qalter
+allows changing this option even while the job executes. The modification
+will only be in effect after a restart or migration of the job, however.
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified then
+this value will be passed to defined JSV
+instances as parameter with the name \fBM\fP.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-masterq\fP \fIwc_queue_list\fP"
+Available for \fIqsub\fP, \fIqrsh\fP, \fIqsh\fP, \fIqlogin\fP and \fIqalter\fP.
+Only meaningful for parallel jobs, i.e. together with the \-pe option.
+.sp 1
+Defines or redefines a list of cluster queues, queue domains and queue 
+instances which may be used to become the so called
+.I master queue
+of this parallel job. A more detailed description of \fIwc_queue_list\fP 
+can be found in
+.M sge_types 5 .
+The
+.I master queue
+is defined as
+the queue where the parallel job is started. The other queues to which the
+parallel job spawns tasks are called \fIslave queues\fP.
+A parallel job only has one \fImaster queue\fP.
+.sp 1
+This parameter has all the properties of a resource request and will be
+merged with requirements derived from the \fB\-l\fP option described above.
+.sp 1
+.I Qalter
+allows changing this option even while the job executes. The
+modified parameter will only be in effect after a restart or migration of
+the job, however.
+.sp 1
+If this option, or a corresponding value in \fIqmon\fP, is specified,
+this hard resource requirement will be passed to defined JSV
+instances as a parameter with the name \fBmasterq\fP.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-notify\fP"
+Available for \fIqsub\fP, \fIqrsh\fP (with command) and
+\fIqalter\fP only.
+.sp 1
+This flag,
+when set, causes xxQS_NAMExx to send "warning" signals
+to a running job prior to sending the signals themselves. If
+a SIGSTOP is pending, the job will receive a SIGUSR1 several
+seconds before the SIGSTOP. If a SIGKILL is pending, the job
+will receive a SIGUSR2 several seconds before the SIGKILL.
+This option provides the running job a configured time interval to do
+cleanup operations before receiving the SIGSTOP or SIGKILL.
+The amount of time delay is controlled by the \fBnotify\fP
+parameter in each queue configuration (see
+.M queue_conf 5 ).
+.\" Shouldn't be relevant now
+.\" .sp 1
+.\" Note that the Linux operating system "misused" the user signals SIGUSR1
+.\" and SIGUSR2 in some early Posix thread implementations. You might not want
+.\" to use the \fB\-notify\fP option if you are running multi-threaded applications
+.\" in your jobs under Linux, particularly on 2.0 or earlier kernels.
+.sp 1
+.I Qalter
+allows changing this option even while the job executes.
+.sp 1
+Only if this option is used the parameter named \fBnotify\fP with the value
+\fBy\fP will be passed to defined JSV instances. 
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-now\fP \fBy\fP[\fBes\fP]|\fBn\fP[\fBo\fP]"
+Available for \fIqsub\fP, \fIqsh\fP, \fIqlogin\fP and \fIqrsh\fP.
+.sp 1
+\fB\-now y\fP
+tries to start the job immediately or 
+not at all. The command returns 0 on success, or 1 on failure (also if
+the job could not be scheduled immediately).  For array jobs submitted with the
+\fB\-now\fP option, if all tasks cannot be immediately scheduled, no tasks are
+scheduled.
+.sp 1
+Jobs submitted with \fB\-now y\fP option, can \fIonly\fP run on INTERACTIVE queues.
+\fB\-now y\fP is default for \fIqsh\fP, \fIqlogin\fP and \fIqrsh\fP
+.sp 1
+With the \fB\-now n\fP option, the job will be put into the pending queue if it
+cannot be executed immediately. \fB\-now n\fP is default for \fIqsub\fP.
+.\"
+.IP "\fB\-N name\fP"
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP, \fIqlogin\fP and
+\fIqalter\fP only.
+.sp 1
+.\" fixme: name is job/AR name type
+The name of the job. The name should follow the "\fBname\fP" definition in
+.M sge_types 5 .
+Invalid job names will be denied at submit time.
+.sp 1
+If the \fB\-N\fP option is not present, xxQS_NAMExx assigns
+the name of the job script to the job after 
+any directory pathname has been removed from the
+script name. If the script is read from standard
+input, the job name defaults to STDIN.
+.sp 1
+In the case of
+.I qsh
+or
+.I qlogin
+with the \fB\-N\fP option is absent, the name "INTERACTIVE" or
+"QLOGIN" respectively is assigned to the job.
+.sp 1
+In the case of 
+.I qrsh
+if the \fB\-N\fP option is absent, the resulting job name is determined from 
+the qrsh command line by using the argument string up to the first occurrence 
+of a semicolon or whitespace and removing the directory pathname.
+With no command, "QRLOGIN" is used.
+.sp 1
+.I Qalter
+allows changing this option even while the job executes.
+.sp 1
+The value specified with this option or the corresponding value specified in
+\fIqmon\fP will be passed to defined JSV instances as parameter with the name
+\fBN\fP.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-noshell\fP"
+Available only for \fIqrsh\fP with a command line.
+.sp 1
+Do not start the command line given to \fIqrsh\fP in the user's login shell, i.e.
+execute it without the wrapping shell.
+.sp 1
+This option can be used to speed up execution as some overhead, like the  
+shell startup and sourcing the shell resource files, is avoided.
+.sp 1
+This option can only be used if no shell-specific command line parsing is
+required. If the command line contains shell syntax like environment
+variable substitution or (back) quoting, a shell must be started.
+In this case, either do not use the \fB\-noshell\fP option or include
+the shell call in the command line.
+.sp 1
+Example:
+.br 
+qrsh echo '$HOSTNAME'
+.br 
+Alternative call with the \fB\-noshell\fP option
+.br 
+qrsh \-noshell /bin/tcsh \-f \-c 'echo $HOSTNAME'
+.\"
+.IP "\fB\-nostdin\fP"
+Available only for \fIqrsh\fP.
+.sp 1
+Suppress the input stream STDIN \- \fIqrsh\fP will pass the option \fB\-n\fP to 
+the
+.M rsh 1
+command. This is especially useful, if multiple tasks
+are executed in parallel using \fIqrsh\fP, e.g. in a
+.M make 1
+process it would be undefined which process would get the input.
+.\"
+.IP "\fB\-o\fP [[\fIhostname\fP]\fB:\fP]\fIpath\fP\fB,\fP..."
+Available for \fIqsub\fP and \fIqalter\fP only, but currently silently
+ignored by \fIqsh\fP, \fIqrsh\fP, and \fIqlogin\fP.
+.sp 1
+Specify the path used for the standard output stream of the job.
+\fIpath\fP is handled as described in the \fB\-e\fP option for
+the standard error stream.
+.sp 1
+By default the file name for standard
+output has the form \fIjob_name\fP\fB.o\fP\fIjob_id\fP, or
+\fIjob_name\fP\fB.o\fP\fIjob_id\fP\fB.\fP\fItask_id\fP for array job tasks (see
+\fB\-t\fP option below).
+.sp 1
+.I Qalter
+allows changing this option even while the job executes. The modified
+parameter will only be in effect after a restart or migration of the job,
+however.
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified then
+this value will be passed to defined JSV
+instances as parameter with the name \fBo\fP.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-ot\fP \fIoverride_tickets\fP"
+Available for \fIqalter\fP only.
+.sp 1
+Changes the number of override tickets for the specified job.
+Requires manager/operator privileges.
+.\"
+.IP "\fB\-P\fP \fIproject_name\fP"
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP, \fIqlogin\fP and
+\fIqalter\fP only.
+.sp 1
+Specifies the project to which this job is assigned. The administrator
+needs to give permission to individual users to submit jobs to a
+specific project (see \fB\-aprj\fP option to
+.M qconf 1 ).
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified then
+this value will be passed to defined JSV
+instances as parameter with the name \fBP\fP.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-p\fP \fIpriority\fP"
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP, \fIqlogin\fP and
+\fIqalter\fP only.
+.sp 1
+Defines or redefines the priority of the job relative to other jobs.
+\fIpriority\fP is an integer in the range \-1023 to 1024.
+The default priority value for jobs is 0.
+.sp 1
+Users may only decrease the priority of their jobs.
+xxQS_NAMExx managers and administrators may also increase the priority
+associated with jobs. If a pending job has higher priority, it is
+eligible for being dispatched earlier by the xxQS_NAMExx scheduler.
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified and
+the priority is not 0 then this value will be passed to defined JSV
+instances as parameter with the name \fBp\fP.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-pe\fP \fIparallel_environment n\fP[\fB\-\fP[\fIm\fP]]|[\fB\-\fP]\fIm\fP\fB,\fP..."
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP, \fIqlogin\fP and
+\fIqalter\fP only.
+.sp 1
+Parallel programming environment (PE) to instantiate. For more detail about PEs,
+please see
+.B parallel_env
+in
+.M sge_types 5 .
+.sp 1
+.I Qalter
+allows changing this option even while the job executes. The modified
+parameter will only be in effect after a restart or migration of the job,
+however.
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified then
+the parameters \fBpe_name\fP, \fBpe_min\fP and \fBpe_max\fP will be passed to configured
+JSV instances where \fBpe_name\fP will be the name of the parallel environment
+and the values \fBpe_min\fP and \fBpe_max\fP represent the values
+.I n
+and
+.I m
+which have been provided with the \fB\-pe\fP option.  A missing
+specification of
+.I m
+will be expanded as value 9999999 in JSV scripts and it represents the value infinity.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-pty y\fP[\fBes\fP]|\fBn\fP[\fBo\fP]"
+Available for \fIqrsh\fP, \fIqsub\fP and \fIqlogin\fP only, and
+normally only effective for interactive jobs with the \fBbuiltin\fP
+remote startup method (see
+.M remote_startup 5 ).
+.sp 1
+.B \-pty\ yes
+starts the job in a pseudo terminal (pty). If no pty is 
+available, the job start fails.
+.B \-pty\ no
+starts the job without a pty.
+By default,
+.I qrsh without a command
+and
+.I qlogin
+start the job in a pty, and
+.I qrsh
+or
+.I qsub
+with a command starts the job without a pty.
+.sp 1
+This parameter is not available in the JSV context.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-q\fP \fIwc_queue_list\fP"
+Available for \fIqsub\fP, \fIqrsh\fP, \fIqsh\fP, \fIqlogin\fP and \fIqalter\fP.
+.sp 1
+Defines or redefines a list of cluster queues, queue domains or queue
+instances which may be used to execute this job. Please find a description
+of \fIwc_queue_list\fP in
+.M sge_types 5 .
+This parameter has all the properties of a resource request and
+will be merged with requirements derived from the \fB\-l\fP option
+described above.
+.sp 1
+.I Qalter
+allows changing this option even while the job executes. The modified
+parameter will only be in effect after a restart or migration of the job,
+however.
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified 
+then these hard and soft resource requirements will be
+passed to defined JSV instances as parameters with the names \fBq_hard\fP and
+\fBq_soft\fP. If regular expressions will be used for resource requests,
+then these expressions will be passed as they are. Also shortcut names
+will not be expanded.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-R\fP \fBy\fP[\fBes\fP]|\fBn\fP[\fBo\fP]"
+Available for \fIqsub\fP, \fIqrsh\fP, \fIqsh\fP, \fIqlogin\fP and \fIqalter\fP.
+.sp 1
+Indicates whether a reservation for this job should be done. Reservation 
+is never done for immediate jobs, i.e. jobs submitted using the \fB\-now yes\fP
+option.  Please note that regardless of the reservation request,
+job reservation might be disabled using \fBmax_reservation\fP in
+.M sched_conf 5 ,
+and is limited to that number of the highest priority jobs.
+.sp 1
+By default jobs are submitted with \fB\-R\ n\fP.
+.sp 1
+The value specified with this option or the corresponding value specified in
+\fIqmon\fP will only be passed to defined JSV instances if the value is \fIyes\fP.
+The name of the parameter will be \fBR\fP. The value will be \fBy\fP also
+when the long form \fByes\fP was specified during submission.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-r y\fP[\fBes\fP]|\fBn\fP[\fBo\fP]"
+Available for \fIqsub\fP and \fIqalter\fP only.
+.sp 1
+Specifies whether a job can be rerun or not.
+If the value of \fB\-r\fP is 'yes', the job will be rerun if it gets aborted
+without leaving a consistent exit state.
+(This is typically the case if the node on which the job is running
+crashes).
+If \fB\-r\fP is 'no' (the default), the job will not be rerun under
+such circumstances.  It will still be rerun if it finishes with exit
+code 99 unless
+.B FORBID_RESCHEDULE
+is set in
+.B qmaster_params
+in
+.M sge_conf 5 .
+.sp 1
+Interactive jobs submitted with
+.IR qsh ,
+.IR qrsh ,
+or
+.I qlogin
+are not rerunnable.
+.sp 1
+.I Qalter
+allows changing this option even while the job executes.
+.sp 1
+The value specified with this option or the corresponding value specified in
+\fIqmon\fP will only be passed to defined JSV instances if the value is \fIyes\fP.
+The name of the parameter will be \fBr\fP. The value will be \fBy\fP also
+when the long form \fByes\fP was specified during submission.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-sc\fP \fIvariable\fP[\fB=\fP\fIvalue\fP]\fB,\fP..."
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP, \fIqlogin\fP and
+\fIqalter\fP only.
+.sp 1
+Sets the given name/value pairs as the job's context. \fIvalue\fP may be
+omitted. xxQS_NAMExx replaces the job's previously defined context with
+the one given as the argument.
+Multiple \fB\-ac\fP, \fB\-dc\fP, and \fB\-sc\fP options may be given.
+The order is important.
+.sp 1
+Contexts provide a way to dynamically attach and remove meta-information
+to and from a job. The context variables are \fBnot\fP passed to the job's
+execution context in its environment, but are available in its spool area.
+.sp 1
+.I Qalter
+allows changing this option even while the job executes.
+.sp 1
+The outcome of the evaluation of all \fB\-ac\fP, \fB\-dc\fP, and \fB\-sc\fP
+options or corresponding values in \fIqmon\fP is passed to defined JSV
+instances as parameter with the name \fBac\fP.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-shell y\fP[\fBes\fP]|\fBn\fP[\fBo\fP]"
+Available only for \fIqsub\fP.
+.sp 1
+\fB\-shell n\fP
+causes qsub to execute the command line directly, as if by
+.M exec 2 .
+No command shell will be executed for the job.  This option only applies when
+\fB\-b y\fP is also used.  Without \fB\-b y\fP, \fB\-shell n\fP has no effect.
+.sp 1
+This option can be used to speed up execution, as some overhead, like the
+shell startup and sourcing the shell resource files, is avoided.
+.sp 1
+This option can only be used if no shell-specific command line parsing is
+required. If the command line contains shell syntax, like environment
+variable substitution or (back) quoting, a shell must be started.
+In this case either do not use the \fB\-shell n\fP option or execute the shell
+as the command line and pass the path to the executable as a parameter.
+.sp 1
+If a job executed with the \fB\-shell n\fP option fails due to a user error, such as an invalid
+path to the executable, the job will enter the error state.
+.sp 1
+\fB\-shell y\fP cancels the effect of a previous \fB\-shell n\fP.
+Otherwise, it has no effect.
+.sp 1
+See \fB\-b\fP and \fB\-noshell\fP for more information.
+.sp 1
+The value specified with this option or the corresponding value specified in
+\fIqmon\fP will only be passed to defined JSV instances if the value is \fIyes\fP.
+The name of the parameter will be \fBshell\fP. The value will be \fBy\fP also
+when the long form \fByes\fP was specified during submission.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-soft\fP"
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP, \fIqlogin\fP and
+\fIqalter\fP only.
+.sp 1
+Signifies that all resource requirements following in the
+command line will be soft requirements and
+are to be filled on an "as available" basis.
+.br
+As xxQS_NAMExx scans the command line and script file for xxQS_NAMExx
+options and parameters, it builds a list of resources required
+by the job. All such resource requests are normally considered as
+absolutely essential for the job to commence. However, if the
+\fB\-soft\fP option is encountered during the scan
+then all following resources are designated as "soft
+requirements" for execution, or "nice-to-have, but not
+essential". If the \fB\-hard\fP flag (see above) is encountered at a later
+stage of the scan, all resource requests following it once
+again become essential. The \fB\-hard\fP and \fB\-soft\fP
+options in effect act as toggles during the scan.  However, requests
+for consumable resources cannot be soft.
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified then
+the corresponding \fB\-q\fP and \fB\-l\fP resource requirements will be
+passed to defined JSV instances as parameter with the names \fBq_soft\fP and
+\fBl_soft\fP. Find for information in the sections describing \fB\-q\fP and \fB\-l\fP.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-sync y\fP[\fBes\fP]|\fBn\fP[\fBo\fP]"
+Available for \fIqsub\fP.
+.sp 1
+\fB\-sync y\fP
+causes
+.I qsub
+to wait for the job to complete before exiting.  If the job completes successfully,
+.IR qsub 's
+exit code will be that of the completed job.  If the job fails to complete
+successfully,
+.I qsub
+will print an error message to the standard error stream indicating
+why the job failed, and will have an exit code of 1.  If
+.I qsub
+is interrupted, e.g. with CTRL-C, before the job completes, the job will be
+canceled.
+.br
+With the \fB\-sync n\fP option,
+.I qsub
+will exit with an exit code of 0 as soon as the job is submitted successfully.
+\fB\-sync n\fP is default for \fIqsub\fP.
+.br
+If \fB\-sync y\fP is used in conjunction with \fB\-now y\fP,
+.I qsub
+will behave as though only \fB\-now y\fP were given until the job has been
+successfully scheduled, after which time
+.I qsub
+will behave as though only \fB\-sync y\fP were given.
+.br
+If \fB\-sync y\fP is used in conjunction with \fB\-t\fP,
+.I qsub
+will wait for all the job's tasks to complete before exiting.  If all
+the job's tasks complete successfully,
+.IR qsub 's
+exit code will be that of the first completed job task with a non-zero exit
+code, or 0 if all job tasks exited with an exit code of 0.  If any of the job's
+tasks fail to complete successfully,
+.I qsub
+will print an error message to the standard error stream indicating
+why the job task(s) failed, and will have an exit code of 1.  If
+.I qsub
+is interrupted, e.g. with CTRL-C, before the job completes, all of the job's
+tasks will be canceled.
+.sp 1
+Information that this switch was specified during submission is not
+available in the JSV context.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-S\fP [[\fIhostname\fP]\fB:\fP]\fIpathname\fP\fB,\fP..."
+Available for \fIqsub\fP, \fIqsh\fP and \fIqalter\fP.
+.sp 1
+Specifies the interpreting shell for the job.  \fIpathname\fP
+must be an executable file which interprets command-line options
+.B \-c
+and
+.B \-s
+as
+.B /bin/sh
+does.
+.sp 1
+Only one \fIpathname\fP
+component without a \fIhost\fP specifier is valid and only one path name
+for a given host is allowed. Shell paths with host
+assignments define the interpreting shell for the job if the host is the
+execution host. The shell path without host specification is used if the
+execution host matches none of the hosts in the list.
+.sp 1
+Furthermore, the pathname can be constructed with pseudo environment
+variables as described for the \fB\-e\fP option above.
+.sp 1
+In the case of
+.I qsh
+the specified shell path is used to execute the 
+corresponding command interpreter in the
+.M xterm 1
+(via its \fI\-e\fP option) 
+started on behalf of the interactive job. 
+.I Qalter
+allows changing this option even while the job executes. The modified
+parameter will only be in effect after a restart or migration of the job,
+however.
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified then
+this value will be passed to defined JSV
+instances as parameter with the name \fBS\fP.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.\" Fixme: not clear how this is actually parsed, and what qsub prints
+.\" doesn't seem consistent with what's submitted if you omit n
+.IP "\fB\-t\fP \fIn\fP[\fB\-\fP\fIm\fP[\fB:\fP\fIs\fP]]"
+.\" https://arc.liv.ac.uk/trac/SGE/ticket/800
+.\" Available for \fIqsub\fP and \fIqalter\fP only.
+Available for \fIqsub\fP only.
+.sp 1
+Submits a so called \fIArray Job\fP, i.e. an array of identical tasks being
+differentiated only by an index number and being treated by xxQS_NAMExx
+almost like a series of jobs. The argument of \fB\-t\fP specifies
+the number of array job tasks and the index number which will be associated
+with the tasks in terms of the range's start
+.RI ( n ),
+default 1, its end
+.RI ( m ),
+and stride
+.RI (s),
+default 1.
+The index numbers will be exported to the job tasks via the
+environment variable \fBxxQS_NAME_Sxx_TASK_ID\fP. The arguments
+.IR n ,\  m ,
+and
+.I s
+will be available through the environment variables \fBxxQS_NAME_Sxx_TASK_FIRST\fP, \fBxxQS_NAME_Sxx_TASK_LAST\fP and  \fBxxQS_NAME_Sxx_TASK_STEPSIZE\fP.
+.sp 1
+The following restrictions apply to the values
+.I n
+and
+.IR m :
+.sp 1
+.nf
+1 <= \fIn\fP <= MIN(2^31-1, \fImax_aj_tasks\fP)
+1 <= \fIm\fP <= MIN(2^31-1, \fImax_aj_tasks\fP)
+\fIn\fP <= \fIm\fP
+.fi
+.sp 1
+\fImax_aj_tasks\fP is defined in the cluster configuration (see 
+.M sge_conf 5 ).
+.sp 1
+The task id range specified in the option argument
+may be a single number, a simple range of the form
+.IB n \- m 
+or a range with a step size. Hence, the task id range specified by
+2\-10:2 would result in the task id indexes 2, 4, 6, 8, and 10,
+for a total of 5 identical tasks, each with the environment variable
+xxQS_NAME_Sxx_TASK_ID containing one of the 5 index numbers.
+.sp 1
+All array job tasks inherit the same resource requests and attribute
+definitions as specified in the \fIqsub\fP or \fIqalter\fP command line,
+except for the \fB\-t\fP option. The tasks are scheduled independently and,
+provided enough resources exist, concurrently, very much like separate jobs.
+However, an array job or a sub-array there of can be accessed as a single unit
+by commands like
+.M qmod 1
+or
+.M qdel 1 .
+See the corresponding manual pages for further detail.
+.sp 1
+Array jobs are commonly used to execute the same type of operation on
+varying input data sets correlated with the task index number. The number
+of tasks in an array job is unlimited.
+.sp 1
+STDOUT and STDERR of array job tasks will be written into different files
+with the default location
+.sp 1
+.nf
+\fIjobname\fP\fB.\fP[\fBe\fP|\fBo\fP]\fIjob_id\fP\fB.\fP\fItask_id\fP
+.fi
+.sp 1
+In order to change this default, the \fB\-e\fP and \fB\-o\fP options (see
+above) can be used together with the pseudo environment variables $HOME,
+$USER, $JOB_ID, $JOB_NAME, $HOSTNAME, and $TASK_ID.
+.sp 1
+Note, that you can use the output redirection to divert the output of all
+tasks into the same file, but the result of this is undefined.
+.sp 1
+If this option or a corresponding value in \fIqmon\fP is specified then
+this value will be passed to defined JSV instances as parameters 
+with the names \fBt_min\fP, \fBt_max\fP and \fBt_step\fP
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-tc\fP \fImax_running_tasks\fP"
+Available for \fIqsub\fP and \fIqalter\fP only.
+.sp 1
+Used in conjunction with array jobs (see \-t option) to set a
+self-imposed limit on the maximum number of concurrently running tasks
+per job.
+.sp 1
+If this option, or a corresponding value in \fIqmon\fP is specified,
+then this value will be passed to defined JSV instances as
+a parameter with the name \fBtc\fP. (See the \fB\-jsv\fP option above or
+find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-terse\fP"
+Available for \fIqsub\fP only.
+.sp 1
+Causes \fIqsub\fP to display only the job-id of the job being
+submitted rather than the regular "Your job ..." string.
+In case of an error the error is reported on stderr as usual.
+.br
+This can be helpful for scripts which need to parse \fIqsub\fP output to get
+the job-id.
+.sp 1
+Information that this switch was specified during submission is not
+available in the JSV context.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-u\fP \fIusername\fP\fB,\fP..."
+Available for \fIqalter\fP only. Changes are only made on those
+jobs which were submitted by users specified in the list
+of usernames.
+For managers it is possible to use the \fB\qalter \-u '*'\fP command
+to modify all jobs of all users.
+.sp 1
+If you use the \fB\-u\fP switch it is not permitted to
+specify an additional \fIwc_job_range_list\fP.
+.\"
+.IP "\fB\-v\fP \fIvariable\fP[\fB=\fP\fIvalue\fP]\fB,\fP..."
+Available for \fIqsub\fP, \fIqrsh\fP (with command argument) and \fIqalter\fP.
+.sp 1
+Defines or redefines the environment variables to
+be exported to the execution context of the job.
+If the \fB\-v\fP option is present xxQS_NAMExx will add
+the environment variables defined as arguments to the switch and,
+optionally, values of specified variables, to the execution context of
+the job.
+.sp 1
+.I Qalter
+allows changing this option even while the job executes. The modified
+parameter will only be in effect after a restart or migration of the job,
+however.
+.sp 1
+All environment variables specified with \fB\-v\fP, \fB\-V\fP or the
+DISPLAY variable provided with \fB\-display\fP will be exported to the
+defined JSV instances only optionally when this is requested explicitly
+during the job submission verification.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-verbose\fP"
+Available only for \fIqrsh\fP and
+.M qmake 1 .
+.sp 1
+Unlike \fIqsh\fP and \fIqlogin\fP, \fIqrsh\fP does not output any 
+informational messages while establishing the session, compliant
+with the standard
+.M rsh 1
+and
+.M rlogin 1
+system calls.
+If the option \fB\-verbose\fP is set, \fIqrsh\fP behaves like
+the \fIqsh\fP and \fIqlogin\fP commands, printing information about 
+the process of establishing the
+.M rsh 1
+or
+.M rlogin 1
+session.
+.\"
+.IP "\fB\-verify\fP"
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP, \fIqlogin\fP and \fIqalter\fP.
+.sp 1
+Instead of submitting a job, prints detailed information about the would\-be job
+as though
+.M qstat 1
+\-j were used, including the effects of command-line parameters and the external 
+environment.
+.\"
+.IP "\fB\-V\fP"
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh with command\fP and \fIqalter\fP.
+.sp 1
+Specifies that all environment variables active within the
+.I qsub
+utility be exported to the context of the job.
+.sp 1
+All environment variables specified with \fB\-v\fP, \fB\-V\fP or the
+DISPLAY variable provided with \fB\-display\fP will be exported to the
+defined JSV instances only optionally when this is requested explicitly
+during the job submission verification.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fB\-w e\fP|\fBw\fP|\fBn\fP|\fBp\fP|\fBv\fP"
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP, \fIqlogin\fP and \fIqalter\fP.
+.sp 1
+Specifies a validation level applied to the job to be submitted
+(\fIqsub\fP, \fIqlogin\fP,
+and \fIqsh\fP) or the specified queued job (\fIqalter\fP).
+.sp 1
+The specifiers
+.BR e ,\  w ,\  n ,\  p ,
+and
+.B v
+define the following validation modes:
+.sp 1
+.nf
+.ta \w'|b|  'u
+\fBe\fP	error \- jobs with invalid requests will be rejected.
+\fBw\fP	warning \- only a warning will be displayed for invalid
+	requests.
+\fBn\fP	none \- switches off validation; the default for \fIqsub\fP,
+	\fIqalter\fP, \fIqrsh\fP, \fIqsh\fP and \fIqlogin\fP.
+\fBp\fP	poke \- does not submit the job but prints a validation
+	report based on a cluster as is with all resource
+	utilizations in place.
+\fBv\fP	verify \- does not submit the job but prints a validation 
+	report based on a dry scheduling run on an empty cluster,
+	ignoring load values.
+.fi
+Resource requests exceeding the configured maximal thresholds or
+requests for unavailable resource attributes are possible causes for
+jobs to fail `v' validation.
+.sp 1
+Note that the necessary checks are performance consuming and hence the
+checking is switched off by default.
+It should also be noted that load values are not taken into account with 
+the verification since they are assumed to be too volatile. To cause \-w e 
+verification to be passed at submission time, it is possible to specify 
+non-volatile values (non-consumables) or maximum values (consumables) in 
+complex_values.
+.sp 1
+If this option, or a corresponding value in \fIqmon\fP, is specified,
+then this value will be passed to defined JSV instances as
+a parameter with the name \fBw\fP. (See the \fB\-jsv\fP option above or
+find more information concerning JSV in
+.M jsv 1 .)
+.\" 
+.IP "\fB\-wd\fP \fIworking_dir\fP"
+Available for \fIqsub\fP, \fIqsh\fP, \fIqrsh\fP and
+\fIqalter\fP only.
+.sp 1
+Execute the job from the directory specified in
+.IR working_dir .
+This switch will activate xxQS_NAMExx's path aliasing facility, if the
+corresponding
+configuration files are present (see
+.M xxqs_name_sxx_aliases 5 ).
+.sp 1
+.I Qalter
+allows changing this option even while the job executes. The modified
+parameter will only be in effect after a restart or migration of the job,
+however.
+The parameter value will be available in defined JSV instances as parameter
+with the name \fBcwd\fP.
+(See \fB\-cwd\fP switch above or find more information concerning JSV in
+.M jsv 1 .)
+.\"       
+.IP "\fIcommand\fP"
+Available for \fIqsub\fP and \fIqrsh\fP only.
+.sp 1
+The job's scriptfile or binary.
+If not present or if the operand is the 
+single-character string '\-',
+.I qsub
+reads the script from standard input.
+.sp 1
+The command will be available in defined JSV instances as parameter
+with the name \fBCMDNAME\fP
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fIcommand_args\fP"
+Available for \fIqsub\fP, \fIqrsh\fP and \fIqalter\fP only.
+.sp 1
+Arguments to the job. Not valid if the script is entered from standard
+input.
+.sp 1
+.I Qalter
+allows changing this option even while the job executes. The modified
+parameter will only be in effect after a restart or migration of the job,
+however.
+.sp 1
+The number of command arguments is provided to configured JSV instances
+as parameter with the name \fBCMDARGS\fP. Also the argument values
+can by accessed. Argument names have the format \fBCMDARG\fP\fInumber\fP where
+\fInumber\fP is a integer between 0 and \fBCMDARGS\fP\ \-\ 1.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.IP "\fBxterm_args\fP"
+Available for \fIqsh\fP only.
+.sp 1
+Arguments to the
+.M xterm 1
+executable, as defined in the configuration.
+For details, refer to
+.M xxqs_name_sxx_conf 5 ).
+.sp 1
+Information concerning \fBxterm_args\fP will be available in JSV context as
+parameters with the name \fBCMDARGS\fP and \fBCMDARG\fP\fInumber\fP. Find more
+information above in section \fIcommand_args\fP.
+(See \fB\-jsv\fP option above or find more information concerning JSV in
+.M jsv 1 .)
+.\"
+.\"
+.SH "ENVIRONMENT VARIABLES"
+.\" 
+.IP "\fBxxQS_NAME_Sxx_ROOT\fP" 1.5i
+Specifies the location of the xxQS_NAMExx standard configuration
+files.
+.\"
+.IP "\fBxxQS_NAME_Sxx_CELL\fP" 1.5i
+If set, specifies the default xxQS_NAMExx cell. To address a
+xxQS_NAMExx cell \fIqsub\fP, \fIqsh\fP, \fIqlogin\fP or \fIqalter\fP
+use the name of the cell specified in the environment variable
+xxQS_NAME_Sxx_CELL if that is set, and otherwise the name of the
+default cell, i.e. \fBdefault\fP.
+.\"
+.IP "\fBxxQS_NAME_Sxx_DEBUG_LEVEL\fP" 1.5i
+If set, specifies that debug information
+should be written to stderr. In addition the level of
+detail in which debug information is generated is defined.
+.\"
+.IP "\fBxxQS_NAME_Sxx_QMASTER_PORT\fP" 1.5i
+If set, specifies the tcp port on which
+.M xxqs_name_sxx_qmaster 8
+is expected to listen for communication requests.
+Most installations will use a services map entry for the
+service "sge_qmaster" instead to define that port.
+.\"
+.IP "\fBDISPLAY\fP" 1.5i
+For
+.I qsh
+jobs the DISPLAY has to be specified at job submission.
+If the DISPLAY is not set by using the \fB\-display\fP or the \fB\-v\fP
+switch, the contents of the DISPLAY environment variable are used as default.
+.IP \fBQRSH_WRAPPER\fP 1.5i
+Wrapper for
+.I qrsh
+commands (see above).
+.IP "\fBxxQS_NAME_Sxx_JSV_TIMEOUT\fP" 1.5i
+If the response time of the client JSV is greater than this timeout value, then the
+JSV will attempt to be re-started. The default value is 10 seconds, and this value
+must be greater than 0. If the timeout has been reached, the JSV will only try to
+re-start once, if the timeout is reached again an error will occur.
+.PP
+In addition to those environment variables specified to be
+exported to the job via the \fB\-v\fP or the \fB\-V\fP option
+(see above),
+\fIqsub\fP, \fIqsh\fP, and \fIqlogin\fP
+add several variables of the form
+.RI xxQS_NAME_Sxx_ O_NAME
+whose value is taken from
+.I NAME
+in the submission environment.  For each, a variable with the same
+value is added to the job context, but with a lower-case version of
+the name, i.e. xqs_name_sxx_o_home in the job context corresponds to
+xQS_NAME_Sxx_O_HOME in the job environment, and HOME in the submission
+environment as follows.  The context variables are displayed by
+.M qstat 1
+with the \-j option.
+.TP 1.5i
+.BR xxQS_NAME_Sxx_O_HOME ,\  xxQS_NAME_Sxx_O_HOST ,\  xxQS_NAME_Sxx_O_MAIL ,\  xxQS_NAME_Sxx_O_PATH ,\  xxQS_NAME_Sxx_O_TZ ,\  xxQS_NAME_Sxx_O_SHELL ,\  xxQS_NAME_Sxx_O_TERM
+As in the description of
+.RI xxQS_NAME_Sxx_ O_NAME
+above, but the xxQS_NAME_Sxx clients
+use a library call to determine to determine the host name if HOST is
+not set.  Note that there is no guarantee that
+these are in any way "correct", e.g. you should not rely on
+xxQS_NAME_Sxx_O_HOST for any sort of access control or auditing;
+.IP "\fBxxQS_NAME_Sxx_O_LOGNAME\fP" 1.5i
+As above, but the corresponding context variable is
+xxqs_name_sxx_log_name.
+.IP "\fBxxQS_NAME_Sxx_O_WORKDIR\fP" 1.5i
+The absolute path of the current working directory of the submitting
+client, reflected in the context as xxqs_name_sxx_o_workdir and
+typically corresponding to the CWD environment variable.
+.PP
+xxQS_NAMExx sets other variables in the job's environment, as follows.
+.TP 1.5i
+.BR \fBARC\fP ,\  \fBxxQS_NAME_Sxx_ARCH\fP
+The xxQS_NAMExx architecture name of the node on which the job is
+running. The name is compiled-in into the
+.M xxqs_name_sxx_execd 8
+binary.
+.IP "\fBxxQS_NAME_Sxx_BINDING\fP" 1.5i
+Contains the selected operating system internal processor numbers.
+There might be more than the number of selected cores in the presence
+of SMT or CMT because each core could be represented by multiple
+processor identifiers.  The processor numbers are space-separated.
+.IP \fBxxQS_NAME_Sxx_CKPT_ENV\fP 1.5i
+Specifies the checkpointing environment (as selected with the \fB\-ckpt\fP
+option) under which a checkpointing job executes. Only set for checkpointing
+jobs.
+.IP "\fBxxQS_NAME_Sxx_CKPT_DIR\fP" 1.5i
+Only set for checkpointing jobs. Contains path \fIckpt_dir\fP
+(see
+.M checkpoint 5 )
+of the checkpoint interface.
+.\" Fixme:  the next four are defined for builtin startup with qrsh et
+.\" al, but not with non-builtin -- code or doc bug?  (SGE_STD... are
+.\" /dev/null for qrsh)
+.IP \fBxxQS_NAME_Sxx_CWD_PATH\fP 1.5i
+Specifies the current working directory where the job was started.
+.IP \fBxxQS_NAME_Sxx_STDERR_PATH\fP 1.5i
+The pathname of the file to which the standard error stream of the job is
+diverted. Commonly used for enhancing the output with error messages
+from prolog, epilog, parallel environment start/stop or checkpointing
+scripts.
+.IP \fBxxQS_NAME_Sxx_STDOUT_PATH\fP 1.5i
+The pathname of the file to which the standard output stream of the job is
+diverted. Commonly used for enhancing the output with messages from
+prolog, epilog, parallel environment start/stop or checkpointing scripts.
+.IP \fBxxQS_NAME_Sxx_STDIN_PATH\fP 1.5i
+The pathname of the file from which the standard input stream of the job
+is taken. This variable might be used in combination with xxQS_NAME_Sxx_O_HOST
+in prolog/epilog scripts to transfer the input file from the submit
+to the execution host.
+.IP \fBxxQS_NAME_Sxx_JOB_SPOOL_DIR\fP 1.5i
+The directory used by
+.M xxqs_name_sxx_shepherd 8
+to store job related data during job
+execution. This directory is owned by root or by a xxQS_NAMExx administrative
+account.
+.IP \fBxxQS_NAME_Sxx_TASK_ID\fP 1.5i
+The index number of the current array job task (see \fB\-t\fP option
+above). This is a unique number in each array job and can be used to
+reference different input data records, for example. This environment
+variable is set to "undefined" for non-array jobs. It is possible to
+change the predefined value of this variable with \fB\-v\fP or \fB\-V\fP
+(see options above).
+.IP \fBxxQS_NAME_Sxx_TASK_FIRST\fP 1.5i
+The index number of the first array job task (see \fB\-t\fP option
+above). It is possible to change the predefined value of this variable with
+\fB\-v\fP or \fB\-V\fP (see options above).
+.IP \fBxxQS_NAME_Sxx_TASK_LAST\fP 1.5i
+The index number of the last array job task (see \fB\-t\fP option
+above). It is possible to change the predefined value of this variable with
+\fB\-v\fP or \fB\-V\fP (see options above).
+.IP \fBxxQS_NAME_Sxx_TASK_STEPSIZE\fP 1.5i
+The step size of the array job specification (see \fB\-t\fP option
+above). It is possible to change the predefined value of this variable with
+\fB\-v\fP or \fB\-V\fP (see options above).
+.IP "\fBENVIRONMENT\fP" 1.5i
+The ENVIRONMENT variable is set to BATCH to identify that the job is being
+executed under xxQS_NAMExx control.
+.IP "\fBHOME\fP" 1.5i
+The user's home directory path from the
+.M passwd 5
+database.
+.IP "\fBHOSTNAME\fP" 1.5i
+The hostname of the node on which the job is running.
+.IP "\fBJOB_ID\fP" 1.5i
+A unique identifier assigned by the
+.M xxqs_name_sxx_qmaster 8
+when the job was
+submitted. The job ID is a decimal integer in the range 1 to 99999.
+.IP "\fBJOB_NAME\fP" 1.5i
+The job name. 
+For batch jobs or jobs submitted by \fIqrsh\fP with a command, the job name is the basename of the \fIqsub\fP script/binary filename or the \fIqrsh\fP command.
+For interactive jobs it is set to "INTERACTIVE" for \fIqsh\fP jobs, "QLOGIN" for \fIqlogin\fP jobs and "QRLOGIN" for \fIqrsh\fP jobs without a command.
+
+This default may be overwritten by the
+.B \-N
+option.
+.IP "\fBJOB_SCRIPT\fP" 1.5i
+The path to the job script which is executed. The value can not be 
+overwritten by the \fB\-v\fP or \fB\-V\fP option. 
+.IP "\fBLOGNAME\fP" 1.5i
+The user's login name from the passwd database.
+.IP "\fBNHOSTS\fP" 1.5i
+The number of hosts in use by a parallel job.
+.IP "\fBNQUEUES\fP" 1.5i
+The number of queues allocated for the job (always 1 for serial jobs).
+.IP "\fBNSLOTS\fP" 1.5i
+The number of queue slots in use by a parallel job.
+.IP "\fBPATH\fP" 1.5i
+A default shell search path of:
+.br
+.\" fixme: PATH and SGE_O_PATH seem to be the same -- just the
+. \" inherited path
+.ta 5i
+/usr/local/bin:/usr/ucb:/bin:/usr/bin
+.IP "\fBxxQS_NAME_Sxx_BINARY_PATH\fP" 1.5i
+The path where the xxQS_NAMExx binaries are installed. The value is the
+concatenation of the cluster configuration value
+.B binary_path 
+and the architecture name
+.B $xxQS_NAME_Sxx_ARCH
+environment variable.
+.IP "\fBPE\fP" 1.5i
+The parallel environment under which the job executes (for parallel
+jobs only).
+.IP "\fBPE_HOSTFILE\fP" 1.5i
+The path of a file containing the definition of the virtual parallel
+machine assigned to a parallel job by xxQS_NAMExx. See the description of
+the
+.B $pe_hostfile
+parameter in
+.M xxqs_name_sxx_pe 5
+for details on the format of this file. The environment variable
+is only available for parallel jobs.
+.IP "\fBQUEUE\fP" 1.5i
+The name of the cluster queue in which the job is running.
+.IP "\fBREQUEST\fP" 1.5i
+Available for batch jobs only.
+.sp 1
+The request name of a job as specified with the
+\fB\-N\fP switch (see above) or taken as the name of the job
+script file.
+.IP "\fBRESTARTED\fP" 1.5i
+This variable is set to 1 if a job was restarted after a system crash,
+or after migration of a non-application-level checkpointing job.  It is
+set to 2 when a job with application-level checkpointing is restarted
+with a checkpoint available.  Otherwise its value is 0.
+.IP "\fBSHELL\fP" 1.5i
+The user's login shell from the passwd
+database. \fBNote:\fP This is not necessarily the shell in use for the job.
+.IP "\fBTMPDIR\fP" 1.5i
+The absolute path to the job's temporary working directory.
+.IP "\fBTMP\fP" 1.5i
+The same as TMPDIR; provided for compatibility with NQS.
+.IP "\fBTERM\fP" 1.5i
+The terminal type imported from the submission session (only for
+interactive jobs).
+.IP "\fBTZ\fP" 1.5i
+The time zone variable imported from
+.M xxqs_name_sxx_execd 8
+if set.
+.IP "\fBUSER\fP" 1.5i
+The user's login name from the passwd database.
+.PP
+An additional variable,
+.BR SGE_JOBEXIT_STAT ,
+is set to the job exit status in the epilog only (see also
+.M sge_conf 5 ).
+.\"
+.\"
+.SH RESTRICTIONS
+.PP
+Without
+.BR "\-pty y" ,
+there is no controlling terminal for batch jobs under xxQS_NAMExx, and
+any tests or actions on a controlling terminal 
+will fail. If these operations are in
+your
+.I .login
+or
+.I .cshrc
+file, they may cause your job to abort.
+.PP
+Insert the following test before any commands
+that are not pertinent to batch jobs in your .login:
+.PP
+.nf
+.RS
+if ( $?JOB_NAME) then
+.RS
+echo "xxQS_NAMExx spooled job"
+exit 0
+.RE
+endif
+.RE
+.fi
+.PP
+or in your .profile:
+.PP
+.nf
+.RS
+if [ ! \-z "$JOB_NAME" ] then
+.RS
+echo "xxQS_NAMExx spooled job"
+exit 0
+.RE
+fi
+.RE
+.fi
+.PP
+Don't forget to set your shell's search path in your
+shell start-up before this code.
+.\"
+.\"
+.SH EXIT STATUS
+The following exit values are returned:
+.IP "0" 0.5i
+Operation was executed successfully.
+.IP "25" 0.5i
+It was not possible to register a new job according to the configured
+.I max_u_jobs
+or
+.I max_jobs
+limit. Additional information may be found in
+.M sge_conf 5
+.IP ">0" 0.5i
+Error occurred.
+.\"
+.\"
+.SH EXAMPLES
+The following is the simplest form of a xxQS_NAMExx script file.
+.sp 1
+.RS
+.nf
+#!/bin/sh
+   ./a.out
+.fi
+.RE
+.sp 1
+The next example is a more complex xxQS_NAMExx script.
+.sp 1
+.RS
+.nf
+#!/bin/sh
+
+# Which account to be charged cpu time 
+#$ \-A santa_claus
+
+# date-time to run, format [[CC]yy]MMDDhhmm[.SS]
+#$ \-a 12241200
+
+# to run I want 6 or more parallel processes
+# under the PE pvm. the processes require
+# 128M of memory
+#$ \-pe pvm 6- \-l mem=128
+
+# If I run on dec_x put stderr in /tmp/foo, if I
+# run on sun_y, put stderr in /usr/me/foo
+#$ \-e dec_x:/tmp/foo,sun_y:/usr/me/foo
+
+# Send mail to these users
+#$ \-M santa@nothpole,claus@northpole
+
+# Mail at beginning/end/on suspension
+#$ \-m bes
+
+# Export these environmental variables
+#$ \-v PVM_ROOT,FOOBAR=BAR
+
+# The job is located in the current 
+# working directory.
+#$ \-cwd
+
+./a.out
+.fi
+.RE
+.\"
+.\"
+.SH FILES
+.nf
+.ta \w'$REQUEST.hostsJID[.TASKID]  'u
+\fI$REQUEST.oJID[.TASKID]\fR	STDOUT of job #JID
+\fI$REQUEST.eJID[.TASKID]\fR	STDERR of job
+\fI$REQUEST.poJID[.TASKID]\fR	STDOUT of par. env. of job
+\fI$REQUEST.peJID[.TASKID]\fR	STDERR of par. env. of job
+.PP
+.ta \w'<xxqs_name_sxx_root>/.xxqs_name_sxx_aliases   'u
+\fI$cwd/.xxqs_name_sxx_aliases\fR	cwd path aliases
+\fI$cwd/.xxqs_name_sxx_request\fR	cwd default request
+\fI$HOME/.xxqs_name_sxx_aliases\fR	user path aliases
+\fI$HOME/.xxqs_name_sxx_request\fR	user default request
+\fI<xxqs_name_sxx_root>/<cell>/common/xxqs_name_sxx_aliases\fP
+	cluster path aliases
+\fI<xxqs_name_sxx_root>/<cell>/common/xxqs_name_sxx_request\fP
+	cluster default request
+\fI<xxqs_name_sxx_root>/<cell>/common/act_qmaster\fP
+	xxQS_NAMExx master host file
+.fi
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M qconf 1 ,
+.M qdel 1 ,
+.M qhold 1 ,
+.M qmod 1 ,
+.M qrls 1 ,
+.M qstat 1 ,
+.M accounting 5 ,
+.M xxqs_name_sxx_aliases 5 ,
+.M xxqs_name_sxx_conf 5 ,
+.M xxqs_name_sxx_request 5 ,
+.M xxqs_name_sxx_pe 5 ,
+.M xxqs_name_sxx_shepherd 8 ,
+.M complex 5 ,
+.M xxqs_name_sxx_types 5 .
+.\"
+.\"
+.SH "COPYRIGHT"
+If configured correspondingly,
+.I qrsh
+and
+.I qlogin
+contains portions of the
+\fIrsh\fP, \fIrshd\fP, \fItelnet\fP and \fItelnetd\fP
+code copyrighted by The Regents of the University of California.
+.\" Fixme:  drop?
+Therefore, the following note applies with respect to \fIqrsh\fP and
+\fIqlogin\fP: This
+product includes software developed by the University of California,
+Berkeley and its contributors.
+.sp 1
+See
+.M xxqs_name_sxx_intro 1
+as well as the information provided in <xxqs_name_sxx_root>/3rd_party/qrsh
+and <xxqs_name_sxx_root>/3rd_party/qlogin
+for a statement of further rights and permissions.

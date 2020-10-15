@@ -1,0 +1,220 @@
+\documentclass[a4paper, titlepage, twoside]{article}
+\usepackage{fancyvrb}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\newcommand{\qidl}{{\tt qidl}}
+\newcommand{\codapi}{{\tt cod\_api}}
+\newcommand{\idlgen}{{\tt idl\_gen}}
+\newcommand{\master}{{\tt Codine::Master}}
+\newcommand{\job}{{\tt Codine::Job}}
+\newcommand{\queue}{{\tt Codine::Queue}}
+\newcommand{\complex}{{\tt Codine::Complex}}
+\newcommand{\calendar}{{\tt Codine::Calendar}}
+\newcommand{\codine}{\textsc{Codine}}
+\newcommand{\GRD}{\textsc{GRD}}
+
+\begin{document}
+\title{\Huge\bf Internship Report \\ \Large Summer Term 1999}
+\author{Achim Demelt \\ University of Applied Sciences, Regensburg}
+\date{\today}
+
+\maketitle
+\cleardoublepage
+\tableofcontents
+\vfill
+\listoffigures
+\cleardoublepage
+
+\pagestyle{fancy}
+
+\section{\label{s_intro}Introduction}
+This report describes the main activity during my internship at Genias
+Software GmbH, Neutraubling: provision of a CORBA
+interface for Genias' load balancing software \textsl{\codine}, called 
+\qidl. The following
+two subsections give a brief overview of \codine\ and its migration to the
+OO-world. Sections \ref{s_userdoc} and \ref{s_progdoc} will then reveal more
+details about how to use \qidl\ and its technological background.
+
+\textbf{Note:} Since most of this report will be reused as internal and 
+external documentation for \qidl, it is written in English---according 
+to guidelines at Genias.
+
+\subsection{\label{s_Codine}Codine}
+\codine\ is a workload management tool for heterogeneous, distributed computing
+environments. It queues and executes batch jobs, thereby controlling the use
+of shared resources to best achieve an enterprise's goals.
+
+The \textsl{Global Resource Director (\GRD)}---based on \codine---provides
+additional features, such as dynamic scheduling and fine-grained policy
+definition and control. Although \GRD\ is a standalone product, the two terms
+\textsl{\codine} and \textsl{\GRD}\ are used synonymously in this report. \qidl\
+covers the whole range of \GRD\ functionality.
+
+The basic principle of \codine\ is very simple: The user puts jobs with special
+resource requirements (e.g. host architecture, memory requirements, software
+licenses) into the system. \codine\ then tries to find a suitable place (called
+\textsl{queue} in \codine\ terms) to run this job. If not enough resources can
+be allocated, \codine\  holds the job back until resources become available
+again.
+
+The system administrator is offered many ways to configure the computing
+cluster and to grant and deny access to parts of it to certain users and
+user groups, depending on dynamically evaluated criteria. A detailed
+explanation of all \codine/\GRD\ features cannot be given in this report (see
+the \codine/\GRD\ user and administrator documentations
+\cite{b_codine, b_grd} for more details), but
+the reader should be familiar with the following terms:
+
+\begin{description}
+\item[Job:] A job is a computation task that a user wants to have executed on 
+some machine in the computing cluster, e.g. a crash simulation in the automobile
+industry or the flow of air around the wing of a plane. The user does not
+care on \emph{which} machine his or her job is executed (especially when
+there are several similar machines in the cluster), unless a minimum of
+resource requirements are met (e.g. at least four processors, 512 MB of
+RAM, and the simulation software available).
+
+\item[Queue:] This is the place where a job can potentially run. A queue is
+assigned to an \textsl{execution host} and offers a set of resources,
+configured by the administrator. \codine\
+matches the resources requested by a job with those offered by the
+various queues and eventually schedules a job on an appropriate queue.
+
+\item[Complex:] A complex is a set of attributes that describe a queue, a
+host, or the computing capacities of a machine. Jobs may request these
+attributes and the \codine\ scheduler then determines the appropriate queues.
+
+\item[Users:] \GRD\ has four kinds of users: Managers, Operators, Owners, and
+Users. Managers can manipulate all aspects of \GRD, operators are like managers
+without permission of configuration changes,
+owners may manipulate the queues or jobs they own, and users may 
+submit and control their own jobs.
+
+\item[Hosts:] Among the five types of hosts known to \GRD, only two are
+relevant in this context: \textsl{Execution hosts}, where batch jobs are
+executed, and the \textsl{master host}, where the \codine\ master daemon and
+its job scheduler are
+running on. An execution host can have more than one queue, whereas a queue
+is associated with exactly one execution host.
+
+\end{description}
+
+
+\subsection{\label{s_corba}CORBA}
+Following the trend towards object-orientation, \codine\ is to present itself in
+an object-oriented manner. Up to its present release (4.2), \codine\ is written
+entirely in C, thus ensuring high portability across various platforms.
+Moreover, it offers a C programmer's interface (called \texttt{cod\_api}),
+based on the \textsl{cull} (Common Usable List Library, \cite{b_cull}), 
+a general-purpose doubly-linked
+list written by Genias. It is therefore not feasible to change the complete
+\codine\ kernel.
+
+Due to increasing demands from the industry and engagement in several
+projects sponsored by the German and European governments, Genias decided to
+make the \codine\ functionality accessible via object-oriented interfaces
+written in CORBA IDL. Since CORBA is an open standard and widely used in the
+UNIX domain, it is regarded to be the best choice as a platform independent
+environment.
+
+One goal of \qidl\ was to keep very close to \codine's internal structures.
+This simplifies the transition for a \texttt{cod\_api} programmer from the C-
+to the CORBA-interface, since he or she will find familiar terms and
+concepts---only a bit "objectized". But the real advantage lies at the
+implementation side, where most of the basic CORBA server functionality can
+be generated automatically out of existing C source code. Section
+\ref{s_prog_idlgen} will focus on this topic in more detail. The following
+section will explain the user's view of \codine's OO-face.
+
+\cleardoublepage
+\section{\label{s_userdoc}\qidl\---From the User's Perspective}
+\input{qidl_user}
+
+\cleardoublepage
+\section{\label{s_progdoc}\qidl\---The Implementor's View}
+\input{qidl_prog}
+
+\cleardoublepage
+\section{Conclusion and Final Remarks}
+\subsection{The \qidl\ Project}
+\subsubsection{Migrating to New Technologies}
+\qidl\ introduced a whole lot of new technologies to \codine: C++, STL,
+multithreading, CORBA---and was successful. There were serious doubts about
+the stability of the product, especially concerning the subtle implications
+of multithreading. Yet it turned out to be a robust product, admittedly after
+a lot and hard work of in-depth debugging.
+
+A first test as part of the \textsc{Autobench} project funded by the 
+German ministry for education and research (BMBF) was successfully
+accomplished. Part of \qidl's functionality was used in a production-like
+environment in the automobile industry. This demonstration proved once again,
+that the advance in technology was a courageous, but worthwhile step into
+\codine's future.
+
+\subsubsection{Things to Be Done}
+Most important in this respect is certainly testing. It is almost impossible 
+to test the full range of \qidl\
+functionality in all thinkable variations. Especially the concurrent use of
+\codapi\ and \qidl\ with its inherent race conditions opens traps and pitfalls
+that may appear only in very special and non-reproduceable occasions---or
+never at all! These and other hidden faults in the program can probably only
+be discovered by productive use of \qidl\ by first pilot customers. Hopefully
+by the end of this year, BMW will be the first commercial customer
+to have \qidl\ installed in their engineering center in Munich.
+
+Providing \qidl\ to customers will surely open another field for extensions:
+convenience functions. There are only very few of those implemented so far
+(see section \ref{s_user_convenience}), but the \qidl\ design is flexible
+enough to cope with an increased demand in easy-to-use or "short-cut"
+methods.
+
+The last future aim is to port \qidl\ to other platforms. Currently it is
+running on:
+\begin{itemize}
+\item Linux/Intel
+\item Linux/Alpha (unstable due to kernel problems)
+\item DEC OSF4
+\item IRIX 6.5
+\item Solaris 7/Intel
+\end{itemize}
+The actual porting effort is really not worth mentioning since \qidl\ was
+programmed adhering to all possible standards. But the prerequisites are
+difficult to come by on many platforms:
+\begin{itemize}
+\item ANSI C++ compiler (namespaces, exception handling, STL)
+\item POSIX threads library
+\item ORBacus availability
+\item lex/yacc available and working in conjunction with C++
+\end{itemize}
+Once these requirements have been met, a simple call to \texttt{make} is
+usually all there is to do to get \qidl\ running.
+
+\subsection{Genias---The Company}
+Last but not least, some words about Genias. I enjoyed working in the company
+very much, with a young team of employees who helped me willingly at any time.
+Being offered a cluster of 23 UNIX
+workstations of all kinds---from AIX to Solaris, and Alpha to Sparc---far away
+from the everyday Microsoft-Intel-PC world, one can experience a whole new
+way of working and become accustomed to a still dominating operating system
+in the scientific world.
+
+My participation in two public projects (\textsc{Autobench} from BMBF, and
+\textsc{Julius}, an EU-sponsored ESPRIT project) brought me to meetings and
+conferences in Munich and St. Augustin, the first one in an international
+environment with partners from all over Europe, where I had a chance to
+present my work.
+
+All in all, I can recommend an internship at Genias for any student who
+\begin{itemize}
+\item is willing to leave behind his or her PC
+\item can do without an integrated development environment (IDE)
+\item wants to learn---and give---a lot.
+\end{itemize}
+
+\newpage
+\nocite{*}
+\bibliographystyle{alpha}
+\bibliography{manual}
+
+\end{document}

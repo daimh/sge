@@ -1,0 +1,90 @@
+\" Copyright (c) Open Grid Forum (2012). Some Rights Reserved.
+\"
+\" This document and translations of it may be copied and furnished to
+\" others, and derivative works that comment on or otherwise explain it
+\" or assist in its implementation may be prepared, copied, published and
+\" distributed, in whole or in part, without restriction of any kind,
+\" provided that the above copyright notice and this paragraph are
+\" included as references to the derived portions on all such copies and
+\" derivative works.  The published OGF document from which such works
+\" are derived, however, may not be modified in any way, such as by
+\" removing the copyright notice or references to the OGF or other
+\" organizations, except as needed for the purpose of developing new or
+\" updated OGF documents in conformance with the procedures defined in
+\" the OGF Document Process, or as required to translate it into
+\" languages other than English. OGF, with the approval of its board, may
+\" remove this restriction for inclusion of OGF document content for the
+\" purpose of producing standards in cooperation with other international
+\" standards bodies.
+\"
+\" The limited permissions granted above are perpetual and will not be
+\" revoked by the OGF or its successors or assignees.
+.de M    \" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH drmaa2_dict 3 2012-12-01 
+.SH NAME
+drmaa2_dict_create, drmaa2_dict_free, drmaa2_dict_list, drmaa2_dict_has, drmaa2_dict_get, drmaa2_dict_del, drmaa2_dict_set \- DRMAA2 dictionary routines
+.SH SYNOPSIS
+.B #include """drmaa.h"""
+.nf
+.B typedef struct drmaa2_dict_s *drmaa2_dict;
+.sp
+.BI "typedef void (*drmaa2_dict_entryfree)(char **" key ", char **" val ");"
+.BI "drmaa2_dict drmaa2_dict_create (const drmaa2_dict_entryfree " callback ");"
+.BI "void drmaa2_dict_free(drmaa2_dict *" d ");" 
+.BI "drmaa2_string_list drmaa2_dict_list(const drmaa2_dict " d ");"            
+.BI "drmaa2_bool drmaa2_dict_has(const drmaa2_dict " d ", const char *" key ");"
+.BI "const char *drmaa2_dict_get(const drmaa2_dict " d ", const char *" key ");"
+.BI "drmaa2_error drmaa2_dict_del(drmaa2_dict " d ", const char *" key ");"
+.BI "drmaa2_error drmaa2_dict_set(drmaa2_dict " d ", const char *" key ", const char *" val ");"
+.fi
+.SH DESCRIPTION
+.TP
+.BR drmaa2_dict_create ()
+creates a new dictionary instance. Returns a pointer to the dictionary
+or NULL on error.  Optional                 
+parameter
+.I callback
+allows the                                               
+application to provide a callback pointer to a collection element
+cleanup function.
+.B DRMAA2_UNSET_CALLBACK
+may be supplied instead of a valid callback pointer.
+.TP
+.BR drmaa2_dict_free ()
+frees the dictionary and the contained members. If a callback function
+was provided on dictionary creation, it SHALL be called once per
+dictionary entry.
+.TP
+.BR drmaa2_dict_list ()
+gets all dictionary keys as DRMAA
+.BR drmaa2_string_list .
+If the dictionary is empty, a valid string list with zero elements
+SHALL be returned. The application is expected to use
+.B drmaa2_list_free
+for freeing the returned data structure.
+.TP
+.BR drmaa2_dict_has ()
+returns a boolean indication if the given key exists in the
+dictionary. On error, the function SHALL return FALSE.
+.TP
+.BR drmaa2_dict_get ()
+gets the dictionary value for the specified key. If the key is
+invalid, the function returns NULL.
+.TP
+.BR drmaa2_dict_del ()
+removes the dictionary entry with the given key and returns a success
+indication. If a callback function was provided on dictionary
+creation, it SHALL be called before this function returns.
+.TP
+.BR drmaa2_dict_set ()
+sets the specified dictionary key to the specified value. Key and
+value strings MUST be stored as the provided character pointers. If
+the dictionary already has an entry for this name, the value is
+replaced and the old value is removed. If a callback was provided on
+dictionary creation, it SHALL be called with a NULL pointer for the
+key and the pointer of the previous value.
+.SH "SEE ALSO"
+.M drmaa2 3 ,
+.M drmaa2_list 3

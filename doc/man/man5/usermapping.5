@@ -1,0 +1,101 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\" 
+.\" $RCSfile: usermapping.5,v $     Last Update: $Date: 2007-01-05 19:56:10 $     Revision: $Revision: 1.9 $
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\"
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH USERMAPPING 5 "$Date: 2007-01-05 19:56:10 $"
+.\"
+.SH NAME
+usermapping \- user mapping entry file format
+.\"
+.SH DESCRIPTION
+.PP
+A usermapping entry is used to define alias names for a cluster 
+user. The user's name known by the scheduling system is known as the
+cluster user. If the cluster user doesn't match the user account
+name on an execution host, the usermapping feature can solve the
+problem.
+.PP
+Each line in the usermapping entry file specifies a user name and
+the host(s) where he has an account. 
+.PP
+A list of currently configured user mapping entries can be displayed 
+via the
+.M qconf 1
+\fB\-sumapl\fP option. The contents of each enlisted user mapping entry 
+can be
+shown via the \fB\-sumap\fP switch. The output follows the
+.I usermapping
+format description. New user entries can be created and existing can be
+modified via the \fB\-aumap\fP, \fB\-mumap\fP and \fB\-dumap\fP options to
+.M qconf 1 .
+.\"
+.\"
+.SH FORMAT
+A user mapping entry contains two parameters:
+.SS "\fBcluster_user\fP"
+The cluster_user keyword defines the cluster user name. The rest of
+the textline after the keyword "cluster_user" will be taken as cluster
+user value.
+
+.SS "\fBremote_user\fP"
+The user name on an execution host. Please note that the value for this
+attribute might be overwritten for a certain hostgroups or single host.
+Find an example below.
+
+.\"
+.\"
+
+.SH EXAMPLE
+This is a typical user mapping entry for a cluster user mapping:
+
+.PP
+cluster_user   peter
+.PP
+.PP
+remote_user    peter,[@linux=pet1],[fangorn=peter1]
+.PP
+The entry will map the user peter which is defined in the cluster system to
+the user peter on all hosts in the cluster except for all hosts which
+are referenced in the hostgroup @linux. For all these hosts the user will be
+mapped to pet1. For the host fangorn the remote user will be peter1.
+.M hostgroup 5
+to obtain for more information about that.
+
+.\"
+
+.SH "SEE ALSO"
+.M qconf 1 , 
+.M hostgroup 5 .
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

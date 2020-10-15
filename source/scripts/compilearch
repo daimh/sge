@@ -1,0 +1,366 @@
+#!/bin/sh
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+#
+# Credit should be given to Robert Manchek manchek@CS.UTK.EDU for creating
+# a similar aimk procedure for the PVM 3.x distribution, Jul 22 1991,
+# which inspired the Grid Engine aimk build scheme.
+
+# Make sure to avoid confusion between shell variables and environment
+# variables
+#
+
+dir=`dirname $0`
+basedir=`cd $dir/..; pwd`
+
+usage() {
+   echo ""
+   echo "usage: compilearch (-b|-t|-c) [<arch>]"
+   echo ""
+   echo "  -b  print the build arch (SOLARIS64)"
+   echo "  -t  print the target bits (TARGET_32BIT or TARGET_64BIT)"
+   echo "  -c  print the compile arch (e.g LINUXIA64_24) or an empty"
+   echo "      string if the build arch is equal to the compile arch"
+   echo ""
+   echo "  <arch> print the information for a specific architecture."
+   echo "         If <arch> is missing the architecture is determined"
+   echo "         by calling the dist/util/arch script"
+   echo ""
+}
+
+buildarch=""
+option=""
+
+case $# in
+  0) usage; exit 1;;
+  1)
+    case $1 in
+      -b) option="-b";;
+      -t) option="-t";;
+      -c) option="-c";;
+      *)  usage; exit 1;;
+    esac;;
+  2)
+    option=$1; buildarch=$2;;
+  *)
+     usage
+     exit 1;;
+esac
+
+if [ "$buildarch" = "" ]; then
+   archscript=$basedir/dist/util/arch
+   if [ -f $archscript ]; then
+      buildarch=`$archscript`
+      if [ $? -ne 0 ]; then
+          echo "error in $archscript: $buildarch"
+          exit 1
+      fi
+   else
+      echo script $archscript not available
+      exit 1
+   fi
+fi
+
+COMPILE_ARCH=
+BUILDARCH=
+TARGET_BITS=
+
+# Map buildarch into uppercase BUILDARCH
+#
+case $buildarch in
+   aix51)
+      BUILDARCH=AIX51
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   darwin)
+      BUILDARCH=DARWIN
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   darwin-x86)
+      BUILDARCH=DARWIN_X86
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   darwin-x64)
+      BUILDARCH=DARWIN_X64
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   fbsd-alpha)
+      BUILDARCH=FREEBSD_ALPHA
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   fbsd-amd64)
+      BUILDARCH=FREEBSD_AMD64
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   fbsd-i386)
+      BUILDARCH=FREEBSD_I386
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   fbsd-ia64)
+      BUILDARCH=FREEBSD_IA64
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   fbsd-ppc)
+      BUILDARCH=FREEBSD_PPC
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   fbsd-sparc64)
+      BUILDARCH=FREEBSD_SPARC64
+      ;;
+   hp11)
+      BUILDARCH=HP11
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   hp11-64)
+      BUILDARCH=HP1164
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   irix65)
+      BUILDARCH=IRIX65
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   lx-alpha)
+      BUILDARCH=LINUX
+      COMPILE_ARCH=LINUX
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   lx-arm)
+      BUILDARCH=LINUXARM
+      COMPILE_ARCH=LINUXARM
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   lx-armhf)
+      BUILDARCH=LINUXARMHF
+      COMPILE_ARCH=LINUXARMHF
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   lx-arm64)
+      BUILDARCH=LINUXARM64
+      COMPILE_ARCH=LINUXARM64
+      TARGET_BITS=TARGET_64BITT
+      ;;
+   lx-amd64)
+      BUILDARCH=LINUXAMD64
+      COMPILE_ARCH=LINUXAMD64
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   lx-ia64)
+      BUILDARCH=LINUXIA64
+      COMPILE_ARCH=LINUXIA64
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   lx-mips)
+      BUILDARCH=LINUXMIPS
+      COMPILE_ARCH=LINUXMIPS
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   lx-mipsel)
+      BUILDARCH=LINUXMIPSEL
+      COMPILE_ARCH=LINUXMIPSEL
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   lx-mips64)
+      BUILDARCH=LINUXMIPS64
+      COMPILE_ARCH=LINUXMIPS64
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   lx-parisc)
+      BUILDARCH=LINUXPARISC
+      COMPILE_ARCH=LINUXPARISC
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   lx-ppc)
+      BUILDARCH=LINUXPPC
+      COMPILE_ARCH=LINUXPPC
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   lx-ppc64)
+      BUILDARCH=LINUXPPC64
+      COMPILE_ARCH=LINUXPPC64
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   lx-ppc64el | lx-ppc64le)
+      BUILDARCH=LINUXPPC64EL
+      COMPILE_ARCH=LINUXPPC64EL
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   lx-s390)
+      BUILDARCH=LINUXS390
+      COMPILE_ARCH=LINUXS390
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   lx-s390x)
+      BUILDARCH=LINUXS390X
+      COMPILE_ARCH=LINUXS390X
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   lx-sparc)
+      BUILDARCH=LINUXSPARC
+      COMPILE_ARCH=LINUXSPARC
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   lx-sparc64)
+      BUILDARCH=LINUXSPARC64
+      COMPILE_ARCH=LINUXSPARC64
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   lx-x86)
+      BUILDARCH=LINUX86
+      COMPILE_ARCH=LINUX86
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   ulx-alpha)
+      BUILDARCH=LINUX
+      COMPILE_ARCH=LINUX
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   ulx-amd64)
+      BUILDARCH=LINUXAMD64
+      COMPILE_ARCH=ULINUXAMD64
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   ulx-ia64)
+      BUILDARCH=LINUXIA64
+      COMPILE_ARCH=ULINUXIA64
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   ulx-ppc)
+      BUILDARCH=LINUXPPC
+      COMPILE_ARCH=ULINUXPPC
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   ulx-sparc)
+      BUILDARCH=LINUXSPARC
+      COMPILE_ARCH=ULINUXSPARC
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   ulx-sparc64)
+      BUILDARCH=LINUXSPARC64
+      COMPILE_ARCH=ULINUXSPARC64
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   ulx-x86)
+      BUILDARCH=LINUX86
+      COMPILE_ARCH=ULINUX86
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   nbsd-alpha)
+      BUILDARCH=NETBSD_ALPHA
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   nbsd-i386)
+      BUILDARCH=NETBSD_I386
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   nbsd-powerpc)
+      BUILDARCH=NETBSD_POWERPC
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   nbsd-sparc64)
+      BUILDARCH=NETBSD_SPARC64
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   nbsd-x86_64)
+      BUILDARCH=NETBSD_X86_64
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   obsd-i386)
+      BUILDARCH=OPENBSD_I386
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   sol-sparc)
+      BUILDARCH=SOLARIS
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   sol-sparc64)
+      BUILDARCH=SOLARIS64
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   sol-x86)
+      BUILDARCH=SOLARIS86
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   sol-amd64)
+      BUILDARCH=SOLARISAMD64
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   usol-sparc)
+      BUILDARCH=SOLARIS
+      COMPILE_ARCH=USOLARIS
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   usol-sparc64)
+      BUILDARCH=SOLARIS64
+      COMPILE_ARCH=USOLARIS64
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   usol-x86)
+      BUILDARCH=SOLARIS86
+      COMPILE_ARCH=USOLARIS86
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   usol-amd64)
+      BUILDARCH=SOLARISAMD64
+      COMPILE_ARCH=USOLARISAMD64
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   tru64)
+      BUILDARCH=ALPHA5
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   win32-x86)
+      BUILDARCH=WIN32_X86
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   cygwin-x86)
+      BUILDARCH=CYGWIN_X86
+      TARGET_BITS=TARGET_32BIT
+      ;;
+   cygwin-x86_64)
+      BUILDARCH=CYGWIN_X86_64
+      TARGET_BITS=TARGET_64BIT
+      ;;
+   *)
+      echo cannot compile - no mapping for architecture \"$buildarch\" defined yet
+      exit 1
+      ;;
+esac
+
+case "$option" in
+  -b) echo $BUILDARCH;;
+  -t) echo $TARGET_BITS;;
+  -c) echo $COMPILE_ARCH;;
+  *)
+    echo "invalid option $option"
+    exit 1;;
+esac
+

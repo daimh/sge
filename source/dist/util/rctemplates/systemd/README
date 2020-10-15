@@ -1,0 +1,8 @@
+These are trivial example service files for starting SGE daemons with
+the "systemd" init replacement.  You don't actually need them, since
+systemd supports LSB-compliant init files, and they're less
+sophisticated than the templates in the directory above.  Note that
+stopping (re-starting) the execd service will kill running jobs.
+
+They assume that sourcing /etc/sysconfig/sge sets SGE_ROOT and
+SGE_CELL.  (I don't think you can use common/settings.sh.)

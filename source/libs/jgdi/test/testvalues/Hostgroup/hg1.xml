@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<HGRP_Type>
+   <name>@${name}</name>
+   <host>NONE</host>
+</HGRP_Type>

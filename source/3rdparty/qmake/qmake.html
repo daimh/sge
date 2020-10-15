@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76C-CCK-MCD Netscape [en] (X11; U; SunOS 5.8 sun4u) [Netscape]">
+   <meta name="AUTHOR" content="Joachim Gabler">
+   <meta name="CREATED" content="20010606;14570200">
+   <meta name="CHANGEDBY" content="Joachim Gabler">
+   <meta name="CHANGED" content="20010613;11060600">
+<style>
+	<!--
+		@page { size: 8.27in 11.69in; margin-left: 1.25in; margin-right: 1.25in; margin-top: 1in; margin-bottom: 1in }
+		P { margin-bottom: 0.08in }
+	-->
+	</style>
+    <title>Qmake</title>
+</head>
+<body>
+
+<div STYLE="margin-top: 0.17in; page-break-after: avoid"><b><font face="Helvetica, sans-serif"><font size=+2>Qmake
+- a distributed parallel make</font></font></b></div>
+qmake provides a parallel distributed make utility integrated with Grid
+Engine.
+<p>It is based on GNU make Revision 3.82 which is copyrighted under the
+GNU General Public License (see file COPYING).
+<p>qmake uses GNU make's remote stub mechanism (see source code <tt>remote-stub.c</tt>)
+to start each make task as a task in a Grid Engine parallel job.
+<p>To create a Grid Engine parallel job, qmake submits itsself using qrsh
+and requests a parallel environment with a certain number of slots.
+<br>In the resulting parallel job, qmake starts the single make tasks using
+the Grid Engine feature "qrsh -inherit" - see <a href="../../clients/qrsh/qrsh.html">documentation
+of qrsh</a>.
+<p>For additional information and usage see the manual page <font color="#000000"><a href="../../../doc/htmlman/htmlman1/qmake.html">qmake.1</a></font>
+and autodoc headers included in the source code <tt>remote-sge.c</tt>.
+<p>The following changes have been made to the GNU make source tree:
+<ul>added a file <tt>remote-sge.c</tt> that implements the stub functions
+from <tt>remote-stub.c</tt>
+<p>modified <tt>main.c</tt>: a function call to a function <tt>remote_options</tt>
+has been added at the entrance of the <tt>main</tt> function to allow qmake
+to separate Grid Engine specific options from GNU make options.</ul>
+
+</body>
+</html>

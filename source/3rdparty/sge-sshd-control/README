@@ -1,0 +1,74 @@
+This source is extracted from the original distribution
+http://www-zeuthen.desy.de/~ahaupt/downloads/sge-sshd-control-1.2-1.src.rpm,
+written up in http://gridengine.org/assets/static/ws2007/K5SGE.pdf.
+
+The licence has been changed from the original GPL of unspecified
+version to LGPL (which is more appropriate for a PAM module which
+might be used with a daemon with an incompatible licence) following
+mail from the author:
+
+  From: Andreas Haupt <andreas.haupt@desy.de>
+  Subject: Re: your SGE/SSH PAM module
+  To: "Love, Dave" <dlove@liverpool.ac.uk>
+  Date: Wed, 24 Nov 2010 13:58:23 +0000
+  
+  Hi Dave,
+  
+  On Wed, 2010-11-24 at 11:26 +0000, Dave Love wrote:
+  > I've just been prompted by Reuti to do something with your nice PAM
+  > module for SGE tight integration.  I intended to put in the continuation
+  > SGE project I've started <https://arc.liv.ac.uk/trac/SGE>, but hadn't
+  > got round to it.
+  > 
+  > The licence tag in the SRPM says `GPL', but there's no information about
+  > which version.  I'd like to clarify that before redistributing it.  Can
+  > I assume GPL2 or later, and add the appropriate header?  (I think LGPL
+  > would be better for a PAM module, but obviously there's no
+  > incompatibility with OpenSSH, anyway.)
+  
+  Take whatever license fits best. :-) I don't really care...
+ 
+  [...]
+
+  -- 
+  | Andreas Haupt             | E-Mail: andreas.haupt@desy.de
+  |  DESY Zeuthen             | WWW:    http://www-zeuthen.desy.de/~ahaupt
+  |  Platanenallee 6          | Phone:  +49/33762/7-7359
+  |  D-15738 Zeuthen          | Fax:    +49/33762/7-7216
+
+The original README follows, with a couple of corrections:
+
+Author:
+-------
+
+Andreas Haupt <andreas.haupt@desy.de>, DESY (Germany)
+
+What it does:
+-------------
+
+This package should give the grid engine batch system control over
+interactive jobs started by qrsh.
+
+Two things are done:
+	1. the group id coming from
+	   $SGE_ROOT/default/spool/<hostname>/active_jobs/<job_id>/addgrpid
+	   will be set
+	2. the environment coming from
+	   $SGE_ROOT/default/spool/<hostname>/active_jobs/<job_id>/environment
+	   will be set as well
+
+How to setup:
+-------------
+
+	1. install rshd-wrapper somewhere
+	2. set rlogin_daemon, rsh_daemon to /path/to/rshd-wrapper in the GE
+	   configuration (qconf -mconf global),
+	   rsh_command, rlogin_command are still set to "ssh -tt"
+	3. compile pam_sge-qrsh-setup.c
+	   (gcc -o pam_sge-qrsh-setup.so -shared -fPIC pam_sge-qrsh-setup.c)
+	4. install pam_sge-qrsh-setup.so on an execution host
+	5. modify /etc/pam.d/sshd so that it contains the following line:
+	   auth required pam_sge-qrsh-setup.so
+	6. do qrsh -l h=<exec host> and have a look at the output of "id" and
+	   "printenv" ;-)
+

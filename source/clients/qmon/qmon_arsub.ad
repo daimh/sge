@@ -1,0 +1,425 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Submit Control 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_arsub.xmtType:   TopLevelShell
+Qmon*qmon_arsub.allowShellResize: True
+
+Qmon*qmon_arsub.xmtChildren: unmanaged XmtLayout arsub_layout;
+Qmon*arsub_layout.autoUnmanage:    False
+Qmon*arsub_layout.dialogTitle:  @{QMON +++ AR Submission}
+
+Qmon*arsub_layout.xmtChildren: \
+   InputField        arsub_name = ar_name, \
+                     arsub_ckpt_obj = ckpt_obj, \
+                     arsub_pe = pe, \
+                     arsub_account = account_string; \
+   DurationInput     arsub_duration = duration; \
+   TimeInput         arsub_start_time = start_time, \
+                     arsub_end_time = end_time; \
+   StrListField      arsub_mail_user = mail_list, \
+                     arsub_queue_list = queue_list, \
+                     arsub_master_queue_list = master_queue_list, \
+                     arsub_access = acl_list, \
+                     arsub_xaccess = xacl_list; \
+   XmToggleButton    arsub_duration_toggle, \
+                     arsub_now = now, \
+                     arsub_handle_hard_error = handle_hard_error; \
+   XmtChooser        arsub_mail = mail_options, \
+                     arsub_verify = verify_mode; \
+   XmPushButton      arsub_resources, \
+                     arsub_accessPB, \
+                     arsub_xaccessPB, \
+                     arsub_start_timePB, \
+                     arsub_end_timePB, \
+                     arsub_durationPB, \
+                     arsub_mail_userPB, \
+                     arsub_pePB, \
+                     arsub_queue_listPB, \
+                     arsub_master_queue_listPB, \
+                     arsub_ckpt_objPB, \
+                     arsub_arsub, \
+                     arsub_done, \
+                     arsub_help, \
+                     arsub_main_link, \
+                     arsub_clear; \
+   XmtMsgLine        arsub_message;
+
+Qmon*arsub_layout.layout: \
+   Fixed Shadowed Out 4 2 LREvenSpaced Row arsub_title { \
+      Fixed Centered arsub_main_link \
+      Centered Color "$title_fg" "@{@fBAR Submission}" \
+   } \
+   ## \
+   Row arsub_always { \
+      Shadowed Col { \
+         Row { Fixed Caption tl "@{AR Name}" 30 em arsub_name <> } \
+         Row { \
+            Centered Caption tl "@{Start At}" 30 em arsub_start_time \
+            <> \
+            Fixed FlushBottom arsub_start_timePB \
+         } \
+         Col { \
+            Fixed arsub_duration_toggle \
+            Row { \
+               Centered Caption tl "@{End At}" 30 em arsub_end_time \
+               <> \
+               Fixed FlushBottom arsub_end_timePB \
+            } \
+            Row { \
+               Centered Caption tl "@{Duration}" 30 em arsub_duration \
+               <> \
+               Fixed FlushBottom arsub_durationPB \
+            } \
+         } \
+         Row { \
+            Caption tl "@{Parallel Environment}" Centered 30 em arsub_pe \
+            <> \
+            Fixed Centered arsub_pePB \
+         } \
+         Row { \
+            Caption tl "@{Checkpoint Object}" Centered 30 em arsub_ckpt_obj \
+            <> \
+            Fixed Centered arsub_ckpt_objPB \
+         } \
+         Row { \
+            Caption tl "@{Account}" Centered 30 em arsub_account \
+            <> \
+         } \
+         Row { \
+            Caption tl "@{Cluster Queue List}" arsub_queue_list \
+            Fixed Centered arsub_queue_listPB \
+         } \
+         Row { \
+            Caption tl "@{Master Queue List}" arsub_master_queue_list \
+            Fixed Centered arsub_master_queue_listPB \
+         } \
+         <> \
+      } \
+      Filled Shadowed Outside Col { \
+         Caption tl "@{Request Resources}" Row { \
+            Centered Fixed arsub_resources \
+         } \
+         Col { \
+            Row { \
+               Stretchable Caption tl "@{Access Allowed}" arsub_access \
+               Centered Fixed arsub_accessPB \
+            } \
+            Row { \
+               Stretchable Caption tl "@{Access Denied}" arsub_xaccess \
+               Centered Fixed arsub_xaccessPB \
+            } \
+         } \
+         Fixed arsub_handle_hard_error \
+         Fixed arsub_now \
+         Caption tl "@{Verify Mode}" arsub_verify \
+         Caption tl "@{Mail}" arsub_mail \
+         Row { \
+            Caption tl "@{Mail To}" Centered 30 em arsub_mail_user \
+            <> \
+            Fixed Centered arsub_mail_userPB \
+         } \
+      } \
+      Fixed Shadowed Col { \
+         Fixed arsub_arsub \
+         Fixed arsub_done \
+         Fixed arsub_clear \
+         Fixed arsub_help \
+         <> \
+         Fixed arsub_message \
+      } \
+   }
+
+Qmon*arsub_message*columns:         20
+
+Qmon*arsub_folder*defaultSpacing:   2
+Qmon*arsub_folder*marginWidth:   0
+Qmon*arsub_detail*marginHeight:  0
+
+Qmon*arsub_folder*XmtInputField.marginHeight:   1
+Qmon*arsub_folder*XmtInputField.marginWidth:    1
+!Qmon*arsub_folder*XmPushButton.marginWidth:   1
+!Qmon*arsub_folder*XmPushButton.marginHeight:  1
+
+Qmon*arsub_layout*arsub_main_link.labelType:          PIXMAP
+Qmon*arsub_layout*arsub_main_link.labelPixmap:        logo
+Qmon*arsub_layout*arsub_main_link.shadowThickness:    1
+Qmon*arsub_layout*arsub_main_link.highlightThickness: 0
+Qmon*arsub_layout*arsub_main_link.marginHeight:       0
+Qmon*arsub_layout*arsub_main_link.marginWidth:        0
+
+!Qmon*arsub_layout*arsub_script.beepOnError:         True
+Qmon*arsub_layout*arsub_name.highlightOnError:    True
+Qmon*arsub_layout*arsub_name.errorBackground:     $warning_color
+Qmon*arsub_layout*arsub_pe.highlightOnError:    True
+Qmon*arsub_layout*arsub_pe.errorBackground:     $warning_color
+Qmon*arsub_layout*arsub_pe_range.highlightOnError:    True
+Qmon*arsub_layout*arsub_pe_range.errorBackground:     $warning_color
+
+
+Qmon*arsub_layout*arsub_name.navigationType: TAB_GROUP
+
+Qmon*arsub_handle_hard_error.alignment:          ALIGNMENT_BEGINNING
+Qmon*arsub_handle_hard_error.labelString:        @{Handle Hard Error}
+Qmon*arsub_now.alignment:                        ALIGNMENT_BEGINNING
+Qmon*arsub_now.labelString:                      @{Consider only INTERACTIVE Queues}
+
+Qmon*arsub_verify.packing: PACK_TIGHT
+Qmon*arsub_verify.chooserType: ChooserOption
+Qmon*arsub_verify.strings: \
+   "@{Error}", \
+   "@{Just verify}"
+
+Qmon*arsub_mail*marginHeight: 1
+Qmon*arsub_mail.packing: PACK_TIGHT
+Qmon*arsub_mail.chooserType: ChooserCheckBox
+Qmon*arsub_mail.strings: \
+   "@{Start of AR}", \
+   "@{End of AR}", \
+   "@{Abort of AR}"
+
+Qmon*arsub_done.labelString:      @{Done}
+Qmon*arsub_arsub.labelString:     @{Submit}
+Qmon*arsub_help.labelString:      @{Help}
+Qmon*arsub_clear.labelString:     @{Clear}
+
+Qmon*arsub_mail_userPB.labelType:              PIXMAP
+Qmon*arsub_mail_userPB.labelPixmap:            mailbox
+Qmon*arsub_mail_userPB.labelInsensitivePixmap: mailbox_ins
+
+Qmon*arsub_resources.labelType:      PIXMAP
+Qmon*arsub_resources.labelPixmap:    resources
+
+Qmon*arsub_accessPB.labelType:         PIXMAP
+Qmon*arsub_accessPB.labelPixmap:       aclask
+Qmon*arsub_xaccessPB.labelType:        PIXMAP
+Qmon*arsub_xaccessPB.labelPixmap:      aclask
+
+Qmon*arsub_start_timePB.labelType:              PIXMAP
+Qmon*arsub_start_timePB.labelPixmap:            21cal
+Qmon*arsub_start_timePB.labelInsensitivePixmap: 21cal_ins
+
+Qmon*arsub_end_timePB.labelType:              PIXMAP
+Qmon*arsub_end_timePB.labelPixmap:            21cal
+Qmon*arsub_end_timePB.labelInsensitivePixmap: 21cal_ins
+
+Qmon*arsub_durationPB.labelType:               PIXMAP
+Qmon*arsub_durationPB.labelPixmap:             deadline
+Qmon*arsub_durationPB.labelInsensitivePixmap:  deadline_ins
+
+Qmon*arsub_duration_toggle.alignment:          ALIGNMENT_BEGINNING
+Qmon*arsub_duration_toggle.labelString:        @{Use Duration}
+
+Qmon*arsub_pePB.labelType:                     PIXMAP
+Qmon*arsub_pePB.labelPixmap:                   penv
+
+Qmon*arsub_queue_listPB.labelType:             PIXMAP
+Qmon*arsub_queue_listPB.labelPixmap:           qask
+Qmon*arsub_master_queue_listPB.labelType:      PIXMAP
+Qmon*arsub_master_queue_listPB.labelPixmap:    qask
+
+Qmon*arsub_ckpt_objPB.labelType:               PIXMAP
+Qmon*arsub_ckpt_objPB.labelPixmap:             ckpt
+
+Qmon*arsub_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! AR Configuration Dialogs
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*arsub_mail_list_shell.mail_list.dialogTitle:   @{Send mail to mail address}
+Qmon*arsub_mail_list_shell.mail_list.autoUnmanage:  False
+!! Qmon*arsub_mail_list_shell.mail_list.noResize:      True
+!! Qmon*arsub_mail_list_shell.mail_list.dialogStyle: DIALOG_FULL_APPLICATION_MODAL
+Qmon*arsub_mail_list_shell.allowShellResize: True
+Qmon*arsub_mail_list_shell.xmtChildren: unmanaged XmtLayout armail_list;
+Qmon*arsub_mail_list_shell.armail_list.xmtChildren: \
+   InputField     armail_list_new; \
+   StringList     armail_list_matrix = mail_list; \
+   XmPushButton   armail_list_cancel, armail_list_okay, armail_list_delete, \
+                  armail_list_reset, armail_list_help;
+
+
+Qmon*arsub_mail_list_shell.armail_list.layout: \
+   Row { \
+      Col { \
+         Fixed Caption tl "@{Mail address}" armail_list_new \
+         Fixed 2.5 in % 2.5 in armail_list_matrix \
+      } \
+      Fixed Shadowed Col { \
+         Fixed armail_list_okay \
+         Fixed armail_list_cancel \
+         Fixed armail_list_delete \
+         Fixed armail_list_reset \
+         Fixed armail_list_help \
+         <> \
+      } \
+   }
+
+
+Qmon*armail_list*armail_list_cancel.labelString:  @{Cancel}
+Qmon*armail_list*armail_list_okay.labelString:    @{Ok}
+Qmon*armail_list*armail_list_reset.labelString:   @{Reset}
+Qmon*armail_list*armail_list_delete.labelString:  @{Delete}
+Qmon*armail_list*armail_list_help.labelString:    @{Help}
+
+Qmon*armail_list*scrollBarDisplayPolicy:  AS_NEEDED
+Qmon*armail_list*listSizePolicy:          CONSTANT
+
+Qmon*armail_list*armail_list_matrix.selectionPolicy:         EXTENDED_SELECT
+Qmon*armail_list*armail_list_matrix.visibleItemCount:        10
+
+Qmon*armail_list.armail_list_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! ARSub Resource Dialog
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*arresource_shell.allowShellResize:      True
+Qmon*arresource_shell.resizePolicy:          RESIZE_ANY
+Qmon*arresource_shell.xmtChildren:           unmanaged XmtLayout arresource;
+
+Qmon*arresource.autoUnmanage:    False
+Qmon*arresource.dialogTitle:    @{A R   R E S O U R C E}
+
+Qmon*arresource.xmtChildren: \
+   XmPushButton      arresource_ok, arresource_cancel; \
+   Iconlist          arresource_ar, arresource_sr; \
+   XmPushButton      arresource_clear;\
+
+Qmon*arresource.layout: \
+   Row { \
+      Equal Even Shadowed Out 4 2 Col { \
+         Row { \
+            Col { \
+               Caption tl "@{@fBFilter Resources}" 20 em arresource_sr \
+               Fixed Centered arresource_clear \
+            } \
+            # \
+            Caption tl "@{@fBAvailable Resources}" 20 em arresource_ar \
+         } \
+      } \
+      Fixed Shadowed Out 4 2 Col { \
+         Fixed arresource_cancel \
+         Fixed arresource_ok \
+         <> \
+      } \
+   }
+
+Qmon*arresource_clear.labelString:            @{Clear}
+
+!Qmon*arresource_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+Qmon*arresource_ar*iconWidth:         16
+Qmon*arresource_ar*iconHeight:        16
+Qmon*arresource_ar*highlightOnEnter:  False
+
+Qmon*arresource_sr*iconWidth:         16
+Qmon*arresource_sr*iconHeight:        16
+Qmon*arresource_sr*highlightOnEnter:  False
+
+Qmon*arresource.arresource_ok.labelString:              @{Ok}
+Qmon*arresource.arresource_cancel.labelString:          @{Cancel}
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Add/ Modify Access Lists
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*ar_acl_ask_shell.xmtChildren: unmanaged XmtLayout ar_acl_ask_layout;
+
+Qmon*ar_acl_ask_shell.ar_acl_ask_layout.autoUnmanage: False
+Qmon*ar_acl_ask_shell.ar_acl_ask_layout.resizePolicy:  RESIZE_NONE
+Qmon*ar_acl_ask_shell.ar_acl_ask_layout.XmtInputField.marginWidth:      2
+Qmon*ar_acl_ask_shell.ar_acl_ask_layout.XmtInputField.marginHeight:     2
+Qmon*ar_acl_ask_shell.ar_acl_ask_layout.fontList: $dialog_font
+Qmon*ar_acl_ask_shell.ar_acl_ask_layout.dialogTitle: @{Add/Modify Host Group}
+Qmon*ar_acl_ask_shell.ar_acl_ask_layout.dialogStyle: DIALOG_APPLICATION_MODAL
+
+Qmon*ar_acl_ask_shell.ar_acl_ask_layout.xmtChildren: \
+   InputField     ar_acl_user; \
+   XmScrolledList ar_acl_access_list, \
+                  ar_acl_available_acl_list; \
+   XmPushButton   ar_acl_ok, ar_acl_cancel, ar_acl_add_acl, ar_acl_add_user, ar_acl_del_entry;
+
+Qmon*ar_acl_ask_layout.layout: \
+   Row { \
+      Etched Col { \
+         Row { \
+            Col { \
+               Stretchable 2 in % 2 in ar_acl_access_list \
+            } \
+            Col { \
+               ## \
+               Row { \
+                  Centered Fixed ar_acl_add_user \
+                  Caption tl "@{User}" ar_acl_user \
+               } \
+               ## \
+               Row { \
+                  Centered Fixed ar_acl_add_acl \
+                  Stretchable Caption tl "@{Defined Access Lists}" 2 in % 3 in ar_acl_available_acl_list \
+               } \
+               ## \
+               Centered Fixed ar_acl_del_entry \
+               <> \
+            } \
+         } \
+      } \
+      Fixed Shadowed Col { \
+         Fixed ar_acl_ok \
+         Fixed ar_acl_cancel \
+      } \
+   }
+
+
+Qmon*ar_acl_ask_layout.ar_acl_ok.labelString:     @{Ok}
+Qmon*ar_acl_ask_layout.ar_acl_cancel.labelString: @{Cancel}
+Qmon*ar_acl_ask_layout.ar_acl_name.columns: 40
+
+Qmon*ar_acl_ask_layout.ar_acl_add_user.labelType:         PIXMAP
+Qmon*ar_acl_ask_layout.ar_acl_add_user.labelPixmap:       leftarrow
+Qmon*ar_acl_ask_layout.ar_acl_add_acl.labelType:          PIXMAP
+Qmon*ar_acl_ask_layout.ar_acl_add_acl.labelPixmap:        leftarrow
+Qmon*ar_acl_ask_layout.ar_acl_del_entry.labelType:        PIXMAP
+Qmon*ar_acl_ask_layout.ar_acl_del_entry.labelPixmap:      trashcan
+
+Qmon*ar_acl_ask_layout.ar_acl_toggle_acl_xacl.labelPixmap:      trashcan
+
+Qmon*ar_acl_ask_layout*ar_acl_access_list.fontList:           $fixed_font
+Qmon*ar_acl_ask_layout*ar_acl_access_list.selectionPolicy:    EXTENDED_SELECT
+Qmon*ar_acl_ask_layout*ar_acl_access_list.visibleItemCount:   7
+
+Qmon*ar_acl_ask_layout*ar_acl_available_acl_list.fontList:           $fixed_font
+Qmon*ar_acl_ask_layout*ar_acl_available_acl_list.selectionPolicy:    EXTENDED_SELECT
+Qmon*ar_acl_ask_layout*ar_acl_available_acl_list.visibleItemCount:   7
+

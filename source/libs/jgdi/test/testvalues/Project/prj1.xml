@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<PR_Type>
+   <name>${name}</name>
+   <oticket>0</oticket>
+   <fshare>0</fshare>
+   <acl>
+      <US_Type>
+         <name>defaultdepartment</name>
+         <type>0</type>
+         <fshare>0</fshare>
+         <oticket>0</oticket>
+      </US_Type>
+   </acl>
+   <xacl>NONE</xacl>
+</PR_Type>

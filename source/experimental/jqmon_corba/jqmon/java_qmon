@@ -1,0 +1,1 @@
+java -Dgrd.root=${GRD_ROOT} -Dcodine.root=${CODINE_ROOT} -Xbootclasspath:.:..:${JOB_HOME}/:${JOB_HOME}/OB.jar:${JOB_HOME}/OBNaming.jar:${JOB_HOME}/OBTest.jar:${JOB_HOME}/OBEvent.jar:${JOB_HOME}/OBProperty.jar:${JAVAHOME}/:${SWING}/swingall.jar:${JAVAHOME}/jre/lib/rt.jar:${JAVAHOME}/jre/lib/i18n.jar jqmon.Jqmon

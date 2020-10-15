@@ -1,0 +1,322 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.de MO		\" external man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH QMAKE 1 "2011-05-20" "xxRELxx" "xxQS_NAMExx User Commands"
+.SH NAME
+qmake \- distributed parallel make, scheduling by xxQS_NAMExx.
+.PP
+.SH SYNTAX
+.B qmake
+.RI [ options ]
+.RB \-\-
+.RI [ "gmake options" ]
+.SH DESCRIPTION
+.I Qmake
+is a parallel, distributed
+.MO make 1
+utility. Scheduling of the parallel
+.I make
+tasks is done by xxQS_NAMExx. It is based on
+GNU make, version 3.82
+.RI (" gmake ").
+Both xxQS_NAMExx and
+GNU make
+command line options can be specified. They are separated by "\-\-".
+.PP
+All xxQS_NAMExx options valid with
+.M qsub 1
+or
+.M qrsh 1
+can be specified with
+.IR qmake .
+See
+.M submit 1
+for a description of all xxQS_NAMExx command line options.
+The GNU Make manual (via
+.IR info )
+or the
+.MO make 1
+manual page describes the
+.I gmake
+command line syntax.
+.PP
+The syntax of
+.I qmake
+makefiles corresponds to
+.I gmake
+and is described in the "GNU Make Manual".
+.PP
+A typical qmake call will use the xxQS_NAMExx command line options 
+.B \-cwd
+to have a scheduled make started in the current working directory on 
+the execution host, \fB\-v\ PATH\fP if the xxQS_NAMExx environment is
+not set up in the user's
+.I .cshrc
+Or
+.I .profile
+shell resource file, and also request slots in a parallel environment (see
+.M sge_pe 5 ).
+.PP
+If no resource request (xxQS_NAMExx command line option
+.BR \-l )
+is specified,
+.I qmake
+will use the environment variable SGE_ARCH to request the same
+architecture as the submit host for task execution.
+If SGE_ARCH is set, the architecture specified in SGE_ARCH will be requested by
+inserting the option \fB\-l\ arch=$SGE_ARCH\fP into the command line options.
+If SGE_ARCH is not set, the make tasks can be executed on any available architecture.
+As this is critical for typical make (compile) jobs, a warning will be output.
+.PP
+.I qmake 
+has two different modes for allocating xxQS_NAMExx resources for the parallel 
+execution of tasks:
+.IP 1.
+Allocation of resources using a parallel environment. If the
+.B \-pe
+option is
+used on the qmake command line, a parallel job is scheduled by xxQS_NAMExx.
+The make rules are executed as tasks within this parallel job.
+.IP 2.
+Dynamic allocation of resources. If no parallel environment is requested
+when submitting a qmake job, each make rule will generate an individual 
+xxQS_NAMExx qrsh job.
+All resource requests given to
+.I qmake
+will be inherited by the jobs processing the make rules.
+.PP
+In dynamic allocation mode, additional resource requests for individual rules
+can be specified by preceding the rule by the definition of an environment
+variable SGE_RREQ. The rule then takes the form
+.RS
+SGE_RREQ="\fIrequest\fP" \fIrule\fP
+.RE
+e.g.
+.RS
+SGE_RREQ="\-l lic=1" cc -c ...
+.RE
+If such makefile rules are executed in a make utility other than
+.IR qmake ,
+the environment variable SGE_RREQ will be set in the
+environment established for the rule's execution \- presumably without any effect.
+.SH EXAMPLES
+.sp 1
+.nf
+.RS
+qmake \-cwd \-v PATH \-pe compiling 1\-10 \-\-
+.RE
+.fi
+.sp 1
+will request between 1 and 10 slots in parallel environment "compiling".
+If the SGE_ARCH environment variable is set to the machine architecture, a
+resource request will be inserted into the qmake command line to start the 
+qmake job on the same architecture as the submit host. The
+.I make
+tasks will
+inherit the complete environment of the calling shell, and as
+as many parallel tasks will execute as slots have been granted by xxQS_NAMExx.
+.sp 1
+.nf
+.RS
+qmake \-l arch=sol\-sparc \-cwd \-v PATH \-\- \-j 4
+.RE
+.fi
+.sp 1
+will submit each make rule as an individual qrsh job. A maximum of 4 tasks will be processed in parallel.
+The qmake job will be started on a machine of architecture sol-sparc.  This
+resource request will also be inherited by the make tasks, i.e. all jobs
+created for the execution of make tasks will request the architecture sol-sparc.
+.sp 1
+If the following Makefile is submitted with the above command line, additional
+resource requests will be made for individual rules:
+For the compile and link rules, compiler licenses (comp) and linker licenses (link) will be requested, in
+addition to the resource request made for the whole job (\-l\ arch=sol\-sparc) on the command line.
+.sp 1
+.nf
+.RS
+all: test
+
+clean:
+	rm \-f test main.o functions.o
+
+test: main.o functions.o
+	SGE_RREQ="\-l link=1" ld \-o test main.o functions.o
+
+main.o: main.c
+	SGE_RREQ="\-l comp=1" cc \-c \-DALIASPATH=\"/usr/local/share/locale:.\" \-o main.o main.c
+
+functions.o: functions.c
+	SGE_RREQ="\-l comp=1" cc \-c \-DALIASPATH=\"/usr/local/share/locale:.\" \-o functions.o functions.c
+.RE
+.fi
+.sp 2
+The command line
+.nf
+.RS
+qmake \-cwd \-v PATH \-l arch=sol\-sparc64 \-pe make 3 \-\-
+.RE
+.fi
+.sp 1
+will request 3 parallel
+.I make
+tasks to be executed on hosts of
+architecture "sol\-sparc64". The submit may be done on a host of any
+architecture.
+.sp 1
+The shell script
+.sp 1
+.nf
+.RS
+#!/bin/sh
+qmake \-inherit \-\-
+.RE
+.fi
+.sp 1
+can be submitted by 
+.sp 1
+.nf
+.RS
+qsub \-cwd \-v PATH \-pe make 1\-10 [further xxqs_name_sxx options] <script>
+.RE
+.fi
+.sp 1
+.I Qmake
+will inherit the resources granted for the job submitted above under
+parallel environment "make".
+.\"
+.\"
+.SH "ENVIRONMENT VARIABLES"
+.\" 
+.IP "\fBxxQS_NAME_Sxx_ROOT\fP" 1.5i
+Specifies the location of the xxQS_NAMExx standard configuration
+files.
+.\"
+.IP "\fBxxQS_NAME_Sxx_CELL\fP" 1.5i
+If set, specifies the default xxQS_NAMExx cell. To address a xxQS_NAMExx
+cell
+.I qmake
+uses (in the order of precedence):
+.sp 1
+.RS
+.RS
+The name of the cell specified in the environment 
+variable xxQS_NAME_Sxx_CELL, if it is set.
+.sp 1
+The name of the default cell, i.e. \fBdefault\fP.
+.sp 1
+.RE
+.RE
+.\"
+.IP "\fBxxQS_NAME_Sxx_DEBUG_LEVEL\fP" 1.5i
+If set, specifies that debug information
+should be written to stderr. In addition the level of
+detail in which debug information is generated is defined.
+.\"
+.IP "\fBSGE_ARCH\fP" 1.5i
+The architecture of the submit host. If this variable is set in 
+the submission environment, qmake 
+will request the given architecture for job execution (see DESCRIPTION above).
+.\"
+.\"
+.SH KNOWN PROBLEMS
+.PP
+.SS Slow NFS server
+Very low file server performance may lead to problems on dependent files.
+.sp 1
+Example: Host a compiles a.c to a.o, host b compiles b.c to b.o, host c
+shall link program c from a.o and b.o. In case of very bad NFS
+performance, host c might not yet see files a.o and b.o.
+.\"
+.SS Multiple commands in one rule
+If multiple commands are executed in one rule, the makefile has to
+ensure that they are handled as one command line.
+.sp 1
+Example:
+.sp 1
+.nf
+.RS
+libx.a:
+.RS
+cc \-c x.c
+ar ru libx.a x.o
+.RE
+.RE
+.fi
+.sp 1
+Building libx.a will fail if the commands are executed in parallel
+(and possibly on different hosts). Write the following instead:
+.sp 1
+.nf
+.RS
+libx.a:
+.RS
+cc \-c x.c ; ar ru libx.a x.o
+.RE
+.RE
+.fi
+.sp 1
+or
+.sp 1
+.nf
+.RS
+libx.a:
+.RS
+cc \-c x.c ; \\
+ar ru libx.a x.o
+.RE
+.RE
+.fi
+.\"
+.\"
+.SH SEE ALSO
+.M submit 1 ,
+.M sge_pe 5 ,
+as well as
+.MO make 1
+(GNU make manpage) and
+.IR The GNU Make Manual
+via
+.MO info 1 .
+.\"
+.\"
+.SH "COPYRIGHT"
+.I Qmake
+Is based on GNU Make (\fIgmake\fP), which
+is copyright by the Free Software Foundation,
+Inc., Boston, MA, and is protected by the GNU General Public License.
+.br
+See
+.M xxqs_name_sxx_intro 1
+and the information provided in
+.I <xxqs_name_sxx_root>/doc/LICENCES
+for a statement of further rights and permissions.

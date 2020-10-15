@@ -1,0 +1,937 @@
+Job to core binding 
+-------------------
+
+Version Comments                                                 Date        Author 
+----------------
+
+1.0     Initial Version                                          08/13/2009  DG
+1.1     Extending with definitions and architecture specifics    08/14/2009  DG
+1.2     Added Solaris kstat support                              08/18/2009  DG
+1.3     Added -binding linear:<amount>                           08/18/2009  DG
+1.4     Added findings from meeting 08/19                        08/19/2009  DG
+1.5     Added findings from meeting 08/20                        08/21/2009  DG
+1.6     More examples and implementation details                 08/31/2009  DG
+1.7     Changing binding slightly and 
+        added man page/release notes changes for commands        09/23/2009  EB
+1.8     added comments from AS; fixed typos                      09/24/2009  EB
+1.9     Added "execd_params", JSV, show_queue hints              09/28/2009  DG
+1.9.2   Added known limitations                                  10/06/2009  DG
+1.9.3   Added examples, TODOs, hints, algorithm for linear       11/03/2009  DG
+
+1 Introduction 
+--------------
+
+With the advent of complex multi-core CPUs and NUMA architectures on cluster nodes, 
+the operating system scheduling is not always perfect for all kind of applications. 
+For parallel applications there are scenarios where it might be the best that the 
+processes/threads are distributed to different sockets available on the host, for 
+others it might be better to place them on a single socket running on different cores. 
+
+In the current Sun Grid Engine architecture there is just the concept of 'slots' but 
+no meaning if the slots are reflecting sockets, cores, or hardware supported threads. 
+Also performing core binding is currently unreflected in Sun Grid Engine. Until now 
+it is up to the administrator and/or user to enhance his/her applications to perform 
+such a binding. 
+
+This specification is an enhancement for Sun Grid Engine Solaris and Linux operating 
+system version. Reporting topology information and binding processes to specific 
+cores on hosts is the foundation for additional fine grained NUMA settings, like 
+the configuration of specific memory access patterns on application side. 
+
+1.1 Definitions
+----------------
+
+This section contains several definitions of terms frequently used in this 
+specification and with a specific meaning. 
+
+1.1.1 System topology 
+---------------------
+
+Within this specification the term topology refers to the underlying hardware 
+structure of a Sun Grid Engine execution host. The topology describes the amount 
+of sockets the machine has (and are available) and the amount of cores (or threads 
+on SMT/CMT) each socket has. In case of a virtual machine, the topology of the 
+virtual machine is reported. 
+
+
+1.1.2 Core affinity or core binding 
+-----------------------------------
+
+The term core affinity (and within the spec also core binding) refers to the 
+likelihood of a process to run on the same processor again after it was replaced 
+by the OS scheduler. The core affinity (or also called processor affinity) can 
+be influenced in Linux OS via a system call which takes a bitmask as parameter. 
+In this bitmask each bit reflects one core. If a core is turned off (via a 
+logical bit with the value 0) then the OS scheduler does avoid to migrate 
+the process to that core. Per default (i.e. without binding) all cores are turned 
+on, so that the process can be scheduled to an arbitrary core. 
+In the Solaris operating system processor sets can be used, which are defining 
+a set of processors on which only processes explicitly bound to this set 
+are able to run.
+
+1.1.3 Collisions of core bindings
+---------------------------------
+
+Within this specification the term collision (of two or more core bindings) 
+refers to the circumstance that there exists at least one pair of processes 
+where both have set a (non-default) core affinity and both processes share 
+at least one core. Another source of a collision is when the administrator 
+allows just one process per socket (in order to avoid oversubscribing socket 
+related resources) and in addition to the running process on this socket a 
+second process wants to use free cores on this socket. The problem of  
+collisions are that cores or socket resources easily can be oversubscribed 
+resulting in degraded performance while other sockets or cores are unused. 
+
+1.2 Operating system dependent issues
+-------------------------------------
+
+1.2.1 Solaris specific behavior 
+-------------------------------
+
+Sun Grid Engine supports currently the processor set feature from Solaris, 
+which needs additional administrator configuration. Once a processor set is 
+established it can be configured on PE level meaning all processes from PE 
+are running within this set. On the other side, each processor which is 
+assigned to a processor set will run only processes that are explicitly 
+bound to that processors set. The only exception is when a process 
+requires resources that are only available in the processor set then 
+it is allowed to use this resource. Not all available processors/cores can 
+be included in processor sets, at least one processor must remain available 
+for the operating system. The binding to a processor set is inherited across 
+fork and exec. 
+
+Solaris 9 and higher supports the concept of locality groups which builds 
+latency groups on NUMA systems. With this, topology related information in 
+terms of memory latency could be retrieved. But it is not possible to get 
+the actual amount of physical sockets and cores. For that the kernel kstat 
+structure has to be used.
+
+Processor binding (binding LWP to a specific processor) can be performed 
+via the processor_bind system call. Bindings are inherited across fork and 
+exec system calls, but with this binding it is currently possible to bind 
+a process/thread on only one core, which is different to the Linux behavior 
+and can not be used (because of the danger of oversubscribing one core). 
+Therefore Solaris processor sets have to be taken. The processor sets differs 
+from the Linux behavior in two important points: 1. Not all available 
+cores on a single machine can be used for core binding (at least one 
+core must be available for the OS). 2. The submitted job is running 
+exclusivly on the cores on which it is bound to. That means that no 
+unbound job is allowed to use these cores. 
+Point 1 has the following implication: When on a 8 core machine 
+four times 2 cores have to be grouped into processor sets for four 
+different jobs then actually 3 processor sets are generated and the 
+last job is running without processor sets. Because the last two 
+processes are not allowed to run on all other processors they have 
+to use the remaining ones. All system processes and foreign processes 
+outside Sun Gridengine are sharing these remaining processes 
+with the last job. This 'not' generation of the last processor 
+set is done implicitly by the implementation, because the system 
+will not allow to create it. Therefore it doesn't add additional 
+complexity to the code. 
+
+The kstat module 'cpu_info' is taken to get the information about 
+sockets, cores, and threads. The 'chip_id' represents the socket 
+number and is a stable interface. Counting different 'chip_id's results 
+in the amount of sockets the system have. Counting different 
+'core_id's per 'chip_id' results in the amount of cores a chip 
+have. The amount of pairs with the same 'core_id' and 'chip_id' are 
+reflecting the amount of hardware supported threads this particular 
+core have. On the Sun T2 processor for example this can be observered. 
+ 
+
+
+1.2.2 Linux specific behavior 
+------------------------------
+
+The Linux scheduler supports inherently soft affinity (which is also called 
+natural affinity). This means the scheduler avoids process migrations from one 
+processing unit to another. In the 2.5 kernel hard processor affinity (meaning 
+that the scheduler can be told on which cores a specific process can run/not 
+to run) was introduced. Patches for 2.4 kernel are available (for the system 
+call sched_setaffinity(PID, afffinity bitmask)). Newer kernel versions are also 
+NUMA aware and memory access policies can be set with the libnuma library. 
+The Linux kernel includes a load_balancer component, which is called in specific 
+intervals (like every 200 ms) or when one run-queue is empty (pull migration). 
+Each processor has its own scheduler and own run-queue. The load_balancer 
+tries to equal the amount runnable tasks between these run-queue. This is done 
+via process migration.
+
+Setting a specific core affinity/binding is done via a affinity bitmask, which 
+is accepted from the sched_setaffinity system-call a parameter. Example: 1011 
+means the process will be bound to the first, second, and forth core (the scheduler 
+only dispatches the process to the first, second, or fourth core even if the run-queue 
+of core three is empty). The default mask (without affinity) is 1111 (on a four core 
+machine) that means the scheduler can dispatch the process to any appropriate core.
+Core affinity is inherited by child processes. But each processes can redefine the 
+affinity in any way. 
+
+The /proc/cpuinfo file contains information about the processor topology. 
+In order to simplify the access to the topology, which is different in different 
+kernel versions and Linux distributions, an external API is used as an 
+intermediate layer for this task. There were two APIs investigated, 
+the libtopology from INRIA Bordeaux and the PLPA (portable linux processor 
+affinity library) from the OpenMPI project. The libtopology offers support for 
+different operating systems and reports also memory settings where PLPA is more 
+lightweight and for Linux only. Because of the licence and approved stability, 
+the PLPA (which is used from several projects including OpenMPI itself) is 
+going to be used. With PLPA a simple mapping from logical <socket>,<core> pair 
+to the internal processor ID (which has to be used in order to set the bitmask) 
+can be done when the topology is supported. In order to support reporting the 
+availability of SMT, the proc filesystem is parsed additionally.
+
+2 Project Overview 
+------------------
+
+2.1 Project Aim 
+---------------
+
+The goal is to provide more topology related information about the execution 
+hosts and to give the user the ability to bind his jobs to specific cores on 
+the execution system depending on the needs of the application. 
+
+2.2 Project Benefit
+-------------------
+
+Better performance of parallel applications. Depending on the core binding 
+strategy and system topology also limited energy saving could be achieved (by 
+just using a single socket for example, because some power-management is on socket 
+level). 
+
+3 System Architecture
+---------------------
+
+3.1 Configuration 
+-----------------
+
+Sun Grid Engine gets different load values (static and non-static) out-of-the-box 
+from the execution hosts and reports them to the scheduler and user (which can be 
+displayed via qhost or qstat for example). Based on these load-values the user can 
+request resources and the scheduler makes its decisions. Currently there are no fine 
+grained load values regarding the specific topology of the host. In order to give the 
+user the ability to request specific hosts regarding their topology and/or to 
+request a special core affinity (core binding) for the jobs the following new 
+load values have to be introduced: 
+
+Load value 'm_topology': Reports the topology on Solaris hosts and supported 
+(depending on kernel version) Linux hosts otherwise 'NONE'. The topology is 
+a string value with the following syntax:
+
+	<topology> ::= 'NONE' | <socket> 
+	<socket>   ::= 'S' <core> [ <socket> ]
+	<core>     ::= 'C' [ <threads> ] [ <core> ]
+	<threads>  ::= 'T' [ <threads> ]
+
+Hence each 'S' means a socket and the following 'C's are the amount of cores. 
+Please be aware that this is enhanced on some architectures with additional 
+'T's (threads on SMT/CMT architectures) per core. 
+
+The topology string currently does not reflect the latency of memory to each 
+CPU (i.e. NUMA non-NUMA differentiation). 
+
+Examples: 
+"SCCSCC" means a 2 socket host with 2 cores on each socket. 
+"SCCCC" means a one socket machine with 4 cores. 
+"SCTTCTT" means a one socket machine with 2 cores and hyperthreading (Intels name for CMT).
+"SCTTTTTTTTCTTTTTTTTCTTTTTTTTTCTTTTTTTTTCTTTTTTTTCTTTTTTTTCTTTTTTTTTCTTTTTTTTT" would be a
+Sun T2 processor with 8 execution units all of them supporting 8 threads via chip logic. 
+
+Note: Depending on your host setup (BIOS or kernel parameters) a C could also mean 
+a thread on SMT/CMT system.
+
+[Possible solution for core/thread differentiation: Introduce SMT/CMT static 
+load value which is per default 1 and when SMT is on 2 (or more depending on 
+the SMT/CMT processor architecture) which has to be configured by admin 
+regarding the BIOS/kernel settings. This could be used as a divisor.]
+
+Load value 'm_socket': The total amount of sockets available on a machine. 
+If the machine has no supported topology it is equal to the existing "cpu" 
+load value.
+
+Load value 'm_core': The total amount of cores available on a machine. If 
+the machine has no supported topology it is equal to the existing "cpu" value.
+
+Load value 'm_thread': The total amount of threads the machine supports. In 
+case of CMT/SMT this could be a multiple of 'core's available. If the machine 
+has no supported topology it is equal to the existing 'cpu' value.
+
+With the new load value 'm_core' the installation routine for execution hosts 
+is changed so that the 'slots' value is in the default case the amount of cores 
+found.
+
+3.2 Functionality
+-----------------
+
+3.2.1 New "qsub -binding" parameter
+-----------------------------------
+
+Core binding is deactivated per default. It can be activated per host 
+through adding "ENABLE_BINDING=true" to the execd_params (qconf -mconf 
+[<hostname>]).  
+
+In order to give the user the ability to request a special core affinity needed 
+for his/her application a new submission parameter ('-binding') has to be 
+introduced. With this parameter a special setup for the submitted job can be 
+requested. A specific core is described via a <socket_number>,<core_number> 
+tuple. Counting begins at 0 so that '0,1' describes the 2nd core on the first 
+socket. 
+
+To simplify the burden of generating long lists of socket-core-pairs the user 
+can request different strategies. A strategy describes the method how those pairs 
+should be created transparently by the system.
+
+With the new submission (CLI qsub) parameter '-binding' different core binding 
+strategies could be selected. This should be used only in conjunction with exclusive 
+host access for this job. The binding is done on Linux hosts only. Other hosts 
+ignoring this so it us up to the user/admin to request a supported host. All 
+processes started on one host from the job script have the same binding mask 
+(which specifies which cores (not) to use). Doing a per-process binding is 
+error-prone but could be a future enhancement. When a PE job is started using 
+host exclusively the binding is applied to it but binding is applied also 
+when a normal job script or binary job is started. The amount of requested 
+slots does not restrict the amount of cores the process(es) are bound to 
+because without binding a process is bound to every available core.
+
+The following new parameters are allowed (remark: the optional parameter 
+[env|pe|set] is described below): 
+
+'-binding [env|pe|set] linear:<amount>' := Sets the core binding so that 
+<amount> of successive cores on a single socket are tried to be used. If there 
+is no empty (in terms of already bound jobs) socket available an already partly 
+occupied socket which offers the amount of cores is used. If this does fail 
+consecutive cores on consecutive sockets are going to be used. If this fails no 
+binding is done.
+
+'-binding [env|pe|set] linear:<amount>:<socket>,<core>' := Sets the core binding 
+for the process/script started by qsub to <amount> following cores starting 
+at core <core> on socket <socket>.  Note that first core on first socket is 
+described as 0,0. If there is a misconfiguration (<amount> is too high, the [<socket>,] 
+<core> is unavailable, or a collision occurs no core binding is done.
+
+'-binding [env|pe|set] striding:<amount>:<stepsize>:<socket>,<core>' := Set the 
+core binding in the following way: First core which is used for binding is 
+specified with the <socket>,<core> pair. The next core has exactly the core distance 
+<stepsize>, where <stepsize> must be >= 1. Exactly <amount> of cores with 
+the core distance <stepsize> are taken. The order of the cores on a single 
+socket is specified through the order of OS internal processor numbers. 
+If cores which have to be used are already occupied, the job runs without 
+binding. 
+
+Example: striding:2:2:0,0 on the topology "SCCSCC" (2 Sockets with 2 cores each)
+will result in allocating the first core on the first socket and the first 
+core on the second socket. 
+
+'-binding [env|pe|set] striding:<amount>:<stepsize>' := Set the core binding 
+like before with the difference that the socket and core to start with are 
+chosen automatically on the execution host. When no placement is possible  
+(because amount is too high or in case of collisions) no binding is done.
+
+'-binding [env|pe|set] explicit:<socket>,<core>[:<socket>,<core>]' := Binds 
+the job to all cores specified with the <socket>,<core> pairs. At least one 
+pair is needed, the maximum number of pairs are not restricted. If there 
+are one or more collisions or any other problems (out of range for example) 
+arises no binding is done. The explicit binding gives the user a maximum of 
+control and flexibility. 
+
+Note that the core affinity mask is set for the script/process which is started 
+by Sun Grid Engine on the execution host. The mask is inherited by all child 
+threads/processes that means that all subprocesses and threads are using the 
+same set of cores. (In Linux OS child-processes are allowed to re-define the 
+core affinity or even use all cores).
+
+The optional [env|pe|set] defines what is performed on execution side. 'env' 
+means an envirnonment variable containing the OS internal core numbers from 
+the system. 
+ 
+determined is set. This variable is named SGE_BINDING and This is usually 
+used from OpenMP applications in order to determine on which cores the application 
+is allowed to run. As an example for Sun OpenMP applications the $SUNW_MP_PROCBIND 
+environment variable can be directly set with the content.
+
+For OpenMPI jobs scattered on different hosts and using them exclusively the 
+input for a 'rankfile' could be produced by Sun Grid Engine. The 'rankfile' 
+reflects the binding strategy chosen at submission time by the user. For this  
+the pe_hostfile is extended in order to list the host:socket:core triple for 
+each MPI rank.
+
+3.2.1 New "qhost" switch 
+------------------------
+
+A new qhost switch is introduced which shows the amount of sockets, cores 
+and cpus as well as the topology string. 
+
+3.2.2 Extension of qconf -sep
+-----------------------------
+
+The qconf -sep command shows in addition to the hostname, amount of processors, 
+and architecture, the amount of sockets, cores and hardware supported threads. 
+
+
+3.2.3 Extension of qstat -r 
+---------------------------
+
+The requested binding strategy is showed by qstat -r. 
+
+3.3 Implementation 
+------------------
+
+The implementation for reporting sockets, cores, and topology is done via the 
+PLPA (portable linux processor affinity) library on the Linux operating system. 
+Each socket and core reflects a physically present and available socket or core. 
+Additionally the /proc filesystem is parsed in order to determine the availability 
+of SMT if possible. On the Solaris operating system the amount of sockets, cores 
+(and on some processors like the T2 also threads) are retrieved via the kernel 
+kstat structure. 
+
+The implementation of the -binding [linear|striding|explict] parameter means 
+enhancing the command line submission client qsub, the execution daemon, and 
+shepherd process which is forked for each job from the execution daemon. The 
+internal CULL structure JB_Type has to be enhanced with an additional list 
+(JB_binding) which contains the parameters. The execution daemon is writing 
+then the strategy into the "config" file (which is also enhanced by a new line) 
+for the shepherd. The shepherd is performing the binding when started to itself 
+(because it is sleeping most of the time) and the binding is then inherited 
+to the started processes (threads). 
+
+An internal data structure which reflects the current load in respect to used 
+threads, cores and sockets is held. The structure is similar to the topology 
+string but with the difference that execution entities which are currently 
+busy are shown as a dot. An example for a two socket machine with two cores 
+each and running one parallel job with 2 processes on the first socket would 
+be displayed as "sccSCC" (the topology string is "SCCSCC").
+
+In order to extend the pe_hostfile with the choosen socket and core when 
+'-binding pe' was selected all requested hosts must have the same topology.
+No checking for free cores done... 
+
+3.4 Other components/interfaces 
+-------------------------------
+
+The DRMAA library has to accept the binding parameter within the native 
+specification. 
+
+Qmon is updated in order to reflect the new binding parameter. 
+
+A new 'execd_params' parameter is added in order to turn on (switch off) 
+binding. In the default case the core binding is turned off. To allow 
+core binding on host level gives the administrator maximum flexibility. 
+
+If a job is submitted with -binding and is scheduled to an execution 
+daemon on which the binding in not turned on, no binding is done. 
+
+JSV is updated in order to allow access to the binding parameters.
+
+'show_queue' commando has to be changed in order to reflect the 
+the feature. 
+
+
+3.5 Man pages changes and release notes
+---------------------------------------
+
+Release notes (NEW)
+
+   GE 6.2u5 contains additional functionality to bind jobs to a certain
+   cpu core/socket of a machine. 
+
+   This feature requires three additional complex entries so that underlying 
+   hardware topology can correctly be reported to all GE components. 
+
+   These three complex entries have the name m_topology, m_socket and m_core. 
+
+   IMPORTANT: Please make sure that there do not exist complex names with 
+              corresponding names in the cluster you want to update.
+              If you currently have such complex values in your cluster
+              then it is strongly advised to rename them before you
+              apply the update to 6.2u5.
+
+   The "loadcheck" binary was updated in order to show additionally the values for 
+   these three complex entries (m_topology, m_socket, and m_core). Also 
+   a new loadcheck "-cb" switch was introduced in order to check a machine of 
+   the core binding and reporting capabilities. 
+ 
+   Additionally the XML Schema for qstat has been enhanced. As a result the
+   XML output will contain additional entries if the -xml switch is used in
+   combination with the new -cb command-line switch. 
+
+   NOTE: Enhanced schema files can be found after the update in 
+         $SGE_ROOT/util/resources/schemas/qstat/*_6.2u5. 
+         If the -cb switch is not used then also the old schema files 
+         remain valid.
+
+complex (NEW section in "Default host resource attributes")
+   
+   m_topology  
+
+      The host topology string reported by an execution hosts might either 
+      be a '-' character if the topology cannot be determined or it is a 
+      string consisting of the upper and lowercase letters S, C and c. 
+      The sequence of letters within that string represents the hardware 
+      topology where S represents a socket and C or c a Core. 
+
+      The String "SCCSCCSCCSCC" will returned by a host that has 4 sockets 
+      and where each of those sockets has two cores. All cores are available.
+
+      If lowercase letters are used then this means that the corresponding
+      core is already in use because there is at least one running process
+      bound to that core. 
+
+      "SCCSCcSCCscc" means that core 1 on socket 1 and also on core 0 and 1
+      on socket 3 are in use. 
+
+   m_socket
+      Number of sockets available on the reporting host.
+
+   m_core
+      Number of cores reported for each socket.
+      
+   
+qstat -cb (NEW)
+
+   This command-line switch can be used since GE version 6.2u5 in combination 
+   with one or more of the command-line switches -f -r -j -xml. In that case 
+   the output of the corresponding command will contain information 
+   concerning the added feature "Job to Core Binding". 
+
+   If this switch is not used then the mentioned command line switches will 
+   behave as in GE version 6.2u4 and previous. Compared to that the output 
+   format will not change.
+
+   Please not that this command-line switch will be removed from GE with
+   the next major release. With that release the output format of -f -r -j
+   and -xml will change as if the -cb was used.
+
+qstat -r (ADDITIONAL SECTION)
+
+   In combination with -cb the output of this command will contain
+   additional information concerning the requested binding 
+   (see qsub -binding) for a job. 
+
+qstat -j <jid> (ADDITIONAL SECTION)
+
+   In combination with -cb the output of this command will additionally 
+   contain the information of a requested binding (see qsub -binding) and 
+   the changes that have been applied to the topology string (real 
+   binding) for the host where this job is running. 
+
+   The topology string will contain capital letters for all those cores
+   that were not bound to the displayed job. Bound cores will be shown
+   lowercase (E.g "SCCcCSCCcC" means that core 2 on the two available
+   sockets where bound to this job). Find more information concerning
+   the format of the m_topology string in the section 
+   "Default host resource attributes" of the complex(5) man page.
+
+qstat -F (NO CHANGE)
+   (all complex values including m_topology, m_socket, m_core will be shown)
+
+qconf -cb (NEW)
+
+   This command-line switch can be used since GE version 6.2u5 in combination 
+   with the command-line switch -sep. In that case the output of the 
+   corresponding command will contain information concerning the added feature 
+   "Job to Core Binding". If this switch is not used then the mentioned 
+   command line switches will behave as in GE version 6.2u4 and previous. 
+   Compared to that the output format will not change.
+
+   Please not that this command-line switch will be removed from GE with
+   the next major release. 
+
+qconf -sep (CHANGE + ADDITIONAL SECTION) 
+
+   Displays a list of virtual processors. This value is taken from the 
+   underlaying OS and it depends on BIOS settings whether this value 
+   represents sockets, cores or supported threads.
+
+   If this option is used in combination with the -cb parameter then two 
+   additional columns will be shown in the output for the # of sockets 
+   and # of cores of that machine. In the case this information cannot 
+   be retrieved then the fields will contain the '-' character but the 
+   processors field will still contain the number of virtual processors.
+
+qhost -cb (NEW)
+   This command-line switch can be used since GE version 6.2u5 in combination 
+   with the all other qhost command-line switches. In that case the output 
+   of the corresponding command will contain information concerning the 
+   added feature "Job to Core Binding". 
+
+   If this switch is not used then the qhost behave as in GE version 6.2u4 
+   and previous versions. Compared to that the output format will not change.
+
+   If this option is used then two additional columns will be shown for
+   each displayed host in the output. The first is named NSOC and preprints
+   the # of available sockets on that host. The second additional column is 
+   named NCOR and it represents the number of cores that is available per 
+   socket on the corresponding machine. 
+
+   If socket and core information is available for a host then NCPU will
+   contain a "-" character. If the correct topology information cannot be 
+   retrieved then NSOC and NCOR will contain a "-" character.
+
+qrsh/qsh -inherit (NO CHANGE)
+   (Nothing will change: this means the - binding parameter will
+    be ignored if it is used in combination with -inherit)
+
+qrsh/qsh/qsub/qalter -binding <binding_instance> <binding_strategy> (NEW)
+   A job can request a job to core binding with this parameter. 
+   Please note that the requested binding strategy is not used for 
+   resource selection within GE in the moment. As a result a execution host
+   might be selected where GE does not even know the hardware topology
+   and therefore is not able to apply the requested binding.
+   
+   To enforce GE to select hardware were the binding can be applied
+   please use the -l switch in combination with m_topology.
+
+   <binding_instance> is an optional parameter. It might either be 
+   "env", "pe" or "set" depending on which instance should accomplish the
+   job to core binding. If the value for <binding_instance> is
+   not specified then "set" will be used. 
+
+   "env" means that the environment variable SGE_MP_PROCBIND will be 
+      exported to the job environment of the job. Within the
+      job script this information can then be used to prepare the binding 
+      so that it can happen within some parallelisation infrastructure. 
+      (E.g. the SUNW_MP_PROCBIND variable can be set so that OpenMP
+      does the binding)
+      
+   "pe"  means that a rankfile for OpenMP will be written. This file will
+      reflect the binding strategy specified.
+
+   "set" (default if nothing else is specified). The binding strategy is
+      applied by GE. How this is achieved depends on the underlaying
+      hardware architecture of the execution host were the submitted job 
+      will be started. 
+
+      On Solaris hosts a processor set will be created were the
+      job can exclusively run in. 
+
+      On Linux hosts a processor affinity mask will be set to restrict 
+      the processing of a job. Please not that on Linux the binding
+      can only happen if the linux kernel version is >2.6.16 or lower if 
+      additional patches have been applied to the kernel. Otherwise GE
+      is not able to recognize the hardware topology correctly. 
+      You can used the "qconf -sep -cb" command to identify
+      where GE is able to recognize the hardware topology. For those
+      hosts you will find values for sockets and cores but processors
+      will contain a "-" character.
+
+   Possible values for <binding_strategy> are as follows
+      
+         linear:<amount>:[<socket>,<core>]
+         striding:<amount>:<n>
+         explicit:[<socket>,<core>;...]<socket>,<core>
+
+      where
+
+         <amount> is the number of cores that should be bound
+         <socket> and <core> is the id of a socket or core where
+         numbering starts with 0
+         <n> is a offset value
+
+   "linear" means that GE tries to bind <amount> successive cores.
+
+      if <socket> and <core> is omitted then
+
+         -  GE tries to find <amount> empty cores on a empty socket.
+            Empty means that there were no jobs bound to the socket by GE.
+         -  If this is not possible GE tries to find <amount> empty cores
+            on a socket that is not empty
+         -  If this is also not possible then consecutive empty cores on 
+            consecutive sockets will be used to bind the job
+         -  If also this is not possible binding is not done.
+
+      if <core> and <socket> is specified
+
+         -  GE tries to find <amount> of empty cores. Start point for
+            the search algorithm is the specified <socket> and <core>
+         -  If this is not possible binding is not done
+
+   "striding" means that GE tries to find cores with a certain offset
+
+      -  GE tries to find <amount> empty cores with a offset
+         of <n>-1 cores in between. Start point for the search algorithm
+         is socket 0 core 0. As soon as <amount> cores are found they will
+         we used to bind the job.
+      -  If there are not enough empty cores or if correct offset cannot
+         be achieved then there will be no binding done
+      
+   "explicit" binds the specified sockets and cores
+
+      -  With the explicit keyword a list of socket/core numbers will
+         be provided. Independent if the specified cores are empty or not 
+         they will be used to bind the job
+
+   Qalter allows changing this option even while the job executes. The
+   modified parameter will only be in effect after a restart or migration 
+   of the job, however.
+
+qmon
+   The submit dialog will contain a new binding text field in the section
+   second tab (see qsub -binding)
+
+
+3.6. Examples 
+-------------
+
+Example 1: Show topology.
+-------------------------
+
+% qstat -F m_topology 
+queuename                      qtype resv/used/tot. load_avg arch          states 
+--------------------------------------------------------------------------------- 
+all.q@chamb                    BIPC  0/0/40         0.00     lx26-amd64    
+	hl:m_topology=SCCCC 
+--------------------------------------------------------------------------------- 
+all.q@gally2                   BIPC  0/0/40         0.05     lx26-amd64    
+	hl:m_topology=NONE 
+--------------------------------------------------------------------------------- 
+all.q@regen                    BIPC  0/0/40         0.25     lx26-amd64 
+	hl:m_topology=SCCSCC 
+
+
+Example 2: Show the amount of sockets on each execution host.
+-------------------------------------------------------------
+
+% qstat -F m_socket
+
+queuename                      qtype resv/used/tot. load_avg arch          states 
+--------------------------------------------------------------------------------- 
+all.q@chamb                    BIPC  0/0/40         0.00     lx26-amd64    
+	hl:m_socket=1 
+--------------------------------------------------------------------------------- 
+all.q@gally2                   BIPC  0/0/40         0.03     lx26-amd64    
+	hl:m_socket=0 
+--------------------------------------------------------------------------------- 
+all.q@regen                    BIPC  0/0/40         0.20     lx26-amd64    
+	hl:m_socket=2
+
+
+
+Example 3: Show the amount of cores on each execution host. 
+-----------------------------------------------------------
+
+% qstat -F m_core
+
+queuename                      qtype resv/used/tot. load_avg arch          states 
+--------------------------------------------------------------------------------- 
+all.q@chamb                    BIPC  0/0/40         0.00     lx26-amd64    
+	hl:m_core=4 
+--------------------------------------------------------------------------------- 
+all.q@gally2                   BIPC  0/0/40         0.04     lx26-amd64    
+	hl:m_core=0 
+--------------------------------------------------------------------------------- 
+all.q@regen                    BIPC  0/0/40         0.16     lx26-amd64    
+	hl:m_core=4 
+
+
+Example 4: Bind two jobs to different sockets.
+----------------------------------------------
+
+(In order to get user exclusive access to an host an advance reservation with a 
+parallel environment could be requested and submitted into.) 
+
+On a 2 socket (with 2 cores each) machine an OpenMP job is submitted to the first 
+socket (on the 2 cores) and an environment variable indicating the amount of threads 
+OpenMP should use for a job is set.
+
+% qsub -pe testpe 4 -b y -binding linear:2:0,0 -v OMP_NUM_THREADS=4 \
+	-l m_topology=SCCSCC /path/to/openmp_bin 
+
+("linear:2": get 2 cores in a row; ":0,0" beginning on first socket and first core there).
+
+Bind the next job to the two cores on the other socket: 
+
+% qsub -pe testpe 4 -b y -binding linear:2:1,0 -v OMP_NUM_THREADS=4 \
+	-l m_topology=SCCSCC /path/to/openmp_bin 
+
+("linear:2": get 2 cores in a row; ":1,0" beginning on 2nd socket and first core there).
+
+The same could be also done by submitting the jobs with the same parameter twice: 
+
+% qsub -pe testpe 4 -b y -binding linear:2 -v OMP_NUM_THREADS=4 \
+	-l topology=SCCSCC /path/to/openmp_bin 
+% qsub -pe testpe 4 -b y -binding linear:2 -v OMP_NUM_THREADS=4 \
+	-l topology=SCCSCC /path/to/openmp_bin 
+
+Example 5: Allow the job to use only one core (the first one) on each of the two sockets.
+-----------------------------------------------------------------------------------------
+
+% qsub -pe testpe 2 -b y -binding striding:2:2 -v OMP_NUM_THREADS=2 \
+	-l topology=SCCSCC /path/to/openmp_bin 
+
+("striding:2:2": beginning from core 0 to core 3 take every second core 
+[resulting in 0 and 2]).
+
+Example 6: Set the environment variable SGE_BINDING with the selected cores
+           and do no binding 
+---------------------------------------------------------------------------
+
+% qsub -pe testpe 2 -b y -binding env linear:2 sleep 3600
+
+
+Example 7: Add the socket,core list in the 4th row of pe_hostfile 
+           and let binding done from the application itself 
+-----------------------------------------------------------------
+
+% qsub -pe testpe 2 -b y -binding pe linear:2 mpiscript.sh
+
+
+Example 8: loadcheck binary 
+---------------------------
+
+Detailed check if host OS supports core binding.
+
+% loadcheck -cb 
+
+Example 9: Submitting array jobs where all tasks are running 
+           (and are bound) to a different core 
+------------------------------------------------------------
+
+On Linux with a quadcore machine do: 
+
+% qsub -b y -t 1:4 -binding linear:1 sleep 3600
+
+
+
+4. Implementation details 
+-------------------------
+
+This section contains information related to implementation details. 
+
+4.1 Overview
+----------
+
+When a job is submitted via 'qsub -binding ...' following steps are 
+performed. 
+
+- The parse_qsub function checks the syntax and appends the information 
+  into a CULL sublist. This sublist is transferred to the execution host.
+ 
+- On the execution host these job requirements are checked against the 
+  host topology and the currently occupied topology. 
+
+- If a binding can be performed:
+
+   * Solaris: A processor set is created by the execution daemon and all 
+     needed cores are added. The processor set ID is appended to the 
+     config file in the "binding" field. The shepherd adds itself to 
+     this processor set when it starts.
+
+   * Linux: The strategy is written in the "binding" field of the config 
+     file. This is parsed by the shepherd which binds itself to all 
+     processors according the strategy.
+
+- When the job terminates normally:
+
+   * Solaris: The reaper method destroys the processor set. The occupied 
+     cores in execd internal accounting are freed. 
+
+   * Linux: The occupied cores in execd internal accounting are freed. 
+
+
+4.2 Allocation algorithms 
+-------------------------
+
+4.1 Explicit 
+------------
+
+Straight forward: All or nothing. The internal execd global accounting 
+string is checked if all <socket>,<core> pairs are available. If not 
+no binding is done. Otherwise these are occupied and used.
+
+4.2 Striding
+------------
+
+Two different striding requests could be requested: One with a 
+giving starting point (<socket>,<core> pair) and one without a 
+given starting point. 
+
+With a given starting point, the starting point is the first 
+core which is checked. If it is already occupied the job runs 
+without binding. If it is free all other cores according 
+the underlaying topology (example "SCCCSCCC") are checked with 
+the respect to the given step-size. 
+
+Without a given starting point, first '0,0' (socket 0 and core 0) 
+is used as starting point. If it is not possible the next core on 
+this socket is tested and so on for all cores on all sockets. 
+If the request does not fit into any of these combinations the 
+job runs without binding.
+
+4.3 Linear
+----------
+
+Linear binding is used in order to place the application on 
+unused sockets which are filled up. 
+
+Following algorithm is used:
+
+while (there is a free socket AND we still need cores) 
+- Search a free socket 
+- Accommodate as many cores as possible on the this socket
+end while
+ 
+if (we do not need more cores) 
+- end 
+
+while (we still need cores AND there are unsused cores) 
+- Find the socket with the most free cores 
+- Use as many cores as possible on this socket 
+end while 
+
+if (we could accomodate the job on the sockets) 
+- do binding (and mark cores as selected) 
+else 
+- do no binding 
+  
+
+5. Risks 
+---------
+
+When the host is not requested exclusively and more jobs are using core 
+binding, collisions could occur which could lead to degraded performance 
+(because of oversubscribing one core when others have nothing to do). 
+This is prevented automatically by not performing the binding on the 
+following jobs. When the user requests a specific binding this could 
+lead to better or worse performance depending on the type of application. 
+Hence binding should only used by users knowing exactly the behaviour of their 
+applications and the details of the execution hosts. In most cases the 
+operating system scheduler is doing a good job.
+
+6. Future enhancements 
+----------------------
+
+Topology aware scheduler. For this we need a clear concept of threads, cores, 
+sockets which is currently not available in the system and integrated the first 
+time with this specification. Let the scheduler select free hosts in terms of 
+the requested <socket>,<core> pairs as a soft or a hard request. 
+
+Support for mixed OpenMPI/OpenMP jobs. 
+
+Including other operating systems.
+
+7. Known limitations
+--------------------
+
+Do not use this core binding feature together with the older processor set 
+feature from Solaris.
+
+Linux: When the job rebinds to other cores (it has the right on Linux to do 
+that) the core binding accounting on SGE execution daemon side makes not much 
+sense. 
+
+Solaris: When a job is bound to some cores and the job is an OpenMP programm 
+which wants to force thread-binding for the OpenMP threads (via an environment 
+variable) this may lead to a non-running job. The reason is that OpenMP is not 
+aware of the Solaris processor set and wants to bind threads to processors 
+outside of the set. 
+
+8. TODOs 
+--------
+
+- Adding testsuite test 
+
+ 
+
+
+
+
+
+

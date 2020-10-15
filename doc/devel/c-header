@@ -1,0 +1,31 @@
+/****** module/function ***************************************
+*
+*  NAME
+*     function -- short description
+*
+*  SYNOPSIS
+*     #include <xxx.h>
+*     int function(int foo, char *bar)
+*
+*  FUNCTION
+*     Function description
+*
+*  INPUTS
+*     foo  - description
+*     bar  - description
+*
+*  RESULT
+*     description
+*
+*  EXAMPLE
+*     optional
+*
+*  NOTES
+*     optional
+*
+*  SEE ALSO
+*     optional
+*
+****************************************************************************
+*/
+

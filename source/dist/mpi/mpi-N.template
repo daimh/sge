@@ -1,0 +1,17 @@
+# Example tight integration PE for MPIs with built-in SGE integration,
+# e.g. Open MPI (using the ORTE runtime) or MVAPICH/MPICH (if using Hydra
+# startup).  Uses a fixed allocation_rule, assuming jobs should have
+# exclusive access to their nodes with <N> cores each -- modify as
+# appropriate.
+pe_name            orte<N>
+slots              99999
+user_lists         NONE
+xuser_lists        NONE
+start_proc_args    NONE
+stop_proc_args     NONE
+allocation_rule    <N>
+control_slaves     TRUE
+job_is_first_task  FALSE
+urgency_slots      min
+accounting_summary FALSE
+qsort_args         NONE

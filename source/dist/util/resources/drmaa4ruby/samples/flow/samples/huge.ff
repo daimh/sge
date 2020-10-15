@@ -1,0 +1,36 @@
+# ------------------------------------------------------------------------------------------
+ALL = ALLFLOWS | REPORT
+ALLFLOWS = FLOW($arch=solaris) & FLOW($arch=linux) & FLOW($arch=irix) & FLOW($arch=darwin)
+FLOW = BUILD | INST | TESTS | FINAL
+# ------------------------------------------------------------------------------------------
+BUILD = { cmd=do_make, nat=-q $arch.q, args= 5 }
+INST = { cmd=do_inst, nat=-q gridware.q, args=4 -local -bin $arch, name=I$arch }
+TESTS = SEVEN & SEVEN & SEVEN & SEVEN
+SEVEN = DAY($day=mon) & DAY($day=tue) & DAY($day=wed) & DAY($day=thu) & DAY($day=fri) & DAY($day=sat) & DAY($day=sun)
+DAY = T & T & T & T
+T = S1 & S2 & S3 & S4 & S1 & S2 & S3 & S4
+S1 = TT1 | TT2 | TT3
+S2 = TT1 | TT2 | TT3
+S3 = TT1 | TT2 | TT3
+S4 = TT1 | TT2 | TT3
+TT1 = T1 & T2 & T3 & T4
+TT2 = T1 & T2 & T3 & T4
+TT3 = T1 & T2 & T3 & T4
+TT4 = T1 & T2 & T3 & T4
+TT5 = T1 & T2 & T3 & T4
+T1 = { cmd=do_test, nat= -q $arch.q, args=1, args=$day }
+T2 = { cmd=do_test, nat= -q $arch.q, args=2, args=$day }
+T3 = { cmd=do_test, nat= -q $arch.q, args=3, args=$day }
+T4 = { cmd=do_test, nat= -q $arch.q, args=4, args=$day }
+FINAL = { cmd=do_final, nat=-q $arch.q, name=FIN$arch }
+# ------------------------------------------------------------------------------------------
+REPORT = LANG($whom=engineering) & LANG($whom=markting) & LANG($whom=sales)
+LANG = RR1($lang=ger) & RR2($lang=eng) & RR3($lang=jap)
+RR1 = R1($size=1G) | R2($size=2G) | R3($size=4G)
+RR2 = R1($size=1G) | R2($size=2G) | R3($size=4G)
+RR3 = R1($size=1G) | R2($size=2G) | R3($size=4G)
+R1 = R($format=html) & R($format=wiki) & R($format=pdf) & R($format=soffice )
+R2 = R($format=html) & R($format=wiki) & R($format=pdf) & R($format=soffice )
+R3 = R($format=html) & R($format=wiki) & R($format=pdf) & R($format=soffice )
+R = { cmd=do_report, nat=-q gridware.q, args=$lang $size $format }
+# ------------------------------------------------------------------------------------------

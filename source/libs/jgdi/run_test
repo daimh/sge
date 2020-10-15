@@ -1,0 +1,50 @@
+#!/bin/sh
+
+BASEDIR=`dirname $0`
+BASEDIR=`cd $BASEDIR; pwd`
+
+
+
+. $BASEDIR/run_util.sh
+
+PRE_ARGS=""
+POST_ARGS=""
+GENERAL_ARGS=true
+
+CSP=0
+
+while [ "$GENERAL_ARGS" = "true" -a $# -gt 0 ]; do
+  case $1 in
+    --) GENERAL_ARGS=false;;
+    -v) PRE_ARGS="$PRE_ARGS -v";;
+    -d) PRE_ARGS="$PRE_ARGS -d";;
+    -j) PRE_ARGS="$PRE_ARGS -j";;
+    -csp) CSP=1;;
+    # *)  POST_ARGS="$POST_ARGS $1";;
+  esac
+  shift
+done
+
+POST_ARGS="$POST_ARGS $*"
+
+JVM_ARGS=""
+JVM_ARGS="$JVM_ARGS -Djtestcase.script.validation=false -Xcheck:jni"
+JVM_ARGS="$JVM_ARGS -Djava.util.logging.config.file=test/logging.properties"
+
+#if [ $CSP -eq 1 ]; then
+   JVM_ARGS="$JVM_ARGS -Djava.security.policy=util/jgdi.policy"
+   JVM_ARGS="$JVM_ARGS -Djava.security.auth.login.config==util/jaas.config"
+   JVM_ARGS="$JVM_ARGS -Djava.security.manager"
+#fi
+
+if [ -f $JUNIT_JAR ]; then
+   CP="$JUNIT_JAR:build/classes:test"
+else
+   echo "Can't find junit.jar file"
+fi   
+
+JVM_ARGS="$JVM_ARGS -cp $CP" 
+
+run $PRE_ARGS $JVM_ARGS -- com.sun.grid.jgdi.TestRunner $POST_ARGS
+
+

@@ -1,0 +1,988 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\" Copyright (C) 2012  Dave Love, University of Liverpool
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" " For Emacs
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.de MO		\" other man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH QUEUE_CONF 5 2011-06-23 "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+queue_conf \- xxQS_NAMExx queue configuration file format
+.\"
+.\"
+.SH DESCRIPTION
+This manual page describes the format of the template file for the cluster queue configuration.
+Via the \fB\-aq\fP and \fB\-mq\fP options of the
+.M qconf 1
+command, you can add cluster queues and modify the configuration of
+any queue in the cluster. Any of these change operations can be rejected
+as a result of a failed integrity verification.
+.PP
+The queue configuration parameters take as values strings, 
+integer decimal numbers,  booleans, or time and memory specifiers (see 
+\fItime_specifier\fP and \fImemory_specifier\fP in
+.M sge_types 5 )
+as well as comma-separated lists. 
+.PP
+Note, xxQS_NAMExx allows backslashes (\\) be used to escape newline 
+characters. The backslash and the newline are replaced with a
+space character before any interpretation.
+.\"
+.\"
+.SH FORMAT
+The list of parameters below specifies the queue configuration 
+file content.
+.PP
+For each parameter except \fBqname\fP and \fBhostlist\fP, it is
+possible to specify host-dependent values instead of a single value.
+This "enhanced queue configuration specifier syntax" takes the form
+.RS
+.nf
+\fIparameter parameter_value\fP[\fB,[\fP\fIhost_id\fP\fB=\fP\fIparameter_value\fP\fB]\fP]...
+.fi
+.RE
+where \fIhost_id\fP is a \fBhost_identifier\fP, as defined in 
+.M sge_types 5 ,
+and \fIparameter_value\fP is of the correct form for each parameter,
+as described below.  Spaces are allowed around "\fB,\fP" but not
+inside "\fB[]\fP", except within list-valued \fIparameter_value\fPs.
+.PP
+An entry without brackets is always required as the
+default setting for all queue instances which don't override it.
+Tuples with a \fBhostgroup_name\fP (see
+.M sge_types 1 )
+\fIhost_id\fP override the default setting. Tuples with a
+\fBhost_name\fP \fIhost_id\fP override both the default and the host
+group setting.  As an example, PEs with different allocation rules may
+be specified according to the core count of different node types:
+.RS
+.nf
+pe_list NONE,[@dual=all-mpi mpi-4],[@quad=all-mpi mpi-8]
+.fi
+.RE
+.PP
+The queue configuration is rejected if a default setting is absent.
+.PP
+Ambiguous configurations (those with more than one attribute setting
+for a particular host) cause the relevant queue instances to go into a
+"configuration ambiguous" state and not accept jobs.  This is reported
+as "\fBc\fP" by
+.M qstat 1
+and
+.M qhost 1 ,
+and may be diagnosed with
+.BR "qstat \-explain c" .
+Configurations containing override values for hosts not in the
+execution host list are accepted as "detached", as indicated by the \fB\-sds\fP
+argument of
+.M qconf 1 .
+.SS "\fBqname\fP"
+The name of the cluster queue in the format for \fIqueue_name\fP in
+.M sge_types 1 .
+As template default "template" is used.
+.SS "\fBhostlist\fP"
+A list of host identifiers in the format for \fIhost_identifier\fP in 
+.M sge_types 1 . 
+For each host xxQS_NAMExx maintains a queue instance for running jobs
+on that particular host. Large numbers of hosts can easily be managed 
+by using host groups rather than single host names.
+Both white-space and "," can be used as list separators.
+(Template default: NONE, i.e. no hosts support the queue.)
+.SS "\fBseq_no\fP"
+In conjunction with the hosts load situation at some time, this 
+parameter specifies this queue's position in the scheduling order 
+within the suitable queues for a job to be dispatched according to
+the \fBqueue_sort_method\fP (see 
+.M sched_conf 5 ).
+.PP
+Regardless of the \fBqueue_sort_method\fP setting,
+.M qstat 1
+reports queue information in the order defined by the
+value of the \fBseq_no\fP. Set this parameter to a monotonically
+increasing sequence. (Type: number; template default: 0.)
+.SS "\fBload_thresholds\fP"
+\fBload_thresholds\fP is a list of load thresholds. When one
+of the thresholds is exceeded
+no further jobs will be scheduled to the queues and the relevant queue
+instance will be put into the "alarm" state by the overload condition.
+Arbitrary load values defined in the "host" and "global" complexes (see
+.M complex 5
+for details) can be used.
+.PP
+The syntax is that of a comma-separated list,
+with each list element consisting of the \fIcomplex_name\fP (see 
+.M sge_types 5 )
+of a 
+load value, an equal sign and the threshold value intended to 
+trigger the overload situation (e.g.
+.BR load_avg=1.75,users_logged_in=5 ).
+.PP
+.B Note:
+Load values as well as consumable resources may be scaled differently
+for different
+hosts if specified in the corresponding execution host definitions (refer
+to
+.M host_conf 5
+for more information). Load thresholds are compared against the
+scaled load and consumable values.
+Boolean complexes can be used to set an alarm state with the value
+.BR false ,
+typically from a load sensor which checks a host's "health", e.g.
+.BR load_avg=1.75,health=false .
+.SS "\fBsuspend_thresholds\fP"
+A list of load thresholds with the same semantics as the
+\fBload_thresholds\fP
+parameter (see above), except that exceeding one of these
+thresholds initiates suspension of one of multiple jobs in the queue.
+See the \fBnsuspend\fP parameter below for details on the number of
+jobs which are suspended. There is an important relationship between the
+\fBsuspend_threshold\fP and the \fBscheduler_interval\fP. If you have for example
+a suspend threshold on the np_load_avg, and the load exceeds the threshold,
+this does not have immediate effect. Jobs continue running until the next
+scheduling run, where the scheduler detects the threshold has been exceeded and
+sends an order to qmaster to suspend the job. The same applies for unsuspending.
+.SS "\fBnsuspend\fP"
+The number of jobs which are suspended/enabled
+per time interval if at least one of
+the load thresholds in the \fBsuspend_thresholds\fP list is exceeded or if
+no \fBsuspend_threshold\fP is violated anymore, respectively.
+\fBNsuspend\fP jobs are suspended in each time interval until no
+\fBsuspend_thresholds\fP are exceeded anymore or all jobs in the queue are
+suspended. Jobs are enabled in the corresponding way if the
+\fBsuspend_thresholds\fP are no longer exceeded.
+The time interval in which the suspensions of the jobs occur is defined
+in \fBsuspend_interval\fP below.
+.\"
+.SS "\fBsuspend_interval\fP"
+The time interval in which further \fBnsuspend\fP jobs are suspended
+if one of the \fBsuspend_thresholds\fP (see above for both) is exceeded
+by the current load on the host on which the queue is located.
+The time interval is also used when enabling the jobs. 
+The syntax is that of a \fItime_specifier\fP in
+.M sge_types 5 .
+.\"
+.SS "\fBpriority\fP"
+The \fBpriority\fP parameter specifies the
+.MO nice 2
+value at which jobs in this queue will be run. It is of type "number" and the
+default is zero (which means no nice value is set explicitly). Negative 
+values (up to \-20) correspond to a higher scheduling priority; positive 
+values (up to +20) correspond to a lower scheduling priority.
+.PP
+Note, the value of \fBpriority\fP has no effect if xxQS_NAMExx adjusts
+priorities dynamically to implement ticket-based entitlement 
+policy goals. Dynamic priority adjustment is switched  off by
+default due to 
+.M sge_conf 5
+\fBreprioritize\fP being set to false.
+.SS "\fBmin_cpu_interval\fP"
+The time between two automatic checkpoints in case of
+transparently checkpointing jobs. The maximum of the time requested by
+the user via
+.M qsub 1
+and the time defined by the queue configuration is used as the
+checkpoint interval. Since checkpoint files may be quite large,
+and thus writing them to the file system may become expensive, users
+and administrators are advised to choose sufficiently large time
+intervals. \fBmin_cpu_interval\fP is of type "time" and the default is
+5 minutes (which usually is suitable for test purposes only).
+The syntax is that of a \fItime_specifier\fP in
+.M sge_types 5 .
+.SS "\fBprocessors\fP"
+This parameter is considered obsolete.
+.PP
+A set of processors in case of a multiprocessor execution host can be defined
+to which the jobs executing in this queue are bound. The value type of this
+parameter is a range description like that of the \fB\-pe\fP
+option of
+.M qsub 1
+(e.g. 1-4,8,10) denoting the processor numbers for the
+processor group to be used. Obviously the interpretation of these values
+relies on operating system specifics and is thus performed inside
+.M xxqs_name_sxx_execd 8
+running on the queue host. Therefore, the parsing of the parameter has
+to be provided by the execution daemon and the parameter is only passed
+through
+.M xxqs_name_sxx_qmaster 8
+as a string.
+.PP
+Currently, support is only provided for multiprocessor machines running Solaris,
+SGI multiprocessor machines running IRIX 6.2 and 
+Digital UNIX multiprocessor machines. 
+In the case of Solaris the processor set must already exist when this processors
+parameter is configured, so the processor set has to be created manually.
+In the case of Digital UNIX only one job per processor set is allowed to 
+execute at the same time, i.e.
+.B slots
+(see below) should be set to 1 for this queue. 
+.SS "\fBqtype\fP"
+The type of queue.  Currently
+.BR BATCH ,
+.BR INTERACTIVE ,
+a combination in a comma-separated list of both, or
+.BR NONE .
+.PP
+Jobs submitted with option \fB\-now y\fP can only be scheduled on
+.I interactive
+queues, and \fB\-now n\fP targets
+.I batch
+queues.  \fB\-now y\fP is the default for \fIqsh\fP, \fIqrsh\fP, and
+\fIqlogin\fP, while \fB\-now n\fP is the default for \fIqsub\fP.
+Nevertheless, the option can be applied to all commands, with either
+argument, to direct jobs to specific queue types.
+.PP
+The formerly supported types
+.B parallel
+and
+.B checkpointing
+are not allowed anymore. A queue
+instance is implicitly of type parallel/checkpointing 
+if there is a parallel environment or a checkpointing interface specified
+for this queue instance in \fBpe_list\fP/\fBckpt_list\fP, and is
+implicitly BATCH if it has a parallel environment attached.
+Formerly possible settings e.g.
+.PP
+.nf
+.ta
+qtype   PARALLEL
+.fi
+.PP  
+could be changed to
+.PP
+.nf
+.ta 
+qtype   NONE
+pe_list pe_name
+.fi
+.PP
+(Type string; default: batch interactive.)
+.SS "\fBpe_list\fP"
+The list of administrator-defined parallel environment
+(see 
+.M sge_pe 5 )
+names 
+to be associated with
+the queue. The default is
+.IR NONE .
+.SS "\fBckpt_list\fP"
+The list of administrator-defined checkpointing interface names (see \fIckpt_name\fP in
+.M sge_types 1 )
+to be associated 
+with the queue. The default is
+.IR NONE .
+.SS "\fBrerun\fP"
+Defines a default behavior for jobs which are aborted by system crashes
+or manual "violent" (via
+.MO kill 1 )
+shutdown of the complete xxQS_NAMExx system (including the
+.M xxqs_name_sxx_shepherd 8
+of the jobs and their process hierarchy) on the queue host. As soon as
+.M xxqs_name_sxx_execd 8
+is restarted and detects that a job has been aborted for such reasons
+it can be restarted if the jobs are restartable. A job may not be
+restartable, for example, if it updates databases (first reads then writes
+to the same record of a database/file), because aborting the job
+may have left the database in an inconsistent state. If the owner of a job
+wants to overrule the default behavior for the jobs in the queue the
+\fB\-r\fP option of
+.M qsub 1
+can be used.
+.PP
+The type of this parameter is boolean, thus either TRUE or FALSE can
+be specified. The default is FALSE, i.e. do not restart jobs automatically.
+.SS "\fBslots\fP"
+The maximum number of slots that may be scheduled concurrently in instances
+of the queue.
+Type is number, valid values are 0 to 9999999.
+.PP
+If there are multiple queues defined on a host and they are not mutually
+suspendable, the host \fBslots\fP value should be set to the processor
+count on the host if you want to avoid potential over-subscription due
+to scheduling to more than one queue at a time.
+.SS "\fBtmpdir\fP"
+The \fBtmpdir\fP parameter specifies the absolute path to the base of the
+temporary directory filesystem. When 
+.M xxqs_name_sxx_execd 8
+launches a job,
+it creates a uniquely-named directory in this filesystem for the purpose
+of holding scratch files during job execution. At job completion, this
+directory and its contents are removed automatically. The environment
+variables TMPDIR and TMP are set to the path of each job's scratch directory.
+(Type string; default: /tmp.)
+.SS "\fBshell\fP"
+If either \fIposix_compliant\fP or \fIscript_from_stdin\fP is specified
+as the \fBshell_start_mode\fP parameter in
+.M xxqs_name_sxx_conf 5
+the \fBshell\fP parameter specifies the executable
+path of the command interpreter (e.g.
+.MO sh 1
+or
+.MO csh 1 )
+to be used to process the job scripts executed in the queue. The
+definition of \fBshell\fP can be overruled by the job owner
+via the
+.M qsub 1
+\fB\-S\fP option.
+.PP
+The type of the parameter is string. The default is
+.BR /bin/sh .
+.SS "\fBshell_start_mode\fP"
+This parameter defines the mechanisms which are used to actually
+invoke the job scripts on the execution hosts. The following
+values are recognized:
+.IP \fIunix_behavior\fP
+If a user starts a job shell script under UNIX interactively by
+invoking it just with the script name, the operating system's executable
+loader uses the information provided in a comment such as `#!/bin/csh' in
+the first line of the script to detect which command interpreter to
+start to interpret the script. This mechanism is used by xxQS_NAMExx when
+starting jobs if \fIunix_behavior\fP is defined as \fBshell_start_mode\fP.
+.\"
+.IP \fIposix_compliant\fP
+POSIX does not consider first script line comments such as `#!/bin/csh'
+significant. The POSIX standard for batch queuing systems
+(P1003.2d) therefore requires a compliant queuing system to ignore
+such lines and to use user specified or configured default command
+interpreters instead. Thus, if \fBshell_start_mode\fP is set to
+\fIposix_compliant\fP xxQS_NAMExx will either use the command interpreter
+indicated by the \fB\-S\fP option of the
+.M qsub 1
+command or the \fBshell\fP parameter of the queue to be used (see
+above).
+.\"
+.IP \fIscript_from_stdin\fP
+Setting the \fBshell_start_mode\fP parameter either to \fIposix_compliant\fP
+or \fIunix_behavior\fP requires you to set the umask in use for
+.M xxqs_name_sxx_execd 8
+such that every user has read access to the active_jobs directory in the
+spool directory of the corresponding execution daemon. In case you have
+\fBprolog\fP and \fBepilog\fP scripts configured, they also need to be
+readable by any user who may execute jobs.
+.br
+If this violates your
+site's security policies you may want to set \fBshell_start_mode\fP
+to \fIscript_from_stdin\fP. This will force xxQS_NAMExx to open the
+job script, as well as the epilogue and prologue scripts, for reading into
+STDIN as root (if
+.M xxqs_name_sxx_execd 8
+was started as root) before changing to the job owner's user account.
+The script is then fed into the STDIN stream of the command interpreter
+indicated by the \fB\-S\fP option of the
+.M qsub 1
+command or the \fBshell\fP parameter of the queue to be used (see
+above).
+.br
+Thus setting \fBshell_start_mode\fP to \fIscript_from_stdin\fP also
+implies \fIposix_compliant\fP behavior. \fBNote\fP, however, that
+feeding scripts into the STDIN stream of a command interpreter may
+cause trouble if commands like
+.MO rsh 1
+are invoked inside a job script as they also process the STDIN
+stream of the command interpreter. These problems can usually be
+resolved by redirecting the STDIN channel of those commands to come
+from /dev/null (e.g. rsh host date < /dev/null). \fBNote also\fP, that any
+command-line options associated with the job are passed to the executing
+shell. The shell will only forward them to the job if they are not
+recognized as valid shell options.
+.PP
+The default for \fBshell_start_mode\fP is \fIposix_compliant\fP.
+Note, though, that the \fBshell_start_mode\fP can only be used for batch jobs
+submitted by 
+. M qsub 1
+and can't be used for interactive jobs submitted by
+. M qrsh 1 ,
+. M qsh 1 ,
+. M qlogin 1 .
+.SS "\fBprolog\fP"
+This queue configuration
+entry overwrites cluster global or execution host-specific
+.B prolog
+definitions (see
+.M xxqs_name_sxx_conf 5 ).
+.SS "\fBepilog\fP"
+This queue configuration
+entry overwrites cluster global or execution host-specific
+.B epilog
+definitions (see
+.M xxqs_name_sxx_conf 5 ).
+.SS "\fBstarter_method\fP"
+The specified executable path will be used as a job starter
+facility responsible for starting batch jobs instead of the built-in
+starter (which typically passes the job to a shell).  The starter
+method is passed as arguments the command to run.  This is typically
+the name of a copy of the batch script file, followed by any arguments
+supplied at job submission.  However, depending on how the job was
+submitted, it might be a binary (with arguments), or a more general
+shell command line, e.g. supplied to
+.IR qrsh .
+The following environment
+variables are used to pass information to the job starter
+concerning the shell environment which was configured or
+requested to start the job.
+.IP "\fISGE_STARTER_SHELL_PATH\fP"
+The name of the requested shell to start the job
+.IP "\fISGE_STARTER_SHELL_START_MODE\fP"
+The configured \fBshell_start_mode\fP
+.IP "\fISGE_STARTER_USE_LOGIN_SHELL\fP"
+Set to "true" if the shell is supposed to be used as a login shell
+(see \fBlogin_shells\fP in
+.M xxqs_name_sxx_conf 5 ).
+.PP
+Ignoring those, a trivial starter method could be
+.nf
+    #!/bin/sh
+    # set the environment somehow
+    exec "$@"
+.fi
+It is, at best, tricky to write a proper substitute for the builtin
+method as a shell script, taking account of the variables above.  It
+is probably best to do so in a non-macro expanded scripting language (or a
+compiled language, as appropriate).
+.PP
+The starter_method will not be invoked for qsh, qlogin, or qrsh acting as rlogin.
+.PP
+The same pseudo-variables can be expanded to compose the command as
+for the following methods.
+.SS "\fBsuspend_method\fP"
+.SS "\fBresume_method\fP"
+.SS "\fBterminate_method\fP"
+
+These parameters can be used for overwriting the default method used by
+xxQS_NAMExx for suspension, release of a suspension and for termination
+of a job. Per default, the signals SIGSTOP, SIGCONT and SIGKILL are
+delivered to the job to perform these actions. However, for some
+applications this is not appropriate.
+.PP
+If no executable path is given, xxQS_NAMExx takes the specified
+parameter entries as the signal to be delivered instead of the default
+signal. A signal must be either a positive number or a signal name with
+the \fBSIG\fP prefix, as printed by
+.I kill \-l
+(e.g. \fBSIGTERM\fP).
+.PP
+If an executable path is given (it must be an \fIabsolute path\fP starting
+with a "\fB/\fP"); then this command, together with its arguments, is started by
+xxQS_NAMExx to perform the appropriate action. The following special
+variables are expanded at runtime, and can be used (besides any other
+strings which have to be interpreted by the procedures) to compose a
+command line:
+.IP "\fI$host\fP"
+The name of the host on which the procedure is started.
+.IP \fI$ja_task_id\fP
+The array job task index (0 if not an array job).
+.IP "\fI$job_owner\fP"
+The user name of the job owner.
+.IP "\fI$job_id\fP"
+xxQS_NAMExx's unique job identification number.
+.IP "\fI$job_name\fP"
+The name of the job.
+.IP "\fI$queue\fP"
+The name of the queue.
+.IP "\fI$job_pid\fP"
+The pid of the job.
+.IP \fI$sge_cell\fP
+The SGE_CELL environment variable (useful for locating files).
+.IP \fI$sge_root\fP
+The SGE_ROOT environment variable (useful for locating files).
+.PP
+Note that a method is only executed on the master node of a parallel
+job, so it may be necessary to propagate the necessary action to slave
+nodes explicitly.  (However, MPI implementations may, for instance,
+respond to SIGTSTP sent to the master process by stopping all the
+distributed processes.)  If an executable is used for a method, it is
+started in the same environment as for the job concerned (see
+.M qsub 1 ).
+.SS "\fBnotify\fP"
+The time to wait between delivery of SIGUSR1/SIGUSR2 
+notification signals and suspend/kill signals if the job was submitted with
+the
+.M qsub 1
+\fI\-notify\fP option.
+.SS "\fBowner_list\fP"
+The \fBowner_list\fP comprises comma-separated
+.MO login 1
+user names (see \fIuser_name\fP in
+.M sge_types 1 )
+of those users who are
+authorized to disable and suspend this queue through 
+.M qmod 1 .
+(xxQS_NAMExx operators and managers can do this by default.) It is customary 
+to set this field for queues on
+interactive workstations where the computing resources are shared between
+interactive sessions and xxQS_NAMExx jobs, allowing the workstation owner to have
+priority access.  Owners can be managers, operators, or users.  Owner
+privileges are necessary to use
+.B qidle
+(see
+.M xxqs_name_sxx_execd 8 ).
+(Default: NONE.)
+.SS "\fBuser_lists\fP"
+The \fBuser_lists\fP parameter contains a comma-separated list of xxQS_NAMExx user
+access list names as described in
+.M access_list 5 .
+Each user contained in at least one of the given access lists has
+access to the queue. If the \fBuser_lists\fP parameter is set to
+NONE (the default) any user has access if not explicitly excluded
+via the \fBxuser_lists\fP parameter described below.
+If a user is contained both in an access list in \fBxuser_lists\fP
+and \fBuser_lists\fP, the user is denied access to the queue.
+.SS "\fBxuser_lists\fP"
+The \fBxuser_lists\fP parameter contains a comma-separated list of xxQS_NAMExx user 
+access list names as described in
+.M access_list 5 .
+Each user contained in at least one of the given access lists is not
+allowed to access the queue. If the \fBxuser_lists\fP parameter is set to
+NONE (the default) any user has access.
+If a user is contained both in an access list in \fBxuser_lists\fP
+and \fBuser_lists\fP, the user is denied access to the queue.
+.SS "\fBprojects\fP"
+The \fBprojects\fP parameter contains a comma-separated list of 
+xxQS_NAMExx projects (see 
+.M project 5 )
+that have access to the queue. Any project not in this list is
+denied access to the queue. If set to NONE (the default), any project
+has access that is not specifically excluded via the \fBxprojects\fP
+parameter described below. If a project is in both the \fBprojects\fP and
+\fBxprojects\fP parameters, the project is denied access to the queue.
+.SS "\fBxprojects\fP"
+The \fBxprojects\fP parameter contains a comma-separated list of 
+xxQS_NAMExx projects (see
+.M project 5 )
+that are denied access to the queue. If set to NONE (the default), no
+projects are denied access other than those denied access based on the
+\fBprojects\fP parameter described above.  If a project is in both the 
+\fBprojects\fP and \fBxprojects\fP parameters, the project is denied
+access to the queue.
+.SS "\fBsubordinate_list\fP"
+There are two different types of subordination:
+.PP
+.B 1. Queuewise subordination
+.PP
+A list of xxQS_NAMExx queue names in the format for \fIqueue_name\fP in
+.M sge_types 1 .
+Subordinate relationships are in effect
+only between queue instances residing at the same host. 
+The relationship does not apply and is ignored when jobs are 
+running in queue instances on other hosts. 
+Queue instances residing on the same host will be suspended when a specified 
+count of jobs is running in this queue instance.
+The list specification is the same as that of the \fBload_thresholds\fP
+parameter above, e.g. low_pri_q=5,small_q. The numbers denote the
+job slots of the queue that have to be filled in the superordinated queue 
+to trigger the suspension of the subordinated queue. If no value is assigned, a
+suspension is triggered if all slots of the queue are filled.
+.PP
+On nodes which
+host more than one queue, you might wish to accord better service to certain
+classes of jobs (e.g., queues that are dedicated to parallel processing might
+need priority over low priority production queues). The default is NONE.
+.PP
+.B 2. Slotwise preemption
+.PP
+Slotwise preemption provides a means to ensure that high priority jobs
+get the resources they need, while at the same time low priority jobs on
+the same host are not unnecessarily preempted, maximizing the host utilization.
+Slotwise preemption is designed to provide different preemption actions,
+but with the current implementation only suspension is provided.
+This means there is a subordination relationship defined between queues similar
+to the queue-wise subordination, but if the suspend threshold is exceeded,
+the whole subordinated queue is not suspended, only single tasks running
+in single slots.
+.PP
+As with queue-wise subordination, the subordination relationships are in effect only
+between queue instances residing at the same host. The relationship does not apply
+and is ignored when jobs and tasks are running in queue instances on other hosts.
+.PP
+The syntax is:
+.PP
+slots=\fIthreshold\fP(\fIqueue_list\fP)
+.PP
+where
+.HP
+\fIthreshold\fP =a positive integer number
+.HP
+\fIqueue_list\fP=\fIqueue_def\fP[,\fIqueue_list\fP]
+.HP
+\fIqueue_def\fP =\fIqueue\fP[:\fIseq_no\fP][:\fIaction\fP]
+.HP
+\fIqueue\fP     =a xxQS_NAMExx queue name in the format for
+\fIqueue_name\fP in
+.M sge_types 1 .
+.HP
+"\fIseq_no\fP"    =sequence number among all subordinated queues
+of the same depth in the tree.
+.br
+The higher the
+sequence number, the lower is the priority of
+the queue.
+Default is 0, which is the highest priority.
+.HP
+\fIaction\fP    =the action to be taken if the threshold is
+exceeded.
+.br
+Supported are:
+.br
+"sr": Suspend the task with the shortest run time.
+.br
+"lr": Suspend the task with the longest run time.
+.br
+Default is "sr".
+.PP
+Some examples of possible configurations and their functionalities:
+.PP
+a) The simplest configuration
+.PP
+subordinate_list   slots=2(B.q)
+.PP
+which means the queue "B.q" is subordinated to the current queue (let's call
+it "A.q"), the suspend threshold for all tasks running in "A.q" and "B.q" on
+the current host is two, the sequence number of "B.q" is "0" and the action
+is "suspend task with shortest run time first". This subordination relationship
+looks like this:
+.PP
+.nf
+      A.q
+       |
+      B.q
+.fi
+.PP
+This could be a typical configuration for a host with a dual core CPU. This
+subordination configuration ensures that tasks that are scheduled to "A.q"
+always get a CPU core for themselves, while jobs in "B.q" are not preempted
+as long as there are no jobs running in "A.q".
+.PP
+If there is no task running in "A.q", two tasks are running in "B.q" and a new
+task is scheduled to "A.q", the sum of tasks running in "A.q" and "B.q" is
+three. Three is greater than two, so this triggers the defined action. This causes
+the task with the shortest run time in the subordinated queue "B.q" to be
+suspended. After suspension, there is one task running in "A.q", one task running
+in "B.q", and one task suspended in "B.q".
+.PP
+b) A simple tree
+.PP
+subordinate_list   slots=2(B.q:1, C.q:2)
+.PP
+This defines a small tree that looks like this:
+.PP
+.nf
+      A.q
+     /   \\
+   B.q   C.q
+.fi
+.PP
+A use case for this configuration could be a host with a dual core CPU and
+queue "B.q" and "C.q" for jobs with different requirements, e.g. "B.q" for
+interactive jobs, "C.q" for batch jobs.
+Again, the tasks in "A.q" always get a CPU core, while tasks in "B.q" and "C.q"
+are suspended only if the threshold of running tasks is exceeded.
+Here the sequence number among the queues of the same depth comes into play.
+Tasks scheduled to "B.q" can't directly trigger the suspension of tasks in
+"C.q", but if there is a task to be suspended, first "C.q" will be searched for
+a suitable task.
+.PP
+If there is one task running in "A.q", one in "C.q" and a new task is scheduled
+to "B.q", the threshold of "2" in "A.q", "B.q" and "C.q" is exceeded. This
+triggers the suspension of one task in either "B.q" or "C.q". The sequence
+number gives "B.q" a higher priority than "C.q", therefore the task in "C.q"
+is suspended. After suspension, there is one task running in "A.q", one task
+running in "B.q" and one task suspended in "C.q".
+.PP
+c) More than two levels
+.PP
+Configuration of A.q: subordinate_list   slots=2(B.q)
+.br
+Configuration of B.q: subordinate_list   slots=2(C.q)
+.PP
+looks like this:
+.PP
+.nf
+      A.q
+       |
+      B.q
+       |
+      C.q
+.fi
+.PP
+These are three queues with high, medium and low priority. 
+If a task is scheduled to "C.q", first the subtree consisting of "B.q" and
+"C.q" is checked, the number of tasks running there is counted. If the
+threshold which is defined in "B.q" is exceeded, the job in "C.q" is
+suspended. Then the whole tree is checked, if the number of tasks running
+in "A.q", "B.q" and "C.q" exceeds the threshold defined in "A.q" the task in
+"C.q" is suspended. This means, the effective threshold of any subtree is not
+higher than the threshold of the root node of the tree.
+If in this example a task is scheduled to "A.q", immediately the number of tasks
+running in "A.q", "B.q" and "C.q" is checked against the threshold defined in
+"A.q".
+.PP
+d) Any tree
+.PP
+.nf
+       A.q
+      /   \\
+    B.q   C.q
+   /     /   \\
+ D.q    E.q  F.q
+                \\
+                 G.q 
+.fi
+.PP
+The computation of the tasks that are to be (un)suspended always starts at the
+queue instance that is modified, i.e. a task is scheduled to, a task ends at,
+the configuration is modified, a manual or other automatic (un)suspend is 
+issued, except when it is a leaf node, like "D.q", "E.q" and "G.q" in this
+example. Then the computation starts at its parent queue instance (like "B.q",
+"C.q" or "F.q" in this example). From there first all running tasks in the
+whole subtree of this queue instance are counted. If the sum exceeds the
+threshold configured in the subordinate_list, in this subtree a task is sought
+to be suspended. Then the algorithm proceeds to the parent of this queue instance,
+counts all running tasks in the whole subtree below the parent, and checks if
+the number exceeds the threshold configured in the parent's subordinate_list. If so,
+it searches for a task to suspend in the whole subtree below the parent. And so on,
+until it did this computation for the root node of the tree.
+
+.SS "\fBcomplex_values\fP"
+.B complex_values
+defines quotas for resource attributes managed via this 
+queue. The syntax is the same as for
+.B load_thresholds
+(see above). The quotas are related to the resource consumption of
+all jobs in a queue in the case of consumable resources (see
+.M complex 5
+for details on consumable resources) or they are interpreted on a
+per queue slot (see
+.B slots
+above) 
+basis in the case of non-consumable resources. Consumable resource 
+attributes are commonly used to manage free memory, free disk space or 
+available floating software licenses, while non-consumable attributes 
+usually define distinctive characteristics, like the type of hardware installed.
+.PP
+For consumable resource attributes an available resource amount is 
+determined by subtracting the current resource consumption of all 
+running jobs in the queue from the quota in the
+.B complex_values
+list. Jobs 
+can only be dispatched to a queue if no resource requests exceed any
+corresponding resource 
+availability obtained by this scheme. The quota definition in the 
+.B complex_values
+list is automatically replaced by the current load value 
+reported for this attribute if load is monitored for this resource and if the 
+reported load value is more stringent than the quota. This effectively 
+avoids oversubscription of resources.
+.PP
+\fBNote:\fP Load values replacing the quota specifications may have become 
+more stringent because they have been scaled (see
+.M host_conf 5 )
+and/or load adjusted (see
+.M sched_conf 5 ).
+The \fI\-F\fP option of
+.M qstat 1
+and the load display in the
+.M qmon 1
+queue control dialog (activated by 
+clicking on a queue icon while the "Shift" key is pressed) provide 
+detailed information on the actual availability of consumable 
+resources and on the origin of the values taken into account currently.
+.PP
+\fBNote also:\fP The resource consumption of running jobs
+(used for the availability 
+calculation) as well as the resource requests of the jobs waiting to be 
+dispatched either may be derived from explicit user requests during 
+job submission (see the \fI\-l\fP option to
+.M qsub 1 )
+or from a "default" value 
+configured for an attribute by the administrator (see
+.M complex 5 ).
+The \fI\-r\fP option to
+.M qstat 1
+can be used for retrieving full detail on the actual 
+resource requests of all jobs in the system.
+.PP
+For non-consumable resources xxQS_NAMExx simply compares the 
+job's attribute requests with the corresponding specification in 
+.BR complex_values ,
+taking the relation operator of the complex attribute 
+definition into account (see
+.M complex 5 ).
+If the result of the comparison is 
+"true", the queue is suitable for the job with respect to the particular 
+attribute. For parallel jobs each queue slot to be occupied by a parallel task 
+is meant to provide the same resource attribute value.
+.PP
+\fBNote:\fP Only numeric complex attributes can be defined as consumable 
+resources, hence non-numeric attributes are always handled on a 
+per queue slot basis.
+.PP
+The default value for this parameter is NONE, i.e. no administrator 
+defined resource attribute quotas are associated with the queue.
+.SS "\fBcalendar\fP"
+specifies the
+.B calendar
+to be valid for this queue or contains NONE (the 
+default). A calendar defines the availability of a queue depending on time 
+of day, week and year. Please refer to
+.M calendar_conf 5
+for details on the xxQS_NAMExx calendar facility.
+.PP
+\fBNote:\fP Jobs can request queues with a certain calendar model via a 
+"\-l c=\fIcal_name\fP" option to
+.M qsub 1 .
+.SS "\fBinitial_state\fP"
+defines an initial state for the queue, either when adding the queue to the 
+system for the first time or on start-up of the
+.M xxqs_name_sxx_execd 8
+on the host on 
+which the queue resides. Possible values are:
+.IP default 1i
+The queue is enabled when adding the queue, or is reset to the previous 
+status when
+.M xxqs_name_sxx_execd 8
+comes up (this corresponds to the behavior in 
+earlier xxQS_NAMExx releases not supporting initial_state).
+.IP enabled 1i
+The queue is enabled in either case. This is equivalent to a manual and 
+explicit '\fIqmod \-e\fP' command (see
+.M qmod 1 ).
+.IP disabled 1i
+The queue is disabled in either case. This is equivalent to a manual and 
+explicit '\fIqmod \-d\fP' command (see
+.M qmod 1 ).
+.PP
+.SH "RESOURCE LIMITS"
+The first two resource limit parameters,
+\fBs_rt\fP and \fBh_rt\fP, are implemented by 
+xxQS_NAMExx. They define the "real time" (also called "elapsed" or 
+"wall clock" time) passed since the start of the job. If \fBh_rt\fP
+is exceeded by a job running in the queue, it is aborted via the SIGKILL
+signal (see
+.MO kill 1 ).
+If \fBs_rt\fP is exceeded, the job is first
+"warned" via the SIGUSR1 signal (which can be caught by the job) and
+finally aborted after the notification time 
+defined in the queue configuration parameter
+.B notify
+(see above) has passed. In cases when \fBs_rt\fP is used in combination with job 
+notification it might be necessary to configure a signal other than SIGUSR1 
+using the NOTIFY_KILL and NOTIFY_SUSP execd_params (see 
+.M sge_conf 5 )
+so that the jobs' signal-catching mechanism can differ in each case
+and react accordingly.
+.PP
+The resource limit parameters \fBs_cpu\fP and \fBh_cpu\fP are implemented
+by xxQS_NAMExx as a job limit. They 
+impose a limit on the amount of combined CPU time consumed by all the
+processes in the job. 
+If \fBh_cpu\fP is exceeded by a job running in the queue, it is aborted via
+a SIGKILL signal (see 
+.MO kill 1 ).
+If \fBs_cpu\fP is exceeded, the job is sent a SIGXCPU signal
+which can be caught by the job.  
+If you wish to allow a job to be "warned" so it can exit gracefully
+before it is killed, then you 
+should set the \fBs_cpu\fP limit to a lower value than \fBh_cpu\fP.
+For parallel processes, the limit is 
+applied per slot, which means that the limit is multiplied by the
+number of slots being used by 
+the job before being applied.
+.PP
+The resource limit parameters \fBs_vmem\fP and \fBh_vmem\fP
+are implemented by xxQS_NAMExx
+as a job limit. 
+They impose a limit on the amount of combined virtual memory consumed
+by all the processes 
+in the job. If \fBh_vmem\fP is exceeded by a job running in the queue, it is
+aborted via a 
+SIGKILL signal (see kill(1)).  If \fBs_vmem\fP is exceeded, the job is sent
+a SIGXCPU signal which 
+can be caught by the job.  If you wish to allow a job to be "warned"
+so it can exit gracefully 
+before it is killed, then you should set the \fBs_vmem\fP limit to a lower
+value than \fBh_vmem\fP.
+For parallel processes, the limit is 
+applied per slot which means that the limit is multiplied by the
+number of slots being used by 
+the job before being applied.
+.PP
+The remaining parameters in the queue configuration template specify
+per-job soft and hard resource limits as implemented by the
+.MO setrlimit 2
+system call. See this manual page on your system for more information.
+By default, each limit field is set to infinity (which means RLIM_INFINITY
+as described in the
+.MO setrlimit 2
+manual page). The value type for the CPU-time limits \fBs_cpu\fP and
+\fBh_cpu\fP is time. The value type for the other limits is memory.
+\fBNote:\fP Not all systems support
+.MO setrlimit 2 .
+.PP
+\fBNote also:\fP s_vmem and h_vmem (virtual memory) are only
+available on systems supporting RLIMIT_VMEM (see
+.MO setrlimit 2
+on your operating system).
+.\"
+.SH SECURITY
+See
+.M xxqs_name_sxx_conf 1
+for security considerations when specifying
+.B prolog
+and
+.B epilog
+with a
+.IB user @
+prefix.
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M xxqs_name_sxx_intro_types 1 ,
+.MO csh 1 ,
+.M qconf 1 ,
+.M qmon 1 ,
+.M qrestart 1 ,
+.M qstat 1 ,
+.M qsub 1 ,
+.MO sh 1 ,
+.MO nice 2 ,
+.MO setrlimit 2 ,
+.M access_list 5 ,
+.M calendar_conf 5 ,
+.M xxqs_name_sxx_conf 5 ,
+.M complex 5 ,
+.M host_conf 5 ,
+.M sched_conf 5 ,
+.M xxqs_name_sxx_execd 8 ,
+.M xxqs_name_sxx_qmaster 8 ,
+.M xxqs_name_sxx_shepherd 8 .
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

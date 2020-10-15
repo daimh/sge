@@ -1,0 +1,68 @@
+-- SWIG-1.3a5, version of swig used to build the c/perl wrappers
+   http://www.swig.org
+   http://download.sourceforge.net/swig/swig1.3a5.tar.gz
+   
+-- Perl 5.6, corresponding PerlTk module v8.0  
+   http://search.cpan.org/search?dist=Tk 
+
+-- $SGE_ROOT/lib/<arch>/libsge.so
+   part of the SGE distribution
+
+To build, install swig, perl, perltk.
+(special note for perltk under solaris64, the search path for X11 must be adjusted:
+ /usr/openwin/lib/sparcv9 otherwise you get a wrong elf class error message, this may
+ be due to a wrong perl/perltk installation under solaris64)
+ 
+Then do:
+% aimk -perlgui
+this generates the perl/c-wrapper code and compiles it.
+The generated files are under the <BUILDARCH> directory:
+   1. SGE_wrap.c
+      SGE.pm
+
+   2. SGE.so
+      SGE_wrap.o
+
+To tidy up everything do:
+% aimk -perlgui perlgui_clean 
+
+
+The wrapper code SGE.pm is platformindependend.
+
+HOW TO RUN:
+===========
+
+To test the prototype do:
+
+% cp <BUILDARCH>/SGE.so <BUILDARCH>/SGE.pm experimental/perlgui
+% cd experimental/perlgui
+% source $SGE_ROOT/default/common/settings.csh
+% setenv LD_LIBRARY_PATH .:$LD_LIBRARY_PATH
+
+Adjust the #!/usr/bin/perl in Qmon.pl to your perl path and simply type
+
+% ./Qmon.pl
+
+or do
+
+% perl Qmon.pl
+
+
+DOCUMENTATION REMARKS:
+======================
+
+There is additional documentation available under doku, although it is in German
+it might be helpful nevertheless.
+The Diplomathesis of Markus Grabert contains a lot of references to the old
+productnames. The following translation rules apply:
+
+cod -> sge
+api -> gdi
+CODINE/COD -> SGE
+API -> GDI
+
+The code has been adapted to run with the new libraries.
+
+Copyright: 2001 by Sun Microsystems, Inc.
+ 
+All Rights Reserved.

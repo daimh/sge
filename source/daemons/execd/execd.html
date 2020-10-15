@@ -1,0 +1,299 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76C-CCK-MCD Netscape [en] (X11; U; SunOS 5.8 sun4u) [Netscape]">
+   <meta name="AUTHOR" content="Joachim Gabler">
+   <meta name="CREATED" content="20010613;11080800">
+   <meta name="CHANGEDBY" content="Joachim Gabler">
+   <meta name="CHANGED" content="20010625;16081100">
+<style>
+	<!--
+		H2 { margin-top: 0.33in; margin-bottom: 0.2in }
+	-->
+	</style>
+</head>
+<body>
+
+<h1>
+Execd &mdash; the execution daemon</h1>
+The Execution Daemon (execd) is the instance in Grid Engine that
+<blockquote>
+<li>
+starts jobs.</li>
+
+<li>
+controls jobs, e.g. can suspend / unsuspend a job, reprioritize the processes
+associated with a job, etc.</li>
+
+<li>
+gathers information about jobs, e.g. resource usage, exit code etc.</li>
+
+<li>
+gathers information about the execution host it controls, e.g. load, free
+memory, etc.</li>
+</blockquote>
+There is one execd on each host of a cluster.
+<h2>
+Process flow</h2>
+When execd starts up, the following actions are taken:
+<ul>
+<li>
+General initializations</li>
+
+<li>
+Try to contact qmaster and register with qmaster.</li>
+
+<br><tt>(source/daemons/execd/setup_execd.c: sge_setup_sge_execd)</tt>
+<br>If the execd can't contact qmaster, it will continue and try to contact
+qmaster in regular intervals.
+<li>
+Look for old jobs (jobs that have been started before execd was shutdown).</li>
+
+<br><tt>(source/daemons/execd/setup_execd.c: sge_setup_old_jobs)</tt>
+<li>
+Establish process control for still running jobs.</li>
+
+<br><tt>(source/daemons/execd/execd_ck_to_do.c: register_at_ptf)</tt>
+<li>
+Cleanup finished jobs and report them to qmaster.</li>
+
+<br><tt>(source/daemons/execd/reaper_execd.c: clean_up_old_jobs)</tt></ul>
+After startup, execd enters its main loop where it
+<ul>
+<li>
+receives requests,</li>
+
+<li>
+processes requests, and</li>
+
+<li>
+sends reports in regular intervals.</li>
+</ul>
+
+<h2>
+PDC &mdash; the Portable Data Collector</h2>
+The PDC is a module inside the execd that collects information about running
+jobs like CPU usage, memory consumption, etc.
+<p>Data is collected for all processes of a job on the basis of a criterion
+unique to a job. On Systems that support some sort of jobid for a hierarchy
+of processes, this jobid is used. On all other systems, an additional user
+group id (gid) is created on behalf of each job and then used.
+<p>The jobid / additional group id is attached to the root process of a
+job and is inherited by its child processes.
+<p>The PDC is implemented in <tt>source/daemons/pdc.c</tt>.
+<h2>
+PTF &mdash; the Priority Translation Facility</h2>
+Grid Engine has the feature of a share-based scheduler.
+Each job gets a certain share of the system resources.
+<p>There exist different mechanisms (policies) to assign shares to a job.
+The sum of all shares for a job is expressed in so called tickets &mdash; a job
+has a certain number of tickets enabling it to run with certain process
+priorities.
+<p>If multiple jobs are running concurrently on a host, their different
+share of system resources &mdash; their different number of tickets &mdash; can be
+mapped to priorities in the operating system.
+<p>Setting priorities in the operating system is done by either setting
+the nice value for all processes of a job or by using special priority
+mapping facilities provided by the underlying operating system.
+<p>Grid Engine reassigns the number of tickets per job in a regular interval.
+The PTF then maps the number of tickets of a job to nice values (or another
+operating system priority representation) and renices all processes of
+the job.
+<p>Like the PDC, the PTF uses the jobid / additional group id to capture
+all processes of a job.
+<p>The PTF is implemented in <tt>source/daemons/execd/ptf.c</tt>.
+<h2>
+Requests to execd</h2>
+Execd requests are specified by a request tag (e.g. <tt>TAG_JOB_EXECUTION</tt>).
+<br>For incoming requests a mapping is done from a request tag to a callback
+function that processes the request.
+<br>Execd accepts and processes the following requests:
+<ul>
+<li>
+<b><i>Execute a job <tt>(TAG_JOB_EXECUTION)</tt></i></b></li>
+
+<br>If a request to execute a job is received from the qmaster, the job
+is spooled to disk and started via a shepherd process&nbsp; &mdash; see the <a href="../shepherd/shepherd.html">shepherd
+documentation</a>.
+<br>During the job's runtime, the processes of the job can be monitored
+and controlled by the PDC and PTF modules of the execd.
+<br>After the job finished, all relevant information about the job is gathered
+and the job end is reported to the qmaster.
+<br>The function <tt>execd_job_exec</tt> in <tt>source/daemons/execd/execd_job_exec.c</tt>
+processes this type of request.
+<li>
+<b><i>Execute a task inside a parallel job <tt>(TAG_SLAVE_ALLOW)</tt></i></b></li>
+
+<br>The model of parallel jobs in Grid Engine provides the concept of a
+tight integration of a parallel job's tasks in Grid Engine. In this tight
+integration, the tasks of a parallel job are under full control of Grid
+Engine.
+<br>Tasks can be started with the qrsh binary (<tt>qrsh -inherit</tt>).
+q<tt>rsh -inherit</tt> itself contacts Execd using the GDI function
+<tt>sge_qrexec()</tt>.
+<br>Like a single job, a task is started via a shepherd process and can
+be monitored and controlled by PDC and PTF.
+<br>After a task finishes, all relevant information about the task is gathered
+and the task end is reported to the qmaster.
+<br>The function <tt>execd_job_slave</tt> in <tt>source/daemons/execd/execd_job_exec.c</tt>
+processes this type of request.</ul>
+
+<ul>
+<li>
+<b><i>Assign Tickets to a running job, reprioritize job <tt>(TAG_CHANGE_TICKET)</tt></i></b></li>
+
+<br>In regular intervals, the number of tickets is reassigned to each running
+job. The number of tickets is reported from the qmaster to the execd's.
+<br>The number of tickets is mapped to an operating system nice value or
+another operating system provided priority representation and thus all
+processes of a job are reprioritized.
+<br>The function <tt>execd_ticket</tt> in <tt>source/daemons/execd/execd_ticket.c</tt>
+processes this type of request.
+<li>
+<b><i>Acknowledge from qmaster to a previously sent job report <tt>(TAG_ACK_REQUEST)</tt></i></b></li>
+
+<br>After a job or a task finishes, the execd reports this as a job report
+to the qmaster. The qmaster must acknowledge a job report; if no acknowledge
+arrives at the execd within a certain interval, the job report is resent.
+<br>The function <tt>execd_c_ack</tt> in <tt>source/daemons/execd/job_report_execd.c</tt>
+processes this type of request.
+<li>
+<b><i>Signal all jobs in a queue <tt>(TAG_SIGQUEUE)</tt></i></b></li>
+
+<br>The qmaster asks the execd to send a certain signal to all jobs in
+a certain queue. This, for example, can be triggered by suspending the
+queue.
+<br>The execd signals the process group of each job in the queue.
+<br>The function <tt>execd_signal_queue</tt> in <tt>source/daemons/execd/execd_signal_queue.c</tt>
+processes this type of request.
+<li>
+<b><i>Signal a job <tt>(TAG_SIGJOB)</tt></i></b></li>
+
+<br>The qmaster can ask the execd to send a certain signal to a single
+job, for example, if the job is suspended.
+<br>The execd will signal the process group of this job.
+<br>This request is also processed by the function <tt>execd_signal_queue</tt>
+in <tt>source/daemons/execd/execd_signal_queue.c</tt>.
+<li>
+<b><i>Shutdown <tt>(TAG_KILL_EXECD)</tt></i></b></li>
+
+<br>Tells the execd to do a clean shutdown.
+<br>The function <tt>execd_kill_execd</tt> in <tt>source/daemons/execd/execd_kill_execd.c</tt>
+processes this type of request.
+<li>
+<b><i>Activate/deactivate certain features, e.g. job repriorization &mdash; PTF
+<tt>(TAG_NEW_FEATURES)</tt></i></b></li>
+
+<br>The function <tt>execd_new_features</tt> in <tt>source/daemons/execd/execd_kill_execd.c</tt>
+processes this type of request.</ul>
+
+<ul>
+<li>
+<b><i>Configuration changed <tt>(TAG_GET_NEW_CONF)</tt></i></b></li>
+
+<br>If the cluster configuration (either the global or for a specific host)
+is changed, all affected hosts will be notified by the qmaster about the
+configuration change.
+<br>The function <tt>execd_get_new_conf</tt> in <tt>source/daemons/execd/execd_get_new_conf.c</tt>
+processes this type of request.</ul>
+
+<h2>
+Reports from execd to qmaster</h2>
+The execd sends reports to the qmaster in a regular interval. These reports
+contain
+<ul>
+<li>
+<b><i>Load values</i></b></li>
+
+<br>All load values collected by the load sensor(s) of an execd in a load
+report interval are sent to the qmaster in one report message &mdash; see also
+man page <font color="#000000"><a href="../../../doc/htmlman/htmlman5/sge_conf.html">sge_conf(5)</a></font>.
+<li>
+<b><i>Job reports</i></b></li>
+
+<br>Job reports are created during a job's runtime by PDC reporting the
+job's resource consumption accumulated so far. A job report is also created
+when a job finishes to report the final resource consumption. Multiple
+job reports are collected and sent in one report message to the qmaster
+- job reports for tasks of parallel jobs are sent to qmaster immediately
+(see <tt>source/daemons/execd/reaper_execd.c</tt> &mdash; the variable <tt>flush_jr</tt>
+defines if a job report is sent immediately or with the report interval).</ul>
+
+<h2>
+The load sensor interface</h2>
+A load sensor is a module, that retrieves any host specific values and
+passes them to the execd.
+<p>The execd will report these host specific values, called load values
+in the following text, to the qmaster.
+<p>The execd contains a load sensor for the common host characteristics
+like load, total memory, free memory, total swap, free swap etc.
+<p><font color="#000000">The file doc/load_parameters.asc contains a detailed
+description of all load values including platform dependencies.</font>
+<p><font color="#000000">Load values are retrieved by the (platform dependent)
+function <tt>get_load_avg</tt> and <tt>get_cpu_load</tt> in the file <tt>source/libs/uti/sge_getloadavg.c</tt>.</font>
+<p><font color="#000000">Memory load values are retrieved by the (platform
+dependent) function <tt>load_mem</tt> in file <tt>source/libs/uti/sge_loadmem.c</tt>.</font>
+<p>In addition, there exists an interface to integrate one or multiple
+external load sensors into the execd &mdash; see man page <a href="../../../doc/htmlman/htmlman5/sge_conf.html">sge_conf(5)</a>.
+<p>This is for example done to integrate license counters from licensing
+systems into Grid Engine or to provide additional host characteristics
+to Grid Engine that are not handled by the built-in load sensor.
+<p>An external load sensor can be any executable like a binary, a shell
+script, a Perl script ...
+<p>It can be configured in the (host specific) cluster configuration by
+setting the parameter <tt>load_sensor</tt> &mdash; see man page <a href="../../../doc/htmlman/htmlman5/sge_conf.html">sge_conf(5)</a>
+- and is started by the execd as a child process (see function <tt>sge_ls_start_ls</tt>
+in file <tt>source/daemons/execd/sge_load_sensor.c</tt>).
+<br>Multiple load sensors can be started by one execd.
+<p>A load sensor gets commands from execd on stdin and has to report the
+load values on stdout. It has to implement the following protocol:
+<h3>
+Commands from execd</h3>
+
+<ul>
+<li>
+<b><i>Retrieve and send load values</i></b></li>
+
+<br>In a regular interval defined as <tt>load_report_interval</tt> in the
+cluster configuration, the execd will ask the load sensor to retrieve actual
+load values and send them back to the execd.
+<br>Execd will send a single linefeed (<tt>\n</tt>) to trigger this action.
+<li>
+<b><i>Shutdown</i></b></li>
+
+<br>The execd can tell the load sensor to shutdown. Therefor it sends the
+command
+<tt>quit</tt> followed by a linefeed.</ul>
+
+<h3>
+Format of load values</h3>
+A record containing all load values provided by a load sensor may only
+be sent after a request from execd.
+<p>The record is formed by
+<ul>
+<li>
+the keyword <tt>begin</tt> followed by a linefeed</li>
+
+<li>
+Any number of load values, each in a single line</li>
+
+<li>
+the keyword <tt>end</tt> followed by a linefeed</li>
+</ul>
+The format for a load value is
+<br><tt>hostname:name:value</tt>
+<p>Examples of load sensors are installed in the directory
+<tt>$SGE_ROOT/util/resources/loadsensors</tt>
+<br>Further information on setting up loadsensors can be found at
+<tt><a href="http://arc.liv.ac.uk/SGE/howto/loadsensor.html">http://arc.liv.ac.uk/SGE/howto/loadsensor.html</a>
+</tt>
+<br>&nbsp;
+<br>&nbsp;
+<br>
+<center>
+<p>Copyright 2001 Sun Microsystems, Inc. All rights reserved.</center>
+
+</body>
+</html>

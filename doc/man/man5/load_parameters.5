@@ -1,0 +1,196 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" For Emacs: "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.de MO		\" other man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH LOAD_PARAMETERS 5 "$Date: 2011-12-04 12:16:31 $" "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+load_parameters \- xxQS_NAMExx default load parameters
+.\"
+.SH DESCRIPTION
+The load parameters reported by the execution daemon
+.M sge_execd 8
+by default currently are:
+.TP
+.B arch
+An architecture string compiled into the sge_execd describing the
+operating system architecture for which the execd is targeted.
+Possible values include:
+.nf
+	aix51		for IBM AIX 5.1, 5.3
+	darwin-x86	for Apple Mac OS/X x86
+	darwin-ppc	for Apple Mac OS/X PowerPC
+	hp11		for HP HP-UX 11.x 32-bit
+	hp11-64		for HP HP-UX 11.x 64-bit
+	lx-amd64	for GNU/Linux x86_64
+	lx-x86		for GNU/Linux x86
+	sol-sparc64	for Sun Solaris Sparc64
+	sol-x86		for Sun Solaris x86
+	sol-amd64	for Sun Solaris x86_64
+	win32-x86	for Windows x86
+.fi
+Note that an sge_execd for a particular architecture may run on
+multiple OS versions.  In this case, the architecture string
+delivered by the execution daemon may be misleading.
+.TP
+.B num_proc
+The number of processors provided by the execution host.  The host is
+defined by a single Internet address, i.e. rack mounted
+multi host systems are counted as a cluster rather than a single multi
+headed machine.  In the case of "hardware threads" ("CMT" or "SMT"),
+normally num_proc is the number of such threads which are activated.
+.PP
+The following load information is only available under IBM AIX if
+xxQS_NAMExx is built with the perfstat library (which is now the default):
+.TP
+.B load_short
+The short time average OS run queue length. It is the
+first of the value triple reported by
+.MO  uptime 1 .
+Many implementations provide a 1 minute average
+with this value.
+.TP
+.B load_medium
+The medium time average OS run queue length. It is the
+second of the value triple reported by
+.MO uptime 1 .
+Many implementations provide a 5 minute average with this value.
+.TP
+.B load_long
+The long time average OS run queue length. It is the third of the
+value triple reported by
+.MO uptime 1 .
+Many implementations provide a 10 or 15 minute average with this value.
+.TP
+.B load_avg
+The same as load_medium.
+.TP
+.B np_load_short
+The same as load_short but divided by the number of processors. This
+value allows comparing the load of single and multi-headed hosts.
+.TP
+.B np_load_medium
+The same as load_medium but divided by the number of processors. This
+value allows comparing the load of single and multi-headed hosts.
+.TP
+.B np_load_long
+The same as load_long but divided by the number of processors. This
+value allows comparing the load of single and multi-headed hosts.
+.TP
+.B np_load_avg
+The same as load_avg but divided by the number of processors. This
+value allows comparing the load of single and multi-headed hosts.
+.TP
+.B cpu
+The percentage of CPU time not in idle state.
+.PP
+The following load information is only available under IBM AIX if
+xxQS_NAMExx is built with the perfstat library (which is now the default):
+.TP
+.B mem_free
+The amount of free real memory.
+.TP
+.B swap_free
+The amount of free swap memory.
+.TP
+.B virtual_free
+The sum of mem_free and swap_free.
+.TP
+.B mem_used
+The amount of memory used.
+.TP
+.B swap_used
+The amount of swap space used.
+.TP
+.B virtual_used
+The sum of mem_used and swap_used.
+.TP
+.B mem_total
+The total amount of memory (free+used).
+.TP
+.B swap_total
+The total amount of swap space (free+used).
+.TP
+.B virtual_total
+The sum of mem_total and swap_total.
+.PP
+The following load information is ONLY available under Windows:
+.TP
+.B display_win_gui
+The host is capable of displaying the GUI of a Windows job.
+.PP
+The following load information is only available if xxQS_NAMExx was
+built with the hwloc library (the default) and if hwloc supports the
+system.
+.TP
+.B m_topology_inuse
+The host cpu topology string reported by an execution host.  This might be
+"NONE" if the topology cannot be determined; otherwise it is a string
+consisting of the upper and lowercase letters "S", "C", "T", "c", and
+"t". The sequence of letters within that string represents the
+hardware topology where "S" represents a socket, "C" or "c" a core,
+and "T" or "t" a hardware thread.
+.sp
+The string "SCCSCCSCCSCC" will returned by a host that has 4 sockets
+where each of those sockets has two cores.  All cores are available
+because all "C"s appear in capital letters.
+.sp
+If lowercase letters are used then this means that the
+corresponding core or thread is already in use
+because there is at least one running xxQS_NAMExx job bound to it.
+.sp
+"SCCSCcSCCscc" means that core 2 on socket 2 and also core 1 and core
+2 on socket 4 are in use.
+.TP
+.B m_topology
+Like m_topology_inuse, except that it represents the architecture, not
+the use of it, i.e. it doesn't contain lower case letters.
+.TP
+.B m_socket
+Number of sockets available on the reporting host (e.g. "SCCSCCSCCSCC"
+=> m_socket=4)
+.TP
+.B m_core
+Number of cores reported for all sockets on a host (e.g. "SCCSCCSCCSCC" => m_core=2)
+.TP
+.B m_thread
+Number of hardware threads reported for all cores on a host, which
+should be equal to num_proc (e.g. "SCTTCTTCTTCTT" => m_thread=8)
+.SS "Static Load Values"
+The "static" load values (which may be selected with
+.B qhost \-l
+or
+.BR "qselect \-l" )
+are:  arch, num_proc, mem_total, swap_total,
+virtual_total, m_topology, m_socket, m_core, m_thread.
+.SH "SEE ALSO"
+.M complex 5 ,
+.M sge_execd 8 .

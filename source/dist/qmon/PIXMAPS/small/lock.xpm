@@ -1,0 +1,101 @@
+/* XPM */
+/*___INFO__MARK_BEGIN__*/
+/*************************************************************************
+ * 
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ * 
+ *  Sun Microsystems Inc., March, 2001
+ * 
+ * 
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ * 
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ * 
+ *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ * 
+ *   Copyright: 2001 by Sun Microsystems, Inc.
+ * 
+ *   All Rights Reserved.
+ * 
+ ************************************************************************/
+/*___INFO__MARK_END__*/
+static char *lock[] = {
+/* columns rows colors chars-per-pixel */
+"42 17 47 1",
+"  c black",
+". c #4B5248",
+"X c #4C5249",
+"o c #555753",
+"O c #C3B134",
+"+ c #CEBD3A",
+"@ c #D6C634",
+"# c #D7C634",
+"$ c #E2CC00",
+"% c #E6D10A",
+"& c #EBD614",
+"* c #EFDB1F",
+"= c #E6D220",
+"- c #E9D728",
+"; c #E8D632",
+": c #EDDB31",
+"> c #F4E029",
+", c #F1E03C",
+"< c #F8E533",
+"1 c #FDEA3D",
+"2 c #DFC968",
+"3 c #EBDB40",
+"4 c #F0E04E",
+"5 c #F6E549",
+"6 c #F3E55C",
+"7 c #F9E955",
+"8 c #F7E96A",
+"9 c #FDEE61",
+"0 c #FFEF64",
+"q c #FAED75",
+"w c #B3B5B1",
+"e c #E2D285",
+"r c #FEF181",
+"t c #FFF389",
+"y c #F0E5A4",
+"u c #F1E6A7",
+"i c #F2E7A9",
+"p c #F3E8A9",
+"a c #FDF4A2",
+"s c #CACCC7",
+"d c #CBCECA",
+"f c #CDCFCB",
+"g c #D6D8D5",
+"h c #DADBD9",
+"j c #DBDDDA",
+"k c #E0E2DE",
+"l c None",
+/* pixels */
+"llllllllllllllllllllllllllllllllllllllllll",
+"llllllllllllllllllllllllllllllllllllllllll",
+"llllllllllllllllllllllllllllllllllllllllll",
+"llllllllllllllllll......llllllllllllllllll",
+"lllllllllllllllll..sfdw..lllllllllllllllll",
+"llllllllllllllllX.kooood..llllllllllllllll",
+"lllllllllllllllloho.llood.llllllllllllllll",
+"llllllllllllllllojollllod.llllllllllllllll",
+"llllllllllllllllogollllod.llllllllllllllll",
+"llllllllllllllll          llllllllllllllll",
+"lllllllllllllll 2arq8643;O lllllllllllllll",
+"lllllllllllllll p01<>*&%$# lllllllllllllll",
+"lllllllllllllll i01<>*&%$# lllllllllllllll",
+"lllllllllllllll u01<>*&%$# lllllllllllllll",
+"lllllllllllllll u01<>*&%$# lllllllllllllll",
+"lllllllllllllll et975,:-=+ lllllllllllllll",
+"llllllllllllllll          llllllllllllllll"
+};

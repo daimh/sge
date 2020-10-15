@@ -1,0 +1,249 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH QTCSH 1 "2011-10-21" "xxRELxx" "xxQS_NAMExx User Commands"
+.SH NAME
+qtcsh \- tcsh with transparent remote execution by use of qrsh
+.\"
+.SH SYNTAX
+.B qtcsh
+[
+.B tcsh options
+|
+.B -ABLR
+]
+.\"
+.\"
+.SH DESCRIPTION
+.\"
+.I Qtcsh
+is an extension to the popular
+.M csh 1
+derivative \fItcsh\fP. It allows the transparent remote execution of commands
+entered in
+.I qtcsh
+controlled via xxQS_NAMExx.
+.I Qtcsh
+can be used as interactive command interpreter as well as for the
+processing of
+.I tcsh
+shell scripts.
+.PP
+When invoked,
+.I qtcsh
+identifies which commands are to be
+run remotely and which are not. For this purpose the files
+<xxqs_name_sxx_root>/<cell>/common/qtask and ~/.qtask are processed. Each
+line in these files defines a command that is intended to be run remotely
+(see
+.M qtask 5
+for a definition of the file format). The .qtask file in the user's home
+directory contains the user's remote task specification, while the file in
+the common directory is maintained by the administrator and defines a
+cluster-wide default behavior.
+The contents of the administrator
+supplied
+.M qtask 5
+file are completely overridden in case
+there is an appropriate entry in the users
+.M qtask 5
+file.  This is prevented in case an exclamation mark is prefixed
+to the command name in the administrators qtask file.
+.sp 1
+.I Qtcsh
+always attempts to start the designated tasks remotely via
+.M qrsh 1 .
+Exceptions are
+.IP "\(bu" 3n
+if the user enters such commands via a relative or absolute pathname
+instead of the stand-alone command name (see
+.M qtask 5
+for more information);
+.IP "\(bu" 3n
+if the environment variable JOB_ID is set and thus
+.I qtcsh
+assumes that execution already happens remotely within a xxQS_NAMExx job
+and thus executes tasks locally. This avoids unwanted
+recursions but can be overridden by the command-line option \fB\-R\fP and
+the built-in command \fIqrshmode \-R\fP (see corresponding descriptions
+below);
+.IP "\(bu" 3n
+if
+.I qtcsh
+cannot establish a connection of xxQS_NAMExx during start-up. This allows
+using
+.I qtcsh
+as a login shell without the danger of being blocked when no xxQS_NAMExx
+service is available.
+.PP
+.I Qtcsh
+can operate in three different modes determining whether
+.IP "\(bu" 3n
+tasks are executed remotely;
+.IP "\(bu" 3n
+immediate or batch execution is requested;
+.IP "\(bu" 3n
+status output is verbose or only in case of any errors.
+.PP
+These modes either can be controlled by the command-line switches described
+below during
+.I qtcsh
+invocation or within an executing
+.I qtcsh
+via the built-in command
+.IR qrshmode ,
+as described in section \fBBUILT-IN COMMANDS\fP.
+.\"
+.\"
+.SH OPTIONS
+.\"
+The options listed below are specific to \fIqtcsh\fP. The user
+is referred to the
+.M tcsh 1
+documentation for the explanation of further options.
+.sp 1
+.IP \fB\-A\fP
+Switches
+.I qtcsh
+into verbose mode, causing diagnostic
+output in case of remote execution.
+.\"
+.IP \fB\-B\fP
+Switches remote task execution into batch mode. Tasks submitted to
+xxQS_NAMExx will be queued if they cannot start immediately.
+As a consequence,
+.I qtcsh
+may block until the queued task can be started by xxQS_NAMExx. While this
+behavior probably is undesirable during an interactive session, it may be
+very useful for execution of shell scripts through
+.IR qtcsh ,
+as it avoids failure of the scripts due to temporarily unavailable resources
+for particular tasks.
+.\"
+.IP \fB\-L\fP
+Switches off the default behavior of remote execution of
+commands. Causes all commands to be executed locally 
+even if they are contained in one of the
+.M qtask 5
+files.
+.\"
+.IP \fB\-R\fP
+Enforces remote execution of commands even if JOB_ID  
+is set as environment variable.
+.\"
+.\"
+.SH "BUILT-IN COMMANDS"
+This section only describes additional shell builtin commands
+which are not available in standard
+.M tcsh 1 .
+.sp 1
+.IP "\fBqrshmode\fP [\fB\-ANBILR\fP]"
+Without options, the current operational mode of
+.I qtcsh
+is displayed. The options have the following effect:
+.sp 1
+.nf
+.ta \w'-B   'u
+\-A	switch to verbose output mode
+\-N	switch to non-verbose output mode
+\-B	switch to batch execution mode
+\-I	switch to immediate execution mode
+\-L	always execute commands locally
+\-R	execute configured commands remotely
+.fi
+.sp 1
+.SH "ENVIRONMENT VARIABLES"
+.\" 
+.IP "\fBxxQS_NAME_Sxx_ROOT\fP" 1.5i
+Specifies the location of the xxQS_NAMExx standard configuration
+files.
+.\"
+.IP "\fBxxQS_NAME_Sxx_CELL\fP" 1.5i
+If set, specifies the default xxQS_NAMExx cell. To address a xxQS_NAMExx
+cell
+.I qtcsh
+uses (in the order of precedence):
+.sp 1
+.RS
+.RS
+The name of the cell specified in the environment 
+variable xxQS_NAME_Sxx_CELL, if it is set.
+.sp 1
+The name of the default cell, i.e. \fBdefault\fP.
+.sp 1
+.RE
+.RE
+.\"
+.IP "\fBxxQS_NAME_Sxx_DEBUG_LEVEL\fP" 1.5i
+If set, specifies that debug information
+should be written to stderr. In addition the level of
+detail in which debug information is generated is defined.
+.\"
+.IP "\fBxxQS_NAME_Sxx_QMASTER_PORT\fP" 1.5i
+If set, specifies the tcp port on which
+.M xxqs_name_sxx_qmaster 8
+is expected to listen for communication requests.
+Most installations will use a services map entry for the
+service "sge_qmaster" instead to define that port.
+.\"
+.IP "\fBJOB_ID\fP" 1.5i
+If set when starting
+.I qtcsh
+the local operation 
+mode is activated implicitly as if the \fB\-L\fP option was specified.
+.\"
+.\"
+.SH FILES
+.nf
+.ta \w'~/.qtask       'u
+\fI~/.qtask\fP	user qtask file.
+\fI<xxqs_name_sxx_root>/<cell>/common/qtask\fP
+	cluster qtask file.
+.fi
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M qrsh 1 ,
+.M qtask 5
+as well as
+.M tcsh 1 .
+.\"
+.\"
+.SH "COPYRIGHT"
+.I Qtcsh
+is an adaptation of
+.I tcsh
+which is copyrighted by The Regents of the University of California.
+.sp 1
+See
+.M xxqs_name_sxx_intro 1
+and the information provided in <xxqs_name_sxx_root>/doc/LICENCES
+for a statement of further rights and permissions.

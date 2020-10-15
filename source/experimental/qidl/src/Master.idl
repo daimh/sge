@@ -1,0 +1,183 @@
+// Master.idl
+// this defines the cod_idl Master interface
+
+
+// 
+//   The Contents of this file are made available subject to the terms of
+//   the Sun Industry Standards Source License Version 1.2
+// 
+//   Sun Microsystems Inc., March, 2001
+// 
+// 
+//   Sun Industry Standards Source License Version 1.2
+//   =================================================
+//   The contents of this file are subject to the Sun Industry Standards
+//   Source License Version 1.2 (the \"License\"); You may not use this file
+//   except in compliance with the License. You may obtain a copy of the
+//   License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+// 
+//   Software provided under this License is provided on an \"AS IS\" basis,
+//   WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+//   WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+//   MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+//   See the License for the specific provisions governing your rights and
+//   obligations concerning the Software.
+// 
+//   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+// 
+//   Copyright: 2001 by Sun Microsystems, Inc.
+// 
+//   All Rights Reserved.
+// 
+
+#ifndef _Master_idl
+#define _Master_idl
+
+#include <CosEventComm.idl>
+#include <CosEventChannelAdmin.idl>
+
+#include "Queue.idl"
+#include "Complex.idl"
+#include "Job.idl"
+#include "Configuration.idl"
+#include "Calendar.idl"
+#include "Checkpoint.idl"
+#include "ParallelEnvironment.idl"
+#include "UserSet.idl"
+#include "ExecHost.idl"
+#include "UserProject.idl"
+#include "SchedConf.idl"
+#include "ShareTreeNode.idl"
+
+
+module Codine {
+   interface Master : CosEventComm::PushSupplier {
+      // object retrieval
+      QueueSeq          getQueues()
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      JobSeq            getJobs()
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      ComplexSeq        getComplexes()
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      ConfigurationSeq  getConfigurations()
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      CalendarSeq       getCalendars()
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      CheckpointSeq     getCheckpoints()
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      ParallelEnvironmentSeq getParallelEnvironments()
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      UserSetSeq        getUserSets()
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      ExecHostSeq       getExecHosts()
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      UserProjectSeq    getUsers()
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      UserProjectSeq    getProjects()
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      ShareTreeNode  getShareTree()
+                     raises (ObjDestroyed,Authentication, Error)
+                     context("cod_auth");
+      SchedConf         getSchedConf()
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      
+      // simple string objects
+      cod_stringSeq     getAdminHosts()
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      cod_stringSeq     getSubmitHosts()
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      cod_stringSeq     getManagers()
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      cod_stringSeq     getOperators()
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      cod_ulong         setAdminHosts(in cod_stringSeq hosts)
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      cod_ulong         setSubmitHosts(in cod_stringSeq hosts)
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      cod_ulong         setManagers(in cod_stringSeq mgr)
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      cod_ulong         setOperators(in cod_stringSeq op)
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+       
+
+      // object cration
+      Queue          newQueue(in string name)
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      Job            newJob()
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      Complex        newComplex(in string name)
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      Configuration  newConfiguration(in string hname)
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      Calendar       newCalendar(in string name)
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      Checkpoint     newCheckpoint(in string name)
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      ParallelEnvironment newParallelEnvironment (in string name)
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      UserSet        newUserSet(in string name)
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      ExecHost       newExecHost(in string name)
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      UserProject    newUser(in string name)
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      UserProject    newProject(in string name)
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      ShareTreeNode  newShareTree(in string name)
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      SchedConf      newSchedConf(in string name)
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+
+      // misc
+      boolean        sends_events()
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      boolean        send_events(in boolean sw)
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      CosEventChannelAdmin::ConsumerAdmin  getConsumerAdmin()
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      boolean        registerObject(in Object obj, in string job_auth)
+                     raises(ObjDestroyed, Authentication, Error);
+      boolean        unregisterObject(in Object obj, in string job_auth)
+                     raises(ObjDestroyed, Authentication, Error);
+
+      oneway void    shutdown() context("cod_auth");
+   };
+};
+
+#endif // _Master_idl

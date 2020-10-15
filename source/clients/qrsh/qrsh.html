@@ -1,0 +1,230 @@
+<!--___INFO__MARK_BEGIN__
+/*************************************************************************
+ *
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ *
+ *  Sun Microsystems Inc., March, 2001
+ *
+ *
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ *
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ *
+ *  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ *
+ *  Copyright: 2001 by Sun Microsystems, Inc.
+ *
+ *  All Rights Reserved.
+ *
+ ************************************************************************/
+___INFO__MARK_END__-->
+
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76C-CCK-MCD Netscape [en] (X11; U; SunOS 5.8 sun4u) [Netscape]">
+   <meta name="AUTHOR" content="Joachim Gabler">
+   <meta name="CREATED" content="20010611;17143700">
+   <meta name="CHANGEDBY" content="Joachim Gabler">
+   <meta name="CHANGED" content="20010625;17001600">
+</head>
+<body>
+
+<h1>
+<a NAME="qrsh_dokument"></a>QRSH- Queue Remote Shell</h1>
+
+<h1>
+Overview</h1>
+Qrsh starts a job similar to qsub, with the difference that
+<ul>
+<li>
+stdin/stdout/stderr is not redirected to a file but to the callers iostreams,
+usually the current terminal</li>
+
+<li>
+it is possible to start binaries</li>
+
+<li>
+the returncode of the executed command is propagated to the caller by qrsh</li>
+
+<li>
+if no command is specified, an rlogin session is started</li>
+
+<li>
+if a special commandline option -inherit is specified, qrsh will start
+a subtask in an existing Gridengine parallel job</li>
+</ul>
+Qrsh uses the rsh/rshd mechanism (or any similar tool like ssh) to start
+the remote process and redirect io.
+<p>If nothing else is configured, qrsh will start
+<tt>$SGE_ROOT/utilbin/$ARCH/rsh</tt>,
+the rshd used is <tt>$SGE_ROOT/utilbin/$ARCH/rshd</tt>, which is a rshd
+derived from NetBSD code extended by some code to allow process control
+and collection of usage information (see also
+<tt>3rdparty/remote</tt>).
+<p>To configure the system rsh/rshd or an other mechanism the values <tt>rsh_client</tt>
+and <tt>rsh_daemon</tt> resp. <tt>rlogin_client</tt> and <tt>rlogin_daemon</tt>
+in the cluster configuration have to be set.
+<h1>
+Controll flow</h1>
+
+<h2>
+Remote execution</h2>
+If a user submits a job with qrsh, the following actions are taken
+<ol>
+<li>
+The commandline is parsed and split into codine options and commandline
+to be executed</li>
+
+<li>
+A job object is created</li>
+
+<li>
+The job is submitted (communicated to qmaster)</li>
+
+<li>
+qrsh waits for the job to be started; in regular intervals it requests
+the job status from qmaster, to detect if the job has eventually been deleted</li>
+
+<li>
+qmaster sends order to start job to execd</li>
+
+<li>
+execd starts shepherd</li>
+
+<li>
+The corresponding shepherd contacts qrsh over a socket connection and passes
+the execution host and the port on which a rshd will be started.</li>
+
+<li>
+qrsh forks and executes a rsh command that connects to the specified host
+and port number on the execution host, then it waits for the command to
+exit</li>
+
+<li>
+On the execution side, rshd will start a qrsh_starter command</li>
+
+<li>
+The qrsh_starter sets up the jobs environment, starts a users login shell
+and executes the specified commandline</li>
+
+<li>
+After the command exits, the qrsh_starter writes the exit code of the command
+to a file and exits, rshd exits</li>
+
+<li>
+The corresponding shepherd collects job information like usage and exit
+code, it communicates the exitcode to qrsh</li>
+
+<li>
+qrsh exits with the exitcode of the command or an error, if an error in
+the mechanism occurred.</li>
+</ol>
+<img SRC="process_flow1.gif" NAME="Graphic1" BORDER=0 height=788 width=1121 align=TEXTTOP>
+<br>&nbsp;
+<br>&nbsp;
+<h2>
+Remote login</h2>
+If a user submits a login session with qrsh (rlogin), the following actions
+are taken
+<ol>
+<li>
+The commandline is parsed (codine options)</li>
+
+<li>
+A job object is created</li>
+
+<li>
+The job is submitted (communicated to qmaster)</li>
+
+<li>
+qrsh waits for the job to be started; in regular intervals it requests
+the job status from qmaster, to detect if the job has eventually been deleted</li>
+
+<li>
+qmaster sends order to start job to execd</li>
+
+<li>
+execd starts shepherd</li>
+
+<li>
+the corresponding shepherd contacts qrsh over a socket connection and passes
+the execution host and the port on which an rlogind will be started.</li>
+
+<li>
+Qrsh forks and executes an rlogin command that connects to the specified
+host and port number on the execution host, then it waits for the command
+to exit</li>
+
+<li>
+On the execution side, rlogind will spawn a login which creates a login
+shell</li>
+
+<li>
+After the login shell exits, rshd exits</li>
+
+<li>
+The corresponding shepherd collects job information like the usage and
+will communicate the job end to qrsh</li>
+
+<li>
+qrsh exits with the exitcode 0 or an error, if an error in the mechanism
+occurred.</li>
+</ol>
+<img SRC="process_flow2.gif" NAME="Graphic2" BORDER=0 height=788 width=1121 align=TEXTTOP>
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<h1>
+Process hierarchie</h1>
+
+<h2>
+Client side</h2>
+Qrsh forks a rsh or an rlogin command, if rsh shall handle stdin (no -nostdin
+option to qrsh), it forks another child process that handles stdin.
+<p>Qrsh -> rsh -> rsh
+<p>qrsh -> rlogin
+<h2>
+Execution side</h2>
+
+<h3>
+Standard</h3>
+In the standard case, the command will be executed in a users login shell:
+<p>execd -> shepherd -> rshd -> qrsh_starter -> loginshell -> command
+<h3>
+without login shell</h3>
+If the option -noshell is passed to qrsh, the command will be executed
+directly without a wrapping login shell.
+<p>Execd -> shepherd -> rshd -> qrsh_starter -> command
+<h3>
+with wrapper script</h3>
+A wrapper script can be specified, that for example sets up a special environment,
+e.g. A clearcase view.
+<p>A wrapper script is defined in the environment variable QRSH_WRAPPER.
+<p>Execd -> shepherd -> rshd -> qrsh_starter -> wrapper -> command
+<h3>
+rlogin case</h3>
+Execd -> shepherd -> rlogind -> login shell
+<br>&nbsp;
+<br>&nbsp;
+<br>
+<center>
+<p>Copyright 2001 Sun Microsystems, Inc. All rights reserved.</center>
+
+</body>
+</html>

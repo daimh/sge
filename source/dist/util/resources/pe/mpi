@@ -1,0 +1,15 @@
+# Example PE for use with a tightly integrated MPI implemenation
+# such as Open MPI or recent m(va)pich with Hydra startup.
+# See also the mpiN.template
+pe_name            mpi
+slots              99999
+user_lists         NONE
+xuser_lists        NONE
+start_proc_args    NONE
+stop_proc_args     NONE
+allocation_rule    $fill_up
+control_slaves     TRUE
+job_is_first_task  TRUE
+urgency_slots      min
+accounting_summary FALSE
+qsort_args         NONE

@@ -1,0 +1,227 @@
+When to submit a review document
+================================
+Please do fill out the review form for every significant change.
+Significant change means a change in program logic, memory allocation, etc.
+
+We do not need a review form for minimal changes like fixing typos,
+fixes to man pages, source code documentation, etc.
+
+
+How to use the review form
+==========================
+
+- copy the template doc/devel/review.txt to a working directory
+- if you have one review for all branches affected by your code change, leave 
+  the name "review.txt"
+- if you need multiple reviews for different branches, name the review documents
+  "review_<branch>.txt, e.g. review_V61_BRANCH.txt, or review_maintrunk.txt.
+  Multiple reviews for different branches might be needed, either because the 
+  code base is too different for a simple code merge (e.g. V60s2_BRANCH vs. 
+  maintrunk), or different solutions have been chosen for the different 
+  branches.
+- complete the form and add it as attachment to the Bugster CR, 
+  or if there is no CR, to the IZ
+- it is possible to update attachments, if a review document is modified
+
+
+How to fill out the review form
+===============================
+
+1 Please copy/paste the complete Changelog entry for the corresponding checkin
+  (the first checkin, if the code change is merged to multiple branches, but 
+  only one review document is needed).
+
+
+2 Conforms to specification
+  - For Bugfixes or RFE's from Bugster:
+    Check if the "Suggested Fix" section contains usefull information.
+    Check if the bug has been fixed according to the "Suggested Fix" section 
+    in the CR.
+
+  - If a specification document exists (usually for bigger RFE's):
+    Check, if the code change has been implemented according to the 
+    specification.
+
+
+3 Check if the documentation has been changed or change requests have been made
+
+3.1 Does the issue make necessary any changes in the user or admin guide? 
+    If yes, have the changes been documented and communicated to the doc writer?
+    This is done by creating a Bugster CR in the doc subcategory.
+    Answer n/a if documentation is not affected.
+
+3.2 Are the man pages and online help correct?
+    If necessary, have the man pages, or online help been adjusted, and are they
+    understandable from a user perspective?
+    Answer n/a if man pages are not affected.
+
+3.3 If commandline switches are implemented or affected by the code change, 
+    check the -help output (has to exist and be understandable from a users 
+    view).
+    Answer n/a if commandline switches are not affected.
+
+3.4 All interfaces have to be documented.
+    The following interfaces have to be documented - any documentation beyond 
+    the obligated is welcome:
+    - GDI Interface
+    - Event client interface
+    - any library functions
+    - java API
+    - shell functions
+    If interfaces changed, analyze all affected situations/code pieces.
+    Documentation shall be done using ADOC headers, or javadoc respectively.
+    Answer n/a if no documentation is required.
+
+3.5 If messages changed, check if they are correct and meaningful.
+    Output formats shall only be changed if unavoidable - such changes have to 
+    be documented.
+    Attention: Output (e.g. from qstat) may be part of the documentation. Please
+    communicate changes to the doc writer (see also 3.1).
+    Answer n/a if no messages were changed.
+
+3.6 Bugster Change Request
+    - A CR in Bugster has to be created
+       - for all bugs
+       - for feature development, improvements, ...
+       - for all changes to files that shall go into a patch
+
+    - Is the Synopsis correct, meaningfull and understandable?
+    - Has the version information been set:
+      - Introduced in Release
+      - Targeted Release,
+      - Commit to Fix in Build,
+      - Fixed in Build
+      - Integrated in Build
+    - Is the status set to "10-Fix Delivered"?
+    - Is the hook3 field set to the Changelog id?
+    - Is the hook4 field set to the automatic test path (testsuite or module 
+      test, testsuite IZ number)?
+    - If there is an Issuezilla entry (there usually should be one, with only a
+      few exceptions, confidential data): Has the Hook5 field been set to the
+      Issue Number?
+    - Is the CR-Number referenced in Changelog?
+    - If documentation is affected, or messages have changed: Is this documented
+      in Bugster ("More Info" Tab, "Fix affects ...").
+    - If the code change includes a fix for memory leaks: Are the keywords 
+      "memory" and "leak" set?
+
+
+3.7 Issuezilla
+    - Usually there should be an IssueZilla entry for every change.
+    - We have no IssueZilla entries for
+       - GEMM
+       - Doc Issues
+
+    - Is the Synopsis correct, meaningfull and understandable?
+    - Has the version information been set (Version, Target Milestone, 
+      comment "Fixed in ...")?
+    - Is the IZ-Number referenced in Changelog?
+    
+
+4 Check source code (diff)
+
+4.1 Does the source code conform to our coding styleguide?
+
+4.2 If memory is allocated, check for deallocation, access to freed memory, 
+    boundaries, static buffer sizes ...
+    In java projects check if all resources are cleaned up when no longer needed.
+    Set n/a for changes that do not contain c, or Java code.
+
+4.3 Is the code thread safe? Are all system calls / sge functions the code calls
+    thread safe? Does the doc header of the function contain info about 
+    thread safety?
+    Set n/a for changes that do not contain c, or Java code.
+
+4.4 Does the code preserve security? User privileges and file permissions are 
+    set correctly?
+    Can only privileged users conduct the specified operations - 
+    i.e. only managers can configure the system, or start/stop the daemon,
+         only arco_write user can write to the database for ARCo project ...
+    Are the file permissions set correctly?
+    Set n/a for changes that do not affect security, or user access.
+
+SGE only:
+4.5 Does the code break GDI communication?
+    It might have been necessary to modify object definitions (libs/sgeobj/*L.h
+    files) to reach the objective of the work package.
+    This can have 2 implications:
+    1. If such objects are sent via GDI interface, the GDI version has to be 
+       increased (libs/gdi/version.c).
+    2. If spooled objects change, an upgrade procedure has to be provided,
+       and the release notes / upgrade documentation have to mention the change.
+    Set n/a for changes that do not affect GE objects.
+
+5 Check if adequate testing has taken place
+
+5.1 Has the code been built on all platforms (using the relevant tool for the 
+    project - i.e. raimk for SGE)?
+    Set n/a for changes that do not affect our c, java code.
+
+SGE only:
+5.2 Run the changed component in a memory debugger, e.g.
+    dbx (check -all), purify, insure.
+    Optional test for complex scenarios.
+    Especially for library functions having no dependencies on a running system,
+    please write a module tests and run this module tests in the memory 
+    debugger.
+    Set n/a for changes that do not affect our c code.
+
+SGE only:
+5.3 (Still) optional: Has the affected c modules been run through lint 
+    (scripts/gelint.sh), and are they lint error free?
+    Set n/a for changes that do not affect our c code.
+
+5.4 Which manual tests have been done? 
+    Include a short description.
+    For ARCo project specify the database where the tests were run.
+    If the test doesn't require testing, e.g. for fixed man pages,
+    set n/a.
+
+5.5 Does the testsuite sufficiently cover the issue?
+    If not, please add a test scenario yourself.
+    This can be a completely new testsuite check or just an addition to an 
+    existing check.
+    If the test doesn't require testing, e.g. for fixed man pages,
+    set n/a.
+
+5.6 Has a new testsuite test or module test been created?
+    If testsuite doesn't cover the issue yet, creation of a new testsuite or 
+    module test is required.
+    If no test is created, a precise and comprehensive justification has to be
+    added to the review document and a testsuite issue has to be created.
+    Leave blank when 5.5 = yes.
+
+5.7 If the testsuite does not cover the issue, and no new test has been created,
+    a testsuite issue has to be filed.
+    This issue shall contain information about test cases (usually will 
+    reflect the manual tests),
+    if scripts have been written for the manual testing, they shall be 
+    attached to the issue.
+    Leave blank when 5.5 or 5.6 = yes
+
+5.8 A testsuite run should always be done before checking in code. 
+    Even if there is no special test case for the issue, testsuite might show 
+    problems or sideeffects.
+    Use the comment field if you ran only a subset of tests,
+    or if you had failing tests, but are sure the failures are not due to your
+    changes.
+
+
+6 Comments
+  Add any comments that came up during the review.
+  If the change is not accepted in the first review, describe in the 
+  Comments section why it has not been accepted.
+
+7 Accepted
+  Even if the change has not (yet) been accepted, do add the review paper to 
+  the CR. It describes an intermediate step, and if the review, 
+  or even the code change is continued by a different engineer, it helps to 
+  understand the status of the change, and possible challenges.
+
+  If any of the questions in the following review sections has been answered 
+  by "no", the code change cannot be accepted:
+  - 2 Conforms to specification
+  - 3 Documentation
+  - 4 Source review
+  - 5 Tests, except Testsuite, here we might have cases where no test is done,
+      but these cases require a justification.

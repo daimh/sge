@@ -1,0 +1,148 @@
+Source Code Review Form
+=======================
+(version 1.4)
+
+Date:
+
+1 Identification
+
+
+2 Conforms to specification
+2 [ ] yes
+2 [ ] no
+2 [ ] n/a
+
+
+3 Documentation
+
+3.1 user/admin guide OK, or doc CR filed?
+3.1 [ ] yes
+3.1 [ ] no
+3.1 [ ] n/a
+
+3.2 man pages and online help (user view) correct?
+3.2 [ ] yes
+3.2 [ ] no
+3.2 [ ] n/a
+
+3.3 -help output correct and complete?
+3.3 [ ] yes
+3.3 [ ] no
+3.3 [ ] n/a
+
+3.4
+core: documented interfaces (at least GDI, EVI, libs, ADOC format) correct, 
+      updated?
+Java projects: API (javadoc format) correct, updated?
+3.4 [ ] yes
+3.4 [ ] no
+3.4 [ ] n/a
+
+3.5 messages, output formats and defines OK?
+3.5 [ ] yes
+3.5 [ ] no
+3.5 [ ] n/a
+
+3.6 Bugster CR/MR complete and correct?
+3.6 [ ] yes
+3.6 [ ] no
+
+3.7 Issuezilla entry complete and correct?
+3.7 [ ] yes
+3.7 [ ] no
+3.7 [ ] n/a
+
+
+4 Source review
+
+4.1 Style guide compliant?
+4.1 [ ] yes
+4.1 [ ] no
+
+4.2 
+core: Considered potential memory leaks?
+Java projects: Considered clean up of resources? 
+4.2 [ ] yes
+4.2 [ ] no
+4.2 [ ] n/a
+
+4.3 Considered thread safety?
+4.3 [ ] yes
+4.3 [ ] no
+4.3 [ ] n/a
+
+4.4 Security preserved, user access and file permissions correct?
+4.4 [ ] yes
+4.4 [ ] no
+4.4 [ ] n/a
+
+SGE only:
+4.5 GDI compatibility taken care of?
+4.5 [ ] yes
+4.5 [ ] no
+4.5 [ ] n/a
+
+5 Tests
+
+5.1 
+core: Compiled code on all platforms (raimk)?
+Java projects: Project built successfully?
+5.1 [ ] yes
+5.1 [ ] no
+5.1 [ ] n/a
+
+SGE only:
+5.2 Used memory leak debugger?
+5.2 [ ] yes
+5.2 [ ] no
+5.2 [ ] n/a
+
+------------------------------------------------------------
+Optional (SGE only):
+5.3 Are checked in files lint free (up to a certain level)?
+5.3 [ ] yes
+5.3 [ ] no
+5.3 [ ] n/a
+------------------------------------------------------------
+
+5.4 Manual tests
+5.4.1 Description
+
+5.4.2 Successful execution
+5.4.2 [ ] yes
+5.4.2 [ ] no
+5.4.2 [ ] n/a
+
+ARCo only:
+5.4.3 Database used for tests
+5.4.3 [ ] Oracle
+5.4.3 [ ] PostgreSQL
+5.4.3 [ ] MySQL
+
+5.5 Testsuite already covered issue
+5.5 [ ] yes
+5.5 [ ] no
+5.5 [ ] n/a
+
+5.6 If 5.5 = no: New testsuite test or module test created?
+5.6 [ ] yes - path: 
+5.6 [ ] no  - justification:
+
+5.7 If 5.6 = no: Testsuite issue created?
+5.7 [ ] yes - IZ: 
+5.7 [ ] no  - justification:
+
+5.8 Testsuite run successful
+5.8 [ ] yes
+5.8 [ ] no
+5.9 [ ] comment:
+
+
+6 Comments
+
+
+7 Accepted
+7 [ ] yes
+7 [ ] no
+
+

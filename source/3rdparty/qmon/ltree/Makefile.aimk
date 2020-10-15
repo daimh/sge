@@ -1,0 +1,40 @@
+# Changes by AA 15.1.96 
+# use with aimk 
+# The objects are build in the corresponding arch directory
+# The CFLAGS,XCFLAGS and the SDIR variable are delivered by aimk
+
+
+XLTREE_SDIR = ../ltree
+XLTREE_DEFINES =
+
+XLTREE_SRCS = \
+   $(XLTREE_SDIR)/ListTree.c \
+   $(XLTREE_SDIR)/DND.c
+
+XLTREE_HEADERS = \
+   $(XLTREE_SDIR)/ListTree.h \
+   $(XLTREE_SDIR)/ListTreeP.h \
+   $(XLTREE_SDIR)/DND.h
+
+XLTREE_OBJS = ListTree.o DND.o
+
+XLTREELIB   = libXltree$(LIBEXT)
+
+all: $(XLTREELIB)
+   
+libXltree.a: $(XLTREE_OBJS)
+	$(AR) $(ARFLAGS) libXltree.a $(XLTREE_OBJS)
+	$(RANLIB) libXltree.a
+
+libXltree$(SHAREDEXT): $(XLTREE_OBJS)
+	$(SHAREDLD) $(XLFLAGS) $(GSHARED_LFLAGS) -o libXltree$(SHAREDEXT) $(XLTREE_OBJS) $(XLIBS)
+
+Xltree_clean:
+	$(RM) $(XLTREE_OBJS) libXltree.a libXltree$(SHAREDEXT)
+
+ListTree.o:  $(XLTREE_SDIR)/ListTree.c $(XLTREE_HEADERS)
+	$(CC) -c $(XLTREE_DEFINES) $(CFLAGS) $(XCFLAGS) $(GSHARED_CFLAGS) $(XLTREE_SDIR)/ListTree.c
+
+DND.o:  $(XLTREE_SDIR)/DND.c $(XLTREE_HEADERS)
+	$(CC) -c $(XLTREE_DEFINES) $(CFLAGS) $(XCFLAGS) $(GSHARED_CFLAGS) $(XLTREE_SDIR)/DND.c
+

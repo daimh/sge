@@ -1,0 +1,36 @@
+.\" Copyright (C), 2011  Dave Love
+.\" You may distribute this file under the terms of the GNU Free
+.\" Documentation License.
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH sge-enable-disable 1 2011-01-01 
+.SH NAME
+sge-disable-submits, sge-enable-submits \- Prevent/allow xxQS_NAMExx job submission by non-privileged users
+.SH SYNOPSIS
+.BR sge\-disable\-submits
+.RB [ \-h | \-\-help ]
+.LP
+.BR sge\-enable\-submits
+.RB [ \-h | \-\-help ]
+.SH DESCRIPTION
+.B sge\-disable\-submits
+Limits the xxQS_NAMExx global configuration to users in ACL 'testing' to
+prevent normal users submitting further jobs.
+.B sge\-enable\-submits
+undoes the effect of
+.BR sge\-disable\-submits ,
+allowing normal users to submit jobs again.  You must previously have
+created the 'testing' ACL with
+.M qconf 1 .
+.PP
+These operations are useful when you want to drain the xxQS_NAMExx
+installation completely of jobs, say around maintenance periods.
+.SH OPTIONS
+.IP
+.BR \-h , \-\-help
+Print usage information.
+.SH "SEE ALSO"
+.M qconf 1
+.SH AUTHOR
+Dave Love <d.love@liverpool.ac.uk>

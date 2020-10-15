@@ -1,0 +1,46 @@
+== Sample flowfiles
+
+   The samples comprise four different flowfiles
+
+		* tiny.ff      (one single job)
+		* small.ff     (29 jobs)
+		* large.ff     (780 jobs)
+		* huge.ff      (>40000 jobs)
+
+== Sample jobs
+
+   The flow require a number of job scripts
+
+		* do_make     
+		* do_test     
+		* do_inst     
+		* do_uninst   
+		* do_final    
+		* do_report   
+
+	each of which simply does a sleep.
+
+== Pre-submission procedure
+
+   In addition a sample .flowrc.rb file can be found. Besides
+   a couple of parameters it contains a pre-submission procedure.
+
+== Assumptions according the DRM setup
+
+   Note: For running the flows it is necessary to configure 
+   the DRM in a way that 
+
+		 -q gridware.q
+		 -q irix.q
+		 -q solaris.q
+		 -q linux.q
+		 -q darwin.q
+ 
+   and 
+
+       -P fast    (.flowrc.rb)
+
+   can be passed as "nat" (i.e. "drmaa_native_specification").
+
+   Yet as a matter of course the set-up requirements easily can
+   be changed, if the sample files are modified accordingly.

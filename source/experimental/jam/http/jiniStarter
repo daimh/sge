@@ -1,0 +1,94 @@
+#!/usr/bin/ksh
+#___INFO__MARK_BEGIN__
+#########################################################################
+# 
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+# 
+#  Sun Microsystems Inc., March, 2001
+# 
+# 
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+# 
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+# 
+#   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#   and/or Swiss Center for Scientific Computing
+# 
+#   Copyright: 2002 by Sun Microsystems, Inc.
+#   Copyright: 2002 by Swiss Center for Scientific Computing
+# 
+#   All Rights Reserved.
+# 
+########################################################################
+#___INFO__MARK_END__
+
+LOOKUP_POLICY=${JINILIB}/../example/lookup/policy.all
+SPACE_POLICY=${JINILIB}/../example/books/policy.all
+TXN_POLICY=${JINILIB}/../example/txn/policy.all
+WEB_HOST=`hostname`
+WEB_PORT=8080
+
+RMID_LOG=/tmp/rmid_log.$USER
+LOOKUP_LOG=/tmp/reggie_log.$USER
+TXN_LOG=/tmp/txn_log.$USER
+
+PERSISTENT_SPACE_DIR=${TOPDIR}/http/JobRepository
+
+TXN_GROUP=$USER
+SPACE_GROUP=$USER
+PERSISTENT_SPACE_GROUP=JAM$USER
+LOOKUP_GROUPS=$USER
+
+rm -rf ${LOOKUP_LOG} ${RMID_LOG} ${TXN_LOG} ${PERSISTENT_SPACE_DIR}
+
+# http class server for Jini
+${JAVA_BIN}/java -jar ${JINILIB}/tools.jar -port $WEB_PORT -dir ${JINILIB} &
+
+# rmid (for reggie)
+${JAVA_BIN}/rmid -J-Dsun.rmi.activation.execPolicy=none -J-Djava.home=${JAVA_BIN}/../jre -C-Dnet.jini.discovery.ttl=2 -log $RMID_LOG &
+
+sleep 10
+
+# lookup service
+${JAVA_BIN}/java -jar -Dnet.jini.discovery.ttl=2 ${JINILIB}/reggie.jar \
+  http://${WEB_HOST}:${WEB_PORT}/reggie-dl.jar \
+  ${LOOKUP_POLICY} ${LOOKUP_LOG} ${LOOKUP_GROUPS} &
+
+# transaction service
+${JAVA_BIN}/java -jar \
+  -Djava.security.policy=${TXN_POLICY} \
+  ${JINILIB}/mahalo.jar \
+  http://${WEB_HOST}:${WEB_PORT}/mahalo-dl.jar \
+  ${TXN_POLICY} ${TXN_LOG} ${TXN_GROUP} &
+
+# Transient JavaSpace
+# ${JAVA_BIN}/java -jar \
+#   -Djava.security.policy=${SPACE_POLICY} \
+#   -Djava.rmi.server.codebase=http://${WEB_HOST}:${WEB_PORT}/outrigger-dl.jar \
+#   -Dcom.sun.jini.outrigger.spaceName=JavaSpace \
+#   ${JINILIB}/transient-outrigger.jar \
+#   ${SPACE_GROUP} &
+
+# Persistent JavaSpace
+${JAVA_BIN}/java -jar \
+  -Djava.security.policy=${SPACE_POLICY} \
+  -Dcom.sun.jini.outrigger.spaceName=JobRepository \
+  ${JINILIB}/outrigger.jar \
+  http://${WEB_HOST}:${WEB_PORT}/outrigger-dl.jar \
+  ${SPACE_POLICY} ${PERSISTENT_SPACE_DIR} \
+  ${SPACE_GROUP} &
+
+# JAM downloadable classes
+${JAVA_BIN}/java -jar ${JINILIB}/tools.jar -port 8085 -dir ${JARPATH} &
+

@@ -1,0 +1,111 @@
+'\"
+.\" Copyright (C), 2012  Dave Love, University of Liverpool
+.\" You may distribute this file under the terms of the GNU Free
+.\" Documentation License.
+.de M		\" SGE man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.de MO		\" other man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.de MO		\" other man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH sge_schedule 5 2012-07-25
+.SH NAME
+sge_schedule \- format of the xxQS_NAMExx schedule file
+.SH DESCRIPTION
+The
+.I schedule
+file is written by the qmaster when
+.B MONITOR=1
+is set in the
+.B params
+item of
+.M sched_conf 5 .
+.PP
+Note that the file tends to grow rapidly, and should be
+truncated/rotated, e.g. with
+.MO logrotate 1 .
+Also it should probably be placed on local disk, not an NFS-mounted
+filesystem, for instance, because of the large number of small writes
+it typically gets \- e.g. make a symbolic link into the qmaster spool
+area (assuming that is local).
+.PP
+See
+.M qsched 1
+for a tool to process the data and produce information on reservations.
+.SH FORMAT
+A line containing
+.br
+.B ::::::::
+.br
+indicates the start of a scheduling interval.  It is followed by lines
+showing the resource usage considered for the interval.  They contain
+the following fields, delimited by
+.RB ' : '.
+.TP
+.B job id
+The numeric job id;
+.TP
+.B task id
+The task id (1 for serial jobs);
+.TP
+.B reason
+The for listing the utilization.  One of the following, depending on
+the job's state:
+.RS
+.TP
+.B RUNNING
+Running before the interval;
+.TP
+.B SUSPENDED
+Suspended before the interval;
+.TP
+.B MIGRATING
+To be preempted/migrated (currently unused);
+.TP
+.B STARTING
+To be started;
+.TP
+.B RESERVING
+Having resources reserved through advance or normal resource
+reservation.
+.RE
+.TP
+.B start time
+Start of resource utilization, in seconds after the epoch;
+.TP
+.B end time
+End of resource utilization, as above;
+.TP
+.B level
+The level at which resources are considered.  One of:
+.RS
+.TP
+.B Q
+Queue;
+.TP
+.B H
+Host;
+.TP
+.B G
+Global;
+.TP
+.B P
+Parallel environment.
+.RE
+.TP
+.B object name
+Name of the relevant queue, host, parallel environment, or "global";
+.TP
+.B resource name
+Complex name in use or being reserved;
+.TP
+.B utilization
+Amount of the named complex.
+.SH FILES
+.I $SGE_ROOT/$SGE_$CELL/common/schedule
+.SH "SEE ALSO"
+.M sched_conf 5 ,
+.M qsched 1 .

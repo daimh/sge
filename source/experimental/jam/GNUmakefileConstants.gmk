@@ -1,0 +1,122 @@
+#___INFO__MARK_BEGIN__
+#########################################################################
+# 
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+# 
+#  Sun Microsystems Inc., March, 2001
+# 
+# 
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+# 
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+# 
+#   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#   and/or Swiss Center for Scientific Computing
+# 
+#   Copyright: 2002 by Sun Microsystems, Inc.
+#   Copyright: 2002 by Swiss Center for Scientific Computing
+# 
+#   All Rights Reserved.
+# 
+########################################################################
+#___INFO__MARK_END__
+# USER ENVIRONMENT
+ifeq (0,${MAKELEVEL})
+ TOPDIR = $(shell pwd)
+endif
+
+# jini variables
+JINIWEB = http/www/lib
+JINIPROXYFILES = $(addprefix $(JINILIB)/, *-dl.jar)
+JINISERVICE = $(JINILIB)/jini-core.jar
+JINIUTIL = $(JINISERVICE):$(JINILIB)/sun-util.jar:$(JINILIB)/jini-ext.jar
+
+# Prototypes variables
+LIBDIR = $(TOPDIR)/lib
+BINDIR = $(TOPDIR)/bin
+SRCDIR = $(TOPDIR)/src
+DOCDIR = $(TOPDIR)/doc
+HTMLDOCDIR = $(TOPDIR)/http/www/doc
+
+JAMSUBDIRS = $(addprefix com/sun/grid/jam/, admin app browser gridengine gridengine/job gridengine/exechost gridengine/queue gridengine/util job job/entry job/ui queue queue/entry rms tools ui ui/entry util)
+GESUBDIRS = native/gridengine
+SUBDIRS = $(addprefix src/, $(JAMSUBDIRS)) $(GESUBDIRS)
+
+# class file dirs
+CLASSDIRS = $(subst src,lib,$(SUBDIRS))
+
+# Packages
+PACKAGES = $(subst /,.,$(JAMSUBDIRS))
+
+# Java settings
+CODEBASE = $(TOPDIR)/lib
+JARDIR = $(TOPDIR)/jar
+
+JAVA = $(JAVA_BIN)/java
+JAVAC = $(JAVA_BIN)/javac
+JAVAH = $(JAVA_BIN)/javah
+JAVADOC = $(JAVA_BIN)/javadoc
+JAR =  $(JAVA_BIN)/jar
+RMIC = $(JAVA_BIN)/rmic
+JAVA_LIB = $(JAVA_BIN)../lib
+JAVA_INC = $(JAVA_BIN)/../include
+JAVA_INC_SOLARIS = $(JAVA_INC)/solaris
+JAVADOCFLAGS = -breakiterator -private -author -version -sourcepath $(TOPDIR)/src \
+                -classpath $(JINIUTIL) -d $(HTMLDOCDIR)
+
+UTILPATH = $(SRCDIR):$(CODEBASE):$(JINIUTIL)
+JAVACFLAGS = -g -deprecation -d $(CODEBASE) -classpath $(UTILPATH)
+UTILFLAGS = -g -deprecation -d $(CODEBASE) -classpath $(UTILPATH)
+RMICFLAGS = -v1.2 -g -d $(CODEBASE) -classpath $(UTILPATH)
+
+# Definitions for ClassDep tool (to determine which classes go into
+# which jar files)
+TOOLSCLASSES = $(JINILIB)/tools.jar:$(JAVA_BIN)/../lib/tools.jar
+CLASSDEP_EXEC   = $(JAVA) -cp $(TOOLSCLASSES) com.sun.jini.tool.ClassDep
+CLASSDEP = $(CLASSDEP_EXEC) -cp $(COREJINI):$(CODEBASE) -in com.sun.grid.jam -files
+
+# JAR files
+APP_JAR = $(TOPDIR)/jar/jam-app.jar
+APP_DL_JAR= $(TOPDIR)/jar/jam-app-dl.jar
+RMS_JAR = $(TOPDIR)/jar/jam-rms.jar
+RMS_DL_JAR = $(TOPDIR)/jar/jam-rms-dl.jar
+FE_JAR = $(TOPDIR)/jar/jam-fe.jar
+FE_DL_JAR = $(TOPDIR)/jar/jam-fe-dl.jar
+
+# Native Grid Engine client code compilation settings (64-bit untested)
+GE_GDI_LIB_SOLARIS = $(GRIDENGINE_SRC)/SOLARIS
+GE_GDI_LIB_SOLARIS64 = $(GRIDENGINE_SRC)/SOLARIS64
+GE_GDI_INC = -I$(GRIDENGINE_SRC)/libs/gdi -I$(GRIDENGINE_SRC)/libs/uti -I$(GRIDENGINE_SRC)/libs/cull -I$(GRIDENGINE_SRC)/common
+GE_L_FLAGS = -lsge -lsocket -lnsl
+
+# native compilation settings
+#LD = /usr/ccs/bin/ld -G
+#LD = g++ -G
+LD = CC -G
+#CC_SOLARIS = g++ -Wall
+CC_SOLARIS = CC
+CC_SOLARIS64 = CC -xarch=v9
+CC = $(CC_SOLARIS)
+INCDIR = $(TOPDIR)/include/gridengine
+JNI_INC = -I$(JAVA_INC) -I$(JAVA_INC_SOLARIS) 
+INCLUDE = -I$(INCDIR) $(JNI_INC) $(GE_GDI_INC)
+LIBRARY_SOLARIS = -L$(JAVA_LIB) -L$(GE_GDI_LIB_SOLARIS) -R$(GE_GDI_LIB_SOLARIS)
+LIBRARY_SOLARIS64 = -L$(JAVA_LIB) -L$(GE_GDI_LIB_SOLARIS64) -R$(GE_GDI_LIB_SOLARIS64) 
+LIBRARY = $(LIBRARY_SOLARIS)
+LFLAGS = $(GE_L_FLAGS)
+
+JAVAH_FLAGS = -jni -d $(INCDIR) -classpath $(UTILPATH)
+
+.EXPORT_ALL_VARIABLES:
+

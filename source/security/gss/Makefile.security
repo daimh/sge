@@ -1,0 +1,89 @@
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+SHELL = /bin/sh
+
+.SUFFIXES:	.c .o
+
+.c.o:
+	$(CC) $(CFLAGS) -c $(SDIR)/$<
+
+security_all:	get_cred put_cred delete_cred renew_cred starter_cred
+
+delete_cred:	delete_cred.o sge_gsslib.o
+	$(CC) -o $@ $(LFLAGS) delete_cred.o sge_gsslib.o $(LIBS)
+
+get_cred:	get_cred.o sge_gsslib.o
+	$(CC) -o $@ $(LFLAGS) get_cred.o sge_gsslib.o $(LIBS)
+
+put_cred:	put_cred.o sge_gsslib.o
+	$(CC) -o $@ $(LFLAGS) put_cred.o sge_gsslib.o $(LIBS)
+
+renew_cred:	$(SDIR)/renew_cred.sh
+	cp $? $@
+
+starter_cred:	$(SDIR)/starter_cred.ksh
+	cp $? $@
+
+k5dcelogin:	k5dcelogin.o
+	$(CC) -o $@ $(LFLAGS) k5dcelogin.o $(LIBS)
+
+delete_cred.o:	$(SDIR)/delete_cred.c
+	$(CC) $(CFLAGS) -c $?
+
+get_cred.o:	$(SDIR)/get_cred.c
+	$(CC) $(CFLAGS) -c $?
+
+put_cred.o:	$(SDIR)/put_cred.c
+	$(CC) $(CFLAGS) -c $?
+
+sge_gsslib.o:   $(SDIR)/sge_gsslib.c
+	$(CC) $(CFLAGS) -c $?
+
+k5dcelogin.o:	$(SDIR)/k5dcelogin.c
+	$(CC) $(CFLAGS) -I$(SDIR) -c $?
+
+clean:
+	rm -f k5dcelogin.o delete_cred.o get_cred.o put_cred.o sge_gsslib.o get_cred put_cred delete_cred renew_cred starter_cred k5dcelogin
+
+install:	security_all
+	cp get_cred put_cred delete_cred starter_cred renew_cred $$SGE_ROOT/utilbin/$(ARCH)
+	cd $$SGE_ROOT/utilbin/$(ARCH); chmod 755 get_cred put_cred delete_cred starter_cred renew_cred
+
+install_k5dcelogin:	k5dcelogin
+	cp k5dcelogin $$SGE_ROOT/utilbin/$(ARCH)
+
+install_single_key:	security_all
+	cp $(SDIR)/get_cred.sh $(SDIR)/put_cred.sh get_cred put_cred delete_cred starter_cred renew_cred $$SGE_ROOT/utilbin/$(ARCH)
+	cd $$SGE_ROOT/utilbin/$(ARCH); mv get_cred get_cred.orig; mv put_cred put_cred.orig; mv get_cred.sh get_cred; mv put_cred.sh put_cred; chmod 755 get_cred.orig put_cred.orig get_cred put_cred delete_cred starter_cred renew_cred
+
+

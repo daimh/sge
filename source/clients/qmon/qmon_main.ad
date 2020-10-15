@@ -1,0 +1,279 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Dialog titles for all dialogs
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Qmon*debugLayout: True
+Qmon*title: @{QMON}
+Qmon*dialogTitle: @{QMON}
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Display messages n seconds in the message line
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*display_message_duration: 20
+Qmon*msg_how:       1
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*XmScrollBar*pageIncrement:             1
+Qmon*XmtInputField.columns:                 10
+Qmon*XmtInputField.background:              $text_bg
+Qmon*XbaeMatrix*XmText.background:          $text_bg
+Qmon*XmpSpinbox*XmTextField.background:     $text_bg
+Qmon*XmList.background:                     $text_bg
+Qmon*XmText.background:                     $text_bg
+Qmon*XmTextField.background:                $text_bg
+Qmon*XmtCli*background:                     $text_bg
+Qmon*ListTree*background:                   $text_bg
+Qmon*XmRowColumn.background:               $bg
+
+!Qmon*XmtInputField.foreground:              $text_fg
+!Qmon*XbaeMatrix*XmText.foreground:          $text_fg
+!Qmon*XmpSpinbox*XmTextField.foreground:     $text_fg
+!Qmon*XmList.foreground:                     $text_fg
+!Qmon*XmText.foreground:                     $text_fg
+!Qmon*ListTree*foreground:                   $text_fg
+!Qmon*XmtCli*foreground:                     $text_fg
+Qmon*XmDialogShell*allowShellResize:        True
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Startup Pixmap
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*StartupRC*background:       white
+Qmon*StartupRC*borderWidth:      1
+Qmon*StartupRC*marginWidth:      1
+Qmon*StartupRC*marginHeight:     1
+Qmon*StartupLabel*borderWidth:   1
+Qmon*StartupLabel*marginWidth:   1
+Qmon*StartupLabel*marginHeight:  1
+Qmon*StartupLabel.labelType:     PIXMAP
+Qmon*StartupLabel.labelPixmap:   intro
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Pixmaps for main toolbar
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*JOB_CONTROL.labelType:        PIXMAP
+Qmon*QUEUE_CONTROL.labelType:      PIXMAP
+Qmon*SUBMIT_JOB.labelType:         PIXMAP
+Qmon*COMPLEX_CONFIG.labelType:     PIXMAP
+Qmon*HOST_CONFIG.labelType:        PIXMAP
+Qmon*CLUSTER_CONFIG.labelType:     PIXMAP
+Qmon*SCHED_CONFIG.labelType:       PIXMAP
+Qmon*CALENDAR_CONFIG.labelType:    PIXMAP
+Qmon*USER_CONFIG.labelType:        PIXMAP
+Qmon*PE_CONFIG.labelType:          PIXMAP
+Qmon*CKPT_CONFIG.labelType:        PIXMAP
+Qmon*BROWSER.labelType:            PIXMAP
+Qmon*TICKET_OVERVIEW.labelType:    PIXMAP
+Qmon*PROJECT_CONFIG.labelType:     PIXMAP
+Qmon*RQS_CONFIG.labelType:         PIXMAP
+Qmon*AR_CONFIG.labelType:          PIXMAP
+Qmon*EXIT.labelType:               PIXMAP
+!!
+!! Icons for the main toolbar
+!!
+Qmon*JOB_CONTROL.labelPixmap:      toolbar_job
+Qmon*QUEUE_CONTROL.labelPixmap:    toolbar_queue
+Qmon*SUBMIT_JOB.labelPixmap:       toolbar_submit
+Qmon*COMPLEX_CONFIG.labelPixmap:   toolbar_cplx
+Qmon*HOST_CONFIG.labelPixmap:      toolbar_host
+Qmon*CLUSTER_CONFIG.labelPixmap:   toolbar_cluster
+Qmon*SCHED_CONFIG.labelPixmap:     toolbar_sched
+Qmon*CALENDAR_CONFIG.labelPixmap:  toolbar_calendar
+Qmon*USER_CONFIG.labelPixmap:      toolbar_user
+Qmon*PE_CONFIG.labelPixmap:        toolbar_pe
+Qmon*CKPT_CONFIG.labelPixmap:      toolbar_ckpt
+Qmon*TICKET_OVERVIEW.labelPixmap:  toolbar_ticket
+Qmon*PROJECT_CONFIG.labelPixmap:   toolbar_prj
+Qmon*BROWSER.labelPixmap:          toolbar_browser
+Qmon*RQS_CONFIG.labelPixmap:       toolbar_rqs
+Qmon*AR_CONFIG.labelPixmap:        toolbar_ar
+Qmon*EXIT.labelPixmap:             toolbar_exit
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Multiclick Time 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Qmon*multi_click_time: 300
+!! Qmon*XbaeMatrix.cellMarginHeight: 1
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! pixmapFilePath: here we find pixmaps
+!! bitmapFilePath: here we find bitmaps
+!! contextHelpFile: here we find the help file
+!! htmlHelpFile:   location of the html index file 
+!! %R    the directory specified by the SGE_ROOT environment variable
+!! %H    the users home directory
+!! %a    the application name ( = qmon )
+!! %A    the application class name ( = Qmon )
+!! %v    the visual type ( gray, monochrome, color )
+!! %z    the approximate screen size ( small, medium, large )
+!! %d    the screen depth in bitplanes
+!! %N    the filename
+!! %S    the file suffix
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! remove comments for big toolbar icons and comment the following line
+!! Qmon*pixmapFilePath:  %R/qmon/PIXMAPS/big/%N.xpm:%R/qmon/PIXMAPS/%N.xpm
+!! Qmon*pixmapFilePath:  %R/qmon/locale/%L/PIXMAPS/big/%N.xpm:%R/qmon/locale/%L/PIXMAPS/%N.xpm
+!!Qmon*pixmapFilePath:   %R/qmon/PIXMAPS/%N.xpm
+!!Qmon*contextHelpFile:  qmon_help
+!!Qmon*htmlHelpFile:     qmon/sge_index.html
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*XmtLayout*defaultSpacing:              2
+
+Qmon*XbaeMatrix*cellMarginWidth:            0
+Qmon*XbaeMatrix*cellMarginHeight:           0
+Qmon*XbaeMatrix*marginWidth:                0
+Qmon*XbaeMatrix*marginHeight:               0
+
+Qmon*XmtMenu*background:                    $menu_bg
+Qmon*XmtMenu*foreground:                    $menu_fg
+
+Qmon*XbaeMatrix*foreground:                 $matrix_fg
+
+Qmon*XmRowColumn.background:                $text_bg
+Qmon*XmRowColumn.foreground:                $text_fg
+
+Qmon*XmPushButton.background:               $button_bg
+Qmon*XmPushButton.foreground:               $button_fg
+Qmon*XmDrawnButton.background:              $button_bg
+Qmon*XmDrawnButton.foreground:              $button_fg
+
+Qmon*XmList.background:                     $text_bg
+Qmon*XmList.foreground:                     $text_fg
+Qmon*XmDrawingArea.background:              $bg
+Qmon*XmDrawingArea.foreground:              $fg
+
+Qmon*XmtChooser*background:                 $menu_bg
+Qmon*XmtChooser*foreground:                 $menu_fg
+
+Qmon*XmtInputField*background:              $text_bg
+Qmon*XmtInputField*foreground:              $text_fg
+Qmon*XmTextField*background:                $text_bg
+Qmon*XmTextField*foreground:                $text_fg
+
+Qmon*XmToggleButton.selectColor:            yellow
+Qmon*XmToggleButton.background:             $bg
+Qmon*XmToggleButton.foreground:             $fg
+
+Qmon*XmtMsgLine.background:                 $msgline_bg
+Qmon*XmtMsgLine.foreground:                 $msgline_fg
+
+Qmon*XmScrollBar.troughColor:               $button_bg
+Qmon*XmScrollBar.background:                $menu_bg
+Qmon*XmScrollBar.foreground:                $menu_bg
+
+
+Qmon*RequestableResources.background:       $requestable_resources
+Qmon*RequestedResources.background:         $requestable_resources
+Qmon*RequestedResources.highlightColor:     turquoise
+
+
+!!!!!!!!!!!! MAIN CONTROL !!!!!!!!!
+Qmon*MainControl.MainRowCol.orientation:    HORIZONTAL
+Qmon*MainControl.MainRowCol.spacing:        0
+Qmon*MainControl.MainRowCol.packing:        PACK_COLUMN
+Qmon*MainControl.MainRowCol.background:     $bg
+
+Qmon*MainTitleLabel.leftOffset:            125
+Qmon*MainTitleLabel.topOffset:             25
+Qmon*MainTitleLabel.labelString:           M A I N    C O N T R O L
+Qmon*MainTitleLabel.fontList: -adobe-new century schoolbook-bold-r-*-*-*-180-*-*-*-*-*-*
+Qmon*MainTitlePixmap.labelType:            PIXMAP
+Qmon*MainTitlePixmap.labelPixmap:          qconf.xpm
+
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Help Help Help Help Help Help Help Help Help Help Help Help Help      !!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!Qmon*HelpBrowser*topNode: FirstItem
+Qmon*help.activateCallback: XmtDisplayContextHelp(self);
+!Qmon*XmtHelpBox.titleFontList:  -*-helvetica-bold-r-*-*-*-140-*-*-*-*-*-*
+!_Messages_*ok: Done
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Key Bindings
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!*defaultVirtualBindings: \
+!   osfBackSpace   :    <Key>BackSpace\n\
+!   osfDelete      :    <Key>DeleteChar
+!*browser_title*background:             $titlebar
+!*complexconfig_title*background:       $titlebar
+!*adminhostconfig_title*background:     $titlebar
+!*submithostconfig_title*background:    $titlebar
+!*exechostconfig_title*background:      $titlebar
+!*jobcontrol_title*background:          $titlebar
+!Qmon*queuecontrol_title*background:         $title_bg
+!*submit_title*background:              $titlebar
+!*request_title*background:             $titlebar
+!
+!Qmon*QueueButtonGrid.width:                70
+!Qmon*QueueButtonGrid.height:               70
+!Qmon*QueueButtonGrid.shadowThickness:      3
+!
+!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! POPUP DIALOGS AND SET FOCUS
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!Qmon*focusStyle: move
+!Qmon*QueueDrawingWindow.height: 400
+!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Templates 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!_Templates_.NameValueEditor: \
+!   .xmtType: XmtLayout\n\
+!   .xmtChildren: \
+!      Matrix_2xN     matrix=%0; \
+!      InputField     name, value; \
+!      XmPushButton   add, delete, namePB;\n\
+!   .layout: \
+!      Etched Through Caption tc %1 Col { \
+!         Even Row { \
+!            Row { \
+!               Centered Caption tl %2 name \
+!               FlushBottom Fixed namePB \
+!            } \
+!            Centered Caption tl %3 value \
+!         } \
+!         Even Equal Row { \
+!            add \
+!            delete \
+!         } \
+!         Centered matrix \
+!      }
+!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

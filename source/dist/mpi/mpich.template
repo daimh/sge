@@ -1,0 +1,22 @@
+# tight integration PE example for MPI without built-in SGE support
+pe_name          mpich
+# This is the total number of slots available to the PE in the cluster
+# -- normally set higher than the number of cores in the connectivity
+# island
+slots            <the_number_of_slots>
+# no access restrictions
+user_lists       NONE
+xuser_lists      NONE
+# mangle the host file, intercept use of rsh
+start_proc_args  $sge_root/mpi/startmpi.sh -catch_rsh $pe_hostfile
+# clean up
+stop_proc_args   $sge_root/mpi/stopmpi.sh
+# assume tasks should be packed on to nodes, particularly taking
+#advantage of intra-node communication
+allocation_rule  $fill_up
+# we have tight integration
+control_slaves   TRUE
+# processes are started by mpiexec
+job_is_first_task FALSE
+urgency_slots     min
+accounting_summary FALSE

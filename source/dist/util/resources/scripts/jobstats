@@ -1,0 +1,1021 @@
+#!/usr/bin/perl
+#
+#########################################################################
+#
+# The contents of this file are subject to the Sun Industry
+# Standards Source License Version 1.2 (the License); You
+# may not use this file except in compliance with the License.
+#
+# You may obtain a copy of the License at
+#  gridengine.sunsource.net/license.html
+#
+# Software distributed under the License is distributed on an
+# AS IS basis, WITHOUT WARRANTY OF ANY KIND, either express or
+# implied. See the License for the specific language governing
+# rights and limitations under the License.
+#
+# The Initial Developer of the Original Code is:
+# Sun Microsystems, Inc.
+#
+# Portions created by: Sun Microsystems, Inc. are
+# Copyright (C) 2009 Sun Microsystems, Inc.
+#
+# All Rights Reserved.
+#
+#########################################################################
+#
+#     Script: jobstats
+#    Purpose: Summarize and represent job stats from set of jobs
+#             Input is Grid Engine accounting data
+#
+#########################################################################
+
+$VERSION="v4.5 Aug 2009";
+use POSIX qw(strftime);
+
+do set_signals();
+do init();
+
+$pattern_sa='^Starting job (\S+) id (\d+) queue (\S+) on (\S+) ';
+$pattern_sb='^Starting (\d+) (\d+) secs ';
+$pattern_f='^Finished (\d+) (\d+) secs ';
+
+# Parse command line arguments
+$slots=1;
+$informat="sgeacct";
+$tformat="%e_%H:%M:%S";
+$tformat="%b_%e_%H:%M:%S";
+$tformat="%H:%M:%S";
+$joblist=1;
+$twindow=1;
+$allwidth=1100;
+$nfailed=0;
+
+do parse_args();
+
+# Widths for timeline and usage tables
+$jwidth=60;
+$twidth=$allwidth-$jwidth;
+
+if ($format eq "html"){
+    $html=1;
+}
+# Look for default SGE accouting file if we are within an SGE setup
+if ($nfiles==0){
+  if ( defined $ENV{"SGE_ROOT"} && defined $ENV{"SGE_CELL"} ){
+     $scanfile[$nfiles++]="$ENV{SGE_ROOT}/$ENV{SGE_CELL}/common/accounting";
+     if (! -f $scanfile[0]){
+      printf STDERR "No files to scan\n";
+      exit 3;
+     }
+   }
+
+}
+
+do scan();
+
+do scan_data();
+
+exit if ($njobs == 0) ;
+
+if (defined $html ){
+    do write_html_header();
+}
+
+if (defined $joblist){
+  do output_data();
+ }
+if (defined $timeline){
+  do output_timeline();
+ }
+
+
+do build_events();
+if (defined $event_usage){
+    do write_usage();
+}
+
+if (defined $html ){
+    do write_html_footer();
+}
+
+#*******************************************************************
+#
+# SUBROUTINE DEFINITIONS
+
+sub scan{
+
+my $acct;
+
+  for($i=0;$i<$nfiles;$i++){
+
+   $file=$scanfile[$i];
+   if (! open(IN,"<$file") )
+    { print "Unable to open $file\n"; next ;}
+
+   undef $match;
+
+   while(<IN>){
+
+# qname:hostname:group:owner:job_name:job_number:account:priority:
+# submission_time:start_time:end_time:failed:exit_status:ru_wallclock:
+# (17 rusage fields):project:department:granted_pe:slots:task_number:cpu:mem:
+# io:category:iow:pe_taskid:maxvmem:
+
+     if (! /^#/){
+      @acct=split /:/;
+      $jid=$acct[5];
+      next if (defined $start_jid && ($jid < $start_jid) );
+      next if (defined $end_jid && ($jid > $end_jid) );
+      next unless (!defined($filter_owner) || $acct[3]=~/$filter_owner/);
+      next unless (!defined($filter_name) || $acct[4]=~/$filter_name/);
+      if (! defined($first_jid)) { $first_jid=$jid; }
+      $first_jid=min($jid,$first_jid);
+      $last_jid=max($jid,$last_jid);
+      $failed=$acct[11];
+      if ($failed != 0){
+        $nfailed++;
+        if (defined $verbose) {
+          print STDERR "Warning: job $jid failed with code $failed\n";
+ 	 }
+       }
+      $job_failed{$jid}=$failed;
+      $job_name{$jid}=$acct[4];
+      $job_queue{$jid}=$acct[0];
+      $job_owner{$jid}=$acct[3];
+      $host=$acct[1];
+      $longhostname=$host;
+      $host=~s/\..*//;
+      $hosts{$host}=$host;
+      $hosts_longname{$host}=$longhostname;
+      $job_host{$jid}=$host;
+      $job_submit{$jid}=$acct[8];
+      $job_start{$jid}=$acct[9];
+      $job_end{$jid}=$acct[10];
+      $job_pe{$jid}=$acct[33];
+      $job_slots{$jid}=$acct[34];
+
+      if (defined $verbose) { print "$jid $job_name{$jid} $job_queue{$jid} $host $job_start{$jid} $job_end{$jid}\n";}
+     }
+   }
+
+   close(IN);
+
+ }
+
+ $nhosts=keys(%hosts);
+
+}
+
+
+sub build_events{
+  my($rec);
+
+  $eid=0;
+  foreach $jid ( keys %job_name ) {
+     $event{$eid}={ type=> "start",
+                    time=> $job_start{$jid}, 
+                    jid=> $jid,
+                   };
+     $eid++;  
+     $event{$eid}={ type=> "end",
+                    time=> $job_end{$jid},
+                    jid=> $jid,
+                  };
+     $eid++;  
+
+  }
+
+#  foreach $e ( keys %event ) {
+#    print "$event{$e}{type} $event{$e}{jid} $event{$e}{time}\n";
+#  }
+
+}
+
+# We have to watch the case where a set of jobs start and finish
+# on the same time.  Make sure that the jobs that finish are counted
+# first in the sequence
+sub bytime{
+
+ if ($event{$a}{time}==$event{$b}{time}){
+   
+   if (($event{$b}{type} eq "end") && ($event{$a}{type} eq "start") ) {
+     1;
+    } else {
+     0;
+    }
+
+   } else {
+    $event{$a}{time} <=> $event{$b}{time} ;
+   }
+
+}
+
+sub write_usage{
+ my($slots,$cpus);
+
+ $maxslots=0;
+
+  foreach $e ( sort bytime keys %event ) {
+   $slots=$job_slots{ $event{$e}{jid} };
+   if ($event{$e}{type} eq "start"){
+     $cpus+=$slots;
+     $maxslots=max($maxslots,$cpus);
+    };
+   if ($event{$e}{type} eq "end"){
+     $cpus-=$slots;
+    };
+  }
+
+ if (defined $html) {
+
+# do the vertical usage table
+  print "
+<h2>Job Usage</h2>
+<h3>Usage histogram</h3>
+  
+<table class=seq width=$allwidth border=1 cellspacing=0 cellpadding=0>
+<tr>
+ <td class=\"jid\" width=$jwidth align=right valign=top>usage</td>
+ <td>
+  <table width=$twidth class=bar border=0 cellspacing=0 cellpadding=0>
+  <tr>
+";
+
+
+  $cpus=0;
+
+# build list of number of cpus at each time
+  foreach $e ( sort bytime keys %event ) {
+   $slots=$job_slots{ $event{$e}{jid} };
+   if ($event{$e}{type} eq "start"){
+     $cpus+=$slots;
+    };
+   if ($event{$e}{type} eq "end"){
+     $cpus-=$slots;
+    };
+
+    $t=$event{$e}{time};
+    $slots_bytime{$t}=$cpus;
+   }
+# now write a cell for these
+   undef $started;
+   $maxbarheight=100;
+  foreach $t ( sort keys %slots_bytime ) {
+    if (! defined $started) {
+      $started=1;
+      $last_t=$t;
+      next;
+      }
+
+    $bar_height=int(($maxbarheight*$slots_bytime{$last_t})/$maxslots);
+    $bar_width=int(($t-$last_t)*$twidth/($end_max-$start_min) );
+    if ($bar_width > 0) { print 
+"  <td valign=bottom>
+    <table border=0 cellspacing=0 cellpadding=0>
+     <tr>
+     <td width=$bar_width height=$bar_height valign=bottom class=\"job\"></td>
+    </table>
+";}
+
+    $last_t=$t;
+   }
+
+
+  print "
+  </table>
+ </td>
+</table>
+" ;
+
+ }
+
+
+# Do the event table
+ $barwidth_u=600;
+ if (defined $html) {
+  print "
+<h3>Comulative Usage by jobs</h3>
+<table class=bar border=1 cellspacing=0 cellpadding=0>
+<tr>
+<th align=left class=header>time</th>
+<th align=right class=header>event</th>
+<th align=right class=header>slots</th>
+<th align=left class=header width=$barwidth_u>usage (max $maxslots slots)</th>
+";
+  } else {
+  print "\n";
+  print sprintf(" %8s %6s %5s %12s\n",
+	       "time","event","slots","slots_in_use");
+  }
+  $cpus=0;
+  foreach $e ( sort bytime keys %event ) {
+   $slots=$job_slots{ $event{$e}{jid} };
+   undef $estring;
+   if ($event{$e}{type} eq "start"){
+     $estring="s";
+     $cpus+=$slots;
+     $slottxt="+$slots";
+    };
+   if ($event{$e}{type} eq "end"){
+     $estring="e";
+     $cpus-=$slots;
+     $slottxt="-$slots";
+    };
+
+     if (defined $joblist && defined $html){
+      $jidtxt="<a href=\"#j$event{$e}{jid}\">$event{$e}{jid}</a>";
+     } else {
+      $jidtxt=$event{$e}{jid};
+     }
+
+    $estring="$jidtxt$estring";
+    $t_event=strftime "%H:%M:%S",localtime $event{$e}{time};
+
+ $bar_width=int(($barwidth_u*$cpus)/$maxslots);
+ $bartext="";
+# Don't implement this yet
+ $smalltextlimit=0;
+ if ($bar_width>$smalltextlimit) {
+   $bartext=$cpus;
+   }
+
+ if (defined $html) {
+  print "
+<tr>
+ <td class=\"jid\" align=right>$t_event</td>
+ <td class=\"jid\" align=right>$estring</td>
+ <td class=\"jid\" align=right>$slottxt</td>
+ <td>
+  <table width=$bar_width class=\"bar\" border=0 cellspacing=0 cellpadding=0>
+   <tr>
+   <td class=job width=$bar_width>$bartext</td>
+  </table>
+ </td>
+" ;
+   } else {
+    print sprintf(" %8s %6s %5s %12s\n",
+                  $t_event,
+                  $estring,
+                  $slots,$cpus
+		  );
+   }
+  }
+
+ if (defined $html) {
+  print "</table>\n";
+}
+
+# Now get usage info
+
+# Add up small to large
+  foreach $jid ( keys %job_name ) {
+    $job_usage{$jid}=($job_end{$jid}-$job_start{$jid})*$job_slots{$jid};
+  }
+  $usage=0;
+  foreach $jid ( sort { $job_usage{$a} <=> $job_usage{$b} } keys %job_name ) {
+    $usage+=$job_usage{$jid};
+  }
+
+# Either use the max number we saw or what we were told
+ if (defined $available_slots){
+   $usage_maxslots=$available_slots
+  } else {
+  $usage_maxslots=$maxslots
+  }
+$usage_cpuh=$usage/3600;
+$maxuse_cpuh=($end_max-$start_min)*$usage_maxslots/3600;
+$pc=($usage/(($end_max-$start_min)*$usage_maxslots)) * 100.;
+ if (defined $html){
+  print sprintf("
+<p>
+Total usage for jobs was %.2f (cpuh) <br>
+Maximum number of slots used by jobs was %d <br>
+Maximum avalable resource was %.2f (cpuh) <br>
+Percentage utilization was %.2f%%
+</p>
+",$usage_cpuh,$maxslots,$maxuse_cpuh,$pc);
+  if (defined $available_slots) {
+  print "
+<p>
+Number of slots available was set at $usage_maxslots
+</p>
+";
+  }
+   } else {
+  print "
+Total usage for jobs was $usage_cpuh (cpuh)
+Maximum number of slots used was $maxslots
+Maximum avalable resource was $maxuse_cpuh (cpuh)
+Percentage utilization was $pc
+";
+  if (defined $available_slots) {
+  print "\nNumber of slots available was set at $usage_maxslots\n";
+    }
+   }
+
+}
+
+sub scan_data{
+
+my $host;
+
+  $njobs=0;
+  $name_w=0;
+  $queue_w=0;
+  $host_w=0;
+  $jid_w=0;
+  $usage=0;
+  $total_slotsecs=0;
+
+  foreach $jid ( keys %job_name ) {
+
+    $njobs++;
+
+    if (defined ($start_min)){
+      if ($job_start{$jid}>0) {
+        $start_min=min($job_start{$jid},$start_min);
+       }
+     } else {
+      if ($job_start{$jid}>0) {
+        $start_min=$job_start{$jid};
+       }
+     }
+    if (defined ($end_max)){
+      if ($job_end{$jid}>0) {
+       $end_max=max($job_end{$jid},$end_max);
+       }
+     } else {
+      if ($job_end{$jid}>0) {
+        $end_max=$job_end{$jid};
+       }
+     }
+
+    if ($job_start{$jid}>0 && $job_end{$jid}>0){
+     $total_slotsecs+=($job_end{$jid}-$job_start{$jid})*$job_slots{$jid};
+    }
+    $name_w=max($name_w,length $job_name{$jid});
+    $queue_w=max($queue_w,length $job_queue{$jid});
+    $pe_w=max($pe_w,length $job_pe{$jid});
+    $host_w=max($host_w,length $job_host{$jid});
+    $jid_w=max($jid_w,length "$jid");
+  }
+
+
+# Offset all the times
+#
+#  foreach $jid ( keys %job_name ) {
+#    $job_start{$jid}-=$start_min;
+#    $job_end{$jid}-=$start_min;
+#   }
+
+  foreach $jid ( keys %job_name ) {
+
+    $host=$job_host{$jid};
+    $hosts_njobs{$host}++;
+    $hosts_total{$host}+=( $job_end{$jid}-$job_start{$jid} );
+
+    if (defined ($hosts_start_min{$host})){
+      $hosts_start_min{$host}=min($job_start{$jid},$hosts_start_min{$host});
+     } else {
+      $hosts_start_min{$host}=$job_start{$jid};
+     }
+    if (defined ($hosts_end_max{$host})){
+      $hosts_end_max{$host}=max($job_end{$jid},$hosts_end_max{$host});
+     } else {
+      $hosts_end_max{$host}=$job_end{$jid};
+     }
+
+  }
+
+  foreach $host ( keys %hosts ) {
+
+    if (defined ($end_max)){
+      $end_max=max($hosts_end_max{$host},$end_max);
+     } else {
+      $end_max=$hosts_end_max{$host};
+     }
+    $jobs_total+=$hosts_total{$host};
+
+  }
+
+
+}
+
+
+sub write_html_header{
+
+print "
+<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"
+        \"http://www.w3.org/TR/html4/loose.dtd\">
+<html lang=en>
+<!-- N1GE job information produced by jobstats version $VERSION -->
+<head>
+<title>SGE Job Summary</title>
+<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\">
+<style type=\"text/css\">
+body {background-color: white; }
+table.list { background-color:#eeeeee;
+            empty-cells:show }
+th { color:#005480 ;
+     background-color:#cccccc}
+table.bar { background-color:#ffffff;
+            empty-cells:show }
+td.jobfail { background-color: #ff6666;
+         font-size:11pt }
+td.failno { color: #ff6666 }
+td.jid { background-color:#cccccc; }
+td.job { background-color: #9999ff;
+         font-size:11pt }
+td.jobser { background-color: #9999cc;
+         font-size:11pt }
+td.jobqrsh { background-color: #669966;
+         font-size:11pt }
+td.empty { background-color: #ffffff }
+th.header { background-color: #cccccc }
+</style>
+</head>
+<body>
+";
+
+$header_done=1;
+}
+
+sub write_html_footer{
+ 
+  print "</body>\n</html>\n";
+  $footer_done=1;
+}
+
+sub output_timeline{
+my(@joblist);
+
+
+print "
+<h2>Job Timeline</h2>
+<table class=seq width=$allwidth border=1 cellspacing=0 cellpadding=0>
+<tr>
+<th width=$jwidth align=right class=header>job_id</th>
+<th width=$twidth align=center class=header>time (";
+
+print strftime "%a %b %e, %Y", localtime $start_min;
+print " at ";
+print strftime "%H:%M:%S", localtime $start_min;
+print " to ";
+print strftime "%a %b %e, %Y", localtime $end_max;
+print " at ";
+print strftime "%H:%M:%S", localtime $end_max;
+print ")";
+
+print "</th>
+";
+
+  if ($timeline_sortmethod eq "start"){
+    @joblist=sort {$job_start{$a} <=> $job_start{$b} } keys %job_name  ;
+   } else {
+    @joblist=sort {$a <=> $b} keys %job_name  ;
+   }
+ foreach $jid ( @joblist ) {
+
+ $sf=($job_start{$jid}-$start_min)/($end_max-$start_min);
+ $ef=($job_end{$jid}-$start_min)/($end_max-$start_min);
+ $start_pos=int($sf*$twidth);
+ $end_pos=int($ef*$twidth);
+ $cellwidth=max($end_pos-$start_pos,1);
+ $left=$twidth-$cellwidth-$start_pos;
+
+ if (defined $joblist){
+    $jidtxt="<a href=\"#j$jid\">$jid</a>";
+   } else {
+    $jidtxt=$jid;
+   }
+
+ if ($job_slots{$jid}>1){
+    $job_txt="$job_name{$jid} ($job_slots{$jid}p)";
+   } else {
+    $job_txt="$job_name{$jid}";
+   }
+ $before_txt="";
+ $after_txt="";
+ if ($start_pos>(12*length $job_txt)){
+   $before_txt=$job_txt;
+   } else {
+   $after_txt=$job_txt;
+   }
+
+$jobclass="job";
+if ($job_failed{$jid}>0) {
+   $jobclass="jobfail";
+  } elsif ($job_name{$jid} eq "QRLOGIN" ){
+   $jobclass="jobqrsh";
+  } elsif ($job_pe{$jid} eq "NONE" ){
+   $jobclass="jobser";
+  } 
+print "
+<tr>
+ <td class=jid width=$jwidth align=right>$jidtxt</td>
+ <td>
+  <table width=$twidth class=seq border=0 cellspacing=0 cellpadding=0>
+  <tr>
+  <td width=$start_pos class=empty align=right>$before_txt</td>
+  <td width=$cellwidth class=$jobclass></td>
+  <td width=$left class=empty align=left>$after_txt</td>
+  </table>
+ </td>
+"  ;
+ }
+
+
+print "</table>\n";
+
+}
+
+sub output_data{
+
+local ($format)=@_;
+local($pe);
+
+if (defined $html){
+  print "<h2>Job List</h2>\n<p>\n";
+}
+  print "Showing $njobs jobs ($first_jid to $last_jid)\n";
+if (defined $html){
+  print "<br>\n";
+}
+  print " First job started on ";
+  print strftime "%a %b %e, %Y", localtime $start_min;
+  print " at ";
+  print strftime "%H:%M:%S", localtime $start_min;
+  print "\n";
+if (defined $html){
+  print "<br>\n";
+}
+  print " Last job completed on ";
+  print strftime "%a %b %e, %Y", localtime $end_max;
+  print " at ";
+  print strftime "%H:%M:%S", localtime $end_max;
+if (defined $html){
+  print "<br>\n";
+}
+  print " \n Failed jobs: $nfailed\n";
+if (defined $html){
+  print "<br>\n";
+}
+  $period=&tohms($end_max-$start_min);
+  if ( ($days,$h,$m,$s)=$period=~/(\d+)\s+(\d+):(\d+):(\d+)/){
+     print sprintf("\n Report covers period of %d days %dh %dm %ds\n",
+                   $days,$h,$m,$s);
+   } elsif ( ($h,$m,$s)=$period=~/(\d+):(\d+):(\d+)/){
+     print sprintf("\n Report covers period of %dh %dm %ds\n",
+                   $h,$m,$s);
+   } else {
+    print sprintf("\n Report covers period of %s\n",$period);
+   }
+if (defined $html){
+  print "<br>\n";
+}
+  print sprintf(" Total job usage is %.2f cpu hours (%.2f cpu days)\n",
+        $total_slotsecs/3600.,$total_slotsecs/3600./24);
+  print "\n";
+if (defined $html){
+  print "</p>\n";
+}
+
+  $name_w=max($name_w,4);
+  if (defined $nwidth){
+    $name_w=max($nwidth,4);
+   }
+  $queue_w=max($queue_w,5);
+  $host_w=max($host_w,4);
+  $jid_w=max($jid_w,2);
+  $pe_w=max($pe_w,3);
+
+  if (defined $html){
+      print "<table class=list border=1 rules=cols cellpadding=3>\n<tr>\n";
+  print sprintf("<th>%s</th>\n<th>%s</th><th>%s</th><th>%s</th><th>%s</th><th> %s</th><th>%s</th><th>%s</th>",
+        "Name","owner","id","queue",
+        ,"host","pe","slots","t(s)");
+
+  } else {
+  print sprintf("%*s %8s %*s %*s %*s %*s %5s %8s",
+        $name_w,"Name","owner",$jid_w,"id",$queue_w,"queue",
+        $host_w,"host",$pe_w,"pe","slots","t(s)");
+  }
+  if(defined $twindow){
+   if ($tformat eq "epoch") {
+    $tw_w=10;
+   } else {
+    $tw_w=length strftime $tformat,localtime;
+    $tw_w=max(10,$tw_w);
+   }
+    if (defined $html){
+     print sprintf("<th>%s</th><th>%s</th>","start time","end time") ;
+    } else {
+     print sprintf(" %*s %*s",$tw_w,"time_start",$tw_w,"time_end") ;
+    }
+}
+    if (defined $html){
+      print "<th>fail</th>\n";
+     } else {
+      print " fail\n";
+    }
+
+  foreach $jid ( sort {$a <=> $b} keys %job_name ) {
+
+    if (defined $html){
+      if (defined $joblist){
+        print "<tr id=\"j$jid\">";
+       } else {
+        print "<tr>";
+      }
+    }    
+    if ($job_pe{$jid} eq "NONE"){
+      $pe="";
+     } else {
+      $pe=$job_pe{$jid};
+     }
+     $time=$job_end{$jid}-$job_start{$jid};
+    if (defined $html){
+      print sprintf("<td>%s</td><td>%s</td><td align=right>%s</td><td>%s</td><td>%s</td><td>%s</td><td align=right>%s</td><td align=right>%s</td>",
+        $job_name{$jid},$job_owner{$jid},$jid,
+        $job_queue{$jid},$job_host{$jid},
+        $pe,$job_slots{$jid},"${time}");
+     } else {
+      print sprintf("%*.*s %8s %*s %*s %*s %*s %5s %8s",
+        $name_w,$name_w,$job_name{$jid},$job_owner{$jid},$jid_w,$jid,
+        $queue_w,$job_queue{$jid},$host_w,$job_host{$jid},
+        $pe_w,$pe,$job_slots{$jid},"${time}");
+     }
+    if (defined $twindow){
+      if ($tformat eq "epoch") {
+        $t_start=$job_start{$jid};
+        $t_end=$job_end{$jid};
+       } else {
+        $t_start=strftime $tformat,localtime $job_start{$jid};
+        $t_end=strftime $tformat,localtime $job_end{$jid};
+       }
+    if (defined $html){
+       print sprintf("<td>%s</td><td>%s</td>",$t_start,$t_end);
+     } else {
+       print sprintf(" %*s %*s",$tw_w,$t_start,$tw_w,$t_end);
+     }
+   }
+
+    if (defined $html){
+     if ($job_failed{$jid}!=0) {
+       print sprintf("<td class=failno>%4s</td>\n",$job_failed{$jid});
+      } else {
+       print sprintf("<td></td>\n");
+     }
+     } else {
+      print sprintf(" %4s\n",$job_failed{$jid});
+     }
+
+
+  }
+
+  if (defined $html){
+      print "</table>\n";
+  }
+
+
+}
+
+sub output{
+ local($before,$after) = @_;
+ local($prefix);
+
+ if ($nfiles>1) { $prefix="$file: " };
+
+# This is hard think about it later
+ if (defined($align)) {
+   print "${prefix}$hms -> $t\n";
+  } else {
+   print "${prefix}$hms -> $t\n";
+  }
+  
+
+}
+
+sub operate{
+ local($a,$b,$op) = @_;
+# check negative
+ if ( $op eq "-" && $a < $b ) {
+     $a=$a+60*60*24;
+ }
+ eval "$a $op $b";
+}
+
+sub tohms{
+ local($t,$h,$m,$s,$d) = @_;
+
+ $s=$t%60;
+ $d=int($t / 86400);
+
+ $temp=($t - (24*60*60)*$d);
+ $h=int($temp/3600);
+ $temp=($temp- 3600*$h);
+ $m=int($temp/60);
+
+ if ($d > 0 ) {
+   "$d $h:$m:$s";
+  } else {
+   "$h:$m:$s";
+  }
+
+}
+
+
+sub print_usage{
+
+print 
+"usage: jobstats [-html] [-timeline] [-ntw]
+                 [-usage] [-available_slots s]
+                 [-start_jid jid] [-end_jid jid]
+                 [-owner opattern] [-name npatterm]
+                 [table_width w] [-nw w] [-nojoblist] [-tsort method]
+                 [file...]
+
+    Arguments:
+
+     -start_jid jid   Only start at job id jid
+                      If jid is negative then start with this offset from
+                      the last job id in use (like tail -n)
+     -end_jid   jid   End at job id jid
+     -owner           Only show output where the job owner matches the pattern
+     -name            Only show output where the job name matches the pattern
+     -ntw             Do not show the timing window (start and end times)
+                      for each job
+     -tformat fmt     Set time format for timing windows. Can be one of:
+                        epoch   use Unix epoch time
+                        fmt     specify strftime() format string
+     -timeline        produce table with job timeline info showing visually
+                      where jobs ran.  This forces HTML output.
+     -tsort method    Define a method to sort the timeline:
+                        jid    sort by job id (default)
+                        start  sort by start time
+     -table_width w   Define width of timeline table as w pixels
+                      (default $allwidth)
+     -nw w            Limit the width of the job Name field in text output to w
+     -nojoblist       do not produce job list
+     -html            produce HTML output
+     -usage           Show how each jobs slot usage aggregates
+     -available_slots s Set the number of slots available to jobs
+     file             Job accounting file.  Note that if no file is given then
+                      the file \$SGE_ROOT/\$SGE_CELL/common/accounting will be used.
+
+ Examples:
+
+  jobstats -start_jid 1070 sge_runs.acct
+  jobstats -start_jid -10
+  jobstats -html
+  jobstats -timeline -start_jid 1080
+  jobstats -tformat '%b_%e_%H:%M:%S'
+
+ Displays
+
+  The jobstats script can show both a table of historic job information 
+  and a timeline view of job execution depending on output format (text or
+  HTML).  
+  For the timeline view the job is placed as a colour block on a timeline,
+  and with one line per job.  The colour of the job encodes a failed job
+  a qrsh login, a serial job and a parallel job.  The job name is displayed
+  and optionally followed by the number of slots used in braces in the
+  case where a parallel job was run.
+
+  Note that some information may not be valid if the job failed with
+  certain error codes.
+
+ Usage Information (experimental option)
+
+  With the -usage option a table is printed that shows how the current
+  number of slots in use changes as each job starts or finishes.  In
+  addition a summary of the usage in cpu hours is given.
+  Note that if the maximum number of slots is not used at any time then
+  you should supply this information via the -available_slots flag.
+
+ Known Issues
+
+  If you choose only a certain job range, then the text output will
+  be sized for the longest job name encountered.  Use the -nw option
+  to get around this if the field is very wide.
+
+";
+}
+
+sub parse_args{
+
+ for ($i=0 ; $i<=$#ARGV ; $i++ ) {
+  $arg=$ARGV[$i];
+   if ( $arg eq "-help" )
+    { do print_usage();
+      exit 1; }
+   elsif ( $arg eq "-informat" )
+    { $informat = $ARGV[++$i]; }
+   elsif ( $arg eq "-slots" )
+    { $slots = $ARGV[++$i]; }
+   elsif ( $arg eq "-start_jid" )
+    { $start_jid = $ARGV[++$i]; 
+      check_start_jid();}
+   elsif ( $arg eq "-end_jid" )
+    { $end_jid = $ARGV[++$i]; }
+   elsif ( $arg eq "-table_width" )
+    { $allwidth = $ARGV[++$i]; }
+   elsif ( $arg eq "-tformat" )
+    { $tformat = $ARGV[++$i]; }
+   elsif ( $arg eq "-tsort" )
+    { $timeline_sortmethod = $ARGV[++$i]; }
+   elsif ( $arg eq "-available_slots" )
+    { $available_slots = $ARGV[++$i]; }
+   elsif ( $arg eq "-V" )
+    { print "$VERSION\n"; }
+   elsif ( $arg eq "-v" )
+    { $verbose = 1; }
+   elsif ( $arg eq "-u" )
+    { $utilization = 1; }
+   elsif ( $arg eq "-ntw" )
+    { undef $twindow ; }
+   elsif ( $arg eq "-timeline" )
+    { $timeline = 1;
+      $html = 1 }
+   elsif ( $arg eq "-usage" )
+   { $event_usage = 1; }
+   elsif ( $arg eq "-html" )
+    { $html=1; }
+   elsif ( $arg eq "-nojoblist" )
+    { undef $joblist; }
+   elsif ( $arg eq "-nw" )
+    { $nwidth=$ARGV[++$i]; }
+   elsif ( $arg eq "-name" )
+    { $filter_name=$ARGV[++$i]; }
+   elsif ( $arg eq "-owner" )
+    { $filter_owner=$ARGV[++$i]; }
+   else {
+     $scanfile[$nfiles++]=$ARGV[+$i];
+    }
+  }
+}
+
+sub check_start_jid{
+ my $seqno;
+ my $seqfile="$ENV{SGE_ROOT}/$ENV{SGE_CELL}/spool/qmaster/jobseqnum";
+ return unless ( $start_jid=~/\-/);
+
+ # If $start_jid is negative then it means we have to find the last
+ # jobid and go back from there (line tail -10)
+  if (! open(IN,"< $seqfile") )
+    { print "Unable to open $seqfile to gest last job number \n"; 
+      exit ;}
+  while(<IN>){
+   if(/(\d+)/){
+     $seqno=$1;
+    }
+   }
+
+  $start_jid=$seqno+$start_jid+1;
+
+}
+
+
+# Setup signal handlers
+
+sub set_signals{
+ $SIG{'HUP'} = 'handler';
+ $SIG{'INT'} = 'handler';
+ $SIG{'TERM'} = 'handler';
+ $SIG{'QUIT'} = 'IGNORE';
+}
+
+
+sub yearday{
+local($m,$d,$y)=@_;
+local($yday,$leap);
+$leap = ( ($y%4)==0 && ( ( ($y%100) !=0 ) || ($y%400)==0 )
+        );
+if ($leap) { 
+  $yday = $monthdaysl[$m-1]+$d; }
+ else {
+  $yday = $monthdays[$m-1]+$d; }
+}
+
+
+sub init{
+#               31  28  31  30  31  30  31  31  30  31  30  31 
+ @monthdays =(0, 31, 59, 90,120,151,181,211,242,273,304,334,365);
+ @monthdaysl=(0, 31, 60, 91,121,152,182,212,243,274,305,334,366);
+}
+
+sub min {
+  my $min = shift(@_);
+  foreach $foo (@_) {
+   $min = $foo if $min > $foo;
+  }
+  return $min;
+}
+sub max {
+  my $max = shift(@_);
+  foreach $foo (@_) {
+   $max = $foo if $max < $foo;
+  }
+  return $max;
+}

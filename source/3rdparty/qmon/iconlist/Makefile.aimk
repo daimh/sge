@@ -1,0 +1,44 @@
+# Changes by AA 15.1.96 
+# use with aimk 
+# The objects are build in the corresponding arch directory
+# The CFLAGS,XCFLAGS and the SDIR variable are delivered by aimk
+
+
+XICON_SDIR = ../iconlist
+XICON_DEFINES =
+
+XICON_SRCS = \
+   $(XICON_SDIR)/IconList.c \
+   $(XICON_SDIR)/DumbClip.c
+
+XICON_HEADERS = \
+   $(XICON_SDIR)/IconList.h \
+   $(XICON_SDIR)/IconListP.h \
+   $(XICON_SDIR)/DumbClip.h \
+   $(XICON_SDIR)/DumbClipP.h
+
+XICON_OBJS = \
+   IconList.o \
+   DumbClip.o
+
+XICONLIB    = libXicon$(LIBEXT)
+
+all: $(XICONLIB)
+   
+libXicon.a: $(XICON_OBJS)
+	$(AR) $(ARFLAGS) libXicon.a $(XICON_OBJS)
+	$(RANLIB) libXicon.a
+
+libXicon$(SHAREDEXT): $(XICON_OBJS)
+	$(SHAREDLD) $(XLFLAGS) $(SHARED_LFLAGS) -o libXicon$(SHAREDEXT) $(XICON_OBJS) $(XLIBS)
+
+Xicon_clean:
+	$(RM) $(XICON_OBJS) libXicon.a libXicon$(SHAREDEXT)
+
+
+
+IconList.o:  $(XICON_SDIR)/IconList.c $(XICON_HEADERS)
+	$(CC) -c $(XICON_DEFINES) $(CFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XICON_SDIR)/IconList.c
+
+DumbClip.o:  $(XICON_SDIR)/DumbClip.c $(XICON_HEADERS)
+	$(CC) -c $(XICON_DEFINES) $(CFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XICON_SDIR)/DumbClip.c

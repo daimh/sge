@@ -1,0 +1,194 @@
+			   README.distinst
+                           ---------------
+
+
+Content
+-------
+
+1) What 'distinst' is and what it does
+2) Common command line options of 'distinst'
+3) Copyright
+
+
+1) What 'distinst' is
+---------------------
+
+   After compiling Grid Engine, it can be staged for installation via
+   'distinst'. The staging copies the files (binaries, manual pages,
+   documentation, other files needed for installing and running Grid
+   Engine) to a distribution directory.
+
+   'distinst' has a couple of shortcuts to install parts of the
+   distribution: all or selected binaries for one or more architectures and
+   all or selected parts of architecture independent files.
+
+   'distinst' has no built in dependencies on compile targets. You need to
+   make sure that the targets you are installing are up-to-date.
+
+   Typically there are two scenarios in which a distribution needs to be
+   created. (1) During development, changes should be tested as quickly as
+   possible. (2) As soon as development is done, you may want to create a
+   repository to create further distributions (in tar.gz format), e.g. for
+   putting it on a FTP server. 'distinst' supports both types of staging.
+   By default, the files to stage will be copied to a repository; with
+   option '-local', the files will be copied to the directory to which
+   the environment variable $SGE_ROOT points.
+
+   There is not much difference between both types. By default 'distinst'
+   has a "strict" behavior -- it will exit with an error message if one of
+   the targets cannot be installed.
+
+
+2) Common command line options of 'distinst'
+--------------------------------------------
+
+   Show a brief summary of its command line options:
+
+      % ./distinst -help
+
+   To install your very first distribution, e.g. on Solaris 64bit kernel and
+   on Linux, you may want to begin as follows (see 'scripts/README.arch'
+   about the architecture strings)
+
+      % mkdir <sge_root_dir>
+      % setenv SGE_ROOT <sge_root_dir>
+
+      % ./distinst -local -allall solaris64 glinux
+
+   You will probably see a lot of error messages (because man pages are not
+   available or not all binaries have been created).
+
+   'distinst' has the following command line syntax
+
+      distinst [-opts] [archs] [ -- other progs]
+
+
+   The following options are supported:
+
+   -v 		give more verbose output
+
+   -allall      install really everything, architecture independent files
+                manual pages, available documentation and binaries for
+                selected architectures
+
+   -all         like "-allall" but don't install man pages and available 
+                documentation
+
+   -bin         install only binaries for selected architectures
+
+   -basedir     define base directory for distribution (distinst)
+
+   -vdir        distribution will be installed in this directory below
+                basedir (for distinst only)
+                 
+   -noinst      do nothing, just show the uppercase target architecture
+                and default /\$BASEDIR/\$VERSIONDIR
+
+   -help_arch     show architectures table
+
+   -libs          all libraries
+
+   -local         install in $SGE_ROOT
+
+   -shlibpath     cause LD_LIBRARY_PATH be always set even if RUNPATH supported (Solaris/Linux)
+
+   -mansrc <dir>  take man pages from MANSBUILD_<dir>
+
+   -nobdb         do not install the Berkeley DB binaries and libs
+
+   -noexit        do not exit on installation errors
+
+   -noopenssl     do not install the OpenSSL binaries and libs
+
+   -nosource      do not source "distinst.private"
+
+   -onlybin       all binaries, no libraries
+
+   -classic-targets qmaster+spool* from <ARCHDIR>_classic
+
+   -resetarch     set PROG= (useful to override distinst.private)
+
+   -resetprog     set ARCH= (useful to override distinst.private)
+
+   -tcc           create file .COMMON_CHANGED if common changed
+
+   -v             be more verbose
+
+   For "other targets", the name of the binaries are supported and a few
+   special targets.
+
+   Binary names are: sge_qmaster, sge_execd, qstat, qmon ....
+
+   The special targets are:
+
+   arco          ARCo files (dbwriter, reporting)
+   distcommon	 arch. independent files, man pages, files going to doc/
+   common        arch. independent files
+   ckpt          checkpointing support files going to ckpt/
+   doc           doc/ directory tree"
+   dtrace        Dtrace scripts
+   examples      examples/ directory tree without binaries  
+   hadoop        Hadoop scripts and libraries
+   inst_sge      the installation script
+   iscript       install script
+   jobs          example job binaries going to examples/jobsbin/
+   man           manual pages in nroff and catman format
+   pvm           PVM sample source files and scripts going to pvm/
+   mpi           MPI scripts and READMEs going to mpi/
+   qmontree      qmon pixmaps, resource-, help-, copyright files
+   sec           DCE/Kerberos security modules (only if available)
+   secbin        DCE/Kerberos security binaries (only if available)
+   sgeinspect    SGE Inspect binaries
+   txtdoc        doc/ directory tree without PDF files
+   utilbin       binaries going to the utilbin/ directory for selected
+                 architectures
+   utiltree      files going to the util/ directory hierarchy
+
+
+   Examples:
+   ---------
+
+   Install all tru64 and Linux binaries:
+
+      ./distinst -local -bin tru64 glinux
+
+   Install sge_qmaster for tru64 and solaris:
+
+      ./distinst -local tru64 solaris -- sge_qmaster
+   
+   Install only architecture independent files
+
+      ./distinst -local -allall
+
+   Install only MPI and PVM directories
+
+      ./distinst -local -mpi -pvm
+
+
+3) Copyright
+------------
+
+   The Contents of this file are made available subject to the terms of
+   the Sun Industry Standards Source License Version 1.2
+ 
+   Sun Microsystems Inc., March, 2001
+
+   Sun Industry Standards Source License Version 1.2  
+   =================================================
+   The contents of this file are subject to the Sun Industry Standards
+   Source License Version 1.2 (the "License"); You may not use this file
+   except in compliance with the License. You may obtain a copy of the
+   License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ 
+   Software provided under this License is provided on an "AS IS" basis,
+   WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+   WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,   
+   MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+   See the License for the specific provisions governing your rights and
+   obligations concerning the Software.
+
+   The Initial Developer of the Original Code is: Sun Microsystems, Inc.  
+
+   Copyright: 2001 by Sun Microsystems, Inc.
+ 
+   All Rights Reserved.

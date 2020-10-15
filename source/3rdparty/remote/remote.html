@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
+<html>
+<head>
+   <meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76C-CCK-MCD Netscape [en] (X11; U; SunOS 5.8 sun4u) [Netscape]">
+   <meta name="AUTHOR" content="Joachim Gabler">
+   <meta name="CREATED" content="20010606;14570200">
+   <meta name="CHANGEDBY" content="Joachim Gabler">
+   <meta name="CHANGED" content="20010607;10574700">
+<style>
+	<!--
+		@page { size: 8.27in 11.69in; margin-left: 1.25in; margin-right: 1.25in; margin-top: 1in; margin-bottom: 1in }
+		P { margin-bottom: 0.08in }
+		H1 { margin-bottom: 0.08in; font-family: "Helvetica", sans-serif; font-size: 18pt; page-break-before: auto }
+	-->
+	</style>
+    <title>Remote programs</title>
+</head>
+<body>
+
+<h1>Remote Programs</h1>
+<p>The following refers to the remote startup methods used before the
+builtin method was introduced in SGE 6.2, but they may still be used
+(see remote_startup(5)).
+<p>
+The implementation of the qrsh feature in Gridengine makes use of operating
+system facilities like rsh and rlogin.
+<p>Unfortunately these programs usually lack some features:
+<ul>
+<li>
+rsh / rlogin connect to a rshd / rlogind on a fixed port number but Gridengine
+has to start (multiple) rshd / rlogind on variable port numbers</li>
+
+<li>
+rshd / rlogind do not pass correctly accounting information to their parent
+process &mdash; they do not call wait to collect usage information</li>
+
+<li>
+most rshd's fail, if the user root cannot chdir to the target users (nfs
+mounted) home directory</li>
+</ul>
+Therefore part of a Gridengine distribution are the following programs:
+<ul>
+<li>
+rsh</li>
+
+<li>
+rlogin</li>
+
+<li>
+rshd</li>
+</ul>
+<h2>
+1 Rsh</h2>
+The Gridengine extended version of rsh is based on NetBSD-release, rsh.c,
+CVS Revision 1.12,
+<br><tt>ftp://sunsite.cnlab-switch.ch/mirror/NetBSD/NetBSD-release/src/usr.bin/rsh</tt>
+<p>It has been extended by a commandline option <tt>-p &lt;port></tt> to
+specify the tcp port rsh tries to access to build a connection to the corresponding
+rshd and some porting had to be done to support all current Gridengine
+platforms.
+<h2>
+2 Rshd</h2>
+The Gridengine extended version of rshd is based on NetBSD-release, rshd.c,
+Revision 1.16,
+<br><tt>ftp://sunsite.cnlab-switch.ch/mirror/NetBSD/NetBSD-release/src/libexec/rshd</tt>
+<p>The following changes have been applied:
+<ul>
+<li>
+Port to all Gridengine platforms</li>
+
+<li>
+Set osjobid / additional group id to allow process control by Gridengine</li>
+
+<li>
+Cleaned up wait for child process to obtain usage information</li>
+
+<li>
+chdir to users homedir is done only after setuid to user to allow rsh access
+even if homedir of user (nfs-mounted) is not readable by root (requires
+additionally rshd option -l)</li>
+</ul>
+
+<h2>
+3 rlogin</h2>
+The Gridengine extended version of rlogin is based on NetBSD-release, rlogin.c,
+CVS Revision 1.23,
+<br><tt>ftp://sunsite.cnlab-switch.ch/mirror/NetBSD/NetBSD-release/src/usr.bin/rlogin</tt>
+<p>It has been extended by a commandline option <tt>-p &lt;port></tt> to
+specify the tcp port rlogin tries to access to build a connection to the
+corresponding rlogind and some porting had to be done to support all current
+Gridengine platforms.
+<br>&nbsp;
+<br>&nbsp;
+<br>
+<center>
+<p>Copyright 2001 Sun Microsystems, Inc. All rights reserved.</center>
+
+</body>
+</html>

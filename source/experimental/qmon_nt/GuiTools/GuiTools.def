@@ -1,0 +1,7 @@
+; GuiTools.def : Deklariert die Modul-Parameter für die DLL.
+
+LIBRARY      "GuiTools"
+DESCRIPTION  'GuiTools Windows Dynamic Link Library'
+
+EXPORTS
+    ; Explicit exports can go here

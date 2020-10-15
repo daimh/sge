@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<CE_Type>
+   <name>${name}</name>
+   <shortcut>${name}</shortcut>
+   <valtype>1</valtype>
+   <relop>5</relop>
+   <consumable>1</consumable>
+   <default>1</default>
+   <requestable>2</requestable>
+   <urgencyWeight>1000</urgencyWeight>
+</CE_Type>

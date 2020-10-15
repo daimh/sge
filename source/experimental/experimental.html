@@ -1,0 +1,185 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="fritz ferstl">
+   <meta name="GENERATOR" content="Mozilla/4.76C-CCK-MCD Netscape [en] (X11; U; SunOS 5.8 sun4u) [Netscape]">
+</head>
+<body>
+
+<h1>
+Grid Engine <i>Experimental</i> Modules</h1>
+Each subdirectory of gridengine/source/experimental contains an experimental
+module. Those modules cannot be expected to work - although some may, at
+least with a bit of work. The experimental modules are provided here for
+information purposes mainly and may be helpful if you plan to enhance Grid
+Engine in a direction similar to one of the modules. Some also can be a
+valid starting point for such an effort.
+<p>Several of the modules have been created back in a time when Grid Engine
+was called CODINE and Grid Engine Enterprise Edition was known under the
+name GRD. The source code of such modules does reflect the naming difference
+as well as the documentation (as far as available). Substantial changes
+have occurred to the source code since the creation of such older modules,
+so be aware that considerable effort can be involved to get those modules
+working. Note that none of the modules ever has been part of a productized
+version of Grid Engine or its predecessors, so non of the modules has ever
+seen hard end user testing.
+<p>In the sections below we provide brief information for each module on
+the functionality they implement, on their status and on the documentation
+they include.
+<h2>
+<a NAME="culltrans"></a>culltrans</h2>
+The module provides an automatic translation mechanism for Grid Engine
+CULL list declarations (Common Usable List Library - see <a href="../libs/cull/cull.html">here</a>
+for details) into CORBA IDL data structure definitions. The module was
+created in combination with the <a href="#qidl">qidl</a> module below in
+the context of a CORBA integration of Grid Engine (then Codine/GRD). Since
+the creation of the module, some substantial changes have occurred to the
+code which are thus not reflected in culltrans. Examples are the name change
+into Grid Engine, restructuring of the code and implementation of the array
+job functionality.
+<p>Documentation, as far as available, is contained in the documentation
+to <a href="#qidl">qidl</a>.
+<p>Outside the CORBA integration context, the module should be usable as
+a guideline for any form of automatic translation of CULL declarations
+into other forms of data definitions.
+<h2>
+<a NAME="jgrid"></a>JGrid</h2>
+JGrid is a Java(TM) technology overlay for Grid Engine that allows a program to
+submit jobs as live objects over RMI.  It currently relies on the DRMAA Java
+language binding. Documentation is in source files as JavaDoc(TM) comments.
+<h2>
+<a NAME="JAM"></a>JAM</h2>
+
+JAM (for Job & Application Manager) is a proof-of-concept, Jini(TM) technology
+based, graphical interface to Grid Engine.  Applications to be submitted
+through this interface must be specially wrapped to be represented as Jini
+services.  Grid Engine queues are automatically represented as Jini services,
+as are jobs launched through JAM, which can be monitored and controlled through
+this interface.  JAM utilizes JavaSapces(TM) technology to coordinate this job
+monitoring & control.  JAM is compatible with the API (GDI) in Grid Engine 5.3.
+<p>There is some documentation in the source tree, including a <a
+href="jam/README.txt">README</a> file, a <a
+href="jam/doc/JAM_Whitepaper.pdf">technical whitepaper</a>, and slides (<a
+href="jam/doc/jamSC2000.pdf">pdf</a>; <a
+href="jam/doc/jamSC2000.sdd">StarOffice</a>) from a presentation given in the
+Sun Microsystems booth at the SC2000 trade show.  There are also javadoc
+comments in the code, along with a Makefile target to generate the javadoc
+documentation.
+<h2>
+<a NAME="jqmon"></a>jqmon</h2>
+Jqmon is a very early prototype of a Java graphical user interface to Grid
+Engine (back then Codine/GRD). It doesn't implement nearly as much functionality
+as the Motif GUI qmon and it is really outdated now. However it uses the
+Java Native Interface, JNI, to communicate with sge_qmaster. We felt it
+might be useful to provide an example of how this can be done in case someone
+would want to try to integrate Grid Engine into an existing Java application.
+We have to stress though that the JNI is quite cumbersome to use for such
+a purpose and we cannot really recommend it.
+<p>The only documentation which exists for it is a diploma thesis describing
+jqmon together with <a href="#qmon_nt">qmon_nt</a> (see below). The diploma
+thesis is in German language and is not completely up-to-date with the
+code. Please let us know whether it makes sense to provide it here.
+<h2>
+<a NAME="jqmon_corba"></a>jqmon_corba</h2>
+Jqmon_corba originally was derived from <a href="#jqmon">jqmon</a> but
+was changed substantially. Most notably, jqmon_corba uses CORBA to communicate
+with sge_qmaster instead of the JNI used in jqmon. In order to work, jqmon_corba
+requires a Grid Engine version incorporating the CORBA interface implemented
+in <a href="#qidl">qidl</a>. Jqmon_corba offers an extended set of capabilities
+compared to jqmon. It is still out of date with respect to the name change
+into Grid Engine, restructuring of the code and implementation of the array
+job functionality.
+<p>Some jqmon_corba specific notes are contained in the qidl module and
+can be viewed <a href="qidl/doc/Jqmon_Notes.txt">here</a>. See also the
+comments related to <a href="#jqmon">jqmon</a> documentation above.
+<h2>
+perlgui</h2>
+Perlgui provides two facilities, a Perl interface prototype to Grid Engine
+and a GUI prototype implemented in Perl/Tk. The module is fairly recent
+and it should be possible to get it working, maybe with a small bit of
+effort. The <a href="http://www.swig.org">Swig</a> tool has been used to
+generate some of the data exchange interfaces between Perl and Grid Engine.
+The functionality of the Perl GUI is not as comprehensive as that of the
+standard Motif qmon, but it implements a good set of features.
+<p>A diploma thesis in German language describing the work is included
+as documentation (click <a href="perlgui/doku/Diplomarbeit.sdw">here</a>
+- StarOffice document, 600kB).
+<h2>
+<a NAME="qidl"></a>qidl</h2>
+The qidl module contains a CORBA interface for Grid Engine (back then Codine/GRD).
+It uses the <a href="#culltrans">culltrans</a> module to translate CULL
+list declarations (Common Usable List Library - see <a href="../libs/cull/cull.html">here</a>
+for details), which specify all Grid Engine internal objects, into corresponding
+CORBA IDL definitions. These CORBA interfaces to Grid Engine internal data
+are then accessible via a CORBA server running as a thread to sge_qmaster.
+The multi-threading infrastructure supporting the regular sge_qmaster functionality
+and the CORBA thread is part of the regular Grid Engine source code. Qidl
+serves as an enabling infrastructure for <a href="#jqmon_corba">jqmon_corba</a>
+(see above). Since the creation of qidl, some substantial changes have
+occurred to the code which are thus not reflected in the module. Examples
+are the name change into Grid Engine, restructuring of the code and implementation
+of the array job functionality.
+<p>Documentation is available in PostScript <a href="qidl/doc/report.ps">here</a>
+(450kB). The corresponding TeX sources are part of the module.
+<h2>
+qidle</h2>
+Qidle contains a small C-program which reports whether there is interactive
+usage on a host. The reports are in a format compliant with the Grid Engine
+load sensor interface (see the Grid Engine manual), so qidle can be used
+to withdraw a host from a batch cluster if it is used interactively and
+to make it available for batch jobs if the host has not been used by interactive
+users for a while. Qidle also can be used to trigger suspend/resume events
+for batch jobs or even checkpointing and migration. Interactive usage is
+detected via monitoring the X-Server activity on the host. See the README
+file included in the module for some important information in this context.
+There is no further documentation besides the README.
+<p>The module is relatively independent of the Grid Engine version, so
+it should be possible to get qidle working, at least with a small bit of
+effort.
+<h2>
+<a NAME="qmon_nt"></a>qmon_nt</h2>
+Qmon_nt is a relatively advanced Microsoft<sup>&reg;</sup> Windows<sup>&reg;</sup>
+GUI prototype for Grid Engine. It has been implemented with Microsoft<sup>&reg;
+</sup>Visual
+Studio<sup>&reg;</sup>. Since the creation of the qmon_nt, some substantial
+changes have occurred to the code which are thus not reflected in the module.
+Examples are the name change into Grid Engine, restructuring of the code
+and implementation of the array job functionality.
+<p>The only documentation which exists for it is a diploma thesis describing
+qmon_nt together with <a href="#jqmon">jqmon</a> (see above). The diploma
+thesis is in German language and is not completely up-to-date with the
+code. Please let us know whether it makes sense to provide it here.
+<p>The qmon_nt module may also serve as an example how to integrate an
+existing Microsoft<sup>&reg;</sup> Windows<sup>&reg;</sup> application
+as a client into the Grid Engine system.
+<h2>
+sge_host_mon</h2>
+The sge_host_mon module has been implemented specifically to operate with
+the SGI<sup>TM</sup> IRIX<sup>&reg;</sup> grosview facility. The sge_host_mon
+utility accesses Grid Engine internal data about jobs executing on a particular
+host and outputs it in a format compatible with grosview. The result is
+a job activity display in grosview showing how much CPU percentage jobs
+receive compared to each other. Sge_host_mon makes most sense in combination
+with Grid Engine Enterprise Edition, where the CPU entitlement of jobs
+changes dynamically and automatically.
+<p>There is no documentation for sge_host_mon.
+<h2>
+w2000</h2>
+The w2000 module contains software and installation notes which allow integration
+of Microsoft<sup>&reg;</sup> Windows<sup>&reg;</sup> 2000 PCs into a Grid
+Engine cluster as execution hosts. It is not a Microsoft<sup>&reg;</sup>
+Windows<sup>&reg;</sup> 2000 of Grid Engine though. It relies on a Unix<sup>TM</sup>
+compliant rsh facility for Microsoft<sup>&reg;</sup> Windows<sup>&reg;</sup>
+2000 which has to be integrated with Grid Engine as described in w2000.
+The rsh facility is not part of w2000. The module still refers to Grid
+Engine's previous names CODINE and GRD but otherwise is relatively independent
+from the Grid Engine version and thus it should be possible to get it working
+- probably with a bit of effort.
+<p>Installation documentation can be viewed <a href="w2000/install.html">here</a>.
+Additional documentation is available in StarOffice format <a href="w2000/Doc/Installation.sdw">here</a>.
+<br>&nbsp;
+<P ALIGN=CENTER>Copyright &copy; 2001 Sun Microsystems Inc. All rights
+reserved.</P>
+</body>
+</html>

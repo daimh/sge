@@ -1,0 +1,37 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE>JAPI</TITLE>
+	<META NAME="GENERATOR" CONTENT="StarOffice/5.2 (Solaris Sparc)">
+	<META NAME="AUTHOR" CONTENT=" ">
+	<META NAME="CREATED" CONTENT="20010611;14564800">
+	<META NAME="CHANGEDBY" CONTENT=" ">
+	<META NAME="CHANGED" CONTENT="20010716;16471800">
+</HEAD>
+<BODY>
+<H1><FONT SIZE=6 STYLE="font-size: 28pt">JAPI library - Job Application programming interface</FONT></H1>
+<H1>Overview</H1>
+<P>The JAPI library is a layer on top of 
+<A HREF="../gdi/gdi.html">libgdi</A>, 
+<A HREF="../../../doc/devel/eventclient.html">libevc</A> 
+. JAPI collects the specific qualities of both modules to provide a to-the-point interface 
+providing those operations a typical Grid Engine end user depends upon. That is submission 
+of jobs and array-jobs, enquire and control of job status, synchronizing with jobs end as 
+well as examining the manner how a job finished. In contrast to this manipulating the 
+configuration of a Grid Engine queue is typically not done by end users. The design of the 
+core JAPI functions was vitally influenced by the interface specification the 
+<A HREF="http://www.drmaa.org">GGF DRMAA working group</A>
+developed. Note that currently only qsub(1)-ish jobs can be submitted through JAPI.</P>
+<H1>Implementation</H1>
+<P>Constraints of the protocol used by libevc, made it necessary to run a service thread 
+in background of JAPI. The purpose of this thread is to wait for new events
+sent by Grid Engine qmaster, acknowledge received events to qmaster and provide 
+information related to job states in a shared data structure that is maintained 
+to implement services certain JAPI calls base upon (i.e. japi_wait(3)). The JAPI 
+library is a MT safe library allowing any number of application threads to use JAPI 
+services without explicit synchronization.</P>
+<P ALIGN=CENTER STYLE="text-decoration: none">Copyright 2003 Sun
+Microsystems, Inc. All rights reserved.</P>
+</BODY>
+</HTML>

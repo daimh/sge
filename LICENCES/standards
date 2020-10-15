@@ -1,0 +1,172 @@
+   [1]Login | [2]Register
+   [3]CollabNet Enterprise Edition
+
+   [4]Login | [5]Register
+
+   [6]My pages [7]Projects [8]SunSource.net [9]openCollabNet
+
+   [10]Projects  >  [11]gridengine
+
+   Grid Engine
+
+   Project tools
+
+          + [12]Project home
+          + [13]Membership
+          + [14]Announcements
+          + [15]Mailing lists
+          + [16]Discussions
+          + [17]Documents & files
+          + [18]Version control
+          + [19]Issue tracker
+
+   Get Involved
+
+          + [20]Getting Started
+          + [21]License
+          + [22]Project Standards
+          + [23]Governance
+          + [24]FAQ
+
+   Get GE Binaries
+
+          + [25]GE 6.2 Binaries
+          + [26]GE Snapshot Binaries
+          + [27]GE previous Binaries
+
+   Resources
+
+          + [28]Download Source
+          + [29]SGE Workshops
+          + [30]Grid Engine Portal
+          + [31]Transfer-queue Over Globus
+          + [32]Job Scheduling Hierarchically
+          + [33]Sun Grid
+
+   Documentation
+
+          + [34]Docs
+          + [35]Howtos
+          + [36]Manuals
+          + [37]gridengine.info blog
+          + [38]gridengine.info wiki
+
+   Search
+          [This project]
+
+          __________ Go
+
+          [39]Advanced search
+
+   How do I...
+
+          + [40]Get release notes for CollabNet 5.2.0?
+          + [41]Get help?
+
+
+
+   Project Standards
+
+
+   Grid Engine Interoperability
+
+      The project has an objective to facilitate the deployment of compute
+      farms enabled with Grid Engine binaries obtained from multiple sources.
+      Interoperability of Grid Engine binaries is required to facilitate this
+      objective.
+
+      If you are providing your compiled Grid Engine binaries to others, it
+      is a requirement of the license to validate that your compiled binaries
+      can interoperate with a Reference Build of the software.
+      Interoperability is determined through a Compatibility Test.
+
+      If you are creating Grid Engine binaries for your own internal use,
+      there are no requirements for testing. However, interoperability
+      testing is a recommended practice if you will be incorporating binaries
+      created by others.
+
+   Open Standards for DRM
+
+      Open standards for DRM software, developed through a community process
+      with DRM users and developers, holds the promise of reduced setup and
+      maintenance tasks for end users. As the Grid Engine project develops
+      specifications with the community, these specifications will be
+      incorporated into the project standards and referenced in this file.
+
+   Grid Engine Reference Builds and Compatibility Testing
+
+      A Grid Engine Reference Build is a designated binary build of the
+      software that acts as a reference for all interoperability testing for
+      that version of the software. Two references have been chosen to
+      increase the likelyhood of having access to a suitable platform.
+      Reference Builds will be redesignated periodically to correspond with
+      significant build versions, and will be referenced in this file.
+
+      Interoperability is confirmed through successful completion of a
+      [42]Compatibility Test, wherein you test your compiled binaries against
+      a Reference Build. These tests are version-specific and correspond to
+      Reference Builds of the same version.
+
+   Grid Engine Reference Build binaries may be downloaded [43]here.
+
+   [44]Sun Microsystems Logo
+
+                                 Powered by
+                           [45]CoolThreads Server
+
+   By any use of this Website, you agree to be bound by these [46]Policies
+   and Terms of Use.
+   Copyright © 1995-2009 Sun Microsystems, Inc.
+
+References
+
+   Visible links
+   1. http://www.sunsource.net/servlets/Login?detour=
+   2. http://www.sunsource.net/servlets/Join
+   3. http://www.collab.net/
+   4. http://www.sunsource.net/servlets/TLogin
+   5. http://www.sunsource.net/servlets/Join
+   6. http://www.sunsource.net/servlets/StartPage
+   7. http://www.sun.com/software/opensource/learnmore.jsp
+   8. http://www.sunsource.net/servlets/DomainHome
+   9. http://www.sunsource.net/servlets/OpenCollabNet
+  10. http://www.sunsource.net/servlets/ProjectList?type=Projects
+  11. http://gridengine.sunsource.net/
+  12. http://gridengine.sunsource.net/servlets/ProjectHome;jsessionid=9F0C76F00DB742F415412CB087F187EF
+  13. http://gridengine.sunsource.net/servlets/ProjectMemberList;jsessionid=9F0C76F00DB742F415412CB087F187EF
+  14. http://gridengine.sunsource.net/news.html
+  15. http://gridengine.sunsource.net/maillist.html
+  16. http://gridengine.sunsource.net/ds/viewForums.do
+  17. http://gridengine.sunsource.net/servlets/ProjectDocumentList
+  18. http://gridengine.sunsource.net/source/browse/gridengine
+  19. http://gridengine.sunsource.net/servlets/ProjectIssues
+  20. http://gridengine.sunsource.net/getstart.html
+  21. http://gridengine.sunsource.net/license.html
+  22. http://gridengine.sunsource.net/standards.html
+  23. http://gridengine.sunsource.net/governance.html
+  24. http://gridengine.sunsource.net/GEDomainFAQ.html
+  25. http://gridengine.sunsource.net/downloads/latest.html
+  26. http://gridengine.sunsource.net/downloads/index_snapshot.html
+  27. http://gridengine.sunsource.net/downloads/index_old.html
+  28. http://gridengine.sunsource.net/servlets/ProjectSource
+  29. http://gridengine.sunsource.net/workshop.html
+  30. http://gridengine.sunsource.net/gep/GEP_Intro.html
+  31. http://gridengine.sunsource.net/tog.html
+  32. http://gridengine.sunsource.net/josh.html
+  33. http://sun.java.net/sungrid/
+  34. http://gridengine.sunsource.net/documentation.html
+  35. http://gridengine.sunsource.net/howto/howto.html
+  36. http://gridengine.sunsource.net/manpages.html
+  37. http://gridengine.info/
+  38. http://gridengine.info/wiki/index.php
+  39. http://gridengine.sunsource.net/servlets/Search;jsessionid=9F0C76F00DB742F415412CB087F187EF?mode=advanced
+  40. http://www.collab.net/rn/
+  41. http://gridengine.sunsource.net/nonav/servlets/HelpTOC
+  42. http://gridengine.sunsource.net/unbranded-source/browse/~checkout~/gridengine/doc/compatibility_test.html?content-type=text/html
+  43. http://gridengine.sunsource.net/project/gridengine/download.html
+  44. http://www.sun.com/
+  45. http://www.sun.com/servers/coolthreads/
+  46. http://www.sunsource.net/TUPPCP.html
+
+   Hidden links:
+  47. http://www.collab.net/special/clickpbc0502.html

@@ -1,0 +1,118 @@
+.\" Copyright (C), 2011  Dave Love
+.\" You may distribute this file under the terms of the GNU Free
+.\" Documentation License.
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH qsched 1 2011-08-25 "xxRELxx" "xxQS_NAMExx User Commands"
+.SH NAME
+qsched, process-scheduler-log \- show scheduling information on resource reservation
+.SH SYNTAX
+.B qsched
+.RB [ \-u\ \fIuser\fP | \-\-user=\fIuser\fP ]
+.RB [ \-a | \-\-all ]
+.RB [ \-j\ \fIjid_list\fP | \-\-jid=\fIjid_list\fP ]
+.RB [ \-f | \-\-full ]
+.RB [ \-s " " j | \-\-sort=j ] 
+.RB [ \-q | \-\-queues ] 
+.RB [ \-d | \-\-debug ]
+.RB [ \-h | \-\-help ]
+.br
+.B process-scheduler-log
+.RB [ \-v ]
+.SH DESCRIPTION
+.B qsched
+reports resources being reserved for jobs on the basis of the
+.I schedule
+file, which is processed by
+.BR process-scheduler-log ,
+which runs continuously.  
+Generating
+.I schedule
+requires setting
+.B MONITOR=1
+in the
+.B params
+parameter of the scheduler (see
+.M sched_conf 5 ).
+.PP
+.BR process-scheduler-log
+should simply be started in the background as it does not currently
+daemonize itself.  Alternatively, it could be run under
+.M daemonize 1 ,
+or adapted to run as a global load sensor (see
+.M sge_execd 8 ).
+It needs
+.I SGE_ROOT
+and
+.I SGE_CELL
+set in the environment when it starts.
+.PP
+.B qsched
+and
+.B process-scheduler-log
+both potentially need editing to configure for the local installation,
+particularly the definition of
+.B $trim_string
+in
+.BR qsched .
+.SH OPTIONS
+.TP
+.BR \-a\  |\  \-\-all
+View jobs belonging to all users (synonym for
+.BI \-u\ user )
+View jobs belonging to
+.IR user .
+.TP
+.BR \-d\  |\  \-\-debug
+Print debugging information.
+.TP
+.BR \-f\  |\  \-\-full
+Print all available data for each job.
+.TP
+.BR \-h\  |\  \-\-help
+Print help information.
+.TP
+.BI \-j\  jid_list\  \fR|\ \fP\-\-jid= jid_list
+.I jid_list
+is a comma-separated list of job ids to view.
+.TP
+.BR \-q\ |\ \-\-queues
+Sort output by queue.
+.TP
+.BR "\-s j"\  |\ \-\-sort=j
+Sort output by job id.
+.TP
+.BI \-u\ user\ \fR|\fP\ \-\-user= user
+View jobs belonging to
+.IR user .
+.TP
+.B \-v
+Print information on standard output.
+.BR "-u *" ).
+.PP
+The default is to sort by start time.
+.SH FILES
+.TP
+.I /var/run/sgeprocschedlog.pid
+Contains the process id of
+.IR process-scheduler-log .
+.TP
+.I ${SGE_ROOT}/${SGE_CELL}/common/act_qmaster
+Consulted to check that the qmaster is active.
+.TP
+.I ${SGE_ROOT}/${SGE_CELL}/common/schedule
+Normal schedule monitoring file.
+.TP
+.I ${SGE_ROOT}/${SGE_CELL}/common/schedule.last
+Contents of last complete scheduling interval seen in
+.I schedule
+file.
+.SH "SEE ALSO"
+.M sched_conf 5 ,
+.M daemonize 1
+.SH AUTHOR
+Mark Dixon <m.c.dixon@leeds.ac.uk>
+.br
+Man page by Dave Love <d.love@liverpool.ac.uk>

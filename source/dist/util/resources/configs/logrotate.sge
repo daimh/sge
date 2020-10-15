@@ -1,0 +1,60 @@
+# Example rules for rotating SGE log files with logrotate(1).
+# Substitute the actual values of $SGE_ROOT and $SGE_CELL for your
+# installation and save it as, say, /etc/logrotate.d/sge
+
+$SGE_ROOT/$SGE_CELL/common/accounting {
+    compress
+    missingok
+    notifempty
+    maxage 400
+    monthly
+    rotate 14
+}
+
+$SGE_ROOT/$SGE_CELL/spool/*/messages {
+    compress
+    missingok
+    notifempty
+    maxage 30
+    weekly
+    rotate 5
+}
+
+$SGE_ROOT/$SGE_CELL/spool/dbwriter/dbwriter.log {
+    compress
+    missingok
+    notifempty
+    maxage 30
+    weekly
+    rotate 5
+}
+
+# If MONITOR=1 in the scheduler params
+$SGE_ROOT/$SGE_CELL/common/schedule {
+    compress
+    missingok
+    notifempty
+    maxage 2
+    daily
+    rotate 2
+}
+
+# Don't compete with dbwriter.
+#$SGE_ROOT/$SGE_CELL/common/reporting {
+#    compress
+#    missingok
+#    notifempty
+#    maxage 90
+#    weekly
+#    rotate 12
+#}
+
+# This might build up with use of qconf -tsm
+$SGE_ROOT/$SGE_CELL/common/schedd_runlog {
+    compress
+    missingok
+    notifempty
+    maxage 2
+    daily
+    rotate 2
+}

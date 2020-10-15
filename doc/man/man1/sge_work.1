@@ -1,0 +1,77 @@
+'\"
+.\" Copyright (C), 2012  Dave Love, University of Liverpool
+.\" You may distribute this file under the terms of the GNU Free
+.\" Documentation License.
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.de MO		\" external man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH SGE_WORK 1 2012-09-18 "xxRELxx" "xxQS_NAMExx User Commands"
+.SH NAME
+work \- do some work for testing purposes
+.PP
+.\"
+.SH SYNTAX
+.B $SGE_ROOT/utilbin/$ARCH/work
+.RB [ \-f
+.IR n ]
+.RB [ \-w
+.IR n ]
+.RB [ \-in
+.IR fname ]
+.RB [ \-out
+.IR fname ]
+.RB [ \-stackK
+.IR n ]
+.RB [ \-stackM
+.IR n ]
+.RB [ \-mallocK
+.IR n ]
+.RB [ \-mallocM
+.IR n ]
+.RB [ \-block_sigxcpu ]
+.RB [ \-block_sigxfsz ]
+.RB [ \-change_pgrp ]
+.RB [ \-daemonize ]
+.B \-daemonize
+]
+.SH DESCRIPTION
+This is a utility program intended to be run under xxQS_NAMExx for
+testing purposes.  It can, for instance, run for a certain amount of
+time, allocate a certain amount of memory, fork, and daemonize.
+.SH OPTIONS
+.IP "\fB\-f\fP \fIn\fP"
+Do work \fIn\fP times using \fIn\fP processes, default 1 process
+.IP "\fB\-w\fP \fIn\fP"
+Work \fIn\fP seconds, default 100 seconds
+.IP "\fB\-in\fP \fIfname\fP"
+Read from file \fIfname\fP
+.IP "\fB\-out\fP \fIfname\fP"
+Write to file \fIfname\fP
+.IP "\fB\-stackK\fP \fIn\fP"
+Force stack size with at least \fIn\fP KB
+.IP "\fB\-stackM\fP \fIn\fP"
+Force stack size with at least \fIn\fP MB
+.IP "\fB\-mallocK\fP \fIn\fP"
+Force
+.MO malloc 3
+with \fIn\fP KB
+.IP "\fB\-mallocM\fP \fIn\fP"
+Force
+.MO malloc 3
+with \fIn\fP MB
+.IP \fB\-block_sigxcpu\fP
+Ignore signal SIGXCPU
+.IP \fB\-block_sigxfsz\fP
+Ignore signal SIGXFSZ
+.IP \fB\-change_pgrp\fP
+Change process group
+.IP \fB\-daemonize\fP
+Daemonize
+.PP
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1
+.\"

@@ -1,0 +1,254 @@
+JOB CLASS (JC)
+==============
+
+- JCs simplyfy the way to describe/setup job runtime environments
+- Several attributes so far used to describe queues (Q) are part of JCs
+- Each JC may relate to one or more Qs
+- Each Q may be assigned to one or more JCs
+- Each job (J) has exact one JC which may be defined during job submittion
+- Js will have a "default JC" if no one was specified
+- Each "default Q" will be assigned to the "default JC"
+
+
+                         j          -----          1
+                        : +-------> | J | <-------+ :
+                       i  |         -----         |  1
+                          |                       |
+                          |                       | 
+                          |                       |
+                          v                       v
+                        -----        n:m        ------
+                        | Q | <---------------> | JC |
+                        -----                   ------
+
+
+- Client application (qsub, qrsh, ...) can overwrite corresponding
+  attributes as defined in JCs.
+- The JC object allows the admin to specify which of the attributes can be 
+  overwritten by the command-line and which can't
+- Attributes of Qs and the relations between Qs and other objects
+  like parallel environments (PE) and checkpointing objects (CKPT)
+  define the maximum amount of resources a Q can offer.
+- Attributes of JCs the relation between JC and J defines
+  the minimum requirements a job has, to be executed successfully.
+
+Client Interface 
+================
+
+Visible Attributes
+------------------
+
+- Fields below are new JC attributes:
+
+   jcname               <usual naming convention for objects>
+   user_list            access list
+   xuser_list           access list
+   command_line         'none' or a commandline similar to
+                        qsub/qalter-commandlines which will be 
+                        used to modify submitted jobs:
+
+                        The first letter of each used option indicates
+                        whether an attribute of the JC specification
+                        may be overwritten or not. 
+
+                        -   ===> option might be overwritten by the user
+                        !   ===> option can't be overwritten. If a user
+                                 tries this he will get an error
+                        +   ===> The submitter of a jobs has to use this
+                                 option to overwrite the specification
+
+                        e.g "!pe nodeXY 4 -ckpt ckpt1 +l a=solaris64
+                             !-l lic=1 -q small_ckpt.q"
+
+                        Options not used in the JC commandline might
+                        be used by the user (similar to -).
+
+                     Multiple use of '?l' provides the possibilty
+                     to force certain resource requests whereas others
+                        have to or might be provided by the user.
+                        
+- Following Attributes will be moved from the Q object definition into the JC.
+  Corresponding values are default values for new JCs and default values for
+  the "default JC":
+
+   rerun                FALSE
+   shell                /bin/csh
+   shell_start_mode     NONE
+   prolog               NONE
+   epilog               NONE 
+   starter_method       NONE
+   suspend_method       NONE
+   resume_method        NONE
+   terminate_method     NONE
+   notify               00:00:60
+   fshare               0
+   oticket              0
+
+qconf
+-----
+
+-aattr job_class <attr_name> <val> <jc_name>,... 
+-Aattr job_class <attr_name> <val> <jc_name>,... 
+-dattr job_class <attr_name> <val> <jc_name>,...
+-Dattr job_class <attr_name> <val> <jc_name>,...
+-mattr job_class <attr_name> <val> <jc_name>,...
+-Mattr job_class <attr_name> <val> <jc_name>,...
+-rattr job_class <attr_name> <val> <jc_name>,...
+-Rattr job_class <attr_name> <val> <jc_name>,...
+-ajc <jc_name>
+-Ajc <jc_name>
+-djc <jc_name>
+-Djc <jc_name>
+-mjc <jc_name>
+-Mjc <jc_name>
+-sjc <jc_name>
+-sjcl
+
+qsub, qalter, qsh, qrsh, qacct, qlogin
+--------------------------------------
+
+-jc <jc_name>        specify JC during submittion/modification/queries
+
+qmod 
+----
+
+-r <jc_name>         reschedule all jobs of a certain JC
+
+qmon
+----
+
+- new entry for job classes in the main window
+
+- new "Job Class Control" dialog
+   * similar to "Queue Control" dialog
+   * List of available JCs
+   * Add/Modify/Delete 
+   * Refresh/Done/Help Button
+   * Button to "Ticket Overview Dialog"
+   * Reschedule Button
+    
+- new "Job Class Configuration" to add and modify JCs
+   * similar to "Queue Configuration" dialog
+     (name, queue_list, Tab control)
+   * General Configuration Tab
+     (Slots, Shell, Start mode, Notify Time, Rerun Flag)
+   * Execution Method Tab
+     (Prolog, Epilog, *Method)
+   * Limits Tab
+      
+- modification of the "Queue Configuration" dialog
+   * removal of moved attributes 
+-------------------------------------------------------------------------------
+QSUB/QALTER/...
+===============
+
+Command line clients and qmon accepting the '-pe' option should either
+accept
+
+   -pe <pe_name> <slot_specification> 
+
+or 
+
+   -pe <pe_name> -pe_slots <slot_specification>
+
+format. This whould give an administartor the possibility to
+force a certain pe whereas the slot specification might be overwritten by
+the user ("!pe pe_name +pe_slots 4)
+-------------------------------------------------------------------------------
+Questions (and answers)
+=======================
+
+1) Which possibility do we have to be able to specify wether or not individual
+   resources can be overwritten rather then an entire resource specification?
+
+Multiple '-l' parameters might be used to express that. 
+
+e.g. "!l a=solaris -l x=1 +l y=1"
+
+---
+
+2) Is there a way to replace the qtask file using JCs?
+
+- Jobs without JC specification implicitely request a JC which has the
+  same name like the job script.
+- If this JC does not exist than the "default JC" will be used.
+- Client applications like qtcsh (possibly in future also qsub and qrsh)
+  request the list of configured JC names.
+
+e.g.
+
+a)
+   qtcsh> netscape
+
+   might either be executed locally if no netscape-JC exists
+   or
+   it might result in a call to "qrsh -jc netscape netscape".
+
+b)
+   qsub/qrsh netscape
+
+   implicitely requests the netscape-JC but if this JC does not exist than
+   the "default JC" will be used.
+   (something like "qsub -soft -jc netscape netscape")
+
+c)
+   qsub -jc ns netscape
+
+   ns-JC has to exist otherwise the user will get an error message.
+
+---
+
+3) Which syntax might be used to define
+      - a minimum/maximum 
+      - default 
+   value for numeric expressions (3600 <= j_cpu <= 9600; default = 3600) ?
+
+???
+
+---
+
+4) There is some overlapping between
+      - sge_request
+      - JC command line
+      - complex default
+   with regards to default resource requests of jobs.
+
+   Do we know in which cases we will recommend complex based defaults and 
+   in which case we will recommend JC default requests? Are both needed?
+   How do they interoperate in case both are used? Is it possible to get rid 
+   of complex defaults?
+
+???
+
+---
+
+5) Hierarchical view / Inheritance of JC attributes?
+
+???
+
+---
+
+6) Should it be possible to support a job script in the command_line of
+   a JC definition?
+
+???
+
+---
+
+7) What will happen if a JC changes after submittion of a job?
+
+???
+
+---
+
+8) Do we need the system wide sge_request files ith JC's
+
+???
+
+---
+
+9) Should JC replace the job classes scheme (queue based) used in SGEEE?
+   Which customer scenarions could not be expressed by a replacement? 
+
+??? 
+

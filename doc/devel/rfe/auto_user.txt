@@ -1,0 +1,49 @@
+
+This document describes the automatic user concept introduced in
+Grid Engine 6.0.
+
+The Grid Engine Enterprise Edition scheduling
+policies allow specifying priorities based on users. Previous
+versions of Grid Engine Enterprise Edition required the manual
+creation of user objects in order to have a place to specify the
+relative importance of users and to store computer usage (CPU,
+memory, and I/O) for users. Grid Engine 6.0 supports the
+capability to automatically create user objects based on
+predefined default values. This can significantly reduce the
+administrative burden for sites with a large number of users.
+User objects will be created automatically if the enforce_user
+cluster configuration parameter is set to "auto".  The
+auto_user_oticket, auto_user_fshare, and auto_user_default_project
+cluster configuration parameters will be used to set the respective
+user object attributes.  The cluster configuration parameter
+auto_user_delete_time will control when automatically created
+user objects will automatically be deleted.  If the
+auto_user_delete_time is set to zero, the user objects are
+permanent. Otherwise, user objects will be deleted after the
+user has had no active jobs for the specified time in
+auto_user_delete_time.  The deletion time for each automatic
+user is maintained in the the user object and can be examined
+using qconf(1) or qmon(1). The deletion time will be zero for
+permanent users.  If an automatically created user has active
+or pending jobs, the deletion time will be one.  If the
+automatically created user does not have active jobs, the deletion
+time will be set to the time (in number of seconds since January 1,
+1970) when the user will be deleted.
+
+In conjunction with this change, Grid Engine 6.0 also supports
+non-project based default user nodes in the share tree. When the
+share tree policy is being used, a job's priority is determined
+based on the node the job maps to in the share tree. Users
+which are not explicitly named in the share tree will map to the
+default node, if it exists.  Previously, default nodes could only
+be specified in a project branch. Allowing the specification of
+non-project default nodes allows a simple share tree to be created
+with a single default node to allow user-based fair sharing. This
+provides a capability which is similar to the user_sort capability
+in Grid Engine versions prior to 6.0. The qmon(1) utility has also
+been updated to display "virtual" nodes for all users which
+map to the default node.  This allows users or administrators
+to examine the usage and fair share scheduling parameters
+for users which map to the default node.
+
+

@@ -1,0 +1,563 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Cluster Main Layout 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_cluster.xmtChildren: unmanaged XmtLayout cluster_layout;
+
+Qmon*cluster_layout.dialogTitle:  @{QMON  +++  Cluster Configuration}
+Qmon*cluster_layout.autoUnmanage: False
+!! Qmon*cluster_layout.fontList:   $dialog_font
+
+Qmon*cluster_layout.xmtChildren: \
+   XmPushButton   cluster_main_link; \
+   StringList     cluster_host_list; \
+   StringList     cluster_conf_list; \
+   XmPushButton   cluster_change, cluster_change_global, cluster_done,\
+                  cluster_delete, cluster_help;
+
+Qmon*cluster_layout.layout: \
+   Fixed Shadowed Out 4 2 LREvenSpaced Row clustercontrol_title { \
+      Fixed Centered cluster_main_link \
+      Centered Color "$title_fg" "@{@fBCluster Configuration}" \
+   } \
+   # \
+   Row { \
+      Caption tl "@{Host}" 20 em cluster_host_list \
+      Caption tl "@{Configuration}" 50 em cluster_conf_list \
+      Fixed Shadowed Col { \
+         Fixed cluster_change \
+         Fixed cluster_change_global \
+         Fixed cluster_delete \
+         Fixed cluster_done \
+         Fixed cluster_help \
+      } \
+   }
+
+Qmon*cluster_layout*layoutAllowResize:        False
+
+Qmon*cluster_layout*cluster_main_link.labelType:          PIXMAP
+Qmon*cluster_layout*cluster_main_link.labelPixmap:        logo
+Qmon*cluster_layout*cluster_main_link.shadowThickness:    1
+Qmon*cluster_layout*cluster_main_link.highlightThickness: 0
+Qmon*cluster_layout*cluster_main_link.marginHeight:       0
+Qmon*cluster_layout*cluster_main_link.marginWidth:        0
+
+Qmon*cluster_layout*cluster_done.labelString:          @{Done}
+Qmon*cluster_layout*cluster_change.labelString:        @{Add}
+Qmon*cluster_layout*cluster_change_global.labelString: @{Modify}
+Qmon*cluster_layout*cluster_delete.labelString:        @{Delete}
+Qmon*cluster_layout*cluster_help.labelString:          @{Help}
+
+Qmon*cluster_layout*scrollBarDisplayPolicy:     STATIC
+Qmon*cluster_layout*listSizePolicy:             CONSTANT
+
+Qmon*cluster_layout*cluster_host_list.fontList:           $fixed_font
+Qmon*cluster_layout*cluster_host_list.selectionPolicy:    BROWSE_SELECT
+Qmon*cluster_layout*cluster_host_list.visibleItemCount:   15
+
+Qmon*cluster_layout*cluster_conf_list.fontList:            $fixed_font
+Qmon*cluster_layout*cluster_conf_list.selectionPolicy:     BROWSE_SELECT
+Qmon*cluster_layout*cluster_conf_list.visibleItemCount:    15
+
+Qmon*cluster_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! global config
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*global_dialog.autoUnmanage:    False
+!! Qmon*cluster_folder.defaultSpacing:  2
+Qmon*global_dialog.global_layout.dialogTitle:     @{Change global configuration}
+!Qmon*global_dialog.global_layout.dialogStyle:     DIALOG_APPLICATION_MODAL
+
+Qmon*global_dialog.xmtChildren:  unmanaged XmtLayout global_layout;
+
+Qmon*global_dialog.global_layout.autoUnmanage:  False
+Qmon*global_dialog.global_layout.resizePolicy:  RESIZE_NONE
+Qmon*global_dialog.global_layout.dialogTitle:  @{Cluster Settings}
+
+Qmon*global_dialog.global_layout.xmtChildren: \
+   InputField     cluster_host; \
+   XmForm         cluster_form; \
+   XmPushButton   cluster_ok, cluster_cancel;
+
+
+Qmon*global_dialog.global_layout.layout: \
+   Row { \
+      Col { \
+         Fixed Caption tc "@{@fBConfiguration for Host}" 40 em cluster_host \
+         cluster_form \
+      } \
+      Fixed Shadowed Col { \
+         Fixed cluster_ok \
+         Fixed cluster_cancel \
+      } \
+   }
+
+Qmon*global_dialog.global_layout.cluster_ok.labelString:      @{Ok}
+Qmon*global_dialog.global_layout.cluster_cancel.labelString:  @{Cancel}
+
+Qmon*cluster_form.xmtChildren: \
+   Folder         cluster_folder;
+
+Qmon*cluster_form.cluster_folder.xmtChildren: \
+   XmtLayout      cluster_global_layout, \
+                  cluster_extra_layout;
+
+!!!!!!!!!!!!!!
+!!Qmon*cluster_global_shell.xmtChildren: unmanaged XmtLayout cluster_global_layout;
+!!!!!!!!!!!!
+
+Qmon*cluster_global_layout.tabLabel: @{@fBGeneral Settings}
+Qmon*cluster_global_layout.fontList:        $dialog_font
+Qmon*cluster_global_layout.XmtInputField.marginHeight:  2
+Qmon*cluster_global_layout.XmtInputField.marginWidth:   2
+Qmon*cluster_global_layout.XmText.marginHeight:         2
+Qmon*cluster_global_layout.XmText.marginWidth:          2
+
+Qmon*cluster_global_layout.xmtChildren: \
+   InputField     cluster_execd_spool_dir = execd_spool_dir, \
+                  cluster_mailer = mailer, \
+                  cluster_admin_mail = administrator_mail, \
+                  cluster_xterm = xterm, \
+                  cluster_load_sensor = load_sensor, \
+                  cluster_login_shells = login_shells , \
+                  cluster_min_uid = min_uid, \
+                  cluster_min_gid = min_gid, \
+                  cluster_zombie_jobs = zombie_jobs, \
+                  cluster_load_report_time = load_report_time, \
+                  cluster_max_unheard = max_unheard, \
+                  cluster_reschedule_unknown = reschedule_unknown, \
+                  cluster_gid_range = gid_range, \
+                  cluster_prolog = prolog, \
+                  cluster_epilog = epilog, \
+                  cluster_auto_user_default_project = auto_user_default_project, \
+                  cluster_auto_user_delete_time = auto_user_delete_time; \
+   Spinbox        cluster_max_aj_instances = max_aj_instances, \
+                  cluster_max_aj_tasks = max_aj_tasks, \
+                  cluster_max_u_jobs = max_u_jobs, \
+                  cluster_max_jobs = max_jobs, \
+                  cluster_max_advance_reservations = max_advance_reservations, \
+                  cluster_auto_user_oticket = auto_user_oticket, \
+                  cluster_auto_user_fshare = auto_user_fshare; \
+   XmtChooser     cluster_shell_start_mode = shell_start_mode, \
+                  cluster_loglevel = loglevel , \
+                  cluster_dfs = dfs , \
+                  cluster_reprioritize = reprioritize , \
+                  cluster_enforce_project = enforce_project, \
+                  cluster_enforce_user = enforce_user; \
+   StringList     cluster_users = cluster_users, \
+                  cluster_xusers = cluster_xusers, \
+                  cluster_projects = cluster_projects, \
+                  cluster_xprojects = cluster_xprojects; \
+   XmPushButton   cluster_usersPB, cluster_xusersPB, \
+                  cluster_projectsPB, cluster_xprojectsPB, \
+                  cluster_load_report_timePB, \
+                  cluster_reschedule_unknownPB, \
+                  cluster_max_unheardPB, \
+                  cluster_auto_user_delete_timePB; \
+   XmLabel        cluster_execd_spool_dir_label, \
+                  cluster_admin_mail_label, \
+                  cluster_login_shells_label, \
+                  cluster_max_aj_instances_label, \
+                  cluster_max_aj_tasks_label, \
+                  cluster_max_job_per_user_label, \
+                  cluster_auto_user_defaults_label;
+
+
+
+Qmon*cluster_global_layout.layout: \
+   Even Row { \
+      Col { \
+         Row { cluster_execd_spool_dir_label <> Fixed 25 em cluster_execd_spool_dir }\
+         Row { "@{Mailer}          " <> Fixed 25 em cluster_mailer }\
+         Row { "@{Xterm}           " <> Fixed 25 em cluster_xterm }\
+         Row { "@{Load Sensor}     " <> Fixed 25 em cluster_load_sensor }\
+         Row { cluster_admin_mail_label <> Fixed 25 em cluster_admin_mail }\
+         Row { "@{Prolog}          " <> Fixed 25 em cluster_prolog }\
+         Row { "@{Epilog}          " <> Fixed 25 em cluster_epilog }\
+         Row { cluster_login_shells_label  <> Fixed 25 em cluster_login_shells }\
+         ### \
+         Equal Row { \
+             cluster_max_aj_instances_label <> cluster_max_aj_instances \
+         } \
+         ## \
+         Equal Row { \
+             cluster_max_aj_tasks_label <> cluster_max_aj_tasks \
+         } \
+         ## \
+         Equal Row { \
+             cluster_max_job_per_user_label <> cluster_max_u_jobs \
+         } \
+         ## \
+         Equal Row { \
+            Caption "@{Maximum Jobs\nIn Cluster}" <> cluster_max_jobs \
+         } \
+         ## \
+         Equal Row { \
+            Caption "@{Maximum Advance Reservations}" <> cluster_max_advance_reservations \
+         } \
+         ### \
+         Equal Row { \
+            Caption tl "@{Shell Start Mode}" cluster_shell_start_mode \
+            Caption tl "@{Log Level}" cluster_loglevel \
+         } \
+         Fixed Caption tl "@{GID Range for Job Monitoring}" cluster_gid_range \
+         Fixed Caption tl "@{Delegated File Staging}" cluster_dfs \
+         Fixed Caption tl "@{Reprioritize}" cluster_reprioritize \
+         <> \
+      } \
+      ## \
+      Col { \
+         Fixed Equal Row { \
+            Caption tl "@{Min UID}" 5 em cluster_min_uid \
+            Caption tl "@{Min GID}" 5 em cluster_min_gid \
+            Caption tl "@{Finished Jobs}" 5 em cluster_zombie_jobs \
+         } \
+         Fixed Equal Row { \
+            Row { \
+               Caption tl "@{Loadreport Time}" 20 em cluster_load_report_time \
+               Fixed FlushBottom cluster_load_report_timePB \
+            } \
+            <> \
+            Row { \
+               Caption tl "@{Max Unheard}" 20 em cluster_max_unheard \
+               Fixed FlushBottom cluster_max_unheardPB \
+            } \
+         } \
+         Fixed Equal Row { \
+            Row { \
+               Caption tl "@{Reschedule Unknown}" 20 em cluster_reschedule_unknown \
+               Fixed FlushBottom cluster_reschedule_unknownPB \
+            } \
+            <> \
+         } \
+         Equal Col { \
+            Row { \
+               Stretchable Caption tl "@{User Lists}" 1.5 in cluster_users \
+               Fixed Centered cluster_usersPB \
+            } \
+            Row { \
+               Stretchable Caption tl "@{Xuser Lists}" 1.5 in cluster_xusers \
+               Fixed Centered cluster_xusersPB \
+            } \
+         } \
+         Equal Col cluster_projects_col { \
+            Row cluster_projects_row { \
+               Stretchable Caption tl "@{Projects}" 1.5 in cluster_projects \
+               Fixed Centered cluster_projectsPB \
+            } \
+            Row cluster_xprojects_row { \
+               Stretchable Caption tl "@{XProjects}" 1.5 in cluster_xprojects \
+               Fixed Centered cluster_xprojectsPB \
+            } \
+         } \
+         Fixed Equal Row { \
+            Fixed Caption tl "@{Enforce Project}"  cluster_enforce_project \
+            <> \
+            Fixed Caption tl "@{Enforce User}"  cluster_enforce_user \
+         } \
+         Fixed Equal Row { Centered cluster_auto_user_defaults_label } \
+         Fixed Equal Row { \
+            Caption tl "@{Override Tickets}" 8 em cluster_auto_user_oticket \
+            <> \
+            Caption tl "@{Functional Shares}" 8 em cluster_auto_user_fshare \
+         } \
+         Fixed Equal Row { \
+            Caption tl "@{Default Project}" 8 em cluster_auto_user_default_project \
+            <> \
+            Row { \
+               Caption tl "@{Delete Time}" 8 em cluster_auto_user_delete_time \
+               Fixed FlushBottom cluster_auto_user_delete_timePB \
+            } \
+         } \
+         <> \
+      } \
+   }
+
+
+Qmon*cluster_global_layout*cluster_auto_user_defaults_label.labelString: @{@fBAutomatic User Defaults}
+Qmon*cluster_global_layout*cluster_execd_spool_dir_label.labelString: @{Execd Spool Dir}
+Qmon*cluster_global_layout*cluster_admin_mail_label.labelString: @{Admin Mail}
+Qmon*cluster_global_layout*cluster_login_shells_label.labelString: @{Login Shells}
+Qmon*cluster_global_layout*cluster_max_aj_instances_label.labelString: @{cluster.max_aj_instances.Maximum Array\nJob Instances}
+Qmon*cluster_global_layout*cluster_max_aj_tasks_label.labelString: @{cluster.max_aj_tasks.Maximum Array\nJob Tasks}
+Qmon*cluster_global_layout*cluster_max_job_per_user_label.labelString: @{cluster.max_job_per_user.Maximum Jobs\nPer User}
+
+Qmon*cluster_global_layout.cluster_min_uid*columns: 5
+Qmon*cluster_global_layout.cluster_min_gid*columns: 5
+
+Qmon*cluster_global_layout.cluster_shell_start_mode.chooserType: ChooserOption
+Qmon*cluster_global_layout.cluster_shell_start_mode.strings: \
+   "@{posix_compliant}", "@{script_from_stdin}", "@{unix_behavior}"
+
+
+Qmon*cluster_global_layout.cluster_loglevel.chooserType: ChooserOption
+Qmon*cluster_global_layout.cluster_loglevel.strings: \
+  "@{log_info}", \
+  "@{log_warning}", \
+  "@{log_err}"
+
+Qmon*cluster_global_layout.cluster_logmail.chooserType: ChooserOption
+Qmon*cluster_global_layout.cluster_logmail.strings: \
+   "@{True}", "@{False}"
+
+Qmon*cluster_global_layout.cluster_dfs.chooserType: ChooserOption
+Qmon*cluster_global_layout.cluster_dfs.strings: \
+   "@{True}", "@{False}"
+
+Qmon*cluster_global_layout.cluster_reprioritize.chooserType: ChooserOption
+Qmon*cluster_global_layout.cluster_reprioritize.strings: \
+   "@{True}", "@{False}"
+
+
+Qmon*cluster_global_layout.cluster_enforce_project.chooserType: ChooserOption
+Qmon*cluster_global_layout.cluster_enforce_project.strings: \
+   "@{True}", "@{False}"
+
+Qmon*cluster_global_layout.cluster_enforce_user.chooserType: ChooserOption
+Qmon*cluster_global_layout.cluster_enforce_user.strings: \
+   "@{True}", "@{False}", "@{Auto}"
+
+Qmon*cluster_global_layout.cluster_usersPB.labelType:               PIXMAP
+Qmon*cluster_global_layout.cluster_usersPB.labelPixmap:             aclask
+Qmon*cluster_global_layout.cluster_usersPB.labelInsensitivePixmap:  aclask
+Qmon*cluster_global_layout.cluster_xusersPB.labelType:              PIXMAP
+Qmon*cluster_global_layout.cluster_xusersPB.labelPixmap:            aclask
+Qmon*cluster_global_layout.cluster_xusersPB.labelInsensitivePixmap: aclask
+
+Qmon*cluster_global_layout.cluster_projectsPB.labelType:               PIXMAP
+Qmon*cluster_global_layout.cluster_projectsPB.labelPixmap:             aclask
+Qmon*cluster_global_layout.cluster_projectsPB.labelInsensitivePixmap:  aclask
+Qmon*cluster_global_layout.cluster_xprojectsPB.labelType:              PIXMAP
+Qmon*cluster_global_layout.cluster_xprojectsPB.labelPixmap:            aclask
+Qmon*cluster_global_layout.cluster_xprojectsPB.labelInsensitivePixmap: aclask
+
+Qmon*cluster_global_layout*scrollBarDisplayPolicy:     AS_NEEDED
+Qmon*cluster_global_layout*listSizePolicy:             CONSTANT
+
+Qmon*cluster_global_layout*cluster_users.selectionPolicy:   BROWSE_SELECT
+Qmon*cluster_global_layout*cluster_users.visibleItemCount:  3
+Qmon*cluster_global_layout*cluster_xusers.selectionPolicy:  BROWSE_SELECT
+Qmon*cluster_global_layout*cluster_xusers.visibleItemCount: 3
+
+Qmon*cluster_global_layout*cluster_projects.selectionPolicy:   BROWSE_SELECT
+Qmon*cluster_global_layout*cluster_projects.visibleItemCount:  3
+Qmon*cluster_global_layout*cluster_xprojects.selectionPolicy:  BROWSE_SELECT
+Qmon*cluster_global_layout*cluster_xprojects.visibleItemCount: 3
+
+Qmon*cluster_global_layout.cluster_load_report_timePB.labelType:      PIXMAP
+Qmon*cluster_global_layout.cluster_load_report_timePB.labelPixmap:    time
+Qmon*cluster_global_layout.cluster_max_unheardPB.labelType:           PIXMAP
+Qmon*cluster_global_layout.cluster_max_unheardPB.labelPixmap:         time
+Qmon*cluster_global_layout.cluster_max_unheardPB.labelInsensitivePixmap:   time
+Qmon*cluster_global_layout.cluster_reschedule_unknownPB.labelType:    PIXMAP
+Qmon*cluster_global_layout.cluster_reschedule_unknownPB.labelPixmap:  time
+Qmon*cluster_global_layout.cluster_reschedule_unknownPB.labelInsensitivePixmap: time
+Qmon*cluster_global_layout.cluster_auto_user_delete_timePB.labelType:         PIXMAP
+Qmon*cluster_global_layout.cluster_auto_user_delete_timePB.labelPixmap:       time
+Qmon*cluster_global_layout.cluster_auto_user_delete_timePB.labelInsensitivePixmap: time
+
+Qmon*cluster_global_layout.cluster_max_aj_instances.minimum: 0
+Qmon*cluster_global_layout.cluster_max_aj_instances.spinboxStyle: SPINBOX_STACKED_RIGHT
+Qmon*cluster_global_layout.cluster_max_aj_instances.buttonSizeFixed: True
+Qmon*cluster_global_layout.cluster_max_aj_instances.columns: 5
+Qmon*cluster_global_layout.cluster_max_aj_instances.spinboxUseClosestValue: True
+Qmon*cluster_global_layout.cluster_max_aj_instances.value: 0
+Qmon*cluster_global_layout.cluster_max_aj_instances.incrementLarge: 10
+
+Qmon*cluster_global_layout.cluster_max_aj_tasks.minimum: 0
+Qmon*cluster_global_layout.cluster_max_aj_tasks.spinboxStyle: SPINBOX_STACKED_RIGHT
+Qmon*cluster_global_layout.cluster_max_aj_tasks.buttonSizeFixed: True
+Qmon*cluster_global_layout.cluster_max_aj_tasks.columns: 5
+Qmon*cluster_global_layout.cluster_max_aj_tasks.spinboxUseClosestValue: True
+Qmon*cluster_global_layout.cluster_max_aj_tasks.value: 0
+Qmon*cluster_global_layout.cluster_max_aj_tasks.incrementLarge: 10
+
+Qmon*cluster_global_layout.cluster_max_u_jobs.minimum: 0
+Qmon*cluster_global_layout.cluster_max_u_jobs.spinboxStyle: SPINBOX_STACKED_RIGHT
+Qmon*cluster_global_layout.cluster_max_u_jobs.buttonSizeFixed: True
+Qmon*cluster_global_layout.cluster_max_u_jobs.columns: 5
+Qmon*cluster_global_layout.cluster_max_u_jobs.spinboxUseClosestValue: True
+Qmon*cluster_global_layout.cluster_max_u_jobs.value: 0
+Qmon*cluster_global_layout.cluster_max_u_jobs.incrementLarge: 10
+Qmon*cluster_global_layout.cluster_max_jobs.minimum: 0
+Qmon*cluster_global_layout.cluster_max_jobs.spinboxStyle: SPINBOX_STACKED_RIGHT
+Qmon*cluster_global_layout.cluster_max_jobs.buttonSizeFixed: True
+Qmon*cluster_global_layout.cluster_max_jobs.columns: 5
+Qmon*cluster_global_layout.cluster_max_jobs.spinboxUseClosestValue: True
+Qmon*cluster_global_layout.cluster_max_jobs.value: 0
+
+Qmon*cluster_global_layout.cluster_max_advance_reservations.minimum: 0
+Qmon*cluster_global_layout.cluster_max_advance_reservations.spinboxStyle: SPINBOX_STACKED_RIGHT
+Qmon*cluster_global_layout.cluster_max_advance_reservations.buttonSizeFixed: True
+Qmon*cluster_global_layout.cluster_max_advance_reservations.columns: 5
+Qmon*cluster_global_layout.cluster_max_advance_reservations.spinboxUseClosestValue: True
+Qmon*cluster_global_layout.cluster_max_advance_reservations.value: 0
+
+Qmon*cluster_global_layout.cluster_auto_user_oticket.minimum: 0
+Qmon*cluster_global_layout.cluster_auto_user_oticket.spinboxStyle: SPINBOX_STACKED_RIGHT
+Qmon*cluster_global_layout.cluster_auto_user_oticket.buttonSizeFixed: True
+Qmon*cluster_global_layout.cluster_auto_user_oticket.columns: 5
+Qmon*cluster_global_layout.cluster_auto_user_oticket.spinboxUseClosestValue: True
+Qmon*cluster_global_layout.cluster_auto_user_oticket.value: 0
+Qmon*cluster_global_layout.cluster_auto_user_oticket.incrementLarge: 10
+
+Qmon*cluster_global_layout.cluster_auto_user_fshare.minimum: 0
+Qmon*cluster_global_layout.cluster_auto_user_fshare.spinboxStyle: SPINBOX_STACKED_RIGHT
+Qmon*cluster_global_layout.cluster_auto_user_fshare.buttonSizeFixed: True
+Qmon*cluster_global_layout.cluster_auto_user_fshare.columns: 5
+Qmon*cluster_global_layout.cluster_auto_user_fshare.spinboxUseClosestValue: True
+Qmon*cluster_global_layout.cluster_auto_user_fshare.value: 0
+Qmon*cluster_global_layout.cluster_auto_user_fshare.incrementLarge: 10
+!! 
+!! TrimAndTrail callback, remove leading and trailing whitespace after input
+!!
+Qmon*cluster_global_layout.cluster_execd_spool_dir.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_global_layout.cluster_mailer.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_global_layout.cluster_admin_mail.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_global_layout.cluster_xterm.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_global_layout.cluster_load_sensor.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_global_layout.cluster_login_shells.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_global_layout.cluster_min_uid.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_global_layout.cluster_min_gid.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_global_layout.cluster_load_report_time.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_global_layout.cluster_max_unheard.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_global_layout.cluster_prolog.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_global_layout.cluster_epilog.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_global_layout.cluster_gid_range.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_global_layout.cluster_auto_user_oticket.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_global_layout.cluster_auto_user_fshare.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_global_layout.cluster_auto_user_default_project.verifyCallback: TrimAndTrail(self);
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! extra config
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*cluster_extra_layout.tabLabel: @{@fBAdvanced Settings}
+Qmon*cluster_extra_layout.fontList:        $dialog_font
+Qmon*cluster_extra_layout.XmtInputField.marginHeight:  2
+Qmon*cluster_extra_layout.XmtInputField.marginWidth:   2
+Qmon*cluster_extra_layout.XmText.marginHeight:         2
+Qmon*cluster_extra_layout.XmText.marginWidth:          2
+
+Qmon*cluster_extra_layout.xmtChildren: \
+   InputField     cluster_qmaster_params = qmaster_params, \
+                  cluster_reporting_params = reporting_params, \
+                  cluster_execd_params = execd_params, \
+                  cluster_shepherd_cmd = shepherd_cmd, \
+                  cluster_set_token_cmd = set_token_cmd, \
+                  cluster_pag_cmd = pag_cmd, \
+                  cluster_token_extend_time = token_extend_time, \
+                  cluster_qlogin_daemon = qlogin_daemon, \
+                  cluster_qlogin_command = qlogin_command, \
+                  cluster_jmx_libjvm_path = jmx_libjvm_path, \
+                  cluster_jmx_additional_jvm_args = jmx_additional_jvm_args, \
+                  cluster_jsv_url = jsv_url, \
+                  cluster_jsv_allowed_mod = jsv_allowed_mod, \
+                  cluster_rsh_daemon = rsh_daemon, \
+                  cluster_rsh_command = rsh_command, \
+                  cluster_rlogin_daemon = rlogin_daemon, \
+                  cluster_rlogin_command = rlogin_command; \
+   XmLabel        cluster_qmaster_params_label, \
+                  cluster_reporting_params_label, \
+                  cluster_set_token_cmd_label, \
+                  cluster_pag_cmd_label, \
+                  cluster_token_extend_time_label;
+
+!!
+!!                  cluster_starter_method = starter_method, \
+!!                  cluster_suspend_method = suspend_method, \
+!!                  cluster_resume_method = resume_method, \
+!!                  cluster_terminate_method = terminate_method, \
+!!      Caption tl "@{@fBMethod Parameters}" Col { \
+!!         Row { "@{Starter Method}" <> Fixed 60 em cluster_starter_method }\
+!!         Row { "@{Suspend Method}" <> Fixed 60 em cluster_suspend_method }\
+!!         Row { "@{Resume Method}" <> Fixed 60 em cluster_resume_method }\
+!!         Row { "@{Terminate Method}" <> Fixed 60 em cluster_terminate_method }\
+!!      } \
+!!      ## \
+!!
+
+Qmon*cluster_extra_layout.layout: \
+   Col { \
+      Etched Through Caption tl "@{@fBAdditional Parameters}" Col { \
+         # \
+         Row { cluster_qmaster_params_label <> Fixed 50 em cluster_qmaster_params }\
+         Row { cluster_reporting_params_label <> Fixed 50 em cluster_reporting_params }\
+         Row { "@{Execd Parameters}" <> Fixed 50 em cluster_execd_params }\
+         Row { "@{Shepherd Command}" <> Fixed 50 em cluster_shepherd_cmd }\
+         Row { "@{libjvm path}" <> Fixed 50 em cluster_jmx_libjvm_path }\
+         Row { "@{Additional JVM args}" <> Fixed 50 em cluster_jmx_additional_jvm_args }\
+         Row { "@{JSV URL}" <> Fixed 50 em cluster_jsv_url }\
+         Row { "@{JSV allowed modification}" <> Fixed 50 em cluster_jsv_allowed_mod }\
+      } \
+      ## \
+      Etched Through Caption tl "@{@fBInteractive Parameters}" Col { \
+         # \
+         Row { "@{Qlogin Daemon}" <> Fixed 50 em cluster_qlogin_daemon }\
+         Row { "@{Qlogin Command}" <> Fixed 50 em cluster_qlogin_command }\
+         Row { "@{rsh Daemon}" <> Fixed 50 em cluster_rsh_daemon }\
+         Row { "@{rsh Command}" <> Fixed 50 em cluster_rsh_command }\
+         Row { "@{rlogin Daemon}" <> Fixed 50 em cluster_rlogin_daemon }\
+         Row { "@{rlogin Command}" <> Fixed 50 em cluster_rlogin_command }\
+      } \
+      ## \
+      Etched Through Caption tl "@{@fBAFS Parameters}" Col { \
+         # \
+         Row { cluster_set_token_cmd_label <> Fixed 50 em cluster_set_token_cmd }\
+         Row { cluster_pag_cmd_label <> Fixed 50 em cluster_pag_cmd }\
+         Row { cluster_token_extend_time_label <> Fixed 50 em cluster_token_extend_time }\
+      } \
+      <> \
+   }
+
+Qmon*cluster_extra_layout.cluster_qmaster_params_label.labelString: @{Master Parameters}
+Qmon*cluster_extra_layout.cluster_reporting_params_label.labelString: @{Reporting Parameters}
+Qmon*cluster_extra_layout.cluster_set_token_cmd_label.labelString: @{set_token command}
+Qmon*cluster_extra_layout.cluster_pag_cmd_label.labelString: @{pag command}
+Qmon*cluster_extra_layout.cluster_token_extend_time_label.labelString: @{token_extend_time}
+
+Qmon*cluster_extra_layout.cluster_qmaster_params.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_extra_layout.cluster_reporting_params.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_extra_layout.cluster_execd_params.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_extra_layout.cluster_shepherd_cmd.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_extra_layout.cluster_rsh_daemon.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_extra_layout.cluster_rsh_command.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_extra_layout.cluster_rlogin_daemon.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_extra_layout.cluster_rlogin_command.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_extra_layout.cluster_set_token_cmd.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_extra_layout.cluster_pag_cmd.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_extra_layout.cluster_token_extend_time.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_extra_layout.cluster_jmx_libjvm_path.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_extra_layout.cluster_jmx_additional_jvm_args.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_extra_layout.cluster_jsv_url.verifyCallback: TrimAndTrail(self);
+Qmon*cluster_extra_layout.cluster_jsv_allowed_mod.verifyCallback: TrimAndTrail(self);

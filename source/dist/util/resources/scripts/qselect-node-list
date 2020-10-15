@@ -1,0 +1,21 @@
+#!/bin/sh
+# Run `qselect "$@"' and produce pdsh-compatible host list 
+
+# Dave Love <fx@gnu.org>, 2008-09
+# Copyright (C) 2008 The University of Liverpool
+# Licence: FreeBSD <http://www.gnu.org/licenses/license-list.html#FreeBSD>
+
+usage () {
+    echo "Usage: $(basename $0) <qselect_arg>...
+Run qselect(1) with the given args and produce a pdsh(1)-compatible host list."
+}
+
+case $1 in
+    -h | --help) usage; exit;;
+    '') usage 1>&2; exit 1;;
+esac
+
+qselect "$@" |
+  sed -e 's/^[^@]*@//' -e 's/\..*//' |  # host short names
+  sort -u |                             # unique list
+  tr '\n' ,                             # comma-separated (trailing comma OK)

@@ -1,0 +1,10 @@
+pe_name           pvm
+queue_list        <a_list_of_parallel_queues>
+slots             <the_number_of_slots>
+user_lists        NONE
+xuser_lists       NONE
+start_proc_args   <your_sge_root>/pvm/startpvm.sh $pe_hostfile $host <your_pvm_root>
+stop_proc_args    <your_sge_root>/pvm/stoppvm.sh $pe_hostfile $host
+allocation_rule   $round_robin
+control_slaves    FALSE
+job_is_first_task TRUE

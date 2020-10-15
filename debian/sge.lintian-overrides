@@ -1,0 +1,16 @@
+# Doesn't work with newer lintian, sigh.
+dir-or-file-in-opt *
+
+# Due to placement of shared libs.
+postinst-has-useless-call-to-ldconfig
+postrm-has-useless-call-to-ldconfig
+
+spelling-error-in-binary * nam name
+spelling-error-in-binary * cancelation cancellation
+spelling-error-in-binary * transfering transferring
+
+# presumably no relevant functions
+hardening-no-fortify-functions *opt/sge/lib/lx-amd64/libjuti.so
+hardening-no-fortify-functions *opt/sge/utilbin/lx-amd64/read_raw
+
+extra-license-file *usr/share/doc/sge/LICENCE.txt.gz

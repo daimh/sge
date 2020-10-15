@@ -1,0 +1,192 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\" $RCSfile: qquota.1,v $ 
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH QQUOTA 1 "2007-07-19" "xxRELxx" "xxQS_NAMExx User Commands"
+.SH NAME
+qquota \- shows current usage of xxQS_NAMExx resource quotas
+.\"
+.\"
+.SH SYNTAX
+.B qquota
+[
+.B -h wc_host|wc_hostgroup,...
+] [
+.B -help
+] [
+.B -l resource_name,...
+] [
+.B -u wc_user,...
+] [
+.B -P wc_project,...
+] [
+.B -pe wc_pe_name,...
+] [
+.B -q wc_cqueue,...
+] [
+.B -xml
+]
+.\"
+.SH DESCRIPTION
+.I qquota
+shows the current xxQS_NAMExx resource quota sets. Only resource quota sets
+with a positive usage count or a static limit are printed, as
+described in OUTPUT FORMATS below.
+.PP
+Selection options allow you to filter for specific hosts, cluster queues,
+projects, parallel environments (pe), resources or users.
+Without any option
+.I qquota
+will display a list of all resource quota sets for the calling user.
+.PP
+.\"
+.SH OPTIONS
+.\"
+.IP "\fB\-h wc_host|wc_hostgroup,...\fP"
+.I 
+Display only resource quota sets that match the hosts
+in the given wildcard host or hostgroup list. The definition
+of \fBwc_host\fP and \fBwc_hostgroup\fP is in
+.M sge_types 5 .
+.\"
+.IP "\fB\-help\fP"
+Prints a listing of all options.
+.\"
+.IP "\fB\-l resource_name,...\fP"
+Display only resource quota sets matching the resources in the
+given resource list.
+.\"
+.IP "\fB\-u wc_user,...\fP"
+Display only resource quota sets matching the users in the
+given wildcard user list. The definition
+of \fBwc_user\fP is in
+.M sge_types 5 .
+.\"
+.IP "\fB\-P wc_project,...\fP"
+Display only resource quota sets matching the projects in the
+given wildcard project list.  The definition
+of \fBwc_project\fP is in
+.M sge_types 5 .
+.\"
+.IP "\fB\-pe wc_pe_name,...\fP"
+Display only resource quota sets matching the parallel environments (pe)
+in the given wildcard pe list. The definition
+of \fBwc_pe_name\fP is in
+.M sge_types 5 .
+.\"
+.IP "\fB\-q wc_cqueue,...\fP"
+Display only resource quota sets matching the queues in the
+given wildcard cluster queue list. The definition
+of \fBwc_cqueue\fP is in
+.M sge_types 5 .
+.\"
+.IP "\fB\-xml \fP"
+This option can be used with all other options, and changes the output to XML. The
+schema used is referenced in the XML output. The output is printed to stdout.
+.\"
+.\"
+.SH "OUTPUT FORMAT"
+A line is printed for every resource quota with a positive usage count or static resource.
+The line consists of
+.IP "\(bu" 3n
+the resource quota \- rule set name/rule name or number of rule in ruleset
+.IP "\(bu" 3n
+the limit \- resource name, the number of used and available entities of that resource
+.IP "\(bu" 3n
+the effective resource quota set filter
+.\"
+.\"
+.SH "ENVIRONMENT VARIABLES"
+.\" 
+.IP "\fBxxQS_NAME_Sxx_ROOT\fP" 1.5i
+Specifies the location of the xxQS_NAMExx standard configuration
+files.
+.\"
+.IP "\fBxxQS_NAME_Sxx_CELL\fP" 1.5i
+If set, specifies the default xxQS_NAMExx cell. To address a xxQS_NAMExx
+cell
+.I qquota
+uses (in the order of precedence):
+.sp 1
+.RS
+.RS
+The name of the cell specified in the environment 
+variable xxQS_NAME_Sxx_CELL, if it is set.
+.sp 1
+The name of the default cell, i.e. \fBdefault\fP.
+.sp 1
+.RE
+.RE
+.\"
+.IP "\fBxxQS_NAME_Sxx_DEBUG_LEVEL\fP" 1.5i
+If set, specifies that debug information
+should be written to stderr. In addition, the level of
+detail in which debug information is generated is defined.
+.\"
+.IP "\fBxxQS_NAME_Sxx_QMASTER_PORT\fP" 1.5i
+If set, specifies the tcp port on which
+.M xxqs_name_sxx_qmaster 8
+is expected to listen for communication requests.
+Most installations will use a services map entry for the
+service "sge_qmaster" instead to define that port.
+.\"
+.\"
+.SH FILES
+.nf
+.ta \w'<xxqs_name_sxx_root>/     'u
+\fI<xxqs_name_sxx_root>/<cell>/common/act_qmaster\fP
+	xxQS_NAMExx master host file
+.ta \w'<xxqs_name_sxx_root>/     'u
+\fI<xxqs_name_sxx_root>/<cell>/common/xxqs_name_sxx_qquota\fP
+	cluster qquota default options
+\fI$HOME/.xxqs_name_sxx_qquota\fP	
+	user qquota default options
+.fi
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M qalter 1 ,
+.M qconf 1 ,
+.M qhold 1 ,
+.M qmod 1 ,
+.M qstat 1 ,
+.M qsub 1 ,
+.M queue_conf 5 ,
+.M xxqs_name_sxx_execd 8 ,
+.M xxqs_name_sxx_qmaster 8 ,
+.M xxqs_name_sxx_shepherd 8 .
+.\"
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

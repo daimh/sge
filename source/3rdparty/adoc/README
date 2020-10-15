@@ -1,0 +1,32 @@
+Short: Create autodocs and/or texinfo from source code
+Type: dev/misc
+Uploader: ferber@rpk.mach.uni-karlsruhe.de
+Author: ferber@rpk.mach.uni-karlsruhe.de
+
+This directory contains the source code and Amiga executables for ADOC
+including Makefiles for DICE (Amiga) and GCC (Unix).
+
+ADOC has been tested successfully on several platforms however
+
+  *** Please report any problems to <ferber@rpk.mach.uni-karlsruhe.de> ***
+
+The ADOC scanner reads your source code and creates Autodocs and/or Texinfo
+source (with references in the SEE ALSO sections).  It is an enhanced
+version of Bill Koesters `Autodoc' program as of 21-Aug-89 which is part
+of C=ommodore's Native Developer Kit (NDK).
+
+
+
+FEATURES:
+
+  * ADOC is fully dynamic, i.e. there is no limitation in line length or
+    file size or the number of functions but only the available memory.
+
+  * ADOC is system independant and *fast* !
+
+  * ADOC creates Texinfo, a format which allows further conversion to
+    DVI (TeX), Info (makeinfo), Amigaguide (makeinfo, makeguide), HTML, ...
+
+
+A new tool `CODA' is now part of this distribution.  CODA converts Autodocs
+to C-Language comments which allows further processing with ADOC.

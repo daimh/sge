@@ -1,0 +1,13 @@
+# Example host aliase configuration file; see host_aliases(5).
+
+# cluster-head.example.com is the external DNS name of the head, which
+# is used in $SGE_ROOT/$SGE_CELL/common/act_qmaster.  Its
+# cluster-internal interface is on 10.0.0.2, and it may also be known
+# as head.local.  SGE components will canonicalize addresses in the
+# aliases list to "head" (the first value in the list) if their normal
+# host lookup matches any of the names for this host.  The commas can
+# be replaced by spaces -- they only help distinguish the alias list
+# from the canonical name.
+
+# head     cluster-head.example.com,10.0.0.2,head.local
+

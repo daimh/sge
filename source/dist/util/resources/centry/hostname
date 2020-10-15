@@ -1,0 +1,12 @@
+# Version: Grid Engine 6
+# 
+# DO NOT MODIFY THIS FILE MANUALLY!
+# 
+name        hostname
+shortcut    h
+type        HOST
+relop       ==
+requestable YES
+consumable  NO
+default     NONE
+urgency     0

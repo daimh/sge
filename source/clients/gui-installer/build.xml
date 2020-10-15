@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--___INFO__MARK_BEGIN__
+/*************************************************************************
+ *
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ *
+ *  Sun Microsystems Inc., March, 2001
+ *
+ *
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ *
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ *
+ *  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ *
+ *  Copyright: 2001 by Sun Microsystems, Inc.
+ *
+ *  All Rights Reserved.
+ *
+ ************************************************************************/
+___INFO__MARK_END__-->
+<project name="installer" default="do.jar" basedir=".">
+    <description>Builds, tests, and runs the project installer.</description>
+    <property name="sge.srcdir" location="../.."/>
+    <property file="${sge.srcdir}/build_testsuite.properties"/>
+    <property file="${sge.srcdir}/build_private.properties"/>
+    <property file="${sge.srcdir}/build.properties"/>
+    <exec executable="hostname" outputproperty="hostname"/>
+    <condition property="isJavaBuildHost">
+        <not>
+            <isset property="java.buildhost"/>
+        </not>
+    </condition>
+
+    <condition property="isJavaBuildHost" >
+        <contains string="${java.buildhost}" substring="${hostname}" casesensitive="false"/>
+    </condition>
+
+    <echo>isJavaBuildHost=${isJavaBuildHost}</echo>
+    <echo>java.buildhost=${java.buildhost}</echo>
+    <echo>hostname=${hostname}</echo>
+
+    <import file="nbproject/build-impl.xml"/>
+
+    <target name="do.jar" if="isJavaBuildHost" description="Builds the final jar if build host">
+        <antcall target="jar"/>
+    </target>
+
+    <target name="build.izpack" unless="izpack.isbuild" description="Builds IzPack">
+           <echo message="IzPack is not yet built. Building now..."/>
+           <touch file="${izpack.home}/src/building.tmp"/>
+           <ant antfile="${izpack.home}/src/build.xml" target="all" dir="${izpack.home}" inheritall="false"/>
+           <delete file="${izpack.home}/src/building.tmp"/>
+    </target>
+
+    <target name="-pre-compile" description="Compile IzPack if it hasn't been yet">
+        <echo message="Check IzPack"/>
+        <!-- Check someone else is not building IzPack right now -->
+        <condition property="izpack.building.already">
+           <available file="${izpack.home}/src/building.tmp"/>
+        </condition>
+         <fail if="izpack.building.already" message="Someone else is building Izpack right now. Try again later! If problem remains manually delete ${izpack.home}/src/building.tmp file."/>
+        <!-- Check IzPack is build, if not build it -->
+        <condition property="izpack.isbuild">
+            <available file="${izpack.home}/_build"/>
+        </condition>
+        <antcall target="build.izpack"/>
+        <!-- Check that IzPack was build and we have it on the classpath -->
+        <condition property="izpack.complete">
+            <and>
+                <available classpath="${javac.classpath}" classname="com.izforge.izpack.installer.IzPanel"/>
+                <available classpath="${javac.classpath}" classname="com.izforge.izpack.installer.InstallerBase"/>
+            </and>
+        </condition> 
+        <fail unless="izpack.complete" message="You need to install IzPack 4.1.1 and set the izpack.home property in the gridengine/source/build_private.properties first!"/>
+
+        <!-- Let's copy the stuff we need locally to our build.dir, so each user works with his own files -->
+        <property name="build.panels.dir" value="bin/panels"/>
+        <property name="compiler.path" value="${build.dir}/standalone-compiler.jar"/>
+        <mkdir dir="${build.panels.dir}"/>
+        <copy file="${izpack.home}/lib/standalone-compiler.jar" tofile="${compiler.path}"/>
+
+        <echo message="Building prerequsities from source/3rdparty/IzPack/src/lib ..."/>
+        <javac srcdir="../../3rdparty/IzPack/src/lib"
+               classpath="${build.classes.dir}:${javac.classpath}"
+               sourcepath="${src.dir}"
+               source="${javac.source}" target="${javac.target}" destdir="${build.classes.dir}"/>
+
+        <!-- Prepare sge.license property -->
+        <property environment="env"/>
+        <condition property="legal.dir" value="${env.AIMK_COPYRIGHT_DIR}" else="">
+            <isset property="env.AIMK_COPYRIGHT_DIR"/>
+        </condition>
+
+        <condition property="legal" value="COPYRIGHT LICENSE">
+            <equals arg1="${env.AIMK_COPYRIGHT}" arg2="courtesy" trim="true"/>
+        </condition>
+        <property name="legal" value="NA"/>
+        
+        <condition property="sge.license" value="${legal.dir}/LICENSE">
+            <equals arg1="${env.AIMK_COPYRIGHT}" arg2="courtesy" trim="true"/>
+        </condition>
+        <!-- Set the product name correctly -->
+        <condition property="product.name" value="Grid Engine">
+            <not>
+                <isset property="product.name"/>
+            </not>
+        </condition>
+    </target>
+
+    <target name="prepare-license" if="sge.license">
+        <property name="final.sge.license" value="res/LicencePanel.licence" />
+        <delete file="${build.dir}/jar/${final.sge.license}"/>
+        <copy tofile="${build.dir}/jar/${final.sge.license}">
+            <fileset file="${sge.license}"/>
+        </copy>        
+    </target>
+
+    <target name="-post-jar" description="Build installer">
+        <echo message="Build installer"/>
+
+        <!-- WelcomePanel.jar -->
+        <jar compress="${jar.compress}" destfile="${build.panels.dir}/WelcomePanel.jar" description="Compress WelcomePanel class files">
+            <fileset dir="${build.classes.dir}">
+                <include name="com/sun/grid/installer/gui/WelcomePanel.class"/>
+                <include name="com/sun/grid/installer/gui/ImagePanel.class"/>
+            </fileset>
+        </jar>
+        <!-- PreActionPanel.jar -->
+        <jar compress="${jar.compress}" destfile="${build.panels.dir}/PreActionPanel.jar" description="Compress PreActionPanel class files">
+            <fileset dir="${build.classes.dir}">
+                <include name="com/sun/grid/installer/gui/ActionPanel.class"/>
+                <include name="com/sun/grid/installer/gui/PreActionPanel.class"/>
+            </fileset>
+            <fileset dir="${build.classes.dir}">
+                <include name="com/sun/grid/installer/util/*.class"/>
+                <include name="com/sun/grid/installer/util/cmd/*.class"/>
+                <include name="com/sun/grid/installer/task/*.class"/>
+                <exclude name="com/sun/grid/installer/util/Util.class"/>
+            </fileset>
+        </jar>
+        <!-- PostActionPanel.jar -->
+        <jar compress="${jar.compress}" destfile="${build.panels.dir}/PostActionPanel.jar" description="Compress PostActionPanel class files">
+            <fileset dir="${build.classes.dir}">
+                <include name="com/sun/grid/installer/gui/ActionPanel.class"/>
+                <include name="com/sun/grid/installer/gui/PostActionPanel.class"/>
+            </fileset>
+            <fileset dir="${build.classes.dir}">
+                <include name="com/sun/grid/installer/util/*.class"/>
+                <include name="com/sun/grid/installer/util/cmd/*.class"/>
+                <include name="com/sun/grid/installer/task/*.class"/>
+                <exclude name="com/sun/grid/installer/util/Util.class"/>
+            </fileset>
+        </jar>
+        <!-- IntermediateActionPanel.jar -->
+        <jar compress="${jar.compress}" destfile="${build.panels.dir}/IntermediateActionPanel.jar" description="Compress IntermediateActionPanel class files">
+            <fileset dir="${build.classes.dir}">
+                <include name="com/sun/grid/installer/gui/ActionPanel.class"/>
+                <include name="com/sun/grid/installer/gui/IntermediateActionPanel.class"/>
+            </fileset>
+            <fileset dir="${build.classes.dir}">
+                <include name="com/sun/grid/installer/util/*.class"/>
+                <include name="com/sun/grid/installer/util/cmd/*.class"/>
+                <include name="com/sun/grid/installer/task/*.class"/>
+                <exclude name="com/sun/grid/installer/util/Util.class"/>
+            </fileset>
+        </jar>
+        <!-- HostPanel.jar -->
+        <jar compress="${jar.compress}" destfile="${build.panels.dir}/HostPanel.jar" description="Compress HostPanel class files">
+            <fileset dir="${build.classes.dir}">
+                <include name="com/sun/grid/installer/gui/*.class"/>
+                <include name="com/sun/grid/installer/gui/error.png"/>
+                <exclude name="com/sun/grid/installer/gui/*ActionPanel.class"/>
+                <exclude name="com/sun/grid/installer/gui/HelpFrame.class"/>
+                <exclude name="com/sun/grid/installer/gui/ImagePanel.class"/>
+                <exclude name="com/sun/grid/installer/gui/ResultPanel.class"/>
+                <exclude name="com/sun/grid/installer/gui/WelcomePanel.class"/>
+            </fileset>
+            <fileset dir="${build.classes.dir}">
+                <include name="com/sun/grid/installer/util/*.class"/>
+                <include name="com/sun/grid/installer/util/cmd/*.class"/>
+                <include name="com/sun/grid/installer/task/*.class"/>
+                <exclude name="com/sun/grid/installer/util/ExtendedFile.class"/>
+            </fileset>
+        </jar>
+
+        <!-- ResultPanel.jar -->
+        <jar compress="${jar.compress}" destfile="${build.panels.dir}/ResultPanel.jar" description="Compress ResultPanel class files">
+            <fileset dir="${build.classes.dir}">
+                <include name="com/sun/grid/installer/gui/Host.class"/>
+                <include name="com/sun/grid/installer/gui/ResultPanel.class"/>
+            </fileset>
+            <fileset dir="${build.classes.dir}">
+                <include name="com/sun/grid/installer/util/Util.class"/>
+                <include name="com/sun/grid/installer/util/Config.class"/>
+            </fileset>
+        </jar>
+
+        <!-- Replace compiler classes -->
+        <jar compress="${jar.compress}" destfile="${compiler.path}" update="true" description="Replace compiler classes">
+            <fileset dir="${build.classes.dir}">
+                <include name="com/izforge/izpack/compiler/*.class"/>
+            </fileset>
+        </jar>
+
+        <!-- Copy the needed files to the build directory -->
+        <copy todir="${build.dir}" description="Copy resources to the build directory">
+            <fileset dir="${resources.dir}">
+                <exclude name="**/install.xml"/>
+            </fileset>
+        </copy>
+        
+        <!-- Copy and replace install.xml file to the build directory -->
+        <copy todir="${build.dir}" description="Copy and replace install.xml file to the build directory">
+            <fileset dir="${resources.dir}">
+                <include name="install.xml"/>                
+            </fileset>
+        </copy>
+
+        <!-- Prepare the sge.version -->
+        <property name="out.tmp" value="${sge.srcdir}/../sge_version.tmp"/>
+        <exec dir="${build.dir}"  executable="sh" output="${out.tmp}" failonerror="true">
+            <arg value="${sge.srcdir}/clients/gui-installer/nbproject/get_sge_version.sh"/>
+            <arg value="${sge.srcdir}/libs/gdi/version.c"/>
+        </exec>
+        <loadfile property="sge.version" srcFile="${out.tmp}">
+            <filterchain>
+                <striplinebreaks/>
+            </filterchain>
+        </loadfile>
+        <delete file="${out.tmp}"/>
+        <!-- Replace PRODUCT_NAME, SGE_VERSION with the proper one -->
+        <replace file="${build.dir}/install.xml">
+            <replacefilter token="@PRODUCT_NAME@" value="${product.name}"/>
+            <replacefilter token="@SGE_VERSION@" value="${sge.version}"/>
+        </replace>
+
+        <java classname="com.izforge.izpack.compiler.Compiler" classpath="${compiler.path}"  failonerror="true" fork="true" maxmemory="512m" dir="${build.dir}/..">
+            <arg value="${build.dir}/install.xml"/>
+            <arg value="-h"/>
+            <arg value="${build.dir}/.."/>
+            <arg value="-b"/>
+            <arg value="${build.dir}"/>
+            <arg value="-o"/>
+            <arg value="${dist.jar}"/>
+        </java>
+
+
+        <!-- Replace overridden classes and add new classes/files -->
+        <jar compress="${jar.compress}" destfile="${dist.jar}" update="true" description="Replace overridden classes and add new classes/files">
+            <fileset dir="${build.classes.dir}">
+                <include name="com/izforge/izpack/installer/*.class"/>
+                <include name="com/izforge/izpack/panels/*.class"/>
+                <include name="com/izforge/izpack/util/*.class"/>
+                <include name="com/izforge/izpack/rules/*.class"/>
+                <include name="com/sun/grid/installer/gui/HelpFrame*.class"/>
+            </fileset>
+        </jar>
+
+        <!-- update metainf with the copyright is needed -->
+        <jar compress="${jar.compress}" destfile="${dist.jar}" update="true" description="Add license to jar">
+            <metainf dir="${legal.dir}" includes="${legal}"/>
+        </jar>
+        <delete dir="${build.dir}/jar"/>
+        <unjar src="${dist.jar}" dest="${build.dir}/jar"/>
+        <delete file="${dist.jar}"/>
+
+        <!-- Add/Replace icons + include the group-layout -->
+        <zip compress="${jar.compress}" destfile="${dist.jar}" update="false" description="Repack final jar">
+            <!-- <metainf dir="${legal.dir}" includes="${legal}"/> -->
+            <fileset dir="${build.dir}">
+                <include name="img/*"/>
+            </fileset>
+            <fileset dir="${build.dir}/jar"/>
+            <zipfileset src="${libs.swing-layout.classpath}" includes="**/*.class"/>            
+        </zip>
+        
+        <property name="dist.ready" value="true"/>     
+    </target>
+
+    <target depends="init, do.jar" name="build-demo">
+        <echo message="WARNING! Creating demo version!" />
+        <mkdir dir="${build.test.classes.dir}" description="Create destiantion directory for test classes."/>
+
+        <javac srcdir="test" description="Compile test classes."
+               includes="com/sun/grid/installer/util/cmd/*.java"
+               classpath="${build.classes.dir}:${javac.classpath}"
+               source="${javac.source}" target="${javac.target}" destdir="${build.test.classes.dir}"/>
+
+        <jar compress="${jar.compress}" destfile="${dist.jar}" update="true" description="Replace original classes with their demo version.">
+            <fileset dir="${build.test.classes.dir}">
+                <exclude name="com/izforge/izpack/installer/*.class"/>
+                <include name="com/sun/grid/installer/util/cmd/*.class"/>
+            </fileset>
+        </jar>
+    </target>
+
+    <target name="javadoc" if="isJavaBuildHost">
+        <antcall target="-javadoc-build"/>
+        <antcall target="-javadoc-browse"/>
+    </target>
+
+    <target depends="init" name="test" if="isJavaBuildHost">
+        <mkdir dir="${build.test.classes.dir}"/>
+        <javac srcdir="../../3rdparty/IzPack/tests"
+               classpath="${build.test.classes.dir}:${javac.test.classpath}"
+               source="${javac.source}" target="${javac.target}" destdir="${build.test.classes.dir}"/>
+
+        <antcall target="compile-test"/>
+        <antcall target="-pre-test-run"/>
+        <antcall target="-do-test-run"/>
+        <antcall target="test-report"/>
+        <antcall target="-post-test-run"/>
+        <antcall target="-test-browse"/>
+    </target>
+
+    <target depends="init" name="test-single" if="isJavaBuildHost">
+        <mkdir dir="${build.test.classes.dir}"/>
+        <javac srcdir="../../3rdparty/IzPack/tests"
+               classpath="${build.test.classes.dir}:${javac.test.classpath}"
+               source="${javac.source}" target="${javac.target}" destdir="${build.test.classes.dir}"/>
+
+        <antcall target="compile-test-single"/>
+        <antcall target="-pre-test-run-single"/>
+        <antcall target="-do-test-run-single"/>
+        <antcall target="test-report"/>
+        <antcall target="-post-test-run-single"/>
+        <antcall target="-test-browse"/>
+    </target>
+
+    <target name="clean" if="isJavaBuildHost">
+        <delete dir="build"/>
+        <delete dir="dist"/>
+        <delete dir="bin"/>
+    </target>
+
+    <!--  
+
+    There exist several targets which are by default empty and which can be 
+    used for execution of your tasks. These targets are usually executed 
+    before and after some main targets. They are: 
+
+      -pre-init:                 called before initialization of project properties
+      -post-init:                called after initialization of project properties
+      -pre-compile:              called before javac compilation
+      -post-compile:             called after javac compilation
+      -pre-compile-single:       called before javac compilation of single file
+      -post-compile-single:      called after javac compilation of single file
+      -pre-compile-test:         called before javac compilation of JUnit tests
+      -post-compile-test:        called after javac compilation of JUnit tests
+      -pre-compile-test-single:  called before javac compilation of single JUnit test
+      -post-compile-test-single: called after javac compilation of single JUunit test
+      -pre-jar:                  called before JAR building
+      -post-jar:                 called after JAR building
+      -post-clean:               called after cleaning build products
+
+    (Targets beginning with '-' are not intended to be called on their own.)
+
+    Example of inserting an obfuscator after compilation could look like this:
+
+        <target name="-post-compile">
+            <obfuscate>
+                <fileset dir="${build.classes.dir}"/>
+            </obfuscate>
+        </target>
+
+    For list of available properties check the imported 
+    nbproject/build-impl.xml file. 
+
+
+    Another way to customize the build is by overriding existing main targets.
+    The targets of interest are: 
+
+      -init-macrodef-javac:     defines macro for javac compilation
+      -init-macrodef-junit:     defines macro for junit execution
+      -init-macrodef-debug:     defines macro for class debugging
+      -init-macrodef-java:      defines macro for class execution
+      -do-jar-with-manifest:    JAR building (if you are using a manifest)
+      -do-jar-without-manifest: JAR building (if you are not using a manifest)
+      run:                      execution of project 
+      -javadoc-build:           Javadoc generation
+      test-report:              JUnit report generation
+
+    An example of overriding the target for project execution could look like this:
+
+        <target name="run" depends="installer-impl.jar">
+            <exec dir="bin" executable="launcher.exe">
+                <arg file="${dist.jar}"/>
+            </exec>
+        </target>
+
+    Notice that the overridden target depends on the jar target and not only on 
+    the compile target as the regular run target does. Again, for a list of available 
+    properties which you can use, check the target you are overriding in the
+    nbproject/build-impl.xml file. 
+
+    -->
+    <target name="run-installer" description="Run installer">
+        <java jar="dist/installer.jar" fork="true"/>
+    </target>
+
+    <target name="run-installer-debug" description="Run installer. Print debug information.">
+        <java jar="dist/installer.jar" fork="true">
+            <jvmarg value="-DSTACKTRACE=true"/>
+        </java>
+    </target>
+    
+</project>

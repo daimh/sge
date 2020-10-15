@@ -1,0 +1,294 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Cluster Queue 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_cq.xmtChildren:  XmtLayout cq;
+
+Qmon*qmon_cq.cq.defaultSpacing:  2
+Qmon*qmon_cq.cq.autoUnmanage:    False
+Qmon*qmon_cq.cq.resizePolicy:    RESIZE_NONE
+Qmon*qmon_cq.cq.dialogTitle:     @{QMON +++ Cluster Queues}
+!!Qmon*qmon_cq.cq.fontList:        $dialog_font
+
+Qmon*qmon_cq.cq.XmtInputField.marginHeight:  2
+Qmon*qmon_cq.cq.XmtInputField.marginWidth:   2
+Qmon*qmon_cq.cq.XmText.marginHeight:  2
+Qmon*qmon_cq.cq.XmText.marginWidth:   2
+
+
+Qmon*qmon_cq.cq.xmtChildren: \
+   XmPushButton      cq_main_link; \
+   Folder            cq_cqfolder; \
+   XmtMsgLine        cq_message; \
+   XmToggleButton    cq_force; \
+   XmtChooser        cq_explain_states; \
+   XmPushButton      cq_add, cq_mod, cq_clone, cq_delete, cq_close, cq_update, cq_help, \
+                     cq_suspend, cq_resume, cq_tickets, cq_customize, cq_load,\
+                     cq_disable, cq_enable, cq_reschedule, cq_clear_error, \
+                     cq_sick, cq_explain;
+
+Qmon*qmon_cq.cq.layout: \
+   Fixed Shadowed Out 4 2 LREvenSpaced Row cq_title { \
+      Fixed Centered cq_main_link \
+      Centered Color "$title_fg" "@{@fB Cluster Queue Control}" \
+   } \
+   # \
+   Row cq_main_row { \
+      Shadowed Out 4 2 Centered cq_cqfolder \
+      Fixed Shadowed Out Col cq_button_box { \
+         Fixed cq_update \
+         Fixed cq_tickets \
+         Fixed cq_customize \
+         Fixed cq_close \
+         Fixed cq_help \
+         # \
+         # \
+         Shadowed Out Col { \
+            Fixed cq_add \
+            Fixed cq_clone \
+            Fixed cq_mod \
+            Fixed cq_delete \
+            Fixed cq_sick \
+         } \
+         #\
+         Shadowed Out Col { \
+            Fixed cq_force \
+            Fixed cq_suspend \
+            Fixed cq_resume \
+            Fixed cq_disable \
+            Fixed cq_enable \
+            Fixed cq_reschedule \
+            Fixed cq_clear_error \
+            Fixed cq_load \
+            ## \
+            Fixed cq_explain_states \
+            Fixed cq_explain \
+         } \
+         <>\
+         Fixed cq_message \
+      } \
+   }
+
+Qmon*cq_message*columns:         15
+Qmon*qmon_cq.cq.cq_main_link.labelType:   PIXMAP
+Qmon*qmon_cq.cq.cq_main_link.labelPixmap: logo
+Qmon*qmon_cq.cq.cq_main_link.shadowThickness:    1
+Qmon*qmon_cq.cq.cq_main_link.highlightThickness: 0
+Qmon*qmon_cq.cq.cq_main_link.marginHeight:       0
+Qmon*qmon_cq.cq.cq_main_link.marginWidth:        0
+
+Qmon*qmon_cq.cq.cq_update.labelString:       @{Refresh}
+Qmon*qmon_cq.cq.cq_add.labelString:          @{Add}
+Qmon*qmon_cq.cq.cq_clone.labelString:        @{Clone}
+Qmon*qmon_cq.cq.cq_mod.labelString:          @{Modify}
+Qmon*qmon_cq.cq.cq_delete.labelString:       @{Delete}
+Qmon*qmon_cq.cq.cq_force.labelString:        @{Force}
+Qmon*qmon_cq.cq.cq_suspend.labelString:      @{Suspend}
+Qmon*qmon_cq.cq.cq_resume.labelString:       @{Resume}
+Qmon*qmon_cq.cq.cq_disable.labelString:      @{Disable}
+Qmon*qmon_cq.cq.cq_enable.labelString:       @{Enable}
+Qmon*qmon_cq.cq.cq_reschedule.labelString:   @{Reschedule}
+Qmon*qmon_cq.cq.cq_clear_error.labelString:  @{Clear Error}
+Qmon*qmon_cq.cq.cq_load.labelString:         @{Load}
+Qmon*qmon_cq.cq.cq_sick.labelString:         @{Show Detached Settings}
+Qmon*qmon_cq.cq.cq_customize.labelString:    @{Customize}
+Qmon*qmon_cq.cq.cq_explain.labelString:      @{Explain}
+Qmon*qmon_cq.cq.cq_tickets.labelString:      @{Tickets}
+Qmon*qmon_cq.cq.cq_close.labelString:        @{Done}
+Qmon*qmon_cq.cq.cq_help.labelString:         @{Help}
+
+Qmon*qmon_cq.cq.cq_explain_states.chooserType:  ChooserCheckBox
+Qmon*qmon_cq.cq.cq_explain_states.orientation:  HORIZONTAL
+Qmon*qmon_cq.cq.cq_explain_states.strings: \
+   "@{c}", \
+   "@{a}", \
+   "@{A}", \
+   "@{E}"
+
+
+Qmon*qmon_cq.cq.cq_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+Qmon*qmon_cq.cq.cq_cqfolder.layoutAllowResize:  false
+Qmon*qmon_cq.cq.cq_cqfolder.tabsPerRow:  4
+Qmon*qmon_cq.cq.cq_cqfolder.resizeChildren:  True
+Qmon*qmon_cq.cq.cq_cqfolder.xmtChildren: \
+   XmtLayout   clusterqueue_layout, \
+               qinstance_layout, \
+               qhost_layout;
+               
+!!               clustertree_layout;
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! clusterqueue_layout
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_cq.cq.cq_cqfolder.clusterqueue_layout.tabLabel: @{@fBCluster Queues}
+Qmon*qmon_cq.cq.cq_cqfolder.clusterqueue_layout.xmtChildren: \
+   Matrix_2xN      cluster_queue_settings;
+
+Qmon*qmon_cq.cq.cq_cqfolder.clusterqueue_layout.layout: \
+   cluster_queue_settings
+
+Qmon*qmon_cq.cq.cq_cqfolder.clusterqueue_layout*cluster_queue_settings.traversalOn: False
+
+Qmon*qmon_cq.cq.cq_cqfolder.clusterqueue_layout*cluster_queue_settings.rows: 30
+Qmon*qmon_cq.cq.cq_cqfolder.clusterqueue_layout*cluster_queue_settings.visibleRows: 30
+Qmon*qmon_cq.cq.cq_cqfolder.clusterqueue_layout*cluster_queue_settings.fixedColumns: 1
+Qmon*qmon_cq.cq.cq_cqfolder.clusterqueue_layout*cluster_queue_settings.visibleColumns: 8
+Qmon*qmon_cq.cq.cq_cqfolder.clusterqueue_layout*cluster_queue_settings.columns: 19
+Qmon*qmon_cq.cq.cq_cqfolder.clusterqueue_layout*cluster_queue_settings.columnWidths: 20,7,7,10,10,7,7,7,5,5,5,5,5,5,5,5,5,5,5 
+Qmon*qmon_cq.cq.cq_cqfolder.clusterqueue_layout*cluster_queue_settings.columnMaxLengths: 200,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20,20
+Qmon*qmon_cq.cq.cq_cqfolder.clusterqueue_layout*cluster_queue_settings.columnLabels: @{CLUSTER QUEUE},@{CQLOAD},@{USED},@{RES},@{AVAIL},@{TOTAL},aoACDS,cdsuE,s,A,S,C,u,a,d,D,c,o,E
+Qmon*qmon_cq.cq.cq_cqfolder.clusterqueue_layout*cluster_queue_settings.gridType:     GRID_CELL_SHADOW
+Qmon*qmon_cq.cq.cq_cqfolder.clusterqueue_layout*cluster_queue_settings.cellShadowType: SHADOW_IN
+Qmon*qmon_cq.cq.cq_cqfolder.clusterqueue_layout*cluster_queue_settings.cellShadowThickness: 1
+Qmon*qmon_cq.cq.cq_cqfolder.clusterqueue_layout*cluster_queue_settings.translations: #override\n\
+         Shift<Btn1Down>: SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:       SelectCell(begin)\n\
+         Ctrl<Btn2Down>:   ResizeColumns()
+
+Qmon*qmon_cq.cq.cq_cqfolder.clusterqueue_layout*cluster_queue_settings.clip.translations: #override\n\
+         Shift<Btn1Down>: SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:       SelectCell(begin)\n\
+         Ctrl<Btn2Down>:   ResizeColumns()
+
+Qmon*qmon_cq.cq.cq_cqfolder.clusterqueue_layout*cluster_queue_settings.xmtChildren: unmanaged XmtPopupMenu del_menu;
+Qmon*qmon_cq.cq.cq_cqfolder.clusterqueue_layout*cluster_queue_settings.menuPost: <Btn3Down>
+
+Qmon**del_menu.items: \
+   Title "@{@fBOperations}"; \
+   ------;\
+   "@{_Delete}" [Ctrl-D] DeleteClusterQueue(*cluster_queue_settings);
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! qinstance_layout
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_cq.cq.cq_cqfolder.qinstance_layout.tabLabel: @{@fBQueue Instances}
+Qmon*qmon_cq.cq.cq_cqfolder.qinstance_layout.xmtChildren: \
+   Matrix_2xN      qinstance_settings;
+
+Qmon*qmon_cq.cq.cq_cqfolder.qinstance_layout.layout: \
+    qinstance_settings
+
+Qmon*qmon_cq.cq.cq_cqfolder.qinstance_layout*qinstance_settings.traversalOn: False
+
+Qmon*qmon_cq.cq.cq_cqfolder.qinstance_layout*qinstance_settings.rows: 30
+Qmon*qmon_cq.cq.cq_cqfolder.qinstance_layout*qinstance_settings.visibleRows: 30
+Qmon*qmon_cq.cq.cq_cqfolder.qinstance_layout*qinstance_settings.columns: 6
+Qmon*qmon_cq.cq.cq_cqfolder.qinstance_layout*qinstance_settings.columnWidths: 20,5,10,10,10,10 
+Qmon*qmon_cq.cq.cq_cqfolder.qinstance_layout*qinstance_settings.columnMaxLengths: 200,20,20,20,20,20
+Qmon*qmon_cq.cq.cq_cqfolder.qinstance_layout*qinstance_settings.columnLabels: @{Queue},@{qtype},@{resv/used/total},@{load_avg},@{arch},@{states}
+Qmon*qmon_cq.cq.cq_cqfolder.qinstance_layout*qinstance_settings.boldLabels: True
+Qmon*qmon_cq.cq.cq_cqfolder.qinstance_layout*qinstance_settings.buttonLabels: True
+Qmon*qmon_cq.cq.cq_cqfolder.qinstance_layout*qinstance_settings.gridType:     GRID_CELL_SHADOW
+Qmon*qmon_cq.cq.cq_cqfolder.qinstance_layout*qinstance_settings.cellShadowType: SHADOW_IN
+Qmon*qmon_cq.cq.cq_cqfolder.qinstance_layout*qinstance_settings.cellShadowThickness: 1
+
+Qmon*qmon_cq.cq.cq_cqfolder.qinstance_layout*qinstance_settings.translations: #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:       SelectCell(begin)\n\
+         Ctrl<Btn2Down>:   ResizeColumns()
+
+Qmon*qmon_cq.cq.cq_cqfolder.qinstance_layout*qinstance_settings.clip.translations: #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:       SelectCell(begin)\n\
+         Ctrl<Btn2Down>:   ResizeColumns()
+
+!Qmon*qmon_cq.cq.cq_cqfolder.qinstance_layout*qinstance_settings.xmtChildren: unmanaged XmtPopupMenu del_menu;
+!Qmon*qmon_cq.cq.cq_cqfolder.qinstance_layout*qinstance_settings.menuPost: <Btn3Down>
+
+!Qmon**del_menu.items: \
+   Title "@{@fBOperations}"; \
+   ------;\
+   "@{_Delete}" [Ctrl-D] DeleteLines(*qinstance_settings);
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! qhost_layout
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_cq.cq.cq_cqfolder.qhost_layout.tabLabel: @{@fBHosts}
+Qmon*qmon_cq.cq.cq_cqfolder.qhost_layout.xmtChildren: \
+   Matrix_2xN      qhost_settings;
+
+Qmon*qmon_cq.cq.cq_cqfolder.qhost_layout.layout: \
+    qhost_settings
+
+Qmon*qmon_cq.cq.cq_cqfolder.qhost_layout*qhost_settings.traversalOn: False
+
+Qmon*qmon_cq.cq.cq_cqfolder.qhost_layout*qhost_settings.rows: 30
+Qmon*qmon_cq.cq.cq_cqfolder.qhost_layout*qhost_settings.visibleRows: 30
+Qmon*qmon_cq.cq.cq_cqfolder.qhost_layout*qhost_settings.fixedColumns: 1
+Qmon*qmon_cq.cq.cq_cqfolder.qhost_layout*qhost_settings.visibleColumns: 8
+Qmon*qmon_cq.cq.cq_cqfolder.qhost_layout*qhost_settings.columns: 13
+Qmon*qmon_cq.cq.cq_cqfolder.qhost_layout*qhost_settings.columnWidths: 10,10,5,5,5,7,6,8,8,8,8,8,8 
+Qmon*qmon_cq.cq.cq_cqfolder.qhost_layout*qhost_settings.columnMaxLengths: 200,20,20,20,20,20,20,20,20,20,20,20,20
+Qmon*qmon_cq.cq.cq_cqfolder.qhost_layout*qhost_settings.columnLabels: @{Host},@{Arch},@{#CPU},@{#Socket},@{#Core},@{LoadAvg},@{%CPU}, @{MemUsed},@{MemTotal},\
+                            @{SwapUsed}, @{SwapTotal}, @{VirtUsed}, @{VirtTotal}
+Qmon*qmon_cq.cq.cq_cqfolder.qhost_layout*qhost_settings.gridType:     GRID_CELL_SHADOW
+Qmon*qmon_cq.cq.cq_cqfolder.qhost_layout*qhost_settings.cellShadowType: SHADOW_IN
+Qmon*qmon_cq.cq.cq_cqfolder.qhost_layout*qhost_settings.cellShadowThickness: 1
+
+Qmon*qmon_cq.cq.cq_cqfolder.qhost_layout*qhost_settings.translations: #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:       SelectCell(begin)\n\
+         Ctrl<Btn2Down>:   ResizeColumns()
+
+Qmon*qmon_cq.cq.cq_cqfolder.qhost_layout*qhost_settings.clip.translations: #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:       SelectCell(begin)\n\
+         Ctrl<Btn2Down>:   ResizeColumns()
+
+!Qmon*qmon_cq.cq.cq_cqfolder.qhost_layout*qhost_settings.xmtChildren: unmanaged XmtPopupMenu del_menu;
+!Qmon*qmon_cq.cq.cq_cqfolder.qhost_layout*qhost_settings.menuPost: <Btn3Down>
+
+!Qmon**del_menu.items: \
+   Title "@{@fBOperations}"; \
+   ------;\
+   "@{_Delete}" [Ctrl-D] DeleteLines(*qhost_settings);
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! clustertree_layout
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!Qmon*qmon_cq.cq.cq_cqfolder.clustertree_layout.tabLabel: @{@fBCluster Queue Tree}
+!!Qmon*qmon_cq.cq.cq_cqfolder.clustertree_layout.xmtChildren: \
+!!   ListTree          cq_tree;
+
+!!Qmon*qmon_cq.cq.cq_cqfolder.clustertree_layout.layout: \
+!!   Shadowed Out Stretchable 2.5 in % 6 in cq_tree
+

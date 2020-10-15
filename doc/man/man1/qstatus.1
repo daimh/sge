@@ -1,0 +1,133 @@
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.\"
+.de URL
+\\$2 \(laURL: \\$1 \(ra\\$3
+..
+.if \n[.g] .mso www.tmac
+.\"
+.TH QSTATUS 1 "30 NOVEMBER 2010" "qstatus 1.6" "User Commands"
+.SH NAME
+qstatus \- xxQS_NAMExx qstatus script
+.SH SYNOPSIS
+.B qstatus
+.RB [ "\-acghjlmnot" ]
+.RB [ "\-s \fISORT_FIELD_LIST" ]
+.RB [ "\fIUSER" ]
+.SH DESCRIPTION
+This manual page documents \fBqstatus\fP, a script to reformat the
+output of the xxQS_NAMExx command
+.M qstat 1 .
+.PP
+The reformatted list is by default limited to the actual user account. This can be changed to request a job
+list of any user by supplying the username \fIUSER\fR as the last argument, or requesting an output for
+all users by the \fB\-a\fR switch (see below).
+.SS Options
+.TP
+.B \-a
+Display the jobs of all users. May not be used when there is
+a dedicated user specified. This also implies the output of
+the owner of the jobs.
+.TP
+.B \-c
+Calculate a statistic of the listed jobs.
+.TP
+.B \-g
+Group output by owner. Only applicable if the owner is listed,
+either by the \fB\-o\fR switch or implied by \fB\-a\fR. This is a short form
+of \[oq]\fB\-s\fR \fBowner\fR,\fBrunning\fR\[cq]. Can't be used together with the \fB\-s\fR option.
+.TP
+.B \-h
+Print help.
+.TP
+.B \-j
+Include jobs which are suspended.
+.TP
+.B \-l
+Suppress the output of the list of jobs. Maybe useful in case
+you are only interested in the statistic with the \fB\-c\fR switch.
+.TP
+.B \-m
+Display the machine instead of the name of the queue the job is
+running in under the column \[oq]running in\[cq]. Only meaningful for
+SGE 6.0 or above.
+.TP
+.B \-n
+Suppress the listing of the individual owner, mostly useful when
+all jobs are listed. Takes precedence over any other implied options.
+If used together with \fB\-o\fR, only the later one is relevant.
+.TP
+.B \-o
+List the owner of the individual job. Takes precedence over any
+other implied option. If used together with \fB\-n\fR, only the later
+one is relevant.
+.TP
+.B \-r
+Display times relative to submit- or start-times, as appropriate.
+.TP
+.B \-s \fISORT_FIELD_LIST\fR
+Sort the output according to the given columns. The \fISORT_FIELD_LIST\fR has
+the format \fISORT_FIELD_LIST\fR=\fISORT_FIELD\fR[,\fISORT_FIELD\fR]* where
+\fISORT_FIELD\fR can be one of \fBjob\fR, \fBname\fR, \fBnone\fR,
+\fBowner\fR, \fBrunning\fR, \fBslots\fR, \fBtime\fR.
+.RS
+.PP
+The option \fBnone\fR will supersede any other column names and
+set the complete sort order to none.
+.PP
+The column \fBowner\fR can only be used if the owner of the
+job is displayed at all. Otherwise it will be ignored.
+.PP
+The sort by \fBrunning\fR will only be used for the running
+jobs, not for the waiting ones.
+.PP
+This will overwrite the default sort order, which is:
+.sp 1
+.RS
+.PD 0
+.TP 15
+running jobs:
+\fBrunning\fR
+.TP
+waiting jobs:
+\fBnone\fR
+.PD
+.RE
+.sp 1
+If the option \fB\-g\fR is specified, the default sort order is changed to:
+.sp 1
+.RS
+.PD 0
+.TP 15
+running jobs:
+\fBowner\fR,\fBrunning\fR
+.TP
+waiting jobs:
+\fBowner\fR
+.PD
+.sp 1
+.RE
+.RE
+.TP
+.B \-t
+Append task ID to the jobname for array tasks. This option has no meaning for
+non-array jobs.
+.SH AUTHOR
+Written by Reuti.
+.SH REPORTING BUGS
+Report bugs to <reuti@staff.uni-marburg.de>.
+.SH COPYRIGHT
+Copyright \[co] 2010 Philipps-University of Marburg.
+.br
+This is free software.  You may redistribute copies of it under the terms of the
+.URL http://www.gnu.org/licenses/gpl.html "GNU General Public License" .
+There is NO WARRANTY, to the extent permitted by law.
+.SH "SEE ALSO"
+.M qstat 1
+of xxQS_NAMExx.
+.SH BUGS
+Does not support the PBS or Torque resource manager.
+The Awk script used probably isn't portable and may require GNU Awk
+version 3 or higher.

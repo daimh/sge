@@ -1,0 +1,4925 @@
+'\" t
+.\" describe how a callback arg item is formatted
+..
+.de cI
+.IP \fI\\$1\fR 10
+..
+.de LI
+.IP \fB\\$1\fR 5
+..
+.TH XbaeMatrix 3x "23 July, 1999" "Version 4.7" "Xbae Widget Set"
+.SH NAME
+XbaeMatrix
+\- The Bellcore Application Environment (BAE) XbaeMatrix widget class.
+.SH SYNOPSIS
+#include <Xbae/Matrix.h>
+.SH DESCRIPTION
+.B XbaeMatrix
+presents an editable array of string data to the user in a
+scrollable grid-like format similar to a spreadsheet.  Non editable pixmaps
+can also be displayed on the matrix.  The rows and
+columns of the Matrix may optionally be labeled.  Also, a number of
+fixed leading or trailing rows or columns may be specified - these
+behave similarly to the labels.  While
+.B XbaeMatrix
+looks and acts like a grid of
+.B XmText
+widgets, it actually contains only one
+.BR XmText .
+This means that
+.B XbaeMatrix
+widgets with hundreds or thousands of rows have
+much less overhead than they would if they used an
+.B XmText
+for each cell.
+.PP
+Clicking on a cell with 
+.B Button1
+will edit the cell.  While a cell is
+being edited,
+.B Tab
+and
+.B Shift-Tab
+will edit the cell to the right or left
+respectively.  The
+.B osfUp
+and
+.B osfDown
+keys will edit the cell above or
+below.
+.B Ctrl-Tab
+and
+.B Shift-Ctrl-Tab will traverse out of the Matrix and
+into the next or previous tab groups.
+.PP
+The
+.B osfCancel
+key will cancel any edits made to a cell.  The
+.B osfActivate
+key will commit any edits made to a cell and store them in the Matrix.
+When traversing from another tab group into the Matrix, the focus will
+go to whichever cell is currently being edited.  If no cells are being
+edited, then the upper left most visible non-fixed cell will be edited.
+.PP
+The column sizes may be dynamically resized by pressing the Shift-Button2
+combination when over a column boundary, similar to the behaviour of some
+popular spreadsheets.  After a column has been resized in this manner,
+the
+.B XbaeMatrix
+calls the callbacks on the
+.B XmNresizeColumnCallback
+callback list for post processing.
+.PP
+If the Matrix is resized until it is too small to display all of the
+cells in a given dimension, then it will display a ScrollBar for that
+dimension.  The horizontal ScrollBar will scroll the cells and column
+labels, but not the row labels, fixed columns or trailing fixed columns.
+The vertical ScrollBar will scroll the cells and row labels, but not the
+column labels, fixed rows or trailing fixed rows.
+.PP
+For the application programmer,
+.B XbaeMatrix
+provides callbacks to assist in data validation.  The callbacks on the
+.B XmNmodifyVerifyCallback
+callback list are called before text is inserted into, or deleted from,
+a cell.  This callback list can be used to force user input to match a
+certain pattern (e.g. a date format).
+.PP
+When a cell is edited (by clicking on it or tabbing into it), the
+.B XmNleaveCellCallback
+callbacks are called for the previous cell being
+edited, if any.  The application can verify the data entered in that
+cell and disallow editing of the new cell if the data is invalid.  If
+the data was valid, then the
+.B XmNenterCellCallback
+callbacks for the new cell are called.  These callbacks can be used to
+specify the editability of the new cell.
+.PP
+The
+.B XmNtraverseCellCallback
+callbacks are also called when the user attempts to edit a new cell.
+This allows the application to override the default traversal behavior
+of
+.BR XbaeMatrix .
+.PP
+The
+.B XmNdefaultActionCallback
+is provided to allow a double click action in a cell to perform
+some function.
+.PP
+Motif's Drag and Drop functionality can be achieved via the
+.BR XmNprocessDragCallback .
+.PP
+For large amounts of data, the overhead of assigning data to the widget
+can be avoided using the
+.BR XmNdrawCellCallback .
+This callback also allows user defined pixmaps to be placed in a certain
+cell.
+When using this callback, data for string fields can be written back to the
+application by using the
+.BR XmNwriteCellCallback .
+.SS "Classes"
+.B XbaeMatrix
+inherits behavior and resources from the 
+.BR Core ,
+.BR Composite ,
+.BR Constraint ,
+and 
+.B XmManager
+widget classes.
+.br
+The class pointer is 
+.BR xbaeMatrixWidgetClass .
+.br
+The class name is 
+.BR XbaeMatrix .
+.SS "New Resources"
+The following table lists the new resources defined by
+.BR XbaeMatrix .
+The codes in the ``Access'' column indicate whether the given resource can be
+set at creation time (C), or set by using XtSetValues (S), or retrieved
+by using XtGetValues (G).
+.sp
+.TS
+expand box;
+c s s s s
+lb | lb | lb | lb | lb
+lp7 | lp7 | lp7 | lp7 | lp7 .
+XbaeMatrix Resource Set
+_
+Name	Class	Type	Default	Access
+=
+XmNallowColumnResize	XmCColumnResize	Boolean	False	CSG
+_
+XmNaltRowCount	XmCAltRowCount	int	1	CSG
+_
+XmNboldLabels	XmCBoldLabels	Boolean	False	CSG
+_
+XmNbuttonLabels	XmCButtonLabels	Boolean	False	CSG
+_
+XmNbuttonLabelBackground	XmCColor	Pixel	dynamic	CSG
+_
+XmNcalcCursorPosition	XmCCalcCursorPosition	Boolean	False	CSG
+_
+XmNcellBackgrounds	XmCColors	PixelTable	NULL	CSG
+_
+XmNcellHighlightThickness	XmCHighlightThickness	Dimension	2	CSG
+_
+XmNcellMarginHeight	XmCMarginHeight	Dimension	3	CSG
+_
+XmNcellMarginWidth	XmCMarginWidth	Dimension	3	CSG
+_
+XmNcellShadowThickness	XmCShadowThickness	Dimension	2	CSG
+_
+XmNcellShadowType	XmCShadowType	unsigned char	XmSHADOW_OUT	CSG
+_
+XmNcellShadowTypes	XmCCellShadowTypes	unsigned char **	NULL	CSG\(dg
+_
+XmNcellUserData	XmCCellUserData	XtPointer **	NULL	CSG\(dg
+_
+XmNclipWindow	XmCClipWindow	Widget	NULL	G
+_
+XmNcells	XmCCells	CellTable	NULL	CSG
+_
+XmNcolors	XmCColors	PixelTable	NULL	CSG
+_
+XmNcolumnAlignments	XmCAlignments	AlignmentArray	dynamic	CSG
+_
+XmNcolumnButtonLabels	XmCButtonLabels	BooleanArray	NULL	CSG
+_
+XmNcolumnLabelAlignments	XmCAlignments	AlignmentArray	dynamic	CSG
+_
+XmNcolumnLabelColor	XmCColor	Pixel	dynamic	CSG
+_
+XmNcolumnLabels	XmCLabels	StringArray	NULL	CSG
+_
+XmNcolumnMaxLengths	XmCColumnMaxLengths	MaxLengthArray	NULL	CSG
+_
+XmNcolumnShadowTypes	XmCShadowTypes	unsigned char *	NULL	CSG
+_
+XmNcolumnUserData	XmCUserDatas	XtPointer *	NULL	CSG
+_
+XmNcolumnWidths	XmCColumnWidths	WidthArray	NULL	CSG
+_
+XmNcolumns	XmCColumns	int	0	CSG
+_
+XmNdefaultActionCallback	XmCCallback	XtCallbackList	NULL	CSG
+_
+XmNdoubleClickInterval	XmCDoubleClickInterval	int	dynamic	CSG
+_
+XmNdrawCellCallback	XmCCallback	Callback	NULL	CSG
+_
+XmNenterCellCallback	XmCCallback	Callback	NULL	CSG
+_
+XmNevenRowBackground	XmCBackground	Pixel	dynamic	CSG
+_
+XmNfill	XmCFill	Boolean	False	CSG
+_
+XmNfixedColumns	XmCFixedColumns	Dimension	0	CSG
+_
+XmNfixedRows	XmCFixedRows	Dimension	0	CSG
+_
+XmNfontList	XmCFontList	FontList	fixed	CSG
+_
+XmNgridLineColor	XmCColor	Pixel	dynamic	CSG
+_
+XmNgridType	XmCGridType	GridType	XmGRID_CELL_LINE	CSG
+_
+.TE
+.TS
+expand box;
+c s s s s
+lb | lb | lb | lb | lb
+lp7 | lp7 | lp7 | lp7 | lp7 .
+XbaeMatrix Resource Set (continued)
+_
+Name	Class	Type	Default	Access
+=
+XmNhighlightedCells	XmCHighlightedCells	HighlightTable *	dynamic	CSG
+_
+XmNhorizontalScrollBar	XmCHorizontalScrollBar	Widget	NULL	G
+_
+XmNhorizontalScrollBarDisplayPolicy	XmCMatrixScrollBarDisplayPolicy	unsigned char	XmDISPLAY_AS_NEEDED	CSG
+_
+XmNlabelActivateCallback	XmCCallback	Callback	NULL	CSG
+_
+XmNlabelFont	XmCFontList	FontList	dynamic	CSG
+_
+XmNleaveCellCallback	XmCCallback	Callback	NULL	CSG
+_
+XmNleftColumn	XmCLeftColumn	int	0	CSG
+_
+XmNmodifyVerifyCallback	XmCCallback	Callback	NULL	CSG
+_
+XmNoddRowBackground	XmCBackground	Pixel	dynamic	CSG
+_
+XmNprocessDragCallback	XmCCallback	Callback	NULL	CSG
+_
+XmNresizeCallback	XmCCallback	Callback	NULL	CSG
+_
+XmNresizeColumnCallback	XmCCallback	Callback	NULL	CSG
+_
+XmNreverseSelect	XmCReverseSelect	Boolean	False	CSG
+_
+XmNrowButtonLabels	XmCButtonLabels	BooleanArray	NULL	CSG
+_
+XmNrowLabelAlignment	XmCAlignment	Alignment	XmALIGNMENT_END	CSG
+_
+XmNrowLabelColor	XmCColor	Pixel	dynamic	CSG
+_
+XmNrowLabelWidth	XmCRowLabelWidth	Short	dynamic	CSG
+_
+XmNrowLabels	XmCLabels	StringArray	NULL	CSG
+_
+XmNrowShadowTypes	XmCShadowTypes	unsigned char *	NULL	CSG
+_
+XmNrowUserData	XmCUserDatas	XtPointer *	NULL	CSG
+_
+XmNrows	XmCRows	int	0	CSG
+_
+XmNscrollBarPlacement	XmCScrollBarPlacement	unsigned char	XmBOTTOM_RIGHT	CSG
+_
+XmNselectCellCallback	XmCCallback	Callback	NULL	CSG
+_
+XmNselectScrollVisible	XmCSelectScrollVisible	Boolean	True	CSG
+_
+XmNselectedBackground	XmCColor	Pixel	dynamic	CSG
+_
+XmNselectedCells	XmCSelectedCells	BooleanTable	dynamic	CSG
+_
+XmNselectedForeground	XmCColor	Pixel	dynamic	CSG
+_
+XmNshadowType	XmCShadowType	unsigned char	XmSHADOW_IN	CSG
+_
+XmNshowArrows	XmCShowArrows	Boolean	False	CSG
+_
+XmNspace	XmCSpace	Dimension	4	CSG
+_
+XmNtextBackground	XmCBackground	Pixel	dynamic	CSG
+_
+XmNtextField	XmCTextField	Widget	NULL	G
+_
+XmNtextShadowThickness	XmCTextShadowThickness	Dimension	0	CSG
+_
+XmNtextTranslations	XmCTranslations	TranslationTable	dynamic	CSG
+_
+XmNtopRow	XmCTopRow	int	0	CSG
+_
+XmNtrailingAttachedBottom	XmCTrailingAttachedBottom	Boolean	False	CSG
+_
+XmNtrailingFixedColumns	XmCTrailingFixedColumns	Dimension	0	CSG
+_
+XmNtrailingFixedRows	XmCTrailingFixedRows	Dimension	0	CSG
+_
+XmNtraverseCellCallback	XmCCallback	Callback	NULL	CSG
+_
+XmNtraverseFixedCells	XmCTraverseFixedCells	Boolean	False	CSG
+_
+.TE
+.TS
+expand box;
+c s s s s
+lb | lb | lb | lb | lb
+lp7 | lp7 | lp7 | lp7 | lp7 .
+XbaeMatrix Resource Set (continued)
+_
+Name	Class	Type	Default	Access
+=
+XmNverticalScrollBar	XmCVerticalScrollBar	Widget	NULL	G
+_
+XmNverticalScrollBarDisplayPolicy	XmCMatrixScrollBarDisplayPolicy	unsigned char	XmDISPLAY_AS_NEEDED	CSG
+_
+XmNvisibleColumns	XmCVisibleColumns	Dimension	0	CSG
+_
+XmNvisibleRows	XmCVisibleRows	Dimension	0	CSG
+_
+XmNwriteCellCallback	XmCCallback	Callback	NULL	CSG
+_
+.TE
+.PP
+\(dg This resource cannot be specified in a resource file
+.PP
+.LI XmNallowColumnResize
+If True, allows the columns to be dynamically resized via the
+ResizeColumns(\|) action.  The default value is to not allow column resizing.
+.LI XmNaltRowCount
+Specifies the number of rows to use for each of the
+.B XmNevenRowBackground
+and
+.B XmNoddRowBackround
+colors. This resource is ignored if
+.B XmNevenRowBackground
+and
+.B XmNoddRowBackround
+are not used.
+.LI XmNboldLabels
+Overstrikes the row and column labels to create a bold font appearance
+when True.
+If False, the labels will appear the same as the text in the cells.  This
+resource will be overriden and set to False if
+.B XmNlabelFont
+is set.
+.LI XmNbuttonLabels
+When set to True, the labels will be drawn with a shadow around them similar
+to an
+.B XmPushButton
+widget. A ButtonPress event generated on the labels, when
+.B XmNbuttonLabels
+is True will cause the label to reverse the shadow and take on a pushed in
+appearance.  A ButtonRelease event on the same label will invoke callbacks
+on the
+.BR XmNlabelActivateCallback ,
+list. The default value is False.
+.LI XmNbuttonLabelBackground
+Specifies a Pixel value in which to draw the
+.BR XmNbuttonLabels .
+.LI XmNcalcCursorPosition
+If set to True, the insertion position on the text field is calculated
+with respect to where the pointer was clicked in the cell.  The default
+value is False.  The insertion position will be overridden if the
+.I position
+member of the
+.B XbaeEnterCellCallbackStruct
+is set to a valid position.
+.LI XmNcellBackgrounds
+Points to an array of pointers to rows. Each row is an array of Pixel
+values, one for each column in that row. This data structure is the same
+as that for
+.BR XmNcells ,
+except each entry is a Pixel instead of a String.
+The background of a cell will be drawn in the color specified for that cell.
+If
+.B XmNcellBackgrounds
+is 
+.SM NULL,
+backgrounds will be drawn using the color specified by
+.BR XmNbackground .
+This resource is copied.
+.B XmNcellBackgrounds may be specified in a resource file but due to the
+two dimensional nature of the
+.B XbaeMatrix
+widget, it must be done by terminating each line with a \\n character.
+If the
+.B XbaeMatrix widget had
+.B XmNrows
+set to 5 and
+.B XmNcolumns
+set to 5,
+.B XmNcellBackgrounds
+would be specified as:
+.sp
+\fC
+.TS
+l l .
+*mw.cellBackgrounds:	blue, white, blue, white, blue\\n\\ 
+	white, blue, white, blue, white\\n\\ 
+	blue, white, blue, white, blue\\n\\ 
+	white, blue, white, blue, white\\n\\ 
+	blue, white, blue, white, blue\\n
+.TE
+\fR
+Care must be taken when specifying these values in a resource file as
+an incorrect format can produce undesirable results.
+.LI XmNcellHighlightThickness
+Specifies the
+.B XmNhighlightThickness
+resource of the
+.B XmText
+cell
+edit widget. This resource is also used to compute the size of each
+cell. See the description of
+.B XmNhighlightThickness
+in
+.BR XmText(3X) .
+.LI XmNcellMarginHeight
+Specifies the
+.B XmNmarginHeight 
+resource of the
+.B XmText
+widget. This resource is also used to compute the size of each cell. See
+the description of
+.B XmNmarginHeight
+in
+.BR XmText(3X) .
+.LI XmNcellMarginWidth
+Specifies the
+.B XmNmarginWidth
+resource of the
+.B XmText
+cell edit
+widget. This resource is also used to compute the size of each cell. See
+the description of
+.B XmNmarginWidth
+in
+.BR XmText(3X) .
+.LI XmNcellShadowThickness
+Specifies the
+.B XmNshadowThickness
+resource of the
+.B XmText
+cell edit
+widget. This resource is also used to compute the size of each cell. See
+the description of
+.B XmNshadowThickness
+in
+.BR XmText(3X) .
+.LI XmNcellShadowType
+Specifies the type of shadow drawn around each cell.  Possible values for
+this resource are
+.BR XmSHADOW_OUT ,
+.BR XmSHADOW_IN ,
+.BR XmSHADOW_ETCHED_OUT ,
+and
+.BR XmSHADOW_ETCHED_IN .
+The default shadow type is
+.BR XmSHADOW_OUT .
+.LI XmNcellShadowTypes
+Specifies on a per cell basis, the
+.BR XmNcellShadowType .
+Values for the resource are the same as for 
+.BR XmNcellShadowType .
+This resource is copied.
+.LI XmNcellUserData
+Points to an array of pointers to individual user defined data areas
+associated with each cell.
+The data should be set using
+.B XbaeMatrixSetCellUserData(\|)
+and retrieved using
+.BR XbaeMatrixGetCellUserData(\|) .
+This resource cannot be specified in a resource file and is copied.
+.LI XmNcells
+Points to an array of pointers to rows. Each row is an array of String,
+one for each column in that row. For example, the cells for a 2x3 Matrix
+could be set up as follows: 
+.sp
+\fC
+.TS
+tab(^);
+l s s s
+l l l l .
+String rows[2][3] =
+{
+^"00",^"01",^"02",
+^"10",^"11",^"12"
+};
+.TE
+.DS
+String *cells[2];
+.br
+cells[0] = &rows[0][0];
+.br
+cells[1] = &rows[1][0];
+.DE
+\fR
+.sp
+Now cells could be used as the
+.B XmNcells
+resource. If
+.B XmNcells
+is
+.SM NULL,
+.B XbaeMatrix
+will
+.B not
+generate an internal table of empty Strings. This implies that if
+.B XmNcells 
+is
+.BR NULL ,
+no cells have been set.
+This resource is copied.  See the discussion in
+.B XmNcellBackgrounds
+for how to specify
+.B XmNcells
+in a resource file.
+.LI XmNclipWindow
+The widget ID of the clip window.  The clip window is the widget that
+contains the non-fixed region of cells. This resource can not be set
+to a new value.
+.LI XmNcolors
+Points to an array of pointers to rows. Each row is an array of Pixel
+values, one for each column in that row. This data structure is the same
+as that for
+.BR XmNcells ,
+except each entry is a Pixel instead of a String.
+The text in a cell will be drawn in the color specified for that cell.
+If
+.B XmNcolors
+is 
+.SM NULL,
+text will be drawn using the color specified by
+.BR XmNforeground .
+This resource is copied. See the discussion in
+.B XmNcellBackgrounds
+for how to specify
+.B XmNcolors
+in a resource file.
+.LI XmNcolumnAlignments
+Points to an array of alignments (unsigned char), one for each column.
+Each element can be one of 
+.BR XmALIGNMENT_BEGINNING ,
+.BR XmALIGNMENT_CENTER " or " XmALIGNMENT_END .
+This specifies the alignment of the text or pixmap in each cell
+of that column. See the description of 
+.B XmNalignment
+for 
+.BR XmLabel(3X) .
+If
+.B XmNcolumnAlignments
+is 
+.SM NULL, 
+each column will default to
+.BR XmALIGNMENT_BEGINNING .
+This resource is copied.
+.LI XmNcolumnButtonLabels
+An array of Booleans that tells the
+.B XbaeMatrix
+which column labels should be drawn as a button.  Each Boolean can be
+specified as a Boolean string or integer. In order to use this resource,
+.B XmNbuttonLabels
+should be set to False.
+.LI XmNcolumnLabelAlignments
+Points to an array of alignments (unsigned char), one for each column
+label. Each element can be one of 
+.B XmALIGNMENT_BEGINNING,
+.BR XmALIGNMENT_CENTER " or " XmALIGNMENT_END .
+This specifies the alignment of
+the text of each column label. See the description of 
+.B XmNalignment
+for
+.BR XmLabel(3X) .
+If 
+.B XmNcolumnLabelAlignments
+is
+.SM NULL,
+each column label will
+default to 
+.BR XmALIGNMENT_BEGINNING .
+This resource is copied.
+.LI XmNcolumnLabelColor
+Specifies a Pixel value in which to draw the
+.BR XmNcolumnLabels .
+.LI XmNcolumnLabels
+Points to an array of Strings to be drawn above each column. Each String
+may have embedded newline characters, in which case the label will be
+drawn on multiple lines. If 
+.B XmNcolumnLabels
+is
+.SM NULL,
+no labels will be
+drawn. This resource is copied.
+.LI XmNcolumnMaxLengths
+Points to an array of int, one for each column. These specify the
+maximum length of a String which can be entered in the cells in that
+column. See the description of the 
+.B XmText(3X) XmNmaxLength
+resource. If 
+.B XmNcolumnMaxLengths
+is
+.SM NULL,
+then the corresponding width
+from 
+.B XmNcolumnWidths
+is used. This resource is copied.
+.LI XmNcolumnShadowTypes
+Specifies on a per column basis, the
+.BR XmNcellShadowType .
+Values for the resource are the same as for 
+.BR XmNcellShadowType .
+This resource is copied.
+.LI XmNcolumnUserData
+Points to a user defined data area associated with a particular column.
+The data should be set using
+.B XbaeMatrixSetColumnUserData(\|)
+and retrieved using
+.BR XbaeMatrixGetColumnUserData(\|) .
+This resource cannot be specified in a resource file.
+.LI XmNcolumnWidths
+Points to an array of short, one for each column. These specify the
+visible width the cells in each column. See the description of the
+.B XmText(3X) XmNcolumns
+resource. 
+.B XmNcolumnWidths
+must not be
+.SM NULL.
+This resource is copied.
+.LI XmNcolumns
+Specifies the total number of columns of cells. 
+.B XmNcolumns
+must be at
+least one. If the number of columns is changed via XtSetValues, then
+.B XmNcolumnWidths
+must change, 
+.B XmNcolumnMaxLengths
+must change or be
+.SM NULL,
+.B XmNcolumnLabels
+must change or be
+.SM NULL,
+.B XmNcolumnAlignments
+must change
+or be
+.SM NULL 
+and 
+.B XmNcolumnLabelAlignments
+must change or be
+.SM NULL.
+The preferred way to dynamically change the number of columns is to use
+.BR XbaeMatrixAddColumns(\|) " or " XbaeMatrixDeleteColumns(\|) .
+.LI XmNdefaultActionCallback
+Specifies a list of callbacks to be called when a double click occurs
+in a cell.  A pointer to an
+.B XbaeMatrixDefaultCallbackStruct
+is passed to the callbacks. Events are reported to the cell in which the
+double click occurs regardless of whether or not a callback exists.  This
+callback is called by the DefaultAction(\|) action and is NULL by default.
+The
+.B XmNdefaultActionCallback
+is ideal for popping up a dialog or other window when a double click occurs.
+.LI XmNdoubleClickInterval
+Specifies the amount of time between mouse clicks before it is considered
+a double click.  A double click is defined to be the time between the
+realease of the mouse button and subsequent press in the same cell.  The
+default value is inherited from the display.
+.LI XmNdrawCellCallback
+Specifies a list of callbacks to be called when a cell needs to be
+drawn. A pointer to an
+.B XbaeMatrixDrawCellCallbackStruct
+is passed to
+the callbacks. The application can specify what to put in a cell by modifying
+the callback struct's data fields. When the
+application callback returns to the widget code, the type field will
+determine what the widget draws on the screen. If the value is
+.BR XbaeString ,
+then the regular string drawing function for the widget
+will be called with the value the applicaton assigned to the string
+field in the struct. Else, if the value is
+.BR XbaePixmap ,
+the widget will
+do an
+.BR XCopyPlane(\|) ,
+in the case of a single plane bitmap, or
+.BR XCopyArea(\|) ,
+in the case of a color pixmap.
+The width and height of cell is passed
+in the struct so the application can know how big to make the
+pixmap. In neither case will a copy of the string or the pixmap value
+be made. The widget also uses the
+.B XmNcolumnAlignments
+resource to determine the horizontal alignment of the Pixmap.
+To have an editable array of data when the
+.B XmNdrawCellCallback
+is used and the cell is of type XbaeString, use the
+.BR XmNwriteCellCallback .
+.LI XmNenterCellCallback
+Specifies a list of callbacks to be called immediately before a cell is
+to be edited. This callback list is called by the EditCell(\|) action. A
+pointer to an
+.B XbaeMatrixEnterCellCallbackStruct
+is passed to the
+callbacks. The application can specify the editability of specific cells
+using this callback list as well as specifying configuration options
+for the
+.BR XmText .
+.LI XmNevenRowBackground
+Specifies a background cell Pixel value to use on even rows. This allows the
+matrix to look like computer paper. For wider bands of color,
+increase the size of
+.BR XmNaltRowCount .
+.LI XmNfill
+If True, controls whether the matrix should fill all of its available
+space when additional space if available, or if it should simply size
+itself as large as necessary, regardless of any additonal available space.
+.LI XmNfixedColumns
+Specifies the number of leading columns (starting from the left column)
+which should not be horizontally scrollable.
+.B XmNfixedColumns
+must be less
+than 
+.BR XmNcolumns - XmNtrailingFixedColumns .
+Cells in fixed columns are not editable unless
+.B XmNtraverseFixedCells
+is set to True.
+.LI XmNfixedRows
+Specifies the number of leading rows (starting from the top row) which
+should not be vertically scrollable.
+.B XmNfixedRows
+must be less than 
+.BR XmNrows - XmNtrailingFixedRows .
+Cells in fixed rows are not editable unless
+.B XmNtraverseFixedCells
+is set to True.
+.LI XmNfontList
+Specifies the font list to be used for the text displayed in the cells and the 
+.B XmText
+cell edit widget. See
+.B XmFontListCreate(3X)
+to create a font list. This resource is copied.  The preferred way 
+of specifying a font for the table is in a resource file.
+.LI XmNgridLineColor
+Specifies the color in which the grid line should be drawn if
+.B XmNgridType
+is set to
+.BR XmGRID_CELL_LINE ,
+.B XmGRID_ROW_LINE
+or
+.BR XmGRID_COLUMN_LINE .
+The default is that of
+.BR XmNforeground .
+.LI XmNgridType
+Sets the way the matrix grid is drawn.  The grid types available include
+.BR XmGRID_NONE ,
+.BR XmGRID_CELL_LINE ,
+.BR XmGRID_CELL_SHADOW ,
+.BR XmGRID_ROW_LINE ,
+.BR XmGRID_ROW_SHADOW ,
+.B XmGRID_COLUMN_LINE
+and
+.BR XmGRID_COLUMN_SHADOW .
+All of the grid types vary the way the shadow or line is drawn around
+the cell.
+.BR XmGRID_ROW_LINE ,
+.BR XmGRID_ROW_SHADOW ,
+.BR XmGRID_COLUMN_LINE ,
+and
+.B XmGRID_COLUMN_SHADOW
+only draw a border around the rows and columns, giving a more tabular rather
+than spreadsheet appearance. The default is
+.B XmGRID_CELL_LINE
+which draws a solid line around the cells.
+.LI XmNhighlightedCells
+Points to an array of pointers to rows. Each row is an array of unsigned
+char values, one for each column in that row. This data structure is the same
+as that for 
+.BR XmNcells ,
+except each entry is an unsigned char instead of a
+String. Each entry in the array will have a value that
+is either
+.BR HighlightNone ,
+.BR HighlightCell ,
+.BR HighlightRow ,
+.BR HighlightColumn ,
+.B HighlightOther
+or the bitwise OR of those values, depending on the value of
+.B XmNgridType
+and which call was used to highlight the cell.
+A cell will be drawn as highlighted if the
+corresponding unsigned char does not have the value
+.BR HighlightNone .
+If 
+.B XmNhighlightedCells
+is
+.SM NULL,
+.B XbaeMatrix
+then no cells have been highlighted.
+This resource is copied, and cannot be specified in a resource file.
+.LI XmNhorizontalScrollBar
+The widget ID of the horizontal 
+.BR XmScrollBar .
+This resource exists only for those applications that need to tie
+another scrollbar to the matrix's for synchronized scrolling.
+This resource can not be set to a new value.
+.LI XmNhorizontalScrollBarDisplayPolicy
+Determines when to display a horizontal scrollbar in the matrix. Possible
+values are
+.BR XmDISPLAY_NONE ,
+which makes the matrix never display the scrollbar,
+.BR XmDISPLAY_AS_NEEDED ,
+which makes the matrix display the scrollbar when the list is too large,
+and
+.BR XmDISPLAY_STATIC ,
+which makes the matrix always display the scrollbar.
+.LI XmNlabelFont
+Specifies the font list to be used for the text displayed in the row and
+column labels. If
+.B
+XmNlabelFont
+is not specified, the value of
+.B
+XmNfontList
+is copied and used for the label fonts. If
+.B XmNboldLabels
+is set, this resource will override the value and set it to False. See
+.B XmFontListCreate(3X)
+to create a font list. This resource is copied.  The preferred way 
+of specifying a font for the labels is in a resource file.
+.LI XmNlabelActivateCallback
+Specifies a list of callbacks to be called after a button label has been
+pressed.  A pointer to an
+.B XbaeMatrixLabelActivateCallbackStruct
+is passed to the callbacks on this list.
+.LI XmNleaveCellCallback
+Specifies a list of callbacks to be called immediately after a cell has
+been edited. This callback list is called by the EditCell(\|) and
+CommitEdit(\|) actions. A pointer to an
+.B XbaeMatrixLeaveCellCallbackStruct
+is passed to the callbacks. The application can perform cell specific
+data checks using this callback list.
+.LI XmNleftColumn
+Allows the programmer to specify the first non fixed column to appear on the
+leftmost side of the matrix.  This resource compliments the
+.B XmNtopRow
+resource. See the discussion of
+.B XmNtopRow
+for more details.
+.LI XmNmodifyVerifyCallback
+Specifies a list of callbacks to be called before text is deleted from
+or inserted into the 
+.B XmText
+cell edit widget. A pointer to an
+.B XbaeMatrixModifyVerifyCallbackStruct
+is passed to the callbacks. See the
+description of the 
+.B XmText(3X) XmNmodifyVerifyCallback
+resource.
+.LI XmNoddRowBackground
+Specifies a background cell color to use on odd rows. This allows the matrix to
+look like computer paper. For wider bands of color, increase the size of
+.BR XmNaltRowCount .
+.LI XmNprocessDragCallback
+Specifies a list of callbacks to be called from the ProcessDrag(\|) action
+A pointer to an
+.B XbaeMatrixProcessDragCallbackStruct
+will be passed to the
+callbacks. The application can use this callback list to perform
+particular processing during a drag.
+.LI XmNresizeCallback
+Specifies a list of callbacks to be called when the matrix is resized.
+.LI XmNresizeColumnCallback
+Specifies a list of callbacks to be called when a column is dynamically
+resized by the user.
+.LI XmNreverseSelect
+Overrides the default
+.B XmNselectedForeground
+and
+.B XmNselectedBackground
+and draws a selected cell in the colours specified by
+.B XmNcellBackgrounds
+and
+.B XmNcolors
+for the particular cell.  If these values are not set then the default colours
+will be used.
+.LI XmNrowButtonLabels
+An array of Booleans that tells the
+.B XbaeMatrix
+which row labels should be drawn as a button.  Each Boolean can be
+specified as a Boolean string or integer. In order to use this resource,
+.B XmNbuttonLabels
+should be set to False.
+.LI XmNrowLabelAlignment
+Specifies the alignment of the row labels. It can be one of
+.BR XmALIGNMENT_BEGINNING ", " XmALIGNMENT_CENTER " or " XmALIGNMENT_END .
+See the description of 
+.B XmNalignment
+for 
+.BR XmLabel(3X) .
+.B XmNrowLabelAlignment
+defaults to
+.BR XmALIGNMENT_END .
+.LI XmNrowLabelColor
+Specifies a Pixel value in which to draw the
+.BR XmNrowLabels .
+.LI XmNrowLabelWidth
+Specifies the width of the row labels. 
+.B XmNrowLabelWidth
+defaults to the
+width of the longest row label.
+.LI XmNrowLabels
+Points to an array of Strings to be drawn to the left of each row. If
+.B XmNrowLabels
+is
+.SM NULL,
+no labels will be drawn. This resource is copied.
+.LI XmNrowShadowTypes
+Specifies on a per row basis, the
+.BR XmNcellShadowType .
+Values for the resource are the same as for 
+.BR XmNcellShadowType .
+This resource is copied.
+.LI XmNrowUserData
+Points to a user defined data area associated with a particular row.
+The data should be set using
+.B XbaeMatrixSetRowUserData(\|)
+and retrieved using
+.BR XbaeMatrixGetRowUserData(\|) .
+This resource cannot be specified in a resource file.
+.LI XmNrows
+Specifies the total number of rows of cells. 
+.B XmNrows
+must be at least
+one. If the number of rows is changed via XtSetValues, then 
+.B XmNrowLabels
+must change or be
+.SM NULL.
+The preferred way to dynamically change the
+number of rows is to use
+.BR XbaeMatrixAddRows(\|) " or " XbaeMatrixDeleteRows(\|) .
+.LI XmNscrollBarPlacement
+Determines where the scrollbars will be drawn.
+See the discussion of
+.B XmNscrollBarPlacement
+in
+.B XmScrolledWindow(3)
+for a complete discussion on this resource.
+.LI XmNselectCellCallback
+Specifies a list of callbacks to be called from the SelectCell(\|) action.
+A pointer to an
+.B XbaeMatrixSelectCellCallbackStruct
+will be passed to the
+callbacks. The application can use this callback list to perform
+selection/deselection of cells using the provided widget methods.
+.LI XmNselectScrollVisible
+Specifies whether the matrix will scroll to make the selected cell visible.
+This flag is only checked when cells are selected programmatically,
+as when the user selects a cell with the mouse, it will already be visible.
+.LI XmNselectedBackground
+Allows the background of selected cells in
+.B XmNselectedCells
+to be specified.
+.LI XmNselectedCells
+Points to an array of pointers to rows. Each row is an array of Boolean
+values, one for each column in that row. This data structure is the same
+as that for 
+.BR XmNcells ,
+except each entry is a Boolean instead of a
+String. A cell will be drawn as selected if the
+corresponding Boolean is True. If 
+.B XmNselectedCells
+is
+.SM NULL,
+then no cells have been selected.
+This resource is copied.  It cannot be specified in a resource file.
+.LI XmNselectedForeground
+Allows the foreground of selected cells in
+.B XmNselectedCells
+to be specified.
+.LI XmNshadowType
+Specifies the type of shadow drawn around the border of the matrix.
+Possible values for this resource are
+.BR XmSHADOW_OUT ,
+.BR XmSHADOW_IN ,
+.BR XmSHADOW_ETCHED_OUT ,
+and
+.BR XmSHADOW_ETCHED_IN .
+The default shadow type is XmSHADOW_OUT.
+.LI XmNshowArrows
+Specifies whether arrows should be drawn when data in a cell has been
+obscured due to the value of
+.BR XmNcolumnWidths .
+.LI XmNspace
+Specifies the distance that separates the ScrollBars from the cell grid. The
+default value is 4 pixels.
+.LI XmNtextBackground
+Specifies the background of the 
+.B XmText
+cell edit widget. This can be used to
+make the 
+.B XmText
+stand out against a uniformly colored matrix.
+.LI XmNtextField
+The widget ID of the
+.BR XmText .
+This resource cannot be set to a new value.
+.LI XmNtextShadowThickness
+Specifies the
+.B XmNshadowThickness
+of the
+.BR XmText .
+Interesting effects can be achieved by setting the
+.B XmNcellHighlightThickness
+to 0 and replacing the highlight with an indented shadow.
+.LI XmNtextTranslations
+Specifies the 
+.B XmNtranslations
+resource of the 
+.B XmText
+cell edit
+widget. See the description of 
+.B XmNtranslations
+in 
+.BR XmText(3X) .
+.LI XmNtopRow
+Specifies the row which should be displayed at the top of the non-fixed
+rows. 
+.B XmNtopRow
+is specified relative to the first non-fixed row, so
+(XmNfixedRows + XmNtopRow) is the actual row number which will be moved
+to the top. If (XmNtopRow > (XmNrows - (<number of rows visible> + 
+XmNfixedRows), then the actual row which will be moved to the top is
+(XmNrows - (<number of rows visible> + XmNfixedRows).
+.LI XmNtrailingAttachedBottom
+Indicated that any trailing fixed rows should be attached to the bottom
+of the matrix. This resource only has effect when
+.B XmNfill
+is true and
+.B XmNtrailingFixedRows
+is greater than zero.
+.LI XmNtrailingFixedColumns
+Specifies the number of trailing columns (starting from the right column)
+which should not be horizontally scrollable.
+.B XmNtrailingFixedColumns
+must be less
+than 
+.BR XmNcolumns - XmNfixedColumns .
+Cells in trailing fixed columns are not editable unless
+.B XmNtraverseFixedCells
+is set to True.
+.LI XmNtrailingFixedRows
+Specifies the number of trailing rows (starting from the bottom row) which
+should not be vertically scrollable.
+.B XmNtrailingFixedRows
+must be less than 
+.BR XmNrows - XmNfixedRows .
+Cells in trailing fixed rows are not editable unless
+.B XmNtraverseFixedCells
+is set to True.
+.LI XmNtraverseCellCallback
+Specifies a list of callbacks to be called before a new cell is edited.
+These callbacks are called by the EditCell(\|) action, they are also
+called when
+.B XbaeMatrix
+receives the focus while the 
+.B XmText
+edit widget is unmapped. A pointer to an
+.B XbaeMatrixTraverseCellCallbackStruct
+is passed to the callbacks. The application can specify the next cell
+which should be edited via this callback list, thereby performing custom
+traversal.
+.LI XmNtraverseFixedCells
+If True, this resource allows fixed cells and columns to be edited.  The
+default is to not allow fixed rows or columns to be edited.
+.LI XmNverticalScrollBar
+The widget ID of the vertical 
+.BR XmScrollBar .
+This resource exists only for those applications that need to tie
+another scrollbar to the matrix's for synchronized scrolling.
+This resource can not be set to a new value.
+.LI XmNverticalScrollBarDisplayPolicy
+Determines when to display a horizontal scrollbar in the matrix. Possible
+values and their effects are listed under
+.BR XmNhorizontalScrollBarDisplayPolicy .
+.LI XmNvisibleColumns
+Specifies the number of non-fixed columns which should be
+visible. The widget will request a size which will allow
+.B XmNvisibleColumns
+columns to be displayed.  The programmer should take into allowance
+any
+.B XmNfixedColumns
+that are specified.  This feature becomes even more apparent if the
+number of
+.B XmNfixedColumns
+changes at runtime as the value may need to be adjusted to avoid a
+warning.
+.LI XmNvisibleRows
+Specifies the number of rows which should be visible at any
+one time. The widget will request a size which will allow 
+.B XmNvisibleRows
+rows to be displayed.
+.LI XmNwriteCellCallback
+Specifies  a  list  of  callbacks to be called when a
+cell value changes and an
+.B XmNdrawCellCallback
+is defined. A pointer to  an 
+.B XbaeMatrixWriteCellCallbackStruct
+is passed to the callbacks.  The
+.B XmNwriteCellCallback
+allows data to be written back into the application's data structure and must
+be defined for an editable
+.B XbaeMatrix
+with an 
+.BR XmNdrawCellCallback .
+.PP
+.SS "Inherited Resources"
+The following table lists the resources which
+.B XbaeMatrix
+inherits from
+it's superclasses
+.BR XmManager ,
+.B Compositeand
+.BR Core .
+For a complete
+description of each resource, refer to the man page for that superclass.
+The codes in the ``Access'' column indicate whether the given resource can
+be set at creation time (C), or set by using XtSetValues (S), or
+retrieved by using XtGetValues (G).
+.LP
+.TS
+expand box;
+c s s s s
+lb | lb | lb | lb | lb
+lp7 | lp7 | lp7 | lp7 | lp7 .
+XmManager Resource Set
+_
+Name	Class	Type	Default	Access
+=
+XmNbottomShadowColor	XmCBottomShadowColor	Pixel	dynamic	CSG
+_
+XmNbottomShadowPixmap	XmCBottomShadowPixmap	Pixmap	XmUNSPECIFIED_PIXMAP	CSG
+_
+XmNforeground	XmCForeground	Pixel	dynamic	CSG
+_
+XmNhighlightColor	XmCHighlightColor	Pixel	dynamic	CSG
+_
+XmNhighlightPixmap	XmCHighlightPixmap	Pixmap	dynamic	CSG
+_
+XmNinitialFocus	XmCInitialFocus	Widget	NULL	CSG
+_
+XmNnavigationType	XmCNavigationType	XmNavigationType	XmTAB_GROUP	CSG
+_
+XmNshadowThickness	XmCShadowThickness	Dimension	0	CSG
+_
+XmNstringDirection	XmCStringDirection	XmStringDirection	dynamic	CG
+_
+XmNtopShadowColor	XmCTopShadowColor	Pixel	dynamic	CSG
+_
+XmNtopShadowPixmap	XmCTopShadowPixmap	Pixmap	dynamic	CSG
+_
+XmNtraversalOn	XmCTraversalOn	Boolean	True	CSG
+_
+XmNunitType	XmCUnitType	unsigned char	dynamic	CSG
+_
+XmNuserData	XmCUserData	XtPointer	NULL	CSG
+.TE
+.LP
+.sp
+.TS
+expand box;
+c s s s s
+lb | lb | lb | lb | lb
+lp7 | lp7 | lp7 | lp7 | lp7 .
+Composite Resource Set
+=
+Name	Class	Type	Default	Access
+_
+XmNchildren	XmCReadOnly	WidgetList	NULL	G
+_
+XmNinsertPosition	XmCInsertPosition	XtOrderProc	NULL	CSG
+_
+XmNnumChildren	XmCReadOnly	Cardinal	0	G
+.TE
+.LP
+.TS
+expand box;
+c s s s s
+lb | lb | lb | lb | lb
+lp7 | lp7 | lp7 | lp7 | lp7 .
+Core Resource Set
+=
+Name	Class	Type	Default	Access
+_
+XmNaccelerators	XmCAccelerators	XtAccelerators	NULL	CSG
+_
+XmNancestorSensitive	XmCSensitive	Boolean	dynamic	G
+_
+XmNbackground	XmCBackground	Pixel	dynamic	CSG
+_
+XmNbackgroundPixmap	XmCPixmap	Pixmap	XmUNSPECIFIED_PIXMAP	CSG
+_
+XmNborderColor	XmCBorderColor	Pixel	XtDefaultForeground	CSG
+_
+XmNborderPixmap	XmCPixmap	Pixmap	XmUNSPECIFIED_PIXMAP	CSG
+_
+XmNborderWidth	XmCBorderWidth	Dimension	1	CSG
+_
+XmNcolormap	XmCColormap	Colormap	dynamic	CG
+_
+XmNdepth	XmCDepth	int	dynamic	CG
+_
+XmNdestroyCallback	XmCCallback	XtCallbackList	NULL	C
+_
+XmNheight	XmCHeight	Dimension	dynamic	CSG
+_
+XmNinitialResourcesPersistent	XmCInitialResourcesPersistent	Boolean	True	C
+_
+XmNmappedWhenManaged	XmCMappedWhenManaged	Boolean	True	CSG
+_
+XmNscreen	XmCScreen	Screen	dynamic	CG
+_
+XmNsensitive	XmCSensitive	Boolean	True	CSG
+_
+XmNtranslations	XmCTranslations	XtTranslations	dynamic	CSG
+_
+XmNwidth	XmCWidth	Dimension	dynamic	CSG
+_
+XmNx	XmCPosition	Position	0	CSG
+_
+XmNy	XmCPosition	Position	0	CSG
+.TE
+.PP
+.SS "Callback Information"
+.PP
+.LI XbaeMatrixAnyCallbackStruct
+A callback struct that is suitable for all callbacks that require
+the
+.IR reason ,
+.IR event ,
+.I row
+and
+.I column
+to be available.  Any callback called may therefore cast the third
+parameter to the following struct in 
+.B XbaeMatrix
+and can rest assured that evrything in it will be available.
+.sp
+.ne 7
+.TS
+lb s s
+l lb li .
+typedef struct
+\&{
+	XbaeReasonType	reason;
+	int	row;
+	int	column;
+	XEvent	*event;
+.T&
+lb s s .
+\&} XbaeMatrixAnyCallbackStruct;
+.TE
+.RS
+.sp
+Each of the members are set to the appropriate struct for the callback.
+.PP
+If this idea is a little foreign to you, recommended
+reading is K&R II page 213.
+.RE
+.PP
+.LI XmNdefaultActionCallback
+Callbacks on the
+.B XmNdefaultActionCallback
+list are called when the DefaultAction(\|) action occurs.  The
+application can bind the DefaultAction(\|) action to any pointer
+based event. When a double click occurs on this pointer event,
+DefaultAction(\|) will call the callbacks on the
+.B XmNdefaultActionCallback
+list. A pointer to the following structure is passed to each callback on the
+.B XmNdefaultActionCallback
+list:
+.sp
+.ne 7
+.TS
+lb s s
+l lb li .
+typedef struct
+\&{
+	XbaeReasonType	reason;
+	XEvent	*event;
+	int	row;
+	int	column;
+.T&
+lb s s .
+\&} XbaeMatrixDefaultActionCallbackStruct;
+.TE
+.RS
+.sp
+.cI reason
+Set to
+.B XbaeDefaultActionReason .
+.cI event
+The event that invoked this callback.
+.cI row
+The row number of the cell in which the double click occurred.
+.cI column
+The column number of the cell in which the double click occurred.
+.cI event
+.PP
+If an application has an
+.BR XmNdefaultActionCallback ,
+then the callbacks on the list will be called when the user clicks
+twice in a cell within
+.BR XmNdoubleClickInterval ,
+enabling some action to occur for the particular cell.
+.RE
+.PP
+.LI XmNdrawCellCallback
+Callbacks on the
+.B XmNdrawCellCallback
+list are called when the widget needs to
+draw a cell. A pointer to the following structure is passed to each
+callback on the
+.B XmNdrawCellCallback
+list:
+.sp
+.ne 16
+.TS
+lb s s
+l lb li .
+typedef struct
+\&{
+	XbaeReasonType	reason;
+	XEvent	*event;
+	int	row;
+	int	column;
+	int	width;
+	int	height;
+	XbaeCellType	type;
+	String	string;
+	Pixmap	pixmap;
+	Pixmap	mask;
+	Pixel	foreground;
+	Pixel	background;
+	int	depth;
+.T&
+lb s s.
+\&} XbaeMatrixDrawCellCallbackStruct;
+.TE
+.RS
+.sp
+.cI reason
+Set to
+.BR XbaeDrawCellReason .
+.cI event
+Always set to
+.SM NULL
+.cI row
+The row number of the cell that needs to be drawn.
+.cI column
+The column number of the cell that needs to be drawn.
+.cI width
+The width of the cell that needs to be drawn.
+.cI height
+The height of the cell that needs to be drawn.
+.cI type
+The type of ``data'' the programmer wants drawn in the cell, or
+which field should be looked at for data to draw:  string or pixmap.
+.cI string
+The string to draw if \fItype\fP is set to
+.BR XbaeString .
+.cI pixmap
+The pixmap to copy if \fItype\fP is set to
+.BR XbaePixmap .
+It will be clipped
+to width by height if necessary.
+.cI mask
+A mask for the pixmap as obtained from the XPM library.  \fImask\fR is only
+necessary when \fIpixmap\fR has a depth greater than one.
+.cI foreground
+The foreground color of the cell.
+.cI background
+The background color of the cell.
+.cI depth
+The depth of the pixmap image (in bits per pixel).  
+.PP
+If the application adds this callback, when the
+.B XbaeMatrix
+determines that a
+cell at (row, column) needs to be redrawn, the normal cell drawing
+mechanism will be skipped and this callback called so the application can
+tell the widget what to put in the cell.
+.PP
+The \fItype\fP field is defaulted to
+.B XbaeString
+and no cacheing or saving of the string or pixmap is done.
+.PP
+If the application sets \fItype\fP to XbaePixmap, the width, height and depth
+of the returned pixmap will be calculated with a call to
+.BR XGetGeometry(\|) .
+If the programmer wishes to supply the width, height and depth there is a
+marked improvement as a round trip to the X server is avoided.  Note that
+all geometry parameters must be supplied to ensure successful display of
+the pixmap.
+.PP
+If a \fImask\fR is also provided, it will be used to display the pixmap
+transparently.
+Pixmaps drawn in cells also respect the value of
+.BR XmNcolumnAlignments .
+.PP
+By defining an
+.B XmNdrawCellCallback
+the need for the storage of the
+.B XbaeMatrix
+data within the matrix is eliminated and can prove to be advantageous
+for memory usage.
+.PP
+To write the data back to the application, use the
+.B XmNwriteCellCallback
+described below.
+.RE
+.LI XmNenterCellCallback
+Callbacks on the
+.B XmNenterCellCallback
+list are called from the
+EditCell(\|) action just before a cell is edited to determine it's
+editability. A pointer to the following structure is passed to each
+callback on the
+.B XmNenterCellCallback
+list:
+.sp
+.ne 17
+.TS
+lb s s
+l lb li .
+typedef struct
+\&{
+	XbaeReasonType	reason;
+	XEvent	*event;
+	int	row;
+	int	column;
+	int	position;
+	String	pattern;
+	Boolean	auto_fill;
+	Boolean	convert_case;
+	Boolean	overwrite_mode;
+	Boolean	select_text;
+	Boolean	map;
+	Cardinal	num_params;
+	String	*params;
+	Boolean	doit;
+.T&
+lb s s.
+\&} XbaeMatrixEnterCellCallbackStruct;
+.TE
+.RS
+.sp
+.cI reason
+Set to
+.BR XbaeEnterCellReason .
+.cI event
+The event that invoked the callback.
+.cI row
+The row number of the cell about to be edited.
+.cI column
+The column number of the cell about to be edited.
+.cI position
+The location of the cursor in the text field.  The default is to
+place the cursor at the end of the string in the cell.
+.cI pattern
+A pattern for the 
+.B XbaeInput
+widget (see \fCXbaeInput(3)\fR).  The default is to not specify a
+.IR pattern .
+.cI auto_fill
+Used in conjunction with the setting of the
+.I pattern
+to allow literals in the
+.I pattern
+to be automatically inserted.
+.cI convert_case
+If the \fIpattern\fR specifies an upper or lower case letter, the
+character typed in the position can automatically be converted to
+the appropriate case when set to True.  The default is to not convert
+the case of the typed letter.
+.cI overwrite_mode
+Normally, the cursor appears as the familiar I caret.  By setting
+\fIoverwrite_mode\fR to True, the text field will go into overwrite
+mode where keystrokes replace the character underneath the block
+cursor.
+.cI select_text
+Indicates whether the text in the cell should be highlighted (only valid if
+\fIdoit\fR is set to True also.
+.cI map
+Tells the matrix if the
+.B XmText
+should be mapped onto the cell.  Only makes sense if \fIdoit\fR is set to
+False.
+.cI num_params
+The number of String parameters passed to the EditCell(\|) action.
+.cI params
+An array containing the num_params String parameters passed to the
+EditCell(\|) action.
+.cI doit
+Indicates whether or not this cell is editable. Setting doit to False
+will make this cell not editable. The default value is True.
+.PP
+If the application determines that the cell at (\fIrow\fR, \fIcolumn\fR) is
+not editable, it should set the doit flag to False.
+If the \fImap\fR flag is also set to False,
+.B XbaeMatrix
+will not place the
+.B XmText
+cell editor on the cell.  If \fImap\fR is left as True, the
+.B XmText
+will be placed on the cell but the user
+will not be able to add or delete characters from it. If the application
+leaves \fIdoit\fR as True, then the TextField will be editable. 
+In addition, if \fIselect_text\fR is set to True, the text in the cell
+will be selected via
+.BR XmTextSetSelection .
+Assuming
+.B XmNpendingDelete
+for the
+.B XmText
+is also True, the selected text will be deleted as soon as the next
+text insertion occurs.
+.RE
+.PP
+.LI XmNlabelActivateCallback
+Callbacks on the
+.B XmNlabelActivateCallback
+list are called after a button label has been activated via a mouse click.
+A pointer to the following structure is passed to each callback on the
+.B XmNlabelActivateCallback
+list:
+.sp
+.ne 9
+.TS
+lb s s
+l lb li .
+typedef struct
+\&{
+	XbaeReasonType	reason;
+	XEvent	*event;
+	int	row;
+	int	column;
+	Boolean	row_label;
+	String	label;
+.T&
+lb s s.
+\&} XbaeMatrixLabelActivateCallbackStruct;
+.TE
+.RS
+.sp
+.cI reason
+Set to
+.BR XbaeLabelActivateReason .
+.cI event
+The event that invoked this callback.
+.cI row
+The row number of the button label or -1 if the button was a column label.
+.cI column
+The column number of the button label or -1 if the button was a row label.
+.cI row_label
+If the button label that invoked the callback is a row label, then this
+value is set to True.  If it was a column label then it is set to False.
+.cI label
+The label on the button that was pressed.
+.PP
+When the
+.B XbaeMatrix
+receives a ButtonRelease event on the same button label that it received
+a ButtonPress event, the
+.B XmNlabelActivateCallback
+is called to allow the programmer to respond to the event.  The callback
+has been provided to emulate some popular spreadsheets on the market.
+.RE
+.PP
+.LI XmNleaveCellCallback
+Callbacks on the
+.B XmNleaveCellCallback
+list are called from the
+EditCell(\|) and CommitEdit(\|) actions just before the edit to the current
+cell is committed. The application can validate the changes made to the
+cell, and allow or disallow them. A pointer to the following structure
+is passed to each callback on the
+.B XmNleaveCellCallback
+list:
+.sp
+.ne 8
+.TS
+lb s s
+l lb li .
+typedef struct
+\&{
+	XbaeReasonType	reason;
+	XEvent	*event;
+	int	row, column;
+	String	value;
+	Boolean	doit;
+.T&
+lb s s.
+\&} XbaeMatrixLeaveCellCallbackStruct;
+.TE
+.RS
+.sp
+.cI reason
+Set to
+.BR XbaeLeaveCellReason .
+.cI event
+The event that invoked this callback.
+.cI row
+The row number of the cell being edited.
+.cI column
+The column number of the cell being edited.
+.cI value
+Contains the new data which will be stored in this cell if doit is True.
+The memory pointed to by value may be modified, or if the new contents
+are larger than the current contents, then value should be set to point
+to a larger piece of allocated memory.
+.cI doit
+Indicates whether the edits applied to this cell should actually be
+stored into
+.BR XbaeMatrix .
+Setting doit to False will cause the changes to
+be discarded and the cell will retain its original value. The default
+value is True.
+.PP
+If the application determines that the value entered in the cell at
+(row, column) is not valid, it should set the doit flag to False. This
+will prevent the changes from being stored in the cell. The TextField
+edit widget will remain on the current cell. If the application leaves
+doit as True, then the changes made to the cell will be committed and
+the TextField will move to the next cell or be unmapped. The application
+can also modify the String in value, e.g. to force a String to be all
+upper case.
+.RE
+.PP
+.LI XmNmodifyVerifyCallback
+Callbacks on the
+.B XmNmodifyVerifyCallback
+list are called while a cell is
+being edited. The callbacks are called before text is inserted into or
+deleted from the TextField edit widget. A pointer to the following
+structure is passed to each callback on the
+.B XmNmodifyVerifyCallback
+list:
+.sp
+.ne 9
+.TS
+lb s s
+l lb li .
+typedef struct
+\&{
+	XbaeReasonType	reason;
+	XEvent	*event;
+	int	row;
+	int	column;
+	XmTextVerifyCallbackStruct	*verify;
+	const char	*prev_text;
+.T&
+lb s s.
+\&} XbaeMatrixModifyVerifyCallbackStruct;
+.TE
+.RS
+.sp
+.cI reason
+Set to
+.BR XbaeModifyVerifyReason .
+.cI event
+.cI row
+The row number of the cell being edited.
+.cI column
+The column number of the cell being edited.
+.cI verify
+The contents of this structure and its use are documented in the
+.B XmText(3X)
+man page.
+.cI prev_text
+The contents of the cell as seen by this user before the new text.  If
+other text has already been entered, this value will not match the
+official
+.B XbaeMatrix
+value of the cell.  This pointer and the string
+should not be modified.
+.RE
+.PP
+.LI XmNprocessDragCallback
+Callbacks on the
+.B XmNprocessDragCallback
+list are called from the
+ProcessDrag(\|) action. The application can bind the ProcessDrag(\|) 
+action to any pointer based event, though by default it is bound to
+the Button2Down event.
+When this event occurs, ProcessDrag(\|) will call the callbacks on the
+.B XmNprocessDragCallback
+list. A pointer to the
+following structure is passed to each callback on the
+.B XmNprocessDragCallback
+list:
+.sp
+.ne 13
+.TS
+lb s s
+l lb li .
+typedef struct
+\&{
+	XbaeReasonType	reason;
+	XEvent	*event;
+	int	row;
+	int	column;
+	String	string;
+	XbaeCellType	type;
+	Pixmap	pixmap;
+	Pixmap	mask;
+	Cardinal	num_params;
+	String	*params;
+.T&
+lb s s.
+\&} XbaeMatrixProcessDragCallbackStruct; 
+.TE
+.RS
+.sp
+.cI reason
+Set to
+.BR XbaeProcessDragReason .
+.cI event
+The XEvent which invoked the ProcessDrag(\|) action.
+.cI row
+The row number of the cell where the drag was initiated..
+.cI column
+The column number of the cell where the drag was initiated..
+.cI string
+The string in the cell where the drag was initiated if \fItype\fP is
+.BR XbaeString .
+This is provided as a convenience to the application.
+.cI type
+The type of the cell in which the drag was initiated.
+.cI pixmap
+The pixmap in the cell where the drag was initiated if \fItype\fP is
+.BR XbaePixmap .
+This is provided as a convenience to the application.
+.cI mask
+A mask for the pixmap as obtained from the XPM library.  \fImask\fR is only
+necessary when \fIpixmap\fR has a depth greater than one.  Also provided as 
+a convenience to the application.
+.cI num_params
+The number of String parameters passed to the ProcessDrag(\|) action.
+.cI params
+An array containing the num_params String parameters passed to the
+ProcessDrag(\|) action.
+.PP
+The application can use the
+.B XmNprocessDragCallback
+list to implement particular processing for Motif's drag-and-drop.
+.RE
+.PP
+.LI XmNresizeCallback
+Callbacks on the
+.B XmNresizeCallback
+list are called when the
+.B XbaeMatrix
+widget is resized.  A pointer to the following structure is passed to
+ each callback on the
+.B XmNresizeCallback
+list:
+.sp
+.ne 9
+.TS
+lb s s
+l lb li .
+typedef struct
+\&{
+	XbaeReasonType	reason;
+	XEvent	*event;
+	int	row;
+	int	column;
+	Dimension	width;
+	Dimension	height;
+.T&
+lb s s.
+\&} XbaeMatrixResizeCallbackStruct; 
+.TE
+.RS
+.sp
+.cI reason
+Set to
+.BR XbaeResizeReason .
+.cI event
+Always set to
+.SM NULL
+.cI row
+Set to the number of rows in the matrix (provided for convenience).
+.cI column
+Set to the number of colums in the matrix (provided for convenience).
+.cI width
+The new width of the
+.B XbaeMatrix
+widget.
+.cI height
+The new height of the
+.B XbaeMatrix
+widget.
+.PP
+The application can use the
+.B XmNresizeCallback
+to adjust such resources as
+.BR XmNcolumnWidths ,
+.B XmNvisibleColumns
+and
+.B XmNvisibleRows
+when the widget containing an
+.B XbaeMatrix
+widget is resized.
+.RE
+.PP
+.LI XmNresizeColumnCallback
+Callbacks on the
+.B XmNresizeColumnCallback
+list are called when a column of the
+.B XbaeMatrix
+widget is dynamically resized by the user.  A pointer to the following
+structure is passed to each callback on the
+.B XmNresizeColumnCallback
+list:
+.sp
+.ne 10
+.TS
+lb s s
+l lb li .
+typedef struct
+\&{
+	XbaeReasonType	reason;
+	XEvent 	*event;
+	int	row;
+	int	column;
+	int	which;
+	int	columns;
+	short	*column_widths;
+.T&
+lb s s.
+\&} XbaeMatrixResizeColumnCallbackStruct; 
+.TE
+.RS
+.sp
+.cI reason
+Set to
+.BR XbaeResizeColumnReason .
+.cI event
+The XEvent that ended the resize.  The event will be of type
+.BR XButtonReleasedEvent .
+.cI row
+The row in which the
+.B ResizeColumn(\|)
+action began.
+.cI column
+The column in which the
+.B ResizeColumn(\|)
+action began (and ended).
+.cI which
+The column that was resized in the
+.B ResizeColumn(\|)
+action.
+.cI columns
+The number of columns in the
+.B XbaeMatrix
+widget.
+.cI column_widths
+The widths of each column as they stand \fIafter\fP the
+.B ResizeColumn(\|)
+action.
+.PP
+The application can use the
+.B XmNresizeColumnCallback
+to perform post processing after a column has been resized.  By adjusting
+the values contained in \fIcolumn_widths\fP the
+.B XbaeMatrix
+widget will use the values upon return from the callback.  Changing the
+number of columns in the matrix in the
+.B XmNresizeColumnCallback
+should be used carefully as it may cause unexpected results.
+.RE
+.PP
+.LI XmNselectCellCallback
+Callbacks on the
+.B XmNselectCellCallback
+list are called from the
+SelectCell(\|) action. The application can bind the SelectCell(\|) action to
+any pointer based event. When this event occurs, SelectCell(\|) will call
+the callbacks on the
+.B XmNselectCellCallback
+list. A pointer to the
+following structure is passed to each callback on the
+.B XmNselectCellCallback
+list:
+.sp
+.ne 11
+.TS
+lb s s
+l lb li .
+typedef struct
+\&{
+	XbaeReasonType	reason;
+	XEvent	*event;
+	int	row;
+	int	column;
+	Boolean	**selected_cells;
+	String	**cells;
+	Cardinal	num_params;
+	String	*params;
+.T&
+lb s s.
+\&} XbaeMatrixSelectCellCallbackStruct; 
+.TE
+.RS
+.sp
+.cI reason
+Set to
+.BR XbaeSelectCellReason .
+.cI event
+The XEvent which invoked the SelectCell(\|) action.
+.cI row
+The row number of the cell which was selected.
+.cI column
+The column number of the cell which was selected.
+.cI selected_cells
+The value of the
+.B XmNselectedCells
+resource. This is provided as a convenience to the application and will
+be 
+.SM NULL
+if no cells have yet been selected. 
+.cI cells
+The value of the
+.B XmNcells
+resource. This is provided as a convenience to
+the application and will be 
+.SM NULL
+if no cells have been specified or the 
+.B XmNdrawCellCallback
+is being used.
+.cI num_params
+The number of String parameters passed to the SelectCell(\|) action.
+.cI params
+An array containing the num_params String parameters passed to the
+SelectCell(\|) action.
+.PP
+The application can use the
+.B XmNselectCellCallback
+list to implement it's
+own selection model. The
+.B XbaeMatrixSelectCellCallbackStruct
+contains the
+array of String parameters passed to the SelectCell(\|) action which
+invoked this callback. By binding the SelectCell(\|) action to various
+events via the translation manager, and using String action parameters
+to distinguish them, the application can implement various selection
+models. For example, the following translations could be used to
+implement a model in which a modifier key indicates whether a single
+cell or an entire row should be selected. The callbacks on the
+.B XmNselectCellCallback
+list would examine the parameter and take the
+appropriate action.
+.PP
+.ne 3
+.DS L
+\fC
+   #override\\n\\
+   Shift<Btn1Down>:        SelectCell(cell)\\n\\
+   Ctrl<Btn1Down>:         SelectCell(row)
+\fR
+.TE
+.PP
+The callbacks on the
+.B XmNselectCellCallback
+list can also be used in
+other ways, e.g. to pop up a cell specific menu.
+.PP
+.B NOTE:
+If no cells have been selected, the value of \fIselected_cells\fP will be
+.SM NULL.
+The same applies for \fIcells\fP.  Care must be taken so as not to dereference
+these members of the callback struct.
+.RE
+.PP
+.LI XmNtraverseCellCallback
+Callbacks on the
+.B XmNtraverseCellCallback
+list are called from the
+EditCell(\|) action, they are also called when
+.B XbaeMatrix
+receives the
+focus while the TextField edit widget is unmapped. The application can
+customize cell traversal using these callbacks.
+.B XbaeMatrix
+has a default
+traversal order, outlined below, which the application can override. A
+pointer to the following structure is passed to each callback on the
+.B XmNtraverseCellCallback
+list:
+.sp
+.ne 17
+.TS
+lb s s
+l lb li .
+typedef struct
+\&{
+	XbaeReasonType	reason;
+	XEvent	*event;
+	int	row;
+	int	column;
+	int	next_row;
+	int	next_column;
+	int	fixed_rows;
+	int	fixed_columns;
+	int	trailing_fixed_rows;
+	int	trailing_fixed_columns;
+	int	num_rows;
+	int	num_columns;
+	String	param;
+	XrmQuark	qparam;
+.T&
+lb s s.
+\&} XbaeMatrixTraverseCellCallbackStruct;
+.TE
+.RS
+.cI reason
+Set to
+.BR XbaeTraverseCellReason .
+.cI event
+The event that invoked this callback.
+.cI row
+The row number of the cell currently being edited.
+.cI column
+The column number of the cell currently being edited.
+.cI next_row
+The row number of the next cell to be edited, this can be changed by the
+application.
+.cI next_column
+The column number of the next cell to be edited, this can be changed by
+the application.
+.cI fixed_rows
+The value of the
+.B XmNfixedRows
+resource. This is provided as a
+convenience for the application in calculating the next_row and
+next_column fields.
+.cI fixed_columns
+The value of the
+.B XmNfixedColumns
+resource. This is provided as a
+convenience for the application in calculating the next_row and
+next_column fields.
+.cI trailing_fixed_rows
+The value of the
+.B XmNtrailingFixedRows
+resource. This is provided as a
+convenience for the application in calculating the next_row and
+next_column fields.
+.cI trailing_fixed_columns
+The value of the
+.B XmNtrailingFixedColumns
+resource. This is provided as a
+convenience for the application in calculating the next_row and
+next_column fields.
+.cI num_rows
+The value of the
+.B XmNrows
+resource. This is provided as a convenience for
+the application in calculating the next_row and next_column fields.
+.cI num_columns
+The value of the
+.B XmNcolumns
+resource. This is provided as a convenience
+for the application in calculating the next_row and next_column fields.
+.cI param
+The String value of the parameter passed to the EditCell(\|) action.
+.cI qparam
+The XrmQuark value of the parameter passed to the EditCell(\|) action.
+.PP
+The EditCell(\|) action takes an arbitrary parameter which it passes
+through to the callbacks on the
+.B XmNtraverseCellCallback
+list in both
+String and XrmQuark forms. The EditCell(\|) action recognizes five special
+parameters which it uses to implement it's default cell traversal. These
+parameters and their corresponding traversal results are:
+.PP
+.cI Pointer
+Set next_row and next_column to the cell underneath the mouse pointer.
+.cI Left
+If we are currently editing cell (XmNfixedRows, XmNfixedColumns), then
+do not move. Otherwise move one column to the left, if that column is
+less than
+.B XmNfixedColumns
+, then move up to the last column of the row
+above.
+.cI Right
+If we are currently editing cell (XmNrows - 1, XmNcolumns - 1), then do
+not move. Otherwise move one column to the right, if that column is
+greater than or equal to
+.B XmNcolumns
+, then move down to column
+.B XmNfixedColumns
+of the row below.
+.cI Up
+Move up one row. If that row is less than
+.B XmNfixedRows
+, then move to the
+last row.
+.cI Down
+Move down one row. If that row is greater than or equal to
+.B XmNrows
+, then
+move to row
+.BR XmNfixedRows .
+.PP
+If the EditCell(\|) action recognizes one of these special parameters, it
+calculates the new cell to be edited accordingly and stores the results
+in the next_row and next_column fields of the
+.BR XbaeMatrixTraverseCellCallbackStruct .
+If EditCell(\|) does not recognize it's parameter, it sets next_row and
+next_column to the current row and column.
+It also stores a String and XrmQuark version of it's parameter in the
+param and qparam fields.
+EditCell(\|) then calls the callbacks on the
+.B XmNtraverseCellCallback
+list.
+These callbacks can examine the parameter and recalculate the next_row
+and next_column fields appropriately.
+The application can override the default calculation for the special
+parameters, or it can define an entirely new parameter with a
+corresponding new calculation.
+It would do this by binding EditCell(\|) with a new application specific
+parameter to an event in a translation table.
+It is expected that application callbacks will use the XrmQuark version
+of the parameter for efficiency reasons (by statically creating the new
+XrmQuarks and comparing them against the incoming qparam).
+.PP
+When
+.B XbaeMatrix
+receives the focus and the TextField edit widget is
+unmapped, it will call the
+.B XmNtraverseCellCallback
+callbacks before
+attempting to automatically edit the upper left most visible cell. The
+.B XbaeMatrixTraverseCellCallbackStruct
+will have a param of
+.SM NULL,
+a qparam
+of
+.SM NULLQUARK 
+and a row and column of 0.
+.RE
+.PP
+.LI XmNwriteCellCallback
+Callbacks (although it probably only makes sense to have one) on the
+.B XmNwriteCellCallback
+list are called when the widget needs to
+write data to a cell, but only when
+.B XmNdrawCellCallback
+is defined. A pointer to the following structure is passed to each
+callback on the
+.B XmNwriteCellCallback
+list:
+.sp
+.ne 11
+.TS
+lb s s
+l lb li .
+typedef struct
+\&{
+	XbaeReasonType	reason;
+	XEvent	*event;
+	int	row;
+	int	column;
+	XbaeCellType	type;
+	String	string;
+	Pixmap	pixmap;
+	Pixmap	mask;
+.T&
+lb s s.
+\&} XbaeMatrixWriteCellCallbackStruct;
+.TE
+.RS
+.sp
+.cI reason
+Set to
+.BR XbaeWriteCellReason .
+.cI event
+Always set to
+.SM NULL
+.cI row
+The row number of the cell that needs to be written.
+.cI column
+The column number of the cell that needs to be written.
+.cI type
+The type of ``data'' contained in the cell, either
+.BR XbaeString " or " XbaePixmap .
+.cI string
+The string to store if \fItype\fP is set to
+.BR XbaeString .
+.cI pixmap
+The pixmap to store if \fItype\fP is set to
+.BR XbaePixmap .
+(maybe a little meaningless unless you can edit a pixmap in a cell)
+.cI mask
+A mask for the pixmap as obtained from the XPM library.  \fImask\fR is only
+necessary when \fIpixmap\fR has a depth greater than one.
+.PP
+If the application adds this callback, when the
+.B XbaeMatrix
+is editable and has been assigned an
+.BR XmNdrawCellCallback ,
+data on the widget can be edited and stored back in the
+application's data structure.  Only if an
+.B XmNdrawCellCallback
+has been assigned to the
+.B XbaeMatrix
+widget, will the
+.B XmNwriteCellCallback
+be called.
+.PP
+At the moment, \fIpixmap\fR and \fImask\fR will be sent to the
+.B XmNwriteCellCallback
+as
+.SM NULL.
+.DE
+.PP
+.SS Translations
+.B XbaeMatrix
+inherits translations from
+.BR XmManager .
+In addition,
+.B XbaeMatrix
+uses the following translation:
+.ne 4
+\fC
+.TS
+lw(6cm) l .
+:<Btn1Up>:	DefaultAction(\|)\\n\\ 
+:<Btn1Down>:	DefaultAction(\|) EditCell(Pointer)\\n\\ 
+:Shift<Btn2Down>:	ResizeColumns(\|)\\n\\ 
+:<Btn2Down>:	ProcessDrag(\|)
+.TE
+\fR
+.PP
+.B XbaeMatrix
+installs the following default
+.B XmNtextTranslations
+on the
+.B TextField
+edit widget:
+.ne 11
+\fC
+.TS
+lw(6cm) l .
+\&#override\\n\\ 
+Shift ~Ctrl ~Meta ~Alt <Key>Tab:	EditCell(Left)\\n\\ 
+~Ctrl ~Meta ~Alt <Key>Tab:	EditCell(Right)\\n\\ 
+<Key>osfUp:	EditCell(Up)\\n\\ 
+<Key>osfDown:	EditCell(Down)\\n\\ 
+<Key>osfActivate:	CommitEdit(False)\\n\\ 
+~Shift ~Meta ~Alt <Key>Return:	CommitEdit(False)\\n\\ 
+<Key>osfCancel:	CommitEdit(False)\\n\\ 
+Shift Ctrl ~Meta ~Alt <Key>Tab:	TraversePrev(\|)\\n\\ 
+Ctrl ~Meta ~Alt <Key>Tab:	TraverseNext(\|)\\n\\ 
+<Key>osfPageDown:	PageDown()\\n\\ 
+<Key>osfPageUp:	PageUp()\\n
+.TE
+\fR
+.PP
+.SS "Action Routines"
+.PP
+.sp 2
+.IP CancelEdit(\|)
+If the single parameter to CancelEdit(\|) is the String True, then it
+unmaps the edit TextField, discarding any changes which were made to the
+cell being edited. If the parameter is False, then CancelEdit(\|) restores
+the edit TextField to the original contents of the cell, discarding any
+changes made to the cell being edited. The TextField is not unmapped.
+.IP CommitEdit(\|)
+.RS
+CommitEdit(\|) first calls any callbacks on the
+.B XmNleaveCellCallback
+list
+to determine if the changes made to the current cell are valid. If they
+are, it then saves any changes made to the cell into the cell. If the
+callbacks on the
+.B XmNleaveCellCallback
+list return that the changes are
+not valid, CommitEdit(\|) does nothing.
+.PP
+If the changes are valid, CommitEdit(\|) examines it's one parameter,
+which must be the string True or False. If the parameter is True, then
+the edit TextField is unmapped. If it is False, then the TextField is
+not unmapped.
+.RE
+.IP DefaultAction(\|)
+.RS
+DefaultAction(\|) sets up a mechanism for determining whether two successive
+mouse clicks form a double click.  The DefaultAction(\|) should normally be
+used in conjunction with other pointer based events and provides a mechanism
+for acting on double clicks in a cell.
+.RE
+.IP EditCell(\|)
+.RS
+EditCell(\|) edits a new cell. EditCell(\|) first calculates the new cell to
+edit based on it's single parameter. It then calls the callbacks on the
+.B XmNtraverseCellCallback
+list to allow them to specify a different cell
+to edit (see the discussion of
+.B XmNtraverseCellCallback
+above).
+EditCell(\|) then calls the callbacks on the
+.B XmNleaveCellCallback
+list to
+determine if the changes made to the current cell are valid. If they
+are, it then saves any changes made to the cell into the cell. If the
+changes are not valid, EditCell(\|) does nothing further.
+.PP
+If the changes are valid, EditCell(\|) attempts to scroll the new cell to
+be edited so that it is fully visible. If the new cell is in a fixed row
+or column, EditCell(\|) returns and does nothing further (these cells are
+not editable). Otherwise, EditCell(\|) calls the callbacks on the
+.B XmNenterCellCallback
+list to determine if the new cell is editable. It
+then moves the
+.B XmText
+edit widget to the new cell, setting it's
+editability based on the return from the
+.B XmNenterCellCallback
+callbacks.
+.RE
+.IP ProcessDrag(\|)
+.RS
+ProcessDrag(\|) calls the callbacks on the
+.B XmNprocessDragCallback
+list, passing them a pointer to a
+.BR XbaeMatrixProcessDragCallbackStruct .
+.RE
+.IP ResizeColumns(\|)
+.RS
+Allows the user to dynamically resize the column widths, provided that
+.B XmNallowColumnResize
+is True.
+.RE
+.IP SelectCell(\|)
+SelectCell(\|) calls the callbacks on the
+.B XmNselectCellCallback
+list,
+passing them a pointer to a
+.BR XbaeMatrixSelectCellCallbackStruct .
+This structure will contain the String parameters passed to the SelectCell(\|)
+action, among other things (see the discussion of
+.B XmNselectCellCallback
+above).
+.IP TraverseNext(\|)
+TraverseNext(\|) will traverse out of the Matrix and into the next tab
+group.
+.IP TraversePrev(\|)
+TraversePrev(\|) will traverse out of the Matrix and into the previous tab
+group.
+.IP PageDown(\|)
+PageDown(\|) causes the Matrix to scroll down a full page.  The text
+widget is placed on the first non fixed row of the new page.
+.IP PageUp(\|)
+PageUp(\|) causes the Matrix to scroll up a full page.  The text
+widget is placed on the first non fixed row of the new page.
+.SS "Type Converters"
+.sp
+.PP
+In addition to the standard type converters registered by Xt and Motif,
+.B XbaeMatrix
+registers the following additional type converters:
+.IP \fCCvtStringToStringArray(\|)\fP
+Converts a comma separated list of Strings to an array of String
+pointers, one for each substring. Commas in the list may be escaped with
+the character `\\'. This converter allows the
+.B XmNrowLabels
+and
+.B XmNcolumnLabels
+resources to be specified in resource files.
+.IP \fCCvtStringToWidthArray(\|)\fP
+Converts a comma separated list of numeric Strings to an array of short
+integers. This converter allows the
+.B XmNcolumnWidths
+resource to be
+specified in resource files.
+.IP \fCCvtStringToMaxLengthArray(\|)\fP
+Converts a comma separated list of numeric Strings to an array of
+integers. This converter allows the
+.B XmNcolumnMaxLengths
+resource to be
+specified in resource files.
+.IP \fCCvtStringToAlignmentArray(\|)\fP
+Converts a comma separated list of alignments to an array of unsigned
+chars. This converter allows the
+.B XmNcolumnLabelAlignments
+and
+.B XmNcolumnAlignments
+resources to be specified in resource files.
+.IP \fCCvtStringToGridType(\|)\fP
+Converts a single string as discussed in
+.B XmNgridType
+to a grid type value.  This converter allows
+.B XmNgridType
+to be specified in resource files.
+.IP \fCCvtStringToMatrixScrollBarDisplayPolicy(\|)\fP
+Converts a single string as discussed in
+.B XmNhorizontalScrollBarDisplayPolicy
+and
+.B XmNverticalScrollBarDisplayPolicy
+to a display policy value.  This converter allows
+.B XmNhorizontalScrollBarDisplayPolicy
+and
+.B XmNverticalScrollBarDisplayPolicy
+to be specified in resource files.
+.IP \fCCvtStringToCellTable(\|)\fP
+Converts a comma separated list of Strings with \\n delimited rows to a
+two dimensional array of String
+pointers. This converter allows the
+.B XmNcells
+resource to be specified in resource files.
+.IP \fCCvtStringToPixelTable(\|)\fP
+Converts a comma separated list of color names with \\n delimited rows to a
+two dimensional array of Pixel values. This converter allows the
+.BR XmNcellBackgrounds and XmNcolors
+resources to be specified in resource files.
+.IP \fCCvtStringToBooleanArray(\|)\fP
+Converts a comma separated list of string or numeric values to an
+array of Booleans.  The converter recongnises a comma separated list
+of values. Each value is parsed such that if the first character is
+'1', 'T' or 't' it is interpreted as True, if the first character is
+'0', 'F' or 'f' it is interpreted as False, otherwise it is illegal.
+This converter allows the
+.B XmNcolumnButtonLabels
+and
+.B XmNrowButtonLabels
+resources to be
+specified in resource files.
+.SS "Public Functions"
+.sp
+The following external entry points to
+.B XbaeMatrix
+class methods are
+defined:
+.sp
+.ne 6
+.B XbaeCreateMatrix(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+Widget XbaeCreateMatrix(\|)
+	Widget	parent;
+	String	name;
+	ArgList	arglist;
+	Cardinal	argcount;
+.TE
+.sp
+.cI parent
+Specifies the parent widget ID.
+.cI name
+Specifies the name of the created widget
+.cI arglist
+Specifies the argument list
+.cI argcount
+Specifies the number of attribute/value pairs in the argument list (arglist)
+.PP
+.B XbaeCreateMatrix(\|)
+creates an unmanaged instance of an XbaeMatrix widget and returns
+the associated widget ID.
+.PP
+.sp
+.ne 12
+.B XbaeMatrixAddColumns(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixAddColumns(\|)
+	Widget	w;
+	int	position;
+	String	*columns;
+	String	*labels;
+	short	*widths;
+	int	*max_lengths;
+	unsigned	char *alignments;
+	unsigned	char *label_alignments;
+	Pixel	*colors;
+	int	num_columns;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI position
+The column position before which to add the new columns. Must be greater
+than or equal to zero, and less than or equal to
+.BR XmNcolumns .
+.cI columns
+Points to an ordinary two dimensional array of String, or
+.SM NULL.
+These Strings will be used to modify the
+.B XmNcells
+resource to populate the new
+columns. Each row in the array must have
+.B XmNrows
+elements and represents
+one of the new columns. columns must have num_columns rows. If columns
+is
+.SM NULL,
+empty columns will be added.
+.cI labels
+Points to an array of String, or
+.SM NULL.
+These Strings will be used as the
+.B XmNcolumnLabels
+for the new columns. The labels array must have
+num_columns elements. If
+.B XmNcolumnLabels
+is not set, then this argument
+will be ignored. If labels is
+.SM NULL,
+and
+.B XmNcolumnLabels
+is set, then
+blank column labels will be used.
+.cI widths
+Points to an array of short. These values will be used as the
+.B XmNcolumnWidths
+for the new columns. The widths array must have
+num_columns elements. This argument must not be
+.SM NULL.
+.cI max_lengths
+Points to an array of int, or
+.SM NULL.
+These values will be used as the
+.B XmNcolumnMaxLengths
+for the new columns. The max_lengths array must have
+num_columns elements. If max_lengths is
+.SM NULL,
+then the corresponding
+value from widths will be used.
+.cI alignments
+Points to an array of unsigned char, or
+.SM NULL.
+These values will be used
+as the
+.B XmNcolumnAlignments
+for the new columns. If
+.B XmNcolumnAlignments
+is not set, then this argument will be ignored. The alignments array
+must have num_columns elements. If alignments is
+.SM NULL,
+then
+.B XmALIGNMENT_BEGINNING
+will be used.
+.cI label_alignments
+Points to an array of unsigned char, or
+.SM NULL.
+These values will be used
+as the
+.B XmNcolumnLabelAlignments
+for the new column labels. If
+.B XmNcolumnLabelAlignments
+is not set, then this argument will be ignored.
+The label_alignments array must have num_columns elements. If
+label_alignments is
+.SM NULL,
+then
+.B XmALIGNMENT_BEGINNING
+will be used.
+.cI colors
+Points to an array of Pixel, or
+.SM NULL.
+These values will be used to set
+the corresponding columns in the
+.B XmNcolors
+table for the new columns. If
+.B XmNcolors
+is
+.SM NULL,
+then this argument will be ignored. The colors array
+must have num_columns elements. If colors is
+.SM NULL,
+then
+.B XmNforeground
+will be used.
+.cI num_columns
+The number of columns which are being added to the widget.
+.PP
+.B XbaeMatrixAddColumns(\|)
+allows the application developer to dynamically
+add new columns anywhere in the Matrix. The columns will be added before
+the column specified in position. Columns are numbered starting at zero.
+To append new columns onto the end of the Matrix, specify position as
+the total number of columns. Most of the arguments to
+.B XbaeMatrixAddColumns(\|)
+may be specified as
+.SM NULL.
+Default values will be
+used by the widget.
+.PP
+If the programmer attempts to add columns using
+.B XbaeMatrixAddColumns(\|)
+when there are no rows, it will result in a warning message.  There must be
+at least one row in the
+.B XbaeMatrix
+widget to add columns.
+.PP
+To maintain backward compatability, the cell backgrounds cannot be set
+in a call to 
+.B XbaeMatrixAddColumns(\|)
+and must be set (if so desired) in a separate call to
+.BR XtVaSetValues(\|) .
+.sp
+.RE
+.ne 8
+.B XbaeMatrixAddRows(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixAddRows(\|)
+	Widget	w;
+	int	position;
+	String	*rows;
+	String	*labels;
+	Pixel	*colors;
+	int	num_rows;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI position
+The row position before which to add the new rows. Must be greater than
+or equal to zero, and less than or equal to
+.BR XmNrows .
+.cI rows
+Points to an ordinary two dimensional array of String, or
+.SM NULL.
+These
+Strings will be used to modify the
+.B XmNcells
+resource to populate the new
+rows. Each row in the array must have
+.B XmNcolumns
+elements and represents
+one of the new rows. rows must have num_rows rows. If rows is
+.SM NULL,
+empty rows will be added.
+.cI labels
+Points to an array of String, or
+.SM NULL.
+These Strings will be used as the
+.B XmNrowLabels
+for the new rows. The labels array must have num_rows
+elements. If
+.B XmNrowLabels
+is not set, then this argument will be
+ignored. If labels is
+.SM NULL,
+and
+.B XmNrowLabels
+is set, then blank row
+labels will be used
+.cI colors
+Points to an array of Pixel, or
+.SM NULL.
+These values will be used to set
+the corresponding rows in the
+.B XmNcolors
+table for the new rows. If
+.B XmNcolors
+is
+.SM NULL,
+then this argument will be ignored. The colors array
+must have num_rows elements. If colors is
+.SM NULL,
+then
+.B XmNforeground
+will
+be used.
+.cI num_rows
+The number of rows which are being added to the widget.
+.PP
+.B XbaeMatrixAddRows(\|)
+allows the application developer to dynamically add
+new rows anywhere in the Matrix. The rows will be added before the row
+specified in position. Rows are numbered starting at zero. To append new
+rows onto the end of the Matrix, specify position as the total number of
+rows.
+.PP
+To maintain backward compatability, the cell backgrounds cannot be set
+in a call to 
+.B XbaeMatrixAddRows(\|)
+and must be set (if so desired) in a separate call to
+.BR XtVaSetValues(\|) .
+.RE
+.sp
+.ne 4
+.B XbaeMatrixCancelEdit(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixCancelEdit(\|)
+	Widget	w;
+	Boolean	unmap;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI unmap
+Specifies whether the TextField cell edit widget should be unmapped
+after the edit is canceled.
+.PP
+.B XbaeMatrixCancelEdit(\|)
+allows the application developer to
+programmatically cancel a cell edit in progress, discarding any changes
+made by the user. This function unmaps the TextField edit widget if the
+unmap flag is True. If unmap is False, the contents of the TextField are
+restored to their original value, and the TextField is not unmapped.
+.sp
+.ne 4
+.RE
+.B XbaeMatrixCommitEdit(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+Boolean XbaeMatrixCommitEdit(\|)
+	Widget	w;
+	Boolean	unmap;
+.TE
+.sp
+.cI w
+An XbaeMatrix widget.
+.cI unmap
+Specifies whether the TextField cell edit widget should be unmapped
+after an edit is successfully committed.
+.PP
+.B XbaeMatrixCommitEdit(\|)
+can be used by the application developer to
+programmatically commit an edit, saving any changes made by the user.
+This will cause the callbacks on the
+.B XmNleaveCellCallback
+list to be
+called to verify that the changes the user made are valid. If the
+changes are valid, then they are saved into the cell and if the unmap
+flag is True, the TextField widget will be unmapped.
+.sp
+.ne 5
+.RE
+.B XbaeMatrixDeleteColumns(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixDeleteColumns(\|)
+	Widget	w;
+	int	position;
+	int	num_columns;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI position
+The column position at which to begin deleting columns. Must be greater
+than or equal to zero, and (position + num_columns) must be less than or
+equal to
+.BR XmNcolumns .
+.cI num_columns
+The number of columns to delete from the widget.
+.PP
+.B XbaeMatrixDeleteColumns(\|)
+allows the application developer to
+dynamically delete columns from anywhere in the Matrix. Columns will be
+deleted starting at the column specified by position.
+.sp
+.ne 5
+.RE
+.B XbaeMatrixDeleteRows(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixDeleteRows(\|)
+	Widget	w;
+	int	position;
+	int	num_rows;
+.TE
+.sp
+.cI w
+An XbaeMatrix widget.
+.cI position
+The row position at which to begin deleting rows. Must be greater than
+or equal to zero, and (position + num_rows) must be less than or equal
+to
+.BR XmNrows .
+.cI num_rows
+The number of rows to delete from the widget.
+.PP
+.B XbaeMatrixDeleteRows(\|)
+allows the application developer to dynamically
+delete rows from anywhere in the Matrix. Rows will be deleted starting
+at the row specified by position.
+.sp
+.ne 3
+.RE
+.B XbaeMatrixDeselectAll(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixDeselectAll(\|)
+	Widget	w;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.PP
+.B XbaeMatrixDeselectAll(\|)
+allows the application developer to programmatically deselect all cells.
+.B XbaeMatrixDeselectAll(\|)
+redraws the
+cells in normal video. All Booleans in the
+.B XmNselectedCells
+array will
+be set to False.
+.sp
+.ne 5
+.RE
+.B XbaeMatrixDeselectCell(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixDeselectCell(\|)
+	Widget	w;
+	int	row;
+	int	column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row of the cell to deselect.
+.cI column
+The column of the cell to deselect.
+.PP
+.B XbaeMatrixDeselectCell(\|)
+allows the application developer to programmatically deselect a cell.
+.B XbaeMatrixDeselectCell(\|)
+redraws the
+cell in normal video. The corresponding Boolean in the
+.B XmNselectedCells
+array will be set to False.
+.sp
+.ne 4
+.RE
+.B XbaeMatrixDeselectColumn(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixDeselectColumn(\|)
+	Widget	w;
+	int	column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI column
+The column to deselect.
+.PP
+.B XbaeMatrixDeselectColumn(\|)
+allows the application developer to programmatically deselect a column.
+.B XbaeMatrixDeselectColumn(\|)
+draws the column in normal video. The corresponding Booleans in the
+.B XmNselectedCells
+array will be set to False.
+.sp
+.ne 4
+.RE
+.B XbaeMatrixDeselectRow(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixDeselectRow(\|)
+	Widget	w;
+	int	row;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row to deselect.
+.PP
+.B XbaeMatrixDeselectRow(\|)
+allows the application developer to programmatically deselect a row.
+.B XbaeMatrixDeselectRow(\|)
+draws the row in reverse video (or selectedForeground / selectedBackground
+if set). The corresponding Booleans in the
+.B XmNselectedCells
+array will be set to False.
+.sp
+.ne 3
+.RE
+.B XbaeMatrixDisableRedisplay(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+int XbaeMatrixDisableRedisplay(\|)
+	Widget	w;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.PP
+.B XbaeMatrixDisableRedisplay(\|)
+and
+.B XbaeMatrixEnableRedisplay(\|)
+allow an application to make multiple changes to a matrix
+without immediate visual updates. When multiple changes are
+made with redisplay enabled, visual flashing often occurs.
+These routines help eliminate this problem.
+.sp
+.ne 5
+.RE
+.B XbaeMatrixEditCell(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixEditCell(\|)
+	Widget	w;
+	int	row;
+	int	column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row of the cell to be edited.
+.cI column
+The column of the cell to be edited.
+.PP
+.B XbaeMatrixEditCell(\|)
+
+allows the application developer to programmatically force a specific
+cell to be edited. This function will first attempt to commit the edit
+in the current cell. If the
+.B XmNleaveCellCallback
+callbacks disallow this commit, then
+.B XbaeMatrixEditCell(\|)
+will return. Otherwise the specified cell is
+scrolled until it is visible. If the specified cell is in a fixed row or
+column, it cannot be edited and
+.B XbaeMatrixEditCell(\|)
+will return. Next, the callbacks on the
+.B XmNenterCellCallback
+callback list are called for
+the specified cell to determine it's editability. Then the TextField
+edit widget is mapped on top of the specified cell.
+.sp
+.ne 4
+.RE
+.B XbaeMatrixEnableRedisplay(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+int XbaeMatrixEnableRedisplay(\|)
+	Widget	w;
+	Boolean	redisplay;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI redisplay
+Force the matrix to redisplay if True and no other
+calls to
+.B XbaeMatrixDisableRedisplay(\|)
+have been made.
+.PP
+.B XbaeMatrixDisableRedisplay(\|)
+and
+.B XbaeMatrixEnableRedisplay(\|)
+allow an application to make multiple changes to a matrix
+without immediate visual updates. When multiple changes are
+made with redisplay enabled, visual flashing often occurs.
+These routines help eliminate this problem.
+.sp
+.ne 6
+.RE
+.B XbaeMatrixEventToXY(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+Boolean XbaeMatrixEventToXY(\|)
+	Widget	w;
+	XEvent	*event;  
+	int	*x;
+	int	*y;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI event
+An X event structure pointer, usually from an XEventHandler function.
+.cI x
+The translated x coordinate.
+.cI y
+The translated y coordinate.
+.PP
+.B XbaeMatrixEventToXY
+enables the programmer to determine the x and y values of a given event
+with respect to the
+.B XbaeMatrix
+widget.  The returned values are also adjusted to allow for the
+.B XbaeClip
+widget.
+.sp
+.ne 5
+.RE
+.B XbaeMatrixFirstSelectedCell(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixFirstSelectedCell(\|)
+	Widget	w;
+	int	*row;
+	int	*column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The first selected row.
+.cI column
+The first selected column.
+.PP
+.B XbaeMatrixFirstSelectedCell(\|)
+allows the application developer to find out which cell is the first selected.
+The function traverses the
+.B XbaeMatrix
+widget in a left to right, top to bottom manner to determine this value.
+If no cell is selected, row and column are set to -1.
+.sp
+.ne 3
+.RE
+.B XbaeMatrixFirstSelectedColumn(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+int XbaeMatrixFirstSelectedColumn(\|)
+	Widget	w;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.PP
+.B XbaeMatrixFirstSelectedColumn(\|)
+returns the column number of the first selected column in the
+.B XbaeMatrix
+widget.  The function traverses the matrix from column 0.  A column must
+be entirely selected for the column to be considered selected.  If no
+column is selected then -1 is returned.
+.sp
+.ne 3
+.RE
+.B XbaeMatrixFirstSelectedRow(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+int XbaeMatrixFirstSelectedRow(\|)
+	Widget	w;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.PP
+.B XbaeMatrixFirstSelectedRow(\|)
+returns the row number of the first selected row in the
+.B XbaeMatrix
+widget.  The function traverses the matrix from row 0.  A row must
+be entirely selected for the row to be considered selected.  If no
+row is selected then -1 is returned.
+.sp
+.ne 5
+.RE
+.B XbaeMatrixGetCell(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+String XbaeMatrixGetCell(\|)
+	Widget	w;
+	int	row;
+	int	column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row of the cell whose value should be retrieved.
+.cI column
+The column of the cell whose value should be retrieved.
+.PP
+.B XbaeMatrixGetCell(\|)
+returns the String value stored in the specified
+cell. This String should not be freed. To examine many cells, it is more
+efficient to do an XtGetValues(\|) on
+.B XmNcells
+and examine the values in
+that array.
+.sp
+.ne 5
+.RE
+.B XbaeMatrixGetCellUserData(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+XtPointer XbaeMatrixGetCellUserData(\|)
+	Widget	w;
+	int	row;
+	int	column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row of the cell whose data should be retrieved.
+.cI column
+The column of the cell whose data should be retrieved.
+.PP
+.B XbaeMatrixGetCellUserData(\|)
+returns a pointer to the data assigned to the cell in the given coordinates.
+The data should be set using
+.BR XbaeMatrixSetCellUserData(\|) .
+If no data is found to be associated with the particular cell,
+.SM NULL
+is returned.
+.sp
+.ne 4
+.RE
+.B XbaeMatrixGetColumnLabel(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+String XbaeMatrixGetColumnLabel(\|)
+	Widget	w;
+	int	column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI column
+The column of the label that should be retrieved.
+.PP
+.B XbaeMatrixGetColumnLabel(\|)
+returns a pointer to the label of the given column.  If no column labels
+exist or the given column is not a valid column 
+.SM NULL
+is returned.
+If no data is found to be associated with the particular column,
+.SM NULL
+is returned.
+.sp
+.ne 4
+.RE
+.B XbaeMatrixGetColumnUserData(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+XtPointer XbaeMatrixGetColumnUserData(\|)
+	Widget	w;
+	int	column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI column
+The column of the cell whose data should be retrieved.
+.PP
+.B XbaeMatrixGetColumnUserData(\|)
+returns a pointer to the data assigned to the given column.
+The data should be set using
+.BR XbaeMatrixSetColumnUserData(\|) .
+If no data is found to be associated with the particular column,
+.SM NULL
+is returned.
+.sp
+.ne 5
+.RE
+.B XbaeMatrixGetCurrentCell(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixGetCurrentCell(\|)
+	Widget	w;
+	int	*row;
+	int	*column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row of the cell the ``cursor'' or TextField is in.
+.cI column
+The column of the cell the ``cursor'' or TextField is in.
+.PP
+.B XbaeMatrixGetCurrentCell(\|)
+allows the application developer to determine what cell is being edited
+or has focus.
+.sp
+.ne 5
+.RE
+.B XbaeMatrixGetEventRowColumn(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+int XbaeMatrixGetEventRowColumn(\|)
+	Widget	w;
+	XEvent	*event;
+	int	*row;
+	int	*column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI event
+An X event structure pointer.  This is usually from an XEventHandler
+function.  It can be either a button or a key event.
+.cI row
+The row of the cell the ``cursor'' or TextField is in.
+.cI column
+The column of the cell the ``cursor'' or TextField is in.
+.PP
+.B XbaeMatrixGetEventRowColumn(\|)
+allows the application developer to
+determine what cell corresponds to an (x, y) in an event.  If the (x, y)
+of the event is a legal cell, row and column are set and True is
+returned.  However, if the (x, y) is not over a cell, False is returned,
+and row and column will have undefined values.
+.sp
+.ne 3
+.RE
+.B XbaeMatrixGetNumSelected(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+int XbaeMatrixGetNumSelected(\|)
+	Widget	w;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.PP
+.B XbaeMatrixGetNumSelected(\|)
+returns the number of cells that are currently selected in the given
+matrix.  The widget maintains an internal variable as cells are selected
+and deselected so a complete traversal of the widget is avoided.
+.sp
+.ne 4
+.RE
+.B XbaeMatrixGetRowLabel(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+String XbaeMatrixGetRowLabel(\|)
+	Widget	w;
+	int	row;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row of the label that should be retrieved.
+.PP
+.B XbaeMatrixGetRowLabel(\|)
+returns a pointer to the label of the given row.  If no row labels
+exist or the given row is not a valid row 
+.SM NULL
+is returned.
+.sp
+.ne 4
+.RE
+.B XbaeMatrixGetRowUserData(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+XtPointer XbaeMatrixGetRowUserData(\|)
+	Widget	w;
+	int	row;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row of the cell whose data should be retrieved.
+.PP
+.B XbaeMatrixGetRowUserData(\|)
+returns a pointer to the data assigned to the given row.
+The data should be set using
+.BR XbaeMatrixSetRowUserData(\|) .
+If no data is found to be associated with the particular row,
+.SM NULL
+is returned.
+.sp
+.ne 5
+.RE
+.B XbaeMatrixHighlightCell(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixHighlightCell(\|)
+	Widget	w;
+	int	row;
+	int	column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row of the cell to highlight.
+.cI column
+The column of the cell to highlight.
+.PP
+.B XbaeMatrixHighlightCell(\|)
+allows the application developer to programmatically highlight a cell.
+.B XbaeMatrixHighlightCell(\|)
+draws the highlight around the cell. The corresponding unsigned char in the
+.B XmNhighlightedCells
+array will be have its
+.B HighlightCell
+bit set.
+.sp
+.ne 4
+.RE
+.B XbaeMatrixHighlightColumn(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixHighlightColumn(\|)
+	Widget	w;
+	int	column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI column
+The column to highlight.
+.PP
+.B XbaeMatrixHighlightColumn(\|)
+allows the application developer to programmatically highlight a column.
+.B XbaeMatrixHighlightColumn(\|)
+draws the highlight around the column if
+.B XmNgridType
+is
+.B XmGRID_COLUMN_SHADOW
+or from around each cell in the column otherwise.
+The corresponding unsigned chars in the
+.B XmNhighlightedCells
+array will be have its
+.B HighlightColumn
+or
+.B HighlightOther
+bit set, depending on whether
+.B XmNgridType
+is set to
+.B XmGRID_COLUMN_SHADOW
+or not.
+.sp
+.ne 4
+.RE
+.B XbaeMatrixHighlightRow(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixHighlightRow(\|)
+	Widget	w;
+	int	row;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row to highlight.
+.PP
+.B XbaeMatrixHighlightRow(\|)
+allows the application developer to
+programmatically highlight a row.
+.B XbaeMatrixHighlightRow(\|)
+draws the highlight around the row if
+.B XmNgridType
+is
+.B XmGRID_ROW_SHADOW
+or from around each cell in the row otherwise.
+The corresponding unsigned chars in the
+.B XmNhighlightedCells
+array will be have its
+.B HighlightRow
+or
+.B HighlightOther
+bit set, depending on whether
+.B XmNgridType
+is set to
+.B XmGRID_ROW_SHADOW
+or not.
+.sp
+.ne 5
+.RE
+.B XbaeMatrixIsCellSelected(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+Boolean XbaeMatrixIsCellSelected(\|)
+	Widget	w;
+	int	row;
+	int	column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row of the cell to check.
+.cI column
+The column of the cell to check.
+.PP
+.B XbaeMatrixIsCellSelected(\|)
+allows the application developer to determine whether or not a particular
+cell is selected. The function returns True if the cell is selected and False
+otherwise.
+.sp
+.ne 5
+.RE
+.B XbaeMatrixIsCellVisible(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+Boolean XbaeMatrixIsCellVisible(\|)
+	Widget	w;
+	int	row;
+	int	column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row of the cell to check.
+.cI column
+The column of the cell to check.
+.PP
+.B XbaeMatrixIsCellVisible(\|)
+allows the application developer to determine whether or not a particular
+cell is in the visible area of the
+.B XbaeMatrix
+widget. The function returns True if the cell is visible and False otherwise.
+.sp
+.ne 4
+.RE
+.B XbaeMatrixIsColumnSelected(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+Boolean XbaeMatrixIsColumnSelected(\|)
+	Widget	w;
+	int	column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI column
+The column of the matrix to check.
+.PP
+.B XbaeMatrixIsColumnSelected(\|)
+allows the application developer to determine whether or not a particular column is
+selected. The function returns True if the column is selected and False
+otherwise. A column must be selected in its entirety for
+.B XbaeMatrixIsColumnSelected(\|)
+to return True.
+.sp
+.ne 4
+.RE
+.B XbaeMatrixIsColumnVisible(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+Boolean XbaeMatrixIsColumnVisible(\|)
+	Widget	w;
+	int	column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI column
+The column of the matrix to check.
+.PP
+.B XbaeMatrixIsColumnVisible(\|)
+allows the application developer to determine whether or not a particular column is
+in the visible area of the
+.B XbaeMatrix
+widget. The function returns True if the column is visible and False
+otherwise.
+.sp
+.ne 4
+.RE
+.B XbaeMatrixIsRowSelected(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+Boolean XbaeMatrixIsRowSelected(\|)
+	Widget	w;
+	int	row;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row of the matrix to check.
+.PP
+.B XbaeMatrixIsRowSelected(\|)
+allows the application developer to determine whether or not a particular row is
+selected. The function returns True if the row is selected and False
+otherwise. A row must be selected in its entirety for
+.B XbaeMatrixIsRowSelected(\|)
+to return True.
+.sp
+.ne 4
+.RE
+.B XbaeMatrixIsRowVisible(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+Boolean XbaeMatrixIsRowVisible(\|)
+	Widget	w;
+	int	row;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row of the matrix to check.
+.PP
+.B XbaeMatrixIsRowVisible(\|)
+allows the application developer to determine whether or not a particular row is
+in the visible area of the
+.B XbaeMatrix
+widget. The function returns True if the row is visible and False
+otherwise.
+.sp
+.ne 5
+.RE
+.B XbaeMatrixMakeCellVisible(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+int XbaeMatrixMakeCellVisible(\|)
+	Widget	w;
+	int	row;
+	int	column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row to scroll into the visible area of the matrix.
+.cI column
+The column to scroll into the visible area of the matrix.
+.PP
+.B XbaeMatrixMakeCellVisible(\|)
+allows a cell to be programatically scrolled into the visible area of the
+.B XbaeMatrix
+widget.  By calling this function, the
+.B XmNselectScrollVisible
+resource is ignored.  For a more accurate cell location after scrolling,
+the programmer should use the
+.BR XmNleftColumn and XmNtopRow
+resources.
+.sp
+.ne 3
+.RE
+.B XbaeMatrixNumRows(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+int XbaeMatrixNumRows(\|)
+	Widget	w;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.PP
+.B XbaeMatrixNumRows(\|)
+returns the number of rows in the given matrix.
+
+.sp
+.ne 3
+.RE
+.B XbaeMatrixNumColumns(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+int XbaeMatrixNumColumns(\|)
+	Widget	w;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.PP
+.B XbaeMatrixNumColumns(\|)
+returns the number of columns in the given matrix.
+.sp
+.ne 3
+.RE
+.B XbaeMatrixNumRows(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+int XbaeMatrixNumRows(\|)
+	Widget	w;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.PP
+.B XbaeMatrixNumRows(\|)
+returns the number of rows in the given matrix.
+.sp
+.ne 3
+.RE
+.B XbaeMatrixRefresh(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixRefresh(\|)
+	Widget	w;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.PP
+.B XbaeMatrixRefresh(\|)
+allows the application developer to
+force the widget to redraw itself.  This might be used when the
+programmer knows the widget's values have changed, but the widget
+has not detected the change.  For example, the quickest way to swap
+the values of 2 rows would be to do an XtGetValues on
+.BR XmNcells ,
+swap the values of the 2 rows, and then do an XtSetValues on
+.B XmNcells
+with the same StringTable variable.  Because of the way the Intrinsics
+work, the widget will not see this change and will display the old
+values until a redraw is preformed because of a resize or scroll event
+(assuming no other change in the XtSetValues caused a redraw).
+Calling
+.B XbaeMatrixRefresh(\|)
+will cause the correct values to be drawn
+and overcome this limitation in the Intrinsics.  While this function
+should rarely be needed, it is provided ``just in case''.
+.sp
+.ne 5
+.RE
+.B XbaeMatrixRefreshCell(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixRefreshCell(\|)
+	Widget	w;
+	int	row;
+	int	column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row of the cell to redraw.
+.cI column
+The column of the cell to redraw.
+.PP
+.B XbaeMatrixRefreshCell(\|)
+allows the application developer to redraw a specific cell of the
+matrix.  This function is particularly useful when used with the
+.B XbaeMatrixDrawCellCallback
+as it allows updates of the data without an explicit expose event.
+.sp
+.ne 5
+.RE
+.B XbaeMatrixRefreshColumn(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixRefreshColumn(\|)
+	Widget	w;
+	int	column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI column
+The column of the matrix to redraw.
+.PP
+.B XbaeMatrixRefreshColumn(\|)
+allows the application developer to efficiently redraw a specific column
+ of the matrix.
+.sp
+.ne 5
+.RE
+.B XbaeMatrixRefreshRow(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixRefreshRow(\|)
+	Widget	w;
+	int	row;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row of the matrix to redraw.
+.PP
+.B XbaeMatrixRefreshRow(\|)
+allows the application developer to efficiently redraw a specific row
+ of the matrix.
+.sp
+.ne 6
+.RE
+.B XbaeMatrixRowColToXY(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+int XbaeMatrixRowColToXY(\|)
+	Widget	w;
+	int	row;
+	int	column;
+	int	*x;
+	int	*y;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row the of the cell in question.
+.cI column
+The column the of the cell in question.
+.cI x
+The x coordinate returned that represents the left coordinates of the given
+cell.
+.cI y
+The y coordinate returned that represents the upper coordinates of the given
+cell.
+.PP
+.B XbaeMatrixRowColToXY(\|)
+allows the application developer to determine the coordinates of the upper
+left corner of a given cell.  If the given widget is not an
+.B XbaeMatrix
+widget, False will be returned and the values of x and y will be undefined.
+This function is useful for drag and drop calculations.
+.sp
+.ne 3
+.RE
+.B XbaeMatrixSelectAll(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixSelectAll(\|)
+	Widget	w;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.PP
+.B XbaeMatrixSelectAll(\|)
+allows the application developer to
+programmatically select all cells.
+.B XbaeMatrixSelectAll(\|)
+redraws the
+cells in reverse video. All Booleans in the
+.B XmNselectedCells
+array will
+be set to True.
+.sp
+.ne 5
+.RE
+.B XbaeMatrixSelectCell(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixSelectCell(\|)
+	Widget	w;
+	int	row;
+	int	column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row of the cell to select.
+.cI column
+The column of the cell to select.
+.PP
+.B XbaeMatrixSelectCell(\|)
+allows the application developer to
+programmatically select a cell.
+.B XbaeMatrixSelectCell(\|)
+first scrolls the
+specified cell until it is visible, and then draws the cell in reverse
+video (or selectedForeground / selectedBackground if set).
+ The corresponding Boolean in the
+.B XmNselectedCells
+array will be
+set to True.
+.sp
+.ne 4
+.RE
+.B XbaeMatrixSelectColumn(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixSelectColumn(\|)
+	Widget	w;
+	int	column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI column
+The column to select.
+.PP
+.B XbaeMatrixSelectColumn(\|)
+allows the application developer to
+programmatically select a column.
+.B XbaeMatrixSelectColumn(\|)
+first scrolls
+the specified column until it is visible, and then draws the column in
+reverse video (or selectedForeground / selectedBackground if set).
+The corresponding Booleans in the
+.B XmNselectedCells
+array
+will be set to True.
+.sp
+.ne 4
+.RE
+.B XbaeMatrixSelectRow(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixSelectRow(\|)
+	Widget	w;
+	int	row;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row to select.
+.PP
+.B XbaeMatrixSelectRow(\|)
+allows the application developer to
+programmatically select a row.
+.B XbaeMatrixSelectRow(\|)
+first scrolls the
+specified row until it is visible, and then draws the row in reverse
+video (or selectedForeground / selectedBackground if set).
+The corresponding Booleans in the
+.B XmNselectedCells
+array will be
+set to True.
+.sp
+.ne 6
+.RE
+.B XbaeMatrixSetCell(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixSetCell(\|)
+	Widget	w;
+	int	row;
+	int	column;
+	const	String value;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row of the cell whose value should be set.
+.cI column
+The column of the cell whose value should be set.
+.cI value
+The new value to set this cell to.
+.PP
+.B XbaeMatrixSetCell(\|)
+allows the application developer to programmatically
+set the value of the specified cell. To set the values of many cells, it
+may be more efficient to do an XtSetValues(\|) on the
+.B XmNcells
+resource.
+.sp
+.ne 6
+.RE
+.B XbaeMatrixSetCellBackground(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixSetCellBackground(\|)
+	Widget	w;
+	int	row;
+	int	column;
+	Pixel	color;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row of the cell whose backgroundshould be set.
+.cI column
+The column of the cell whose background should be set.
+.cI color
+The new color to which to set this cell's background.
+.PP
+.B XbaeMatrixSetCellBackground(\|)
+is a convenient way to specify and modify the
+.B XmNcellBackgrounds
+resource when changing the background of a single cell. If
+.B XmNcellBackgrounds
+is
+.SM NULL,
+then
+.B XbaeMatrixSetCellBackground(\|)
+will create a Pixel
+table initialized to
+.B XmNforeground
+except for the cell specified in it's arguments. If
+.B XmNcellBackgrounds
+is not
+.SM NULL,
+then
+.B XbaeMatrixSetCellBackground(\|)
+will changed the specified cell in that resource to the specified color.
+.sp
+.ne 6
+.RE
+.B XbaeMatrixSetCellColor(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixSetCellColor(\|)
+	Widget	w;
+	int	row;
+	int	column;
+	Pixel	color;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row of the cell whose color should be set.
+.cI column
+The column of the cell whose color should be set.
+.cI color
+The new color to which to set this cell.
+.PP
+.B XbaeMatrixSetCellColor(\|)
+is a convenient way to specify and modify the
+.B XmNcolors
+resource when changing the color of a single cell. If
+.B XmNcolors
+is
+.SM NULL,
+then
+.B XbaeMatrixSetCellColor(\|)
+will create a Pixel
+table initialized to
+.B XmNforeground
+except for the cell specified in it's arguments. If
+.B XmNcolors
+is not
+.SM NULL,
+then
+.B XbaeMatrixSetCellColor(\|)
+will changed the specified cell in that resource to the specified color.
+.sp
+.ne 6
+.RE
+.B XbaeMatrixSetCellUserData(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixSetCellUserData(\|)
+	Widget	w;
+	int	row;
+	int	column;
+	XtPointer	data;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row of the cell whose value should be set.
+.cI column
+The column of the cell whose value should be set.
+.cI data
+A pointer to a user defined data area.
+.PP
+.B XbaeMatrixSetCellUserData(\|)
+allows the application developer to programmatically
+set the user data of a specified cell. To set the data value of many cells,
+it may be more efficient to do an XtSetValues(\|) on the
+.B XmNcellUserData
+resource.  This resource is copied.
+.sp
+.ne 6
+.RE
+.B XbaeMatrixSetColumnBackgrounds(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixSetColumnBackgrounds(\|)
+	Widget	w;
+	int	position;
+	Pixel	*colors;
+	int	num_colors;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI position
+The column position at which to begin applying the new backgrounds. Must be
+greater than or equal to zero, and (position + num_colors) must be less
+than or equal to
+.BR XmNcolumns .
+.cI colors
+Points to an array of Pixel. These specify the backgrounds for the cells in
+the specified columns. The colors array must have num_colors elements.
+.cI num_colors
+The number of colors in the colors array.
+.PP
+.B XbaeMatrixSetColumnBackgrounds(\|)
+is a convenient way to specify and modify the
+.B XmNcellBackgrounds
+resource when setting the background of an entire column or columns. If
+.B XmNcellBackgrounds
+is
+.SM NULL,
+then
+.B XbaeMatrixSetColumnBackgrounds(\|)
+will create a Pixel table initialized to
+.B XmNforeground
+except for the columns specified in it's arguments. If
+.B XmNcellBackgrounds
+is not
+.SM NULL,
+then
+.B XbaeMatrixSetColumnBackgrounds(\|)
+will changed the specified columns in that
+resource to the specified colors.
+.sp
+.ne 6
+.RE
+.B XbaeMatrixSetColumnColors(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixSetColumnColors(\|)
+	Widget	w;
+	int	position;
+	Pixel	*colors;
+	int	num_colors;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI position
+The column position at which to begin applying the new colors. Must be
+greater than or equal to zero, and (position + num_colors) must be less
+than or equal to
+.BR XmNcolumns .
+.cI colors
+Points to an array of Pixel. These specify the colors for the cells in
+the specified columns. The colors array must have num_colors elements.
+.cI num_colors
+The number of colors in the colors array.
+.PP
+.B XbaeMatrixSetColumnColors(\|)
+is a convenient way to specify and modify the
+.B XmNcolors
+resource when setting the color of an entire column or columns. If
+.B XmNcolors
+is
+.SM NULL,
+then
+.B XbaeMatrixSetColumnColors(\|)
+will create a Pixel table initialized to
+.B XmNforeground
+except for the columns specified in it's arguments. If
+.B XmNcolors
+is not
+.SM NULL,
+then
+.B XbaeMatrixSetColumnColors(\|)
+will changed the specified columns in that
+resource to the specified colors.
+.sp
+.ne 5
+.RE
+.B XbaeMatrixSetColumnLabel(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixSetColumnLabel(\|)
+	Widget	w;
+	int	column;
+	String	value;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI column
+The column of the label is to be set.
+.cI value
+The new value of the label.
+.PP
+.B XbaeMatrixSetColumnLabel(\|)
+allows the application developer to programmatically
+change the label of a specified column. The resource
+.B XmNcolumnLabels
+must be set before using
+.B XbaeMatrixSetColumnLabel(\|)
+and the number of lines in the column label being set cannot be different
+to the existing label.
+.sp
+.ne 5
+.RE
+.B XbaeMatrixSetColumnUserData(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixSetColumnUserData(\|)
+	Widget	w;
+	int	column;
+	XtPointer	data;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI column
+The column whose value should be set.
+.cI data
+A pointer to a user defined data area.
+.PP
+.B XbaeMatrixSetColumnUserData(\|)
+allows the application developer to programmatically
+associate user data for the specified column.
+.sp
+.ne 6
+.RE
+.B XbaeMatrixSetRowBackgrounds(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixSetRowBackgrounds(\|)
+	Widget	w;
+	int	position;
+	Pixel	*colors;
+	int	num_colors;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI position
+The row position at which to begin applying the new colors. Must be
+greater than or equal to zero, and (position + num_colors) must be less
+than or equal to
+.BR XmNrows .
+.cI colors
+Points to an array of Pixel. These specify the backgrounds for the cells in
+the specified rows. The colors array must have num_colors elements.
+.cI num_colors
+The number of colors in the colors array.
+.PP
+.B XbaeMatrixSetRowBackgrounds(\|)
+is a convenient way to specify and modify the
+.B XmNcellBackgrounds
+resource when setting the background of an entire row or rows. If
+.B XmNcellBackgrounds
+is
+.SM NULL,
+then
+.B XbaeMatrixSetRowBackgrounds(\|)
+will create a Pixel
+table initialized to
+.B XmNforeground
+except for the rows specified in it's arguments. If
+.B XmNcellBackgrounds
+is not
+.SM NULL,
+then
+.B XbaeMatrixSetRowBackgrounds(\|)
+will changed the specified rows in that resource to the specified colors.
+.RE
+.sp
+.ne 6
+.B XbaeMatrixSetRowColors(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixSetRowColors(\|)
+	Widget	w;
+	int	position;
+	Pixel	*colors;
+	int	num_colors;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI position
+The row position at which to begin applying the new colors. Must be
+greater than or equal to zero, and (position + num_colors) must be less
+than or equal to
+.BR XmNrows .
+.cI colors
+Points to an array of Pixel. These specify the colors for the cells in
+the specified rows. The colors array must have num_colors elements.
+.cI num_colors
+The number of colors in the colors array.
+.PP
+.B XbaeMatrixSetRowColors(\|)
+is a convenient way to specify and modify the
+.B XmNcolors
+resource when setting the color of an entire row or rows. If
+.B XmNcolors
+is
+.SM NULL,
+then
+.B XbaeMatrixSetRowColors(\|)
+will create a Pixel
+table initialized to
+.B XmNforeground
+except for the rows specified in it's arguments. If
+.B XmNcolors
+is not
+.SM NULL,
+then
+.B XbaeMatrixSetRowColors(\|)
+will changed the specified rows in that resource to the specified colors.
+.sp
+.ne 5
+.RE
+.B XbaeMatrixSetRowLabel(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixSetRowLabel(\|)
+	Widget	w;
+	int	row;
+	String	value;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row of the label is to be set.
+.cI value
+The new value of the label.
+.PP
+.B XbaeMatrixSetRowLabel(\|)
+allows the application developer to programmatically
+change the label of the specified row. The resource
+.B XmNrowLabels
+must be set before using
+.B XbaeMatrixSetRowLabel(\|) .
+.sp
+.ne 5
+.RE
+.B XbaeMatrixSetRowUserData(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixSetRowUserData(\|)
+	Widget	w;
+	int	column;
+	XtPointer	data;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row whose value should be set.
+.cI data
+A pointer to a user defined data area.
+.PP
+.B XbaeMatrixSetRowUserData(\|)
+allows the application developer to programmatically
+associate user data for the specified row.
+.sp
+.ne 3
+.RE
+.B XbaeMatrixUnhighlightAll(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixUnhighlightAll(\|)
+	Widget	w;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.PP
+.B XbaeMatrixUnhighlightAll(\|)
+allows the application developer to
+programmatically unhighlight all cells.
+.B XbaeMatrixUnhighlightAll(\|)
+erases the highlight from all cells.
+All unsigned chars in the
+.B XmNhighlightedCells
+array will
+be set to 
+.BR HighlightNone .
+.sp
+.ne 5
+.RE
+.B XbaeMatrixUnhighlightCell(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixUnhighlightCell(\|)
+	Widget	w;
+	int	row;
+	int	column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row of the cell to unhighlight.
+.cI column
+The column of the cell to unhighlight.
+.PP
+.B XbaeMatrixUnhighlightCell(\|)
+allows the application developer to
+programmatically unhighlight a cell.
+.B XbaeMatrixUnhighlightCell(\|)
+erases the highlight from the cell.
+The corresponding unsigned char in the
+.B XmNhighlightedCells
+array will be have its
+.B HighlightCell
+bit cleared.
+.sp
+.ne 4
+.RE
+.B XbaeMatrixUnhighlightColumn(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixUnhighlightColumn(\|)
+	Widget	w;
+	int	column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI column
+The column to unhighlight.
+.PP
+.B XbaeMatrixUnhighlightColumn(\|)
+allows the application developer to programmatically unhighlight a column.
+.B XbaeMatrixUnhighlightColumn(\|)
+erases the highlight from around the column if
+.B XmNgridType
+is
+.B XmGRID_COLUMN_SHADOW
+or from around each cell in the column otherwise.
+The corresponding unsigned chars in the
+.B XmNhighlightedCells
+array will be have its
+.B HighlightColumn
+or
+.B HighlightOther
+bit cleared, depending on whether
+.B XmNgridType
+is set to
+.B XmGRID_COLUMN_SHADOW
+or not.
+.sp
+.ne 4
+.RE
+.B XbaeMatrixUnhighlightRow(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+void XbaeMatrixUnhighlightRow(\|)
+	Widget	w;
+	int	row;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI row
+The row to unhighlight.
+.PP
+.B XbaeMatrixUnhighlightRow(\|)
+allows the application developer to
+programmatically unhighlight a row.
+.B XbaeMatrixUnhighlightRow(\|)
+erases the highlight from around the row if
+.B XmNgridType
+is
+.B XmGRID_ROW_SHADOW
+or from around each cell in the row otherwise.
+The corresponding unsigned chars in the
+.B XmNhighlightedCells
+array will be have its
+.B HighlightRow
+or
+.B HighlightOther
+bit cleared, depending on whether
+.B XmNgridType
+is set to
+.B XmGRID_ROW_SHADOW
+or not.
+.sp
+.ne 8
+.RE
+.B XbaeMatrixVisibleCells(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+int XbaeMatrixVisibleCells(\|)
+	Widget	w;
+	int	*top_row;
+	int	*bottom_row;
+	int	*left_column;
+	int	*right_column;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.cI top_row
+The first row that is currently visible in the matrix.
+.cI bottom_row
+The last row that is currently visible in the matrix.
+.cI left_column
+The leftmost column that is currently visible in the matrix.
+.cI right_column
+The rightmost column that is currently visible in the matrix.
+.PP
+.B XbaeMatrixVisibleCells(\|)
+allows the the application developer to obtain the currently visible
+portion of the
+.B XbaeMatrix
+.IR w .
+.sp
+.ne 3
+.RE
+.B XbaeMatrixVisibleColumns(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+int XbaeMatrixVisibleColumns(\|)
+	Widget	w;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.PP
+.B XbaeMatrixVisibleColumns(\|)
+allows the the application developer to programmatically check how many
+columns are currently displayed in the
+.B XbaeMatrix
+.IR w .
+A partially visible column will be declared an entire column.
+.sp
+.ne 3
+.RE
+.B XbaeMatrixVisibleRows(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+int XbaeMatrixVisibleRows(\|)
+	Widget	w;
+.TE
+.sp
+.cI w
+An
+.B XbaeMatrix
+widget.
+.PP
+.B XbaeMatrixVisibleRows(\|)
+allows the the application developer to programmatically check how many
+rows are currently displayed in the
+.B XbaeMatrix
+.IR w .
+A partially visible row will be declared an entire row.
+.PP
+.RE
+.sp
+.SS "Additional Behavior"
+.sp
+Using XtSetValues to set the Matrix's
+.B XmNwidth
+resource to 0 will cause
+it to recompute it's horizontal size. It will request a new size which
+results in
+.B XmNvisibleColumns
+columns being displayed. If
+.B XmNvisibleColumns
+is 0, then it will request a new size such that it
+does not need a horizontal ScrollBar (full horizontal size).
+.PP
+Using XtSetValues to set the Matrix's
+.B XmNheight
+resource to 0 will cause
+it to recompute it's vertical size. It will request a new size which
+results in
+.B XmNvisibleRows
+rows being displayed. If
+.B XmNvisibleRows
+is 0,
+then it will request a new size such that it does not need a vertical
+ScrollBar (full vertical size).
+.PP
+An XtSetValues on
+.B XmNvisibleRows
+will cause the Matrix to request a new
+size which results in
+.B XmNvisibleRows
+non-fixed rows being displayed,
+only if the new value is different than the old one.
+.PP
+An XtSetValues on
+.B XmNvisibleColumns
+will cause the Matrix to request a
+new size which results in the first
+.B XmNvisibleColumns
+non-fixed columns
+being displayed, only if the new value is different than the old one.
+.PP
+An XtSetValues on any other resource will not result in a request for a
+new size. Setting other resources in conjunction with setting
+.B XmNwidth
+and/or
+.B XmNheight
+to 0 allows for more control of the Matrix's geometry.
+.PP
+An XtSetValues setting
+.B XmNrowLabelWidth
+to 0 will cause
+.B XmNrowLabelWidth
+to be set to the width of the longest row label.
+.sp
+.SS "Virtual Bindings"
+.sp
+The bindings for virtual keys are vendor specific. For information about
+bindings for virtual buttons and keys, see
+.BR VirtualBindings(3X) .
+.SH AUTHOR
+.B Andrew Wason
+\fC(aw@bae.bellcore.com)\fP of Bellcore, 
+Piscataway NJ, wrote the original version of the Xbae widgets.  His final
+release of the widgets was version 3.8.
+.sp
+.B Kevin Brannen
+\fC(kbrannen@metronet.com)\fP took over maintainership
+following Andrew Wason's departure and released version 4.0.
+.sp
+.B Andrew Lister
+\fC(lister@syd.net.au)\fP is the current maintainer and any
+bugs, problems or requests are solely his responsibility.
+.SH "SPECIAL THANKS"
+Andrew Wason for the original idea and source code.
+.br
+Jay Schmidgall for his contributions.
+.br
+Nick Banyard for providing the multibyte extensions.
+.br
+Callum Gibson for the pattern parsing in the XbaeInput widget.
+.br
+.SH "POSTCARDS and other contributions"
+Postcards have been received from the following users of the XbaeWidgets and
+I would like to express my thanks to them all (in order of arrival):
+.sp
+.TS
+lp7 lp7fC lp7 .
+Kenneth Flaxman	(knf@kenlaw.com)	Chicago, USA
+Corey Huinker	(coreyh@aifp.com)	Portland, USA (x4!)
+Earl J Revett	(erevett@kokomo.bmc.com)	Texas, USA
+Dirk Vangestel	(gesteld@se.bel.alcatel.be)	Hasselt, Belgium
+Charles Vidal	(charles@cln46ht.der.edf.fr)	Paris, France
+Tom	(kriener.pad@sni.de)	Paderborn, Germany
+Jay Schmidgall	(jay.schmidgall@spdbump.sungardss.com)	Las Vegas, USA
+David Jansen	(jansen@optilink.dsccc.com)	San Francisco, USA
+Daiji Takamori	(daijit@std.teradyne.com)	New York, USA
+Ole Holm Nielsen	(Ole.H.Nielsen@fysik.dtu.dk)	Denmark
+Mariano	(mariano@tomcat.tid.es)	Madrid, Spain
+Donato Petrino	(dp@rtsffm.com)	Mouse pads from Frankfurt, Germany
+Liora Maron	(liora@ilogix.co.il)	Various locations, Israel + Switzerland
+Dirk Vangestel	(gesteld@se.bel.alcatel.be)	Four bottles of Belgian beer, hand delivered (Yum!)
+Andy Warburton	(andyw@parallax.co.uk)	and
+Philip Aston	(philipa@paralax.co.uk)	Coventry, UK
+Russell Fink	(russellfink@oscsystems.com)	St Thomas, Jamaica
+Martin Helmling	(martin.helmling@octogon.de)	Mannheim, Germany
+Todd Grimm	(grimm@itd.nrl.navy.mil)	Maryland, USA
+Jola Peil	(jola@rocketmail.com)	Virginia, USA
+Ulisses Alonso	(ualonso@patan.uv.es)	Valencia & Cullera, Spain (x4!)
+Jonathan Tilbury	(Jonathan.Tilbury@tessella.co.uk)	Oxford, UK
+Morten Skaarup	(msj@oedan.dk)	Kobenhavn, Denmark
+Tim Bomgardner	(Tim.Bomgardner@mci.com)	Colorado, USA
+Helene Bossanyi	(heleneb@toonboom.com)	Montreal, Canada
+Bruce Hochstetler	(bruce@ghg.net)	Houston, Texas, USA (x4!)
+.TE
+.SH RELEASE
+.sp
+This document describes XbaeMatrix from Xbae Version 4.7
+.SH "SEE ALSO"
+.B Core(3X), Composite(3X), XmManager(3X), XmScrollBar(3X), XbaeInput(3X),
+XmText(3X)
+.SH "Notice of Limitation"
+.sp
+Bellcore, previous and current maintainers of the Xbae widgets
+(collectively 'authors') provide this information solely
+to professionals who have the appropriate degree of experience to
+understand and interpret its contents in accordance with generally
+accepted engineering or other professional standards and applicable
+regulations. No recommendations as to products or vendors is made or
+should be implied.
+.PP
+While the information contained herein has been prepared from sources
+deemed to be reliable, the authors reserve the right to revise the
+information without notice, but has no obligation to do so. Unless the
+recipient has been expressly granted a license by Bellcore under
+separate applicable written agreement with Bellcore, no license,
+expressed or implied, is granted under any patents, copyrights or other
+intellectual property rights. Use of the information is at your
+discretion and shall not be deemed an inducement by Bellcore to infringe
+any existing or later-issued patent, copyrights or other intellectual
+property right.
+.PP
+THE AUTHORS MAKE NO REPRESENTATIONS AND EXTENDS NO WARRANTIES, EXPRESS OR
+IMPLIED, WITH RESPECT TO THE INFORMATION, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR ANY PARTICULAR
+PURPOSE, AND THE WARRANTY AGAINST INFRINGEMENT OF PATENTS OR OTHER
+INTELLECTUAL PROPERTY RIGHTS. THE INFORMATION IS PROVIDED ``AS IS'', AND
+IN NO EVENT SHALL THE AUTHORS OR ANY OF ITS AFFILIATES BE LIABLE FOR ANY
+DAMAGES, INCLUDING ANY LOST PROFITS OR OTHER INCIDENTAL OR CONSEQUENTIAL
+DAMAGES RELATING TO THE INFORMATION.
+.PP
+Copyright 1991, 1992 Bellcore.
+.br
+Copyright 1995-99 Andrew Lister
+All Rights Reserved.
+.sp 3
+The above no warranty extends to all additions and contributions.  No
+contributor shall be held liable; this work is provided ``as is''.  If
+this is a problem for you, then don't use this software.

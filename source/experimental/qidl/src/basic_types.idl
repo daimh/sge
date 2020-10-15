@@ -1,0 +1,106 @@
+// basic_types.idl
+// include this file for definitions of standard cod idl types
+
+
+// 
+//   The Contents of this file are made available subject to the terms of
+//   the Sun Industry Standards Source License Version 1.2
+// 
+//   Sun Microsystems Inc., March, 2001
+// 
+// 
+//   Sun Industry Standards Source License Version 1.2
+//   =================================================
+//   The contents of this file are subject to the Sun Industry Standards
+//   Source License Version 1.2 (the \"License\"); You may not use this file
+//   except in compliance with the License. You may obtain a copy of the
+//   License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+// 
+//   Software provided under this License is provided on an \"AS IS\" basis,
+//   WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+//   WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+//   MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+//   See the License for the specific provisions governing your rights and
+//   obligations concerning the Software.
+// 
+//   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+// 
+//   Copyright: 2001 by Sun Microsystems, Inc.
+// 
+//   All Rights Reserved.
+// 
+
+#ifndef _basic_types_idl
+#define _basic_types_idl
+
+#include "elem_codes.idl"
+
+module Codine {
+   typedef float           cod_float;
+   typedef double          cod_double;
+   typedef unsigned long   cod_ulong;
+   typedef long            cod_long;
+   typedef char            cod_char;
+   typedef short           cod_short;
+   typedef short           cod_int;
+   typedef string          cod_string;
+   typedef sequence<cod_string> cod_stringSeq;
+
+   // Answer thrown in case of an error
+   struct Answer {
+      cod_ulong   status;
+      cod_string  text;
+   };
+   typedef sequence<Answer>   AnswerSeq;
+
+   // Common Exceptions
+   exception ObjDestroyed {};
+   exception Authentication {};
+   exception Error {
+      AnswerSeq   answer;
+   };
+   exception InternalError {
+      string      errorText;
+   };
+
+   // Content of an object as (name,value) pairs
+   struct content {
+      cod_ulong   elem;
+      any         value;
+   };
+   typedef sequence<content> contentSeq;
+
+   // THE base class
+   interface Obj {
+      // opaque object state
+      contentSeq  get_content()
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      cod_ulong   set_content(in contentSeq state)
+                     raises(ObjDestroyed, Authentication, Error)
+                     context("cod_auth");
+      
+      void        add() 
+                     raises(ObjDestroyed, Error)
+                     context("cod_auth");
+      oneway void destroy() context("cod_auth");
+   };
+
+   // event handling stuff
+   enum event_type {
+      ev_add,
+      ev_mod,
+      ev_del
+   };
+   struct event {
+      event_type  type;
+      cod_ulong   obj;
+      cod_string  name;
+      cod_ulong   id;
+      cod_ulong   count;
+      Object      ref;
+      contentSeq  changes;
+   };
+};
+
+#endif // _basic_types_idl

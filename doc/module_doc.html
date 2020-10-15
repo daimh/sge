@@ -1,0 +1,318 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+<head>
+<title>Grid Engine source modules</title>
+</head>
+<body>
+<h1>Grid Engine source modules</h1>
+
+<p>
+This document describes the Grid Engine source code modules, and is
+written for use by software developers. Our goal is to provide you with useful
+information if you are considering participating in the Grid Engine project
+or will be using Grid Engine source code. In addition to this source documentation,
+the user product documentation is necessary for a full understanding of the
+functional operation of the software. Consequently the <a
+ href="http://arc.liv.ac.uk/SGE/htmlman/manuals.html"
+ name="man pages">man pages</a> are referred to herein where
+appropriate.  See also the <a
+href="../source/source.html">directory structure</a>.
+<p><em>Note</em>: This information is typically old, and may be
+out-of-date or completely obsolete in some cases.
+
+<p>If you have problems with finding functions or browsing through the
+source code we suggest the use of grep or preferably <a
+ href="http://ctags.sourceforge.net/">ctags</a>/etags (see <tt>source/scripts/make-tags.sh</tt>).
+</p>
+<h3>1. Job life cycle</h3>
+<p>The job life cycle is a good way to understand the overall system.
+
+<ol>
+<li> Execds report load information to qmaster</li>
+<li> User submits job using qsub command</li>
+<li> Qmaster notifies its scheduler thread about new job</li>
+<li> The scheduler dispatches job to an Execd</li>
+<li> Qmaster delivers job to Execd; Execd starts job using Shepherd</li>
+<li> At job end Execd notifies Qmaster about job finish</li>
+<li> Qmaster feeds jobs resource consumption to accounting database</li>
+
+</ol>
+<p>  <img src="structure.png" name="Graphic1" height="415"
+ width="657" >
+
+<h3> 2. Components</h3>
+
+<h3> 2.1 Daemon components</h3>
+<p>In the "source/daemons" subdirectory there is one directory for each daemon.
+
+<h4><a href="../source/daemons/qmaster/qmaster.html"
+ name="Qmaster">Qmaster</a></h4>
+
+<p>The Qmaster (Queue Master) controls the overall behaviour in a
+ cluster.  The Qmaster is the responsible for answering GDI requests
+ from clients and for delivering dispatched jobs to the assigned
+Execds.  The scheduler component was formerly a separate daemon <a
+ href="../source/daemons/qmaster/schedd.html">schedd</a>, but is now a
+ thread in qmaster.
+
+<h4> <a
+ href="../source/daemons/execd/execd.html"
+ name="Execd">Execd</a></h4>
+<p>The Execd (Execution Daemon) provides Qmaster with information about utilization
+ and availability of resources. Each job sent to Execd by Qmaster is started
+ by writing all relevant information into a couple files describing the job
+and forking a Shepherd. After Shepherds termination Execd reports details
+about the job run back to Qmaster.
+
+<h4><a
+ href="../source/daemons/shepherd/shepherd.html"
+ name="Shepherd">Shepherd</a></h4>
+<p>The Shepherd starts all kinds of jobs according to what he finds in the
+per-job configuration files written by Execd. If necessary administrator
+supplied procedures are started before the job is started (prolog, PE start-up),
+during job run (checkpoint/migrate, terminate/suspend/resume) and after job
+termination (PE shut-down, epilog).
+
+<h4><a
+ href="../source/daemons/shadowd/shadowd.html"
+ name="Shadowd">Shadowd</a></h4>
+<p>The Shadowd (Shadow Daemon) detects failures of the Qmaster and starts
+a new Qmaster if necessary.
+
+<h3> 2.2 Client components</h3>
+<p>In the "source/clients" subdirectory there is one directory for each client.
+Clients follow a general <a
+href="../source/clients/clients.html#General%20client%20implementation">implementation</a>.
+
+<h4> <a
+ href="../source/clients/clients.html#qsub"
+ name="Qsub">Qsub</a></h4>
+<p>Qsub combines all information provided with the command line and in per-cluster
+ or per-user default settings files in a job object and sends the job via
+GDI to Qmaster. As response Qsub receives a job ID and prints it.
+
+
+<h4><a
+ href="../source/clients/clients.html#qrsh"
+ name="Qrsh">Qrsh</a></h4>
+<p>Qrsh combines all job relevant information in a job object like Qsub does
+ and sends it as an interactive job via GDI to Qmaster. For stdin/stdout/stderr
+ redirection rsh command is forked by qrsh. The rsh command cooperates with
+ the rshd forked by shepherd for jobs of that type. Instead of rsh/rshd also
+other commands can be used.
+
+<h4><a name="Qmon"
+  href="../source/clients/qmon/images/preview.html">Qmon</a></h4>
+<p>Qmon is a Motif GUI allowing to administer and monitor the system but also
+ to submit and monitor jobs. Qmon uses GDI to retrieve from Qmaster the whole
+ configuration and to change it.  See also the <a>images preview</a>.
+
+<h4><a
+ href="../source/clients/clients.html#qdel"
+ name="Qdel">Qdel</a></h4>
+<p>Qdel uses GDI to initiate job termination.
+
+<h4><a
+ href="../source/clients/clients.html#qacct"
+ name="Qacct">Qacct</a></h4>
+<p>Qacct produces accounting reports by scanning the accounting data file.
+
+<h4><a
+ href="../source/clients/clients.html#qlogin"
+ name="Qlogin">Qlogin</a></h4>
+<p>Qlogin invokes an interactive login session in the current terminal using
+ GDI.
+
+<h4><a
+ href="../source/clients/clients.html#qresub"
+ name="Qresub">Qresub</a></h4>
+<p>Qresub creates a copy from an existing job using GDI.
+
+<h4><a
+ href="../source/clients/clients.html#qselect"
+ name="Qselect">Qselect</a></h4>
+<p>Qselect prints a list of queues matching the specified criteria from the
+ command line. The necessary information about the clusters configuration
+is fetched from Qmaster using GDI.
+
+<h4> <a
+ href="../source/clients/clients.html#qalter"
+ name="Qalter">Qalter</a></h4>
+<p>Qalter modifies an already submitted job using GDI.
+
+<h4> <a
+ href="../source/clients/clients.html#qhold"
+ name="Qhold">Qhold</a></h4>
+<p>Qhold puts a hold on a job using Qalter.
+
+<h4><a
+ href="../source/clients/clients.html#qrls"
+ name="Qrls">Qrls</a></h4>
+<p>Qhold releases a hold from a job using Qalter.
+
+<h4><a
+ href="../source/clients/clients.html#qsh"
+ name="Qsh">Qsh</a></h4>
+<p>Qsh submits an interactive X-windows session job using GDI.
+
+<h4><a
+ href="../source/clients/clients.html#qconf"
+ name="Qconf">Qconf</a></h4>
+<p>Qconf allows to add, delete, modify and view the configuration of all kind
+ of configuration objects. Qconf uses GDI to do this.
+
+<h4> <a
+ href="../source/clients/clients.html#qhost"
+ name="Qhost">Qhost</a></h4>
+<p>Qhost shows the current status of all hosts in the cluster based on information
+ retrieved using GDI.
+
+<h4> <a
+ href="../source/clients/clients.html#qstat"
+ name="Qstat">Qstat</a></h4>
+<p>Qstat shows the current status of all queues in the cluster based on information
+ retrieved using GDI.
+
+<h4><a
+ href="../source/clients/clients.html#qmod"
+ name="Qmod">Qmod</a></h4>
+<p>Qmod allows to modify the state of queues and jobs by using GDI.
+
+<h3> 2.3 Libraries</h3>
+<p>In the "source/libs" subdirectory there is one directory for each library.
+
+<h4> <a
+ href="../source/libs/uti/rmon.html"
+ name="librmon">librmon</a></h4>
+<p>This low level library provides functionality to run daemons in a monitoring
+ mode.
+
+<h4> <a
+ href="../source/libs/uti/uti.html"
+ name="libuti">libuti</a></h4>
+<p>A low level library with several utility functions. This library bases
+on functionality of librmon.
+
+<h4> <a
+ href="../source/libs/cull/cull.html"
+ name="libcull">libcull</a></h4>
+<p>The generic list library which is used in nearly all components of the
+system. The cull library bases on functionality of libuti and librmon.
+
+<h4> libcomm</h4>
+<p>The communication library is based on librmon.
+
+<h4> <a
+ href="../source/libs/gdi/gdi.html"
+ name="libgdi">libgdi</a></h4>
+<p>The Gridengine Database Interface library provides methods to retrieve,
+add, delete and modify all internal objects hosted by the Qmaster. The GDI
+library bases on libcomm and libcull.
+
+<h4> <a
+ href="../source/libs/sched/sched.html"
+ name="libsched">libsched</a></h4>
+<p>This library contains many important high-level functions mainly used by
+ Schedd. Some of them however have turned out to be very helpful also in
+other clients like Qstat, Qhost or qmon and also in Qmaster.
+
+<h4>libsgeobj</h4>
+<p>This library contains the definition of Grid Engine object types (e.g. the
+job datatype JB_Type) and access functions (e.g. job_is_parallel). Grid Engine
+objects are CULL objects, see libcull.
+
+<h4> libevc</h4>
+<p>The event client interface allows a client to register at qmaster and receive
+ events about changes in the system more user friendly than with polling.
+
+<h4>libevm</h4>
+<p>This library contains code providing the master side of the event client
+interface.
+ It is currently used in qmaster to serve event clients but could be used
+to build any event server, e.g. an event caching / proxy component.
+
+<h4>libmir</h4>
+<p>The mirror interface provides a mechanism to mirror the data held in qmaster,
+e.g. the job list or the queue list.
+ It is based on the event client interface.
+
+<h4>
+<a href="../source/libs/japi/japi.html">libjapi</a></h4>
+<p>The job API interface (JAPI) provides a to-the-point interface providing those operations typical Grid Engine end users depend upon. That is submission
+  of jobs, enquire and control of job status, synchronizing with jobs end as well as examining how a job finished. Operations required to administer
+  Grid Engine are not covered by JAPI. This library bases on functionality of libgdi and libevc.
+
+<h4> <a
+ href="../source/libs/japi/drmaa.html">libdrmaa</a></h4>
+<p>The DRMAA library is an implementation of the DRMAA C binding standard based on Grid Engine. The purpose of DRMAA is to provide an interface that
+  facilitates integration of applications with DRM systems such as Grid Engine in a DRM system independent fashion. The DRMAA
+  library is kept in the libs/japi subdirectory due to the close
+ relationship with JAPI.
+	    See also the <a
+ href="../source/libs/japi/jobstates.html">DRMAA job state table</a>.
+
+<h4><a>jgdi</a></h4>
+<p>Java admin API <a
+	    href="../source/libs/jgdi/docs/intro.odp">introduction</a>
+	    and <a href="../source/libs/jgdi/docs/JAAPI-FS.odt">documentation</a>
+
+<h3> 2.4 Third-party components</h3>
+<p>The "source/3rdparty" directory contains modules with different licenses
+ than SISSL.
+
+<h4> <a
+ href="../source/3rdparty/qmake/qmake.html"
+ name="Qmake">Qmake</a></h4>
+<p>This client is a GNU make enhanced with transparent remote execution. The
+ implementation of transparent remote execution bases on a forked 'qrsh -inherit'
+command.
+
+<h4> <a
+ href="../source/3rdparty/qtcsh/qtcsh.html"
+ name="Qtcsh">Qtcsh</a></h4>
+<p>This client program is an extension to the popular csh(1) derivative tcsh.
+ The implementation of transparent remote execution bases on libgdi.
+
+<h4><a href="../source/3rdparty/sge_depend/sge_depend.html"
+	    name="sge_depend">sge_depend</a></h4>
+<p>Generates Make dependencies during building
+<!-- <h4><a href="../source/3rdparty/snprintf/README.html" -->
+<!-- 	    name="snprintf">snprintf</a></h4> -->
+<!-- <p>snprintf library implementation -->
+
+<h4> <a
+ href="../source/3rdparty/remote/remote.html"
+ name="Qtcsh">Remote tools</a></h4>
+<p>This directory is the home of rsh, rshd, rlogin.
+
+<h3> 2.5 Utilities</h3>
+<p>The "source/utilbin" directory contains <a
+ href="../source/utilbin/utilbin.html"
+ name="binaries">binaries</a> that are needed during installation of Grid
+Engine, for diagnosis purposes or for the job samples.
+<h3> 2.6 Dist</h3>
+<p>The "source/dist" directory contains <a
+ href="../source/dist/dist.html"
+ name="files and directories">files and directories</a> which are part of
+a Grid Engine distribution.
+<h3><a href="../source/scripts/scripts.html">2.7
+  Scripts</a></h3>
+<p>Scripts needed for building and installation
+
+<h3> <a
+ href="../source/security/security.html"
+ name="Security">3. Security</a></h3>
+<p>The "source/security" directory contains modules handling security
+ in various ways.</a>
+
+<h3> 4. Experimental</h3>
+<p>Each subdirectory of the "source/experimental" directory contains an experimental
+ module. Those modules cannot be expected to work - although some may, at
+least with a bit of work. The <a
+ href="../source/experimental/experimental.html"
+ name="experimental modules">experimental modules</a> are provided here for
+information purposes mainly and may be helpful if you plan to enhance Grid
+Engine in a direction similar to one of the modules. Some also can be a valid
+starting point for such an effort.
+</body>
+</html>

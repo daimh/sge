@@ -1,0 +1,108 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\" Portions of this software are Copyright (c) 2011 Univa Corporation
+.\"
+.\"___INFO__MARK_END__
+.\" $RCSfile: SGE_Helper_Service.exe.8,v $     Last Update: $Date: 2011-06-22 17:57:39 $     Revision: $Revision: 1.4 $
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\"
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\" "
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH SGE_Helper_Service.exe 8 "$Date: 2011-06-22 17:57:39 $" "xxRELxx" "xxQS_NAMExx Administrative Commands"
+.SH NAME
+SGE_Helper_Service.exe \- xxQS_NAMExx job execution agent helper service
+.\"
+.\"
+.SH SYNOPSIS
+.B SGE_Helper_Service.exe
+[
+.B \-help
+|
+.B \-install 
+|
+.B \-uninstall
+]
+.\"
+.\"
+.SH DESCRIPTION
+.PP
+.I SGE_Helper_Service.exe helps the 
+.M xxqs_name_sxx_execd 8
+to run Windows jobs that request to be allowed to display
+their GUI on the visible Desktop. It is a Win32 service that is started at boot time
+under the SYSTEM account, giving it the permissions to give any process the 
+permissions to access the visible Desktop.
+.br
+This service runs independently of the
+.M xxqs_name_sxx_execd 8
+(i.e. it is not started and stopped together with the execution daemon) and there
+can be only one
+.I SGE_Helper_Service.exe
+per host.
+.PP
+Jobs can request to be allowed to display their GUI on the visible desktop by 
+requesting the resource "display_win_gui" (qsub \-l display_win_gui=1). See
+.M submit 1 ,
+option "\-v", for information on how to set a job environment variable.
+.br
+When running GUI jobs, the environment variable SGE_BACKGND_MODE can be used to
+direct where the output of the GUI will be displayed. If the environment variable
+SGE_BACKGND_MODE is set to "TRUE" or "1" and "\-l display_win_gui=true" is requested,
+the job is started by the helper service, but the GUI is not opened on the execution 
+host's screen. Instead it is opened on a virtual screen.
+.PP
+The Windows administrator can operate this service using the usual Windows
+Service Control Manager or the "net" command. The "start" method starts the
+service if possible, the "stop" method stops it regardless of any jobs that
+might be still running. For a graceful shutdown, first run the "pause" method.
+This will start the shutdown procedure of the service and prevent it from
+accepting any further jobs. After this, the "resume" (aka "continue") method
+will fail as long as there are jobs running in the
+.IR SGE_Helper_Service.exe .
+If no job is left in the service, the "resume" method will succeed and the
+service will stop.
+.br
+.\"
+.\"
+.SH OPTIONS
+.\"
+.SS "\fB\-help\fP"
+Prints a listing of all options.
+.SS "\fB\-install\fP"
+Installs the service. Only the local Administrator has the permissions to install the service.
+.SS "\fB\-uninstall\fP"
+Uninstalls the service. Only the local Administrator has the permissions to uninstall the service. Only a stopped service can be uninstalled. See the Windows command net.exe for information on how to stop a service.
+.fi
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M xxqs_name_sxx_execd 8 .
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

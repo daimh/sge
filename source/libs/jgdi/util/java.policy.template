@@ -1,0 +1,148 @@
+/*___INFO__MARK_BEGIN__*/
+/*************************************************************************
+ *
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ *
+ *  Sun Microsystems Inc., March, 2001
+ *
+ *
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ *
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ *
+ *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ *
+ *   Copyright: 2001 by Sun Microsystems, Inc.
+ *
+ *   All Rights Reserved.
+ *
+ ************************************************************************/
+/*___INFO__MARK_END__*/
+
+/*
+**
+** with LdapLoginModule 
+** grant principal com.sun.security.auth.UserPrincipal "controlRole" 
+**
+** with jmxremote.password
+** grant principal javax.management.remote.JMXPrincipal "controlRole"
+**
+*/
+grant codeBase "file:${com.sun.grid.jgdi.sgeRoot}/lib/jgdi.jar"  {
+   permission java.net.SocketPermission   "*:1024-", "accept,connect";
+   permission java.net.SocketPermission   "localhost:1024-", "listen,resolve";
+   permission java.lang.RuntimePermission "loadLibrary.jgdi";
+   permission java.lang.RuntimePermission "shutdownHooks";
+   permission java.lang.RuntimePermission "setContextClassLoader";
+   permission java.lang.RuntimePermission "modifyThread";
+   permission javax.security.auth.AuthPermission "createLoginContext.jgdi";
+   permission javax.security.auth.AuthPermission "doAs";
+   permission javax.security.auth.AuthPermission "getSubject";
+   permission java.util.PropertyPermission "*", "read";
+   permission java.util.logging.LoggingPermission "control";
+
+   permission java.lang.FilePermission "${com.sun.grid.jgdi.sgeRoot}/${com.sun.grid.jgdi.sgeCell}/common/jmx/-", "read";
+   permission java.io.FilePermission "${com.sun.grid.jgdi.sgeRoot}/util/-", "execute";
+   permission java.io.FilePermission "${com.sun.grid.jgdi.sgeRoot}/utilbin/-", "execute";
+   permission javax.management.MBeanServerPermission "createMBeanServer";
+   permission javax.management.MBeanPermission "*", "*";
+   permission javax.management.MBeanTrustPermission "register";
+   permission java.lang.management.ManagementPermission "monitor";
+   permission java.lang.management.ManagementPermission "control";
+   
+   permission java.lang.RuntimePermission "setIO";
+   permission java.io.FilePermission      "jgdi.stdout", "write";
+   permission java.io.FilePermission      "jgdi.stderr", "write";
+   permission java.io.FilePermission      "jgdi0.log.lck", "delete";
+   permission java.io.FilePermission      "${com.sun.grid.jgdi.sgeRoot}/${com.sun.grid.jgdi.sgeCell}/common/jmx/*", "read";
+   permission java.io.FilePermission      "${com.sun.grid.jgdi.sgeRoot}/lib/-", "read";
+   permission java.lang.RuntimePermission "accessClassInPackage.sun.management.jmxremote";
+   permission java.lang.RuntimePermission "accessClassInPackage.sun.management.resources";
+   permission java.lang.RuntimePermission "accessClassInPackage.sun.management";
+   permission java.lang.RuntimePermission "accessClassInPackage.sun.rmi.server";
+   permission java.lang.RuntimePermission "accessClassInPackage.sun.management.snmp.util";
+   permission java.lang.RuntimePermission "accessClassInPackage.sun.rmi.registry";
+
+   permission java.util.PropertyPermission "java.rmi.server.randomIDs", "write";
+
+   permission javax.security.auth.AuthPermission "modifyPrincipals";
+   permission javax.security.auth.AuthPermission "createLoginContext.*";
+   permission javax.security.auth.AuthPermission "createLoginContext.JMXPluggableAuthenticator";
+   permission java.security.SecurityPermission "createAccessControlContext";
+
+   permission javax.management.remote.SubjectDelegationPermission "javax.management.remote.JMXPrincipal.controlRole";
+};
+
+grant principal javax.management.remote.JMXPrincipal "controlRole" {
+   permission javax.management.MBeanPermission "com.sun.grid.jgdi.management.mbeans.JGDIJMX#*", "*";
+   permission javax.management.MBeanPermission "sun.management.*#*", "*";
+   permission javax.security.auth.AuthPermission "createLoginContext.jgdi";
+   permission javax.security.auth.AuthPermission "doAs";
+   permission javax.security.auth.AuthPermission "getSubject";
+   permission java.util.PropertyPermission "*", "read";
+   permission java.util.PropertyPermission "user.timezone", "read,write";
+   permission java.util.logging.LoggingPermission "control";
+   permission java.io.FilePermission      "${com.sun.grid.jgdi.sgeRoot}/lib/-", "read";
+   permission java.lang.management.ManagementPermission "monitor";
+   permission java.net.SocketPermission "*", "resolve";
+
+   permission javax.management.MBeanPermission "com.sun.management.UnixOperatingSystem#-[java.lang:type=OperatingSystem]", "isInstanceOf";
+   permission javax.management.MBeanPermission "com.sun.management.UnixOperatingSystem#-[java.lang:type=OperatingSystem]", "getAttribute";
+   permission javax.management.MBeanPermission "com.sun.management.UnixOperatingSystem#ProcessCpuTime[java.lang:type=OperatingSystem]", "getAttribute";
+   permission javax.management.MBeanPermission "com.sun.management.UnixOperatingSystem#Name[java.lang:type=OperatingSystem]", "getAttribute";
+   permission javax.management.MBeanPermission "com.sun.management.UnixOperatingSystem#Version[java.lang:type=OperatingSystem]", "getAttribute";
+   permission javax.management.MBeanPermission "com.sun.management.UnixOperatingSystem#Arch[java.lang:type=OperatingSystem]", "getAttribute";
+   permission javax.management.MBeanPermission "com.sun.management.UnixOperatingSystem#AvailableProcessors[java.lang:type=OperatingSystem]", "getAttribute";
+   permission javax.management.MBeanPermission "com.sun.management.UnixOperatingSystem#CommittedVirtualMemorySize[java.lang:type=OperatingSystem]", "getAttribute";
+   permission javax.management.MBeanPermission "com.sun.management.UnixOperatingSystem#TotalPhysicalMemorySize[java.lang:type=OperatingSystem]", "getAttribute";
+   permission javax.management.MBeanPermission "com.sun.management.UnixOperatingSystem#FreePhysicalMemorySize[java.lang:type=OperatingSystem]", "getAttribute";
+   permission javax.management.MBeanPermission "com.sun.management.UnixOperatingSystem#TotalSwapSpaceSize[java.lang:type=OperatingSystem]", "getAttribute";
+   permission javax.management.MBeanPermission "com.sun.management.UnixOperatingSystem#FreeSwapSpaceSize[java.lang:type=OperatingSystem]", "getAttribute";
+   permission javax.management.MBeanPermission "javax.management.MBeanServerDelegate#-[JMImplementation:type=MBeanServerDelegate]", "addNotificationListener";
+   permission javax.management.MBeanPermission "javax.management.MBeanServerDelegate#-[JMImplementation:type=MBeanServerDelegate]", "isInstanceOf";
+   permission javax.management.MBeanPermission "javax.management.MBeanServerDelegate#-[JMImplementation:type=MBeanServerDelegate]", "getMBeanInfo";
+   permission javax.management.MBeanPermission "com.sun.management.UnixOperatingSystem#-[java.lang:type=OperatingSystem]", "queryNames";
+   permission javax.management.MBeanPermission "java.util.logging.Logging#-[java.util.logging:type=Logging]", "queryNames";
+   permission javax.management.MBeanPermission "javax.management.MBeanServerDelegate#-[JMImplementation:type=MBeanServerDelegate]", "queryNames";
+   permission javax.management.MBeanPermission "java.util.logging.Logging#-[java.util.logging:type=Logging]", "isInstanceOf";
+   permission javax.management.MBeanPermission "java.util.logging.Logging#-[java.util.logging:type=Logging]", "getMBeanInfo";
+   permission javax.management.MBeanPermission "com.sun.management.UnixOperatingSystem#-[java.lang:type=OperatingSystem]", "getMBeanInfo";
+
+};
+
+grant {
+   permission java.util.logging.LoggingPermission "control";
+   permission java.util.PropertyPermission "*", "read";
+   permission java.util.PropertyPermission "user.timezone", "write";
+   permission java.lang.RuntimePermission "setIO";
+   permission java.lang.RuntimePermission "loadLibrary.jgdi";
+   permission java.io.FilePermission      "jgdi.stdout", "write";
+   permission java.io.FilePermission      "jgdi.stderr", "write";
+   permission java.io.FilePermission      "${com.sun.grid.jgdi.sgeRoot}/lib/-", "read";
+   permission java.io.FilePermission      "${com.sun.grid.jgdi.sgeRoot}/util/arch", "execute";
+   permission java.io.FilePermission      "${com.sun.grid.jgdi.sgeRoot}/utilbin/-", "execute";
+   permission javax.security.auth.AuthPermission "modifyPrincipals";
+   permission java.io.FilePermission "${com.sun.grid.jgdi.caTop}", "read";
+   permission java.io.FilePermission "${com.sun.grid.jgdi.caTop}/cacert.pem", "read";
+   permission java.io.FilePermission "${com.sun.grid.jgdi.caTop}/ca-crl.pem", "read";
+   permission java.io.FilePermission "${com.sun.grid.jgdi.caTop}/usercerts/-", "read";
+   permission java.io.FilePermission "${com.sun.grid.jgdi.serverKeystore}", "read";
+   permission java.io.FilePermission "${com.sun.grid.jgdi.serverKeystore}.password", "read";
+};
+
+/*
+grant {
+   permission java.security.AllPermission;
+};
+*/

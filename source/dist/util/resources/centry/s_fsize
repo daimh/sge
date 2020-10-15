@@ -1,0 +1,12 @@
+# Version: Grid Engine 6
+# 
+# DO NOT MODIFY THIS FILE MANUALLY!
+# 
+name        s_fsize
+shortcut    s_fsize
+type        MEMORY
+relop       <=
+requestable YES
+consumable  NO
+default     0
+urgency     0

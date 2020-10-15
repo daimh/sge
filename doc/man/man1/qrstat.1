@@ -1,0 +1,183 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004-2007 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH QRSTAT 1 "2011-05-20" "xxRELxx" "xxQS_NAMExx User Commands"
+.SH NAME
+qrstat \- show the status of xxQS_NAMExx Advance Reservations (AR)
+.\"
+.\"
+.SH SYNTAX
+.B qrstat
+.RB [ \-ar
+.IR ar_id ,...]
+.RB [ \-help ]
+.RB [ \-u
+.IR user ,...]
+.RB [ \-explain ]
+.\"
+.\"
+.SH DESCRIPTION
+.I qrstat
+shows the current status of the available xxQS_NAMExx ARs.
+The selection option \fB\-ar\fP allows you to get information about 
+specific AR.
+.PP
+The administrator and the user may define files
+which can contain any of the options described below. A cluster-wide sge_qrstat
+file may be placed under
+$xxQS_NAME_Sxx_ROOT/$xxQS_NAME_Sxx_CELL/common/sge_qrstat
+The user private  file is searched at the location
+$HOME/.sge_qrstat.
+The home directory request file has the highest precedence over
+the cluster global file.
+Command line can be used to override the flags contained in the files.
+.\"
+.SH OPTIONS
+.IP "\fB\-ar\fP \fIar_id\fP,..."
+Prints various information about the ARs identified by the given \fIar_id\fP list.
+.\"
+.IP "\fB\-explain\fP"
+Displays the reason for the error state of an AR. Possible reasons 
+are the unknown state of a host or queue instance.
+.sp
+The output format for the alarm reasons is one line per reason.
+.\"
+.IP "\fB\-help\fP"
+Prints a listing of all options.
+.\"
+.IP "\fB\-u\fP \fIuser\fP,..."
+Display information only for those ARs 
+created by the users from the given user list.
+.sp
+The string
+\fB\ $user\fP
+is a placeholder for the current username. An asterisk "\fB*\fB" can be used
+as a username wildcard to request that all users' ARs be displayed. The
+default value for this switch is "\fB-u $user\fP".
+.\"
+.IP "\fB\-xml\fP"
+This option can be used with all other options and changes the output to XML. The schemas
+used are referenced in the XML output. The output is printed to stdout.
+.br
+.\"
+.\"
+.SH "OUTPUT FORMATS"
+Depending on the presence or absence of the \fB\-ar\fP option there are two 
+output formats need to be differentiated.
+.\"
+.SS "\fBAdvance Reservation Summary (without \-ar)\fP"
+Following the header line, a section for each AR
+is provided. The columns contain information for
+.IP "\(bu" 3n
+the AR id;
+.IP "\(bu" 3n
+the name of the AR;
+.IP "\(bu" 3n
+the current state of the AR. One of the following letters with the
+given meaning:
+.sp 1
+.nf
+.ta \w'|b|  'u
+\fBw\fP \- waiting without error
+\fBW\fP \- warning (effective \- waiting with error)
+\fBr\fP \- running
+\fBE\fP \- error (effective \- running with error)
+\fBd\fP \- deleted
+.fi
+.IP "\(bu" 3n
+the start time of the AR;
+.IP "\(bu" 3n
+the end time of the AR;
+.IP "\(bu" 3n
+the duration of the AR.
+.SS "\fBDetailed Format (with \-ar)\fP"
+The output contains two columns. The first one contains all AR attributes.
+The second one the corresponding value.
+.\"
+.\"
+.SH "ENVIRONMENT VARIABLES"
+.\" 
+.IP "\fBxxQS_NAME_Sxx_ROOT\fP" 1.5i
+Specifies the location of the xxQS_NAMExx standard configuration
+files.
+.\"
+.IP "\fBxxQS_NAME_Sxx_CELL\fP" 1.5i
+If set, specifies the default xxQS_NAMExx cell. To address a xxQS_NAMExx
+cell
+.I qrstat
+uses (in the order of precedence):
+.sp 1
+.RS
+.RS
+The name of the cell specified in the environment 
+variable xxQS_NAME_Sxx_CELL, if it is set.
+.sp 1
+The name of the default cell, i.e. \fBdefault\fP.
+.sp 1
+.RE
+.RE
+.\"
+.IP "\fBxxQS_NAME_Sxx_DEBUG_LEVEL\fP" 1.5i
+If set, specifies that debug information
+should be written to stderr. In addition the level of
+detail in which debug information is generated is defined.
+.\"
+.IP "\fBxxQS_NAME_Sxx_QMASTER_PORT\fP" 1.5i
+If set, specifies the tcp port on which
+.M xxqs_name_sxx_qmaster 8
+is expected to listen for communication requests.
+Most installations will use a services map entry for the
+service "sge_qmaster" instead to define that port.
+.\"
+.\"
+.SH FILES
+.nf
+.ta \w'<xxqs_name_sxx_root>/     'u
+\fI<xxqs_name_sxx_root>/<cell>/common/act_qmaster\fP
+	xxQS_NAMExx master host file
+.ta \w'<xxqs_name_sxx_root>/     'u
+\fI<xxqs_name_sxx_root>/<cell>/common/xxqs_name_sxx_qrstat\fP
+	cluster qrstat default options
+\fI$HOME/.xxqs_name_sxx_qrstat\fP	
+	user qrstat default options
+.fi
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M qrsub 1 ,
+.M qrdel 1 ,
+.M qsub 1 ,
+.\"
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

@@ -1,0 +1,69 @@
+\input texinfo  @c -*-texinfo-*-
+@comment %**start of header
+@setfilename PROJECT.guide
+@settitle Autodocs for @code{PROJECT}
+@paragraphindent 0
+@iftex
+@afourpaper
+@c @smallbook
+@finalout
+@setchapternewpage odd
+@end iftex
+@comment %**end of header
+
+@comment %**start of experiment
+@c Experiment with smaller amounts of whitespace between chapters and sections
+@tex
+\global\chapheadingskip = 15pt plus 4pt minus 2pt
+\global\secheadingskip = 12pt plus 3pt minus 2pt
+\global\subsecheadingskip = 9pt plus 2pt minus 2pt
+@end tex
+
+@c Experiment with smaller amounts of whitespace between paragraphs in the 8.5 by 11 inch format
+@ifclear smallbook
+@tex
+\global\parskip 6pt plus 1pt
+@end tex
+@end ifclear
+@comment %**end of experiment
+
+@ifinfo
+@node Top
+@c    node-name,  next,  previous,  up
+@top
+This document describes @code{PROJECT} version REVISION.
+
+@noindent Copyright @copyright{} COPYRIGHT
+@end ifinfo
+
+@titlepage
+@title PROJECT
+@subtitle Documentation taken from source code
+@subtitle Edition EDITION for Version REVISION
+@subtitle @today
+@author AUTHOR
+
+@page
+@vskip 0pt plus 1filll
+Copyright @copyright{} COPYRIGHT
+
+@sp 2
+
+Permission is granted to make and distribute verbatim copies of
+this manual provided the copyright notice and this permission notice
+are preserved on all copies.
+
+Permission is granted to copy and distribute modified versions of this
+manual under the conditions for verbatim copying, provided that the entire
+resulting derived work is distributed under the terms of a permission
+notice identical to this one.
+
+Permission is granted to copy and distribute translations of this manual
+into another language, under the above conditions for modified versions,
+except that this permission notice may be stated in a translation approved
+by the author.
+@end titlepage
+@headings double
+
+@comment %**end of `header.texi'
+

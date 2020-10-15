@@ -1,0 +1,337 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Functional Ticket Layout 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_fticket.xmtChildren: unmanaged XmtLayout fticket_layout;
+
+Qmon*fticket_layout.autoUnmanage:  False
+Qmon*fticket_layout.dialogTitle:   @{QMON +++ Functional Policy}
+!Qmon*fticket_layout.fontList:      $dialog_font
+
+Qmon*fticket_layout.xmtChildren: \
+      XmPushButton   fticket_main_link; \
+      XmtMsgLine     fticket_message; \
+		UU_TypeMatrix  fticket_matrix;\
+      XmtChooser     fticket_type; \
+      XmPushButton   fticket_ok, fticket_cancel, fticket_help, \
+                     fticket_update, fticket_new, \
+                     fticket_more;
+
+Qmon*fticket_layout.layout: \
+   Fixed Shadowed Out 4 2 LREvenSpaced Row fticketconfig_title { \
+      Fixed Centered fticket_main_link \
+      Centered Color "$title_fg" "@{@fBFunctional Policy}" \
+   } \
+   # \
+   Row fticket_main_row { \
+      Col { \
+         Row { \
+            fticket_type \
+            Fixed Centered fticket_new \
+         } \
+         Stretchable Shadowed Out fticket_matrix \
+      } \
+      Fixed Shadowed Out Col { \
+         Fixed fticket_update \
+         Fixed fticket_ok \
+         Fixed fticket_cancel \
+         Fixed fticket_help \
+         <>\
+         Fixed Centered fticket_more \
+         Fixed Centered fticket_message \
+      } \
+      fticket_ratio \
+   }
+
+
+Qmon*fticket_message*columns:         15
+Qmon*fticket_layout.fticket_main_link.labelType:   PIXMAP
+Qmon*fticket_layout.fticket_main_link.labelPixmap: logo
+Qmon*fticket_layout.fticket_main_link.shadowThickness:    1
+Qmon*fticket_layout.fticket_main_link.highlightThickness: 0
+Qmon*fticket_layout.fticket_main_link.marginHeight:       0
+Qmon*fticket_layout.fticket_main_link.marginWidth:        0
+
+
+Qmon*fticket_layout.fticket_update.labelString:      @{Refresh}
+Qmon*fticket_layout.fticket_cancel.labelString:      @{Done}
+Qmon*fticket_layout.fticket_ok.labelString:          @{Apply}
+Qmon*fticket_layout.fticket_help.labelString:        @{Help}
+Qmon*fticket_layout.fticket_load.labelString:        @{fticket.load.Load}
+Qmon*fticket_layout.fticket_save.labelString:        @{Save}
+
+Qmon*fticket_layout.fticket_more.labelType:          PIXMAP
+Qmon*fticket_layout.fticket_more.labelPixmap:        rightarrow
+Qmon*fticket_layout.fticket_new.labelType:           PIXMAP
+Qmon*fticket_layout.fticket_new.labelPixmap:         file_link
+
+
+Qmon*fticket_layout.fticket_type.chooserType: ChooserOption
+Qmon*fticket_layout.fticket_type.strings: \
+   "@{User}", \
+   "@{Department}", \
+   "@{Project}", \
+   "@{Job}"
+
+!! "@{Jobclass}"
+
+
+Qmon*fticket_layout*fticket_matrix.reverseSelect:       True
+Qmon*fticket_layout*fticket_matrix.allowColumnResize:   True
+Qmon*fticket_layout*fticket_matrix.rows:         10
+Qmon*fticket_layout*fticket_matrix.trailingFixedRows:   1
+Qmon*fticket_layout*fticket_matrix.visibleRows:  10
+Qmon*fticket_layout*fticket_matrix.fixedColumns: 1
+Qmon*fticket_layout*fticket_matrix.trailingFixedColumns: 1
+Qmon*fticket_layout*fticket_matrix.columns:      3
+Qmon*fticket_layout*fticket_matrix.columnWidths: 15, 10, 10
+Qmon*fticket_layout*fticket_matrix.columnMaxLengths: 150, 15, 15
+Qmon*fticket_layout*fticket_matrix.columnLabels: , @{fticket.functional.Functional\nShares}, @{Percentage}
+Qmon*fticket_layout*fticket_matrix.columnAlignments: B, B, E
+Qmon*fticket_layout*fticket_matrix*boldLabels:            True
+!Qmon*fticket_layout*fticket_matrix.evenRowBackground:     $matrix_even_bg
+!Qmon*fticket_layout*fticket_matrix.oddRowBackground:      $matrix_odd_bg
+Qmon*fticket_layout*fticket_matrix.gridType:              GRID_COLUMN_SHADOW
+Qmon*fticket_layout*fticket_matrix.cellShadowType:        SHADOW_IN
+Qmon*fticket_layout*fticket_matrix.cellShadowThickness:   1
+
+Qmon*fticket_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+Qmon*fticket_layout.fticket_ratio.layoutIn: fticket_main_row
+Qmon*fticket_layout.fticket_ratio.xmtChildren: \
+   XmScale        fticket_usc = fticket_user, \
+                  fticket_ussc = fticket_userset, \
+                  fticket_psc = fticket_project, \
+                  fticket_jsc = fticket_job; \
+   XmToggleButton fticket_usc_t, \
+                  fticket_ussc_t, \
+                  fticket_psc_t, \
+                  fticket_jsc_t;
+
+!                fticket_jcsc = fticket_jobclass;
+!                fticket_jcsc_t;
+
+Qmon*fticket_layout.fticket_ratio.layout: \
+   Fixed Shadowed Out 4 2 Col { \
+      "@{fticket.ratio.@fBRatio Between Sorts Of\nFunctional Tickets}" \
+      Caption tl "@{User [%]}" Row { \
+         Fixed Centered fticket_usc_t \
+         Fixed Centered fticket_usc \
+      } \
+      Caption tl "@{Department [%]}" Row { \
+         Fixed Centered fticket_ussc_t \
+         Fixed Centered fticket_ussc \
+      } \
+      Caption tl "@{Project [%]}" Row { \
+         Fixed Centered fticket_psc_t \
+         Fixed Centered fticket_psc \
+      } \
+      Caption tl "@{Job [%]}" Row { \
+         Fixed Centered fticket_jsc_t \
+         Fixed Centered fticket_jsc \
+      } \
+      <> \
+   }
+
+!      Caption tl "@{Job Class [%]}" Row {
+!         Fixed Centered fticket_jcsc_t
+!         Fixed Centered fticket_jcsc
+!      }
+
+Qmon*fticket_layout.fticket_ratio.fticket_usc_t.indicatorOn:     False
+Qmon*fticket_layout.fticket_ratio.fticket_usc_t.shadowThickness: 0
+Qmon*fticket_layout.fticket_ratio.fticket_usc_t.highlightThickness: 0
+Qmon*fticket_layout.fticket_ratio.fticket_usc_t.labelType:       PIXMAP
+Qmon*fticket_layout.fticket_ratio.fticket_usc_t.labelPixmap:     open_lock
+Qmon*fticket_layout.fticket_ratio.fticket_usc_t.selectPixmap:    lock
+
+Qmon*fticket_layout.fticket_ratio.fticket_ussc_t.indicatorOn:    False
+Qmon*fticket_layout.fticket_ratio.fticket_ussc_t.shadowThickness: 0
+Qmon*fticket_layout.fticket_ratio.fticket_ussc_t.highlightThickness: 0
+Qmon*fticket_layout.fticket_ratio.fticket_ussc_t.labelType:      PIXMAP
+Qmon*fticket_layout.fticket_ratio.fticket_ussc_t.labelPixmap:    open_lock
+Qmon*fticket_layout.fticket_ratio.fticket_ussc_t.selectPixmap:   lock
+
+Qmon*fticket_layout.fticket_ratio.fticket_psc_t.indicatorOn:     False
+Qmon*fticket_layout.fticket_ratio.fticket_psc_t.shadowThickness: 0
+Qmon*fticket_layout.fticket_ratio.fticket_psc_t.highlightThickness: 0
+Qmon*fticket_layout.fticket_ratio.fticket_psc_t.labelType:       PIXMAP
+Qmon*fticket_layout.fticket_ratio.fticket_psc_t.labelPixmap:     open_lock
+Qmon*fticket_layout.fticket_ratio.fticket_psc_t.selectPixmap:    lock
+
+Qmon*fticket_layout.fticket_ratio.fticket_jsc_t.indicatorOn:     False
+Qmon*fticket_layout.fticket_ratio.fticket_jsc_t.shadowThickness: 0
+Qmon*fticket_layout.fticket_ratio.fticket_jsc_t.highlightThickness: 0
+Qmon*fticket_layout.fticket_ratio.fticket_jsc_t.labelType:       PIXMAP
+Qmon*fticket_layout.fticket_ratio.fticket_jsc_t.labelPixmap:     open_lock
+Qmon*fticket_layout.fticket_ratio.fticket_jsc_t.selectPixmap:    lock
+
+!!Qmon*fticket_layout.fticket_ratio.fticket_jcsc_t.indicatorOn:    False
+!!Qmon*fticket_layout.fticket_ratio.fticket_jcsc_t.shadowThickness: 0
+!!Qmon*fticket_layout.fticket_ratio.fticket_jcsc_t.highlightThickness: 0
+!!Qmon*fticket_layout.fticket_ratio.fticket_jcsc_t.labelType:      PIXMAP
+!!Qmon*fticket_layout.fticket_ratio.fticket_jcsc_t.labelPixmap:    open_lock
+!!Qmon*fticket_layout.fticket_ratio.fticket_jcsc_t.selectPixmap:   lock
+
+
+Qmon*fticket_layout.fticket_ratio.fticket_usc.decimalPoints:     1
+Qmon*fticket_layout.fticket_ratio.fticket_usc.minimum:           0
+Qmon*fticket_layout.fticket_ratio.fticket_usc.maximum:           1000
+Qmon*fticket_layout.fticket_ratio.fticket_usc.highlightThickness: 0
+Qmon*fticket_layout.fticket_ratio.fticket_usc.scaleMultiple:     1
+Qmon*fticket_layout.fticket_ratio.fticket_usc.orientation:       HORIZONTAL
+Qmon*fticket_layout.fticket_ratio.fticket_usc.showValue:         True
+
+Qmon*fticket_layout.fticket_ratio.fticket_ussc.decimalPoints:    1
+Qmon*fticket_layout.fticket_ratio.fticket_ussc.minimum:          0
+Qmon*fticket_layout.fticket_ratio.fticket_ussc.maximum:          1000
+Qmon*fticket_layout.fticket_ratio.fticket_ussc.highlightThickness: 0
+Qmon*fticket_layout.fticket_ratio.fticket_ussc.scaleMultiple:    1
+Qmon*fticket_layout.fticket_ratio.fticket_ussc.orientation:      HORIZONTAL
+Qmon*fticket_layout.fticket_ratio.fticket_ussc.showValue:        True
+
+Qmon*fticket_layout.fticket_ratio.fticket_psc.decimalPoints:     1
+Qmon*fticket_layout.fticket_ratio.fticket_psc.minimum:           0
+Qmon*fticket_layout.fticket_ratio.fticket_psc.maximum:           1000
+Qmon*fticket_layout.fticket_ratio.fticket_psc.highlightThickness: 0
+Qmon*fticket_layout.fticket_ratio.fticket_psc.scaleMultiple:     1
+Qmon*fticket_layout.fticket_ratio.fticket_psc.orientation:       HORIZONTAL
+Qmon*fticket_layout.fticket_ratio.fticket_psc.showValue:         True
+
+Qmon*fticket_layout.fticket_ratio.fticket_jsc.decimalPoints:     1
+Qmon*fticket_layout.fticket_ratio.fticket_jsc.minimum:           0
+Qmon*fticket_layout.fticket_ratio.fticket_jsc.maximum:           1000
+Qmon*fticket_layout.fticket_ratio.fticket_jsc.highlightThickness: 0
+Qmon*fticket_layout.fticket_ratio.fticket_jsc.scaleMultiple:     1
+Qmon*fticket_layout.fticket_ratio.fticket_jsc.orientation:       HORIZONTAL
+Qmon*fticket_layout.fticket_ratio.fticket_jsc.showValue:         True
+
+!!Qmon*fticket_layout.fticket_ratio.fticket_jcsc.decimalPoints:    1
+!!Qmon*fticket_layout.fticket_ratio.fticket_jcsc.minimum:          0
+!!Qmon*fticket_layout.fticket_ratio.fticket_jcsc.maximum:          1000
+!!Qmon*fticket_layout.fticket_ratio.fticket_jcsc.highlightThickness: 0
+!!Qmon*fticket_layout.fticket_ratio.fticket_jcsc.scaleMultiple:    1
+!!Qmon*fticket_layout.fticket_ratio.fticket_jcsc.orientation:      HORIZONTAL
+!!Qmon*fticket_layout.fticket_ratio.fticket_jcsc.showValue:        True
+
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Override Ticket Layout 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_oticket.xmtChildren: unmanaged XmtLayout oticket_layout;
+
+Qmon*oticket_layout.autoUnmanage:  False
+Qmon*oticket_layout.dialogTitle:   @{QMON +++ Override Policy}
+Qmon*oticket_layout.fontList:      $dialog_font
+
+Qmon*oticket_layout.xmtChildren: \
+      XmPushButton   oticket_main_link; \
+      XmtMsgLine     oticket_message; \
+		UU_TypeMatrix  oticket_matrix;\
+      XmtChooser     oticket_type; \
+      XmPushButton   oticket_ok, oticket_cancel, oticket_help, \
+                     oticket_update, oticket_new;
+
+Qmon*oticket_layout.layout: \
+   Fixed Shadowed Out LREvenSpaced Row oticketconfig_title { \
+      Fixed Centered oticket_main_link \
+      Centered Color "$title_fg" "@{@fBOverride Policy}" \
+   } \
+   Row { \
+      Col { \
+         Row { \
+            oticket_type \
+            Fixed Centered oticket_new \
+         } \
+         Stretchable Shadowed Out oticket_matrix \
+      } \
+      Fixed Shadowed Out Col { \
+         Fixed oticket_update \
+         Fixed oticket_ok \
+         Fixed oticket_cancel \
+         Fixed oticket_help \
+         <>\
+         Fixed oticket_message \
+      } \
+   }
+
+Qmon*oticket_message*columns:         15
+
+Qmon*oticket_layout.oticket_main_link.labelType:   PIXMAP
+Qmon*oticket_layout.oticket_main_link.labelPixmap: logo
+Qmon*oticket_layout.oticket_main_link.shadowThickness:    1
+Qmon*oticket_layout.oticket_main_link.highlightThickness: 0
+Qmon*oticket_layout.oticket_main_link.marginHeight:       0
+Qmon*oticket_layout.oticket_main_link.marginWidth:        0
+
+
+Qmon*oticket_layout.oticket_update.labelString:      @{Refresh}
+Qmon*oticket_layout.oticket_cancel.labelString:      @{Done}
+Qmon*oticket_layout.oticket_ok.labelString:          @{Apply}
+Qmon*oticket_layout.oticket_help.labelString:        @{Help}
+Qmon*oticket_layout.oticket_load.labelString:        @{oticket.load.Load}
+Qmon*oticket_layout.oticket_save.labelString:        @{Save}
+
+Qmon*oticket_layout.oticket_new.labelType: PIXMAP
+Qmon*oticket_layout.oticket_new.labelPixmap: file_link
+
+Qmon*oticket_layout.oticket_type.chooserType: ChooserOption
+Qmon*oticket_layout.oticket_type.strings: \
+   "@{User}", \
+   "@{Department}", \
+   "@{Project}", \
+   "@{Job}"
+
+!!   "@{Jobclass}"
+
+
+Qmon*oticket_layout*oticket_matrix.reverseSelect:       True
+Qmon*oticket_layout*oticket_matrix.allowColumnResize:   True
+Qmon*oticket_layout*oticket_matrix.rows:         10
+Qmon*oticket_layout*oticket_matrix.visibleRows:  10
+Qmon*oticket_layout*oticket_matrix.fixedColumns: 1
+Qmon*oticket_layout*oticket_matrix.columns:      2
+Qmon*oticket_layout*oticket_matrix.columnWidths: 15, 10
+Qmon*oticket_layout*oticket_matrix.columnMaxLengths: 150, 15
+!Qmon*oticket_layout*oticket_matrix.columnLabels: , Tickets
+Qmon*oticket_layout*oticket_matrix.columnAlignments: B, B
+!Qmon*oticket_layout*oticket_matrix*boldLabels:            True
+!Qmon*oticket_layout*oticket_matrix.evenRowBackground:     $matrix_even_bg
+!Qmon*oticket_layout*oticket_matrix.oddRowBackground:      $matrix_odd_bg
+Qmon*oticket_layout*oticket_matrix.gridType:              GRID_COLUMN_SHADOW
+Qmon*oticket_layout*oticket_matrix.cellShadowType:        SHADOW_IN
+Qmon*oticket_layout*oticket_matrix.cellShadowThickness:   1
+
+
+Qmon*oticket_help.activateCallback:   XmtHelpDisplayContextHelp(self);

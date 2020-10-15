@@ -1,0 +1,616 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--___INFO__MARK_BEGIN__
+/*************************************************************************
+ *
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ *
+ *  Sun Microsystems Inc., March, 2001
+ *
+ *
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ *
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ *
+ *  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ *
+ *  Copyright: 2001 by Sun Microsystems, Inc.
+ *
+ *  All Rights Reserved.
+ *
+ *  Portions of this code are Copyright 2011 Univa Inc.
+ *
+ ************************************************************************/
+___INFO__MARK_END__-->
+<langpack>
+    <!-- Templates:
+    Tooltip: <html><b>Title</b><br><br>Description<br><br><b>Variable: </b><code>$VAR_NAME</code></html>
+    -->
+    
+    <!--Base configuration-->
+    <str id="installer.reversetitle" txt="${APP_NAME} ${APP_VER} - Installer "/>
+    <str id="installer.madewith" txt=""/>
+
+    <!--Help pages-->
+    <str id="HelloPanel.helppage" txt="file://${SYSTEM_user_dir}/util/gui-installer/html/en/help/Welcome.html"/>
+    <str id="License.helppage" txt="file://${SYSTEM_user_dir}/util/gui-installer/html/en/help/License.html"/>
+    <str id="HostPanel.helppage" txt="file://${SYSTEM_user_dir}/util/gui-installer/html/en/help/HostPanel.html"/>
+    <str id="UserInputPanel.helppage.ComponentPanel" txt="file://${SYSTEM_user_dir}/util/gui-installer/html/en/help/ChooseComp.html"/>
+    <str id="UserInputPanel.helppage.MainPanel" txt="file://${SYSTEM_user_dir}/util/gui-installer/html/en/help/MainConfig.html"/>
+    <str id="UserInputPanel.helppage.JMXPanel" txt="file://${SYSTEM_user_dir}/util/gui-installer/html/en/help/JMXConfig.html"/>
+    <str id="UserInputPanel.helppage.SpoolingPanel" txt="file://${SYSTEM_user_dir}/util/gui-installer/html/en/help/SpoolingConfig.html"/>
+    <str id="UserInputPanel.helppage.CSPPanel" txt="file://${SYSTEM_user_dir}/util/gui-installer/html/en/help/CSPConfig.html"/>
+    <str id="installer.help.errorpage" txt="file://${SYSTEM_user_dir}/util/gui-installer/html/en/help/Error.html"/>
+    <str id="installer.help.emptypage" txt="file://${SYSTEM_user_dir}/util/gui-installer/html/en/help/Empty.html"/>
+
+    <!--Head lines-->
+    <str id="WelcomePanel.headline" txt="Welcome"/>
+    <str id="PreActionPanel.headline" txt="Check prerequisites"/>
+    <str id="UserInputPanel.headline.ComponentPanel" txt="Choose component"/>
+    <str id="UserInputPanel.headline.MainPanel" txt="Main configuration"/>
+    <str id="IntermediateActionPanel.headline" txt="Check values"/>
+    <str id="UserInputPanel.headline.JMXPanel" txt="JMX configuration"/>
+    <str id="UserInputPanel.headline.SpoolingPanel" txt="Spooling configuration"/>
+    <str id="UserInputPanel.headline.CSPPanel" txt="SSL certificate configuration"/>
+    <str id="HostPanel.headline" txt="Select hosts"/>
+    <str id="HostPanel.installing.headline" txt="Installing"/>
+    <str id="PostActionPanel.headline" txt="Check environment"/>
+    <str id="ResultPanel.headline" txt="Installation finished"/>
+
+    <!--General texts-->
+    <str id="button.exit.label" txt="Exit" />
+    <str id="title.confirmation" txt="Confirmation" />
+    <str id="title.please.wait" txt="Please wait..." />
+
+    <str id="state.new_unknown_host" txt="New unknown host"/>
+    <str id="state.unknown_host" txt="Unknown host"/>
+    <str id="state.ok" txt="Ok"/> <!-- TODO: No used? -->
+    <str id="state.failed" txt="Failed"/>
+    <str id="state.failed_dependent_on_previous" txt="Failed due to dependency"/>
+    <str id="state.failed_already_installed_component" txt="Component already exists"/>
+    <str id="state.success" txt="Success"/>
+    <str id="state.reachable" txt="Reachable"/>
+    <str id="state.unreachable" txt="Unreachable"/>
+    <str id="state.resolvable" txt="Resolvable"/>
+    <str id="state.resolving" txt="Resolving"/>
+    <str id="state.missing_file" txt="Missing remote file"/>
+    <str id="state.contacting" txt="Contacting"/>
+    <str id="state.validating" txt="Validating"/>
+    <str id="state.copy_timeout_check_host" txt="Copy timeout"/>
+    <str id="state.copy_failed_check_host" txt="Copy failed"/>
+    <str id="state.ready_to_install" txt="Waiting"/>
+    <str id="state.operation_timeout" txt="Timeout"/>
+    <str id="state.copy_timeout_install_component" txt="Copy timeout"/>
+    <str id="state.copy_failed_install_component" txt="Copy failed"/>
+    <str id="state.processing" txt="Processing"/>
+    <str id="state.canceled" txt="Canceled"/>
+    <str id="state.perm_qmaster_spool_dir" txt="Permission denied"/>
+    <str id="state.perm_execd_spool_dir" txt="Permission denied"/>
+    <str id="state.perm_bdb_spool_dir" txt="Permission denied"/>
+    <str id="state.admin_user_not_known" txt="Admin user missing"/>
+    <str id="state.bdb_spool_dir_exists" txt="Directory exists"/>
+    <str id="state.bdb_spool_dir_wrong_fstype" txt="Wrong FS type"/>
+    <str id="state.perm_jmx_keystore" txt="Permission denied"/>
+    <str id="state.used_qmaster_port" txt="Used port"/>
+    <str id="state.used_execd_port" txt="Used port"/>
+    <str id="state.used_jmx_port" txt="Used port"/>
+    <str id="state.jvm_lib_missing" txt="JVM library is missing"/>
+    <str id="state.jvm_lib_invalid" txt="JVM library is invalid"/>
+    <str id="state.unknown_error" txt="Unknown error"/>
+
+    <str id="state.new_unknown_host.tooltip" txt="<html>New unknown host.</html>"/>
+    <str id="state.unknown_host.tooltip" txt="<html>Unknown host.</html>"/>
+    <str id="state.ok.tooltip" txt="<html>Ok.</html>"/>
+    <str id="state.failed.tooltip" txt="<html>Task finished with failure.</html>"/>
+    <str id="state.failed_dependent_on_previous.tooltip" txt="<html>This installation depended on previous installation which failed.</html>"/>
+    <str id="state.failed_already_installed_component.tooltip" txt="<html>The selected component to be installed already exists on the remote host.</html>"/>
+    <str id="state.success.tooltip" txt="<html>Task finished with success.</html>"/>
+    <str id="state.reachable.tooltip" txt="<html>Host is reachable.</html>"/>
+    <str id="state.unreachable.tooltip" txt="<html>Unreachable remote host via ${cfg.shell.name}/${cfg.copy.command} without a password.</html>"/>
+    <str id="state.resolvable.tooltip" txt="<html>Host is resolvable.</html>"/>
+    <str id="state.resolving.tooltip" txt="<html>Resolving...</html>"/>
+    <str id="state.missing_file.tooltip" txt="<html>Missing file '${cfg.sge.root}/util/arch' on remote host.</html>"/>
+    <str id="state.contacting.tooltip" txt="<html>Contacting remote host...</html>"/>
+    <str id="state.validating.tooltip" txt="<html>Validating configuration on remote host...</html>"/>
+    <str id="state.operation_timeout.tooltip" txt="<html>Operation took longer than the timeout value.</html>"/>
+    <str id="state.copy_timeout_check_host.tooltip" txt="<html>Timeout while copying 'check_host' to remote host.<br>Maybe a password requested?</html>"/>
+    <str id="state.copy_failed_check_host.tooltip" txt="<html>Copying file 'check_host' to remote host failed.</html>"/>
+    <str id="state.ready_to_install.tooltip" txt="<html>Waiting for a slot...</html>"/>
+    <str id="state.copy_timeout_install_component.tooltip" txt="<html>Timeout while copying 'install_component' to remote host.<br>Maybe a password requested?</html>"/>
+    <str id="state.copy_failed_install_component.tooltip" txt="<html>Copying file 'install_component' to remote host failed.</html>"/>
+    <str id="state.processing.tooltip" txt="<html>Processing task.</html>"/>
+    <str id="state.canceled.tooltip" txt="<html>Task has been canceled.</html>"/>
+    <str id="state.perm_qmaster_spool_dir.tooltip" txt="<html>No permission to create qmaster spool directory:<br>${cfg.qmaster.spool.dir}${tooltip.hint}</html>"/>
+    <str id="state.perm_execd_spool_dir.tooltip.global" txt="<html>No permission to create execd spool directory:<br>${cfg.execd.spool.dir}${tooltip.hint}</html>"/>
+    <str id="state.perm_execd_spool_dir.tooltip.local" txt="<html>No permission to create execd spool directory.</html>"/>
+    <str id="state.perm_bdb_spool_dir.tooltip" txt="<html>No permission to create Berkeley DB spool directory:<br>${cfg.db.spooling.dir}${tooltip.hint}</html>"/>
+    <str id="state.bdb_spool_dir_wrong_fstype.tooltip" txt="<html>Berkeley DB spool directory has wrong file system type:<br>${cfg.db.spooling.dir}${tooltip.hint}</html>"/>
+    <str id="state.perm_jmx_keystore.tooltip" txt="<html>No permission to create JMX keystore directory:<br>${cfg.sge.jmx.ssl.keystore}${tooltip.hint}</html>"/>
+    <str id="state.bdb_spool_dir_exists.tooltip" txt="<html>Berkeley DB spool directory exists:<br>${cfg.db.spooling.dir}${tooltip.hint}</html>"/>
+    <str id="state.admin_user_not_known.tooltip" txt="<html>Admin user '${cfg.admin.user}' does not exist on this host!</html>"/>
+    <str id="state.used_qmaster_port.tooltip" txt="<html>Qmaster port '${cfg.sge.qmaster.port}' could not be bound.</html>"/>
+    <str id="state.used_execd_port.tooltip" txt="<html>Execd port '${cfg.sge.execd.port}' is in use.</html>"/>
+    <str id="state.used_jmx_port.tooltip" txt="<html>JMX port '${cfg.sge.jmx.port}' is in use.</html>"/>
+    <str id="state.jvm_lib_missing.tooltip" txt="<html>JVM library is missing on the remote host:<br>${cfg.sge.jvm.lib.path}${tooltip.hint}</html>"/>
+    <str id="state.jvm_lib_invalid.tooltip" txt="<html>JVM library is invalid on the remote host:<br>${cfg.sge.jvm.lib.path}<br>Maybe belongs to other architecture?${tooltip.hint}</html>"/>
+    <str id="state.unknown_error.tooltip" txt="<html>Task ended with unknown error.</html>"/>
+    <str id="express.mode.tooltip.hint" txt="<br><br><b>Hint:</b>To modify this value switch to custom installation mode."/>
+
+    <!-- Labels, tooltips, messages -->
+    <!-- Welcome Panel -->
+        <!-- Labels -->
+        <str id="WelcomePanel.welcome" txt="<html>Welcome to the <b>${APP_NAME} ${APP_VER}</b> installation wizard.<br> This program will install the <b>${APP_NAME} ${APP_VER}</b> on your computer(s). |</html>" />
+
+    <!-- PreAction Panel -->
+        <!-- Messages -->
+        <str id="warning.user.not.root.message"  txt="<html>You are not installing as user 'root'!<br>This will allow you to run Grid Engine only under your user id for testing<br>a limited functionality of Grid Engine!<br><br>Do you want to continue the installation?</html>" />
+        <str id="error.user.invalid.message"  txt="<html>You are not installing as user 'root' or as the owner of the Grid Engine root directory.<br>You don't have enough permission to install ${APP_NAME}.<br><br>The installation terminates!</html>" />
+
+    <!-- Component Panel -->
+        <!-- Labels -->
+        <str id="install.qmaster.label"  txt="Qmaster host" />
+        <str id="install.execd.label" txt="Execution host(s)" />
+        <str id="install.shadowd.label" txt="Shadow host(s)" />
+        <str id="install.bdb.label" txt="Berkeley DB host" />
+        <str id="install.mode.express.label" txt="Express installation" />
+        <str id="install.mode.custom.label" txt="Custom installation" />
+        <str id="add.remove.existing.components.label" txt="Overwrite existing installations" />
+        <!-- Tooltips -->
+        <str id="install.qmaster.label.tooltip" txt="<html><b>Install qmaster daemon</b><br><br>
+        The master host is central to the overall cluster activity. The master host<br>
+        runs the master daemon <code>sge_qmaster</code>. This daemon controls all<br>
+        Grid Engine system scheduling and components, such as queues and jobs.<br>
+        The daemon maintains tables about the status of the components, <br>
+        user access permissions, and the like. By default, the master host <br>
+        is also an administration host and a submit host.</html>"/>
+        <str id="install.execd.label.tooltip" txt="<html><b>Install execution daemon</b><br><br>
+        Execution hosts are systems that have permission to execute jobs.<br>
+        Therefore, queue instances are attached to the execution hosts.<br>
+        Execution hosts run the execution daemon <code>sge_execd</code>.</html>"/>
+        <str id="install.shadowd.label.tooltip" txt="<html><b>Install shadow daemon</b><br><br>
+        These hosts replacing the functionality of sge_qmaster in case<br>
+        the master host or the master daemon fails. Note: When doing an<br>
+        express (or Berkeley DB) installation you must have configured a<br>
+        NFS4 shared directory!</html>"/>
+        <str id="install.bdb.label.tooltip" txt="<html><b>Install Berkeley DB</b><br><br>
+        Selecting it implies a Berkeley DB host spooling option.<br>
+        The Grid Engine than spools data to a remote server.</html>"/>
+        <str id="install.mode.express.label.tooltip" txt="<html><b>Express installation</b><br><br>
+        Express installation of the selected components</html>"/>
+        <str id="install.mode.custom.label.tooltip" txt="<html><b>Custom installation</b><br><br>
+        Custom installation of the selected components</html>"/>
+        <str id="add.remove.existing.components.label.tooltip" txt="Remove existing components" />
+
+    <!-- Main Panel -->
+        <!-- Labels -->
+        <str id="cfg.admin.user.label" txt="Admin user" />
+        <str id="add.qmaster.host.label" txt="Qmaster host" />
+        <str id="cfg.sge.root.label" txt="Grid Engine root directory" />
+        <str id="cfg.cell.name.label" txt="Cell name" />
+        <str id="cfg.sge.cluster.name.label" txt="Cluster name" />
+        <str id="cfg.sge.qmaster.port.label" txt="Qmaster port" />
+        <str id="cfg.sge.execd.port.label" txt="Execd port" />
+        <str id="cfg.gid.range.label" txt="Group id range" />
+        <str id="cfg.shell.name.label" txt="Shell name" />
+        <str id="cfg.copy.command.label" txt="Copy command" />
+        <str id="cfg.add.to.rc.label" txt="Automatically start service(s) at machine boot" />
+        <str id="add.sge.jmx.label" txt="Use JMX" />
+        <str id="cfg.hostname.resolving.label" txt="Ignore domain names" />
+        <str id="product.mode.statictext" txt="Product mode" />
+        <!--<str id="add.product.mode.none.label" txt="None" />
+        <str id="add.product.mode.csp.label" txt="CSP" />
+        <str id="add.product.mode.afs.label" txt="AFS" />-->
+        <str id="add.product.mode.label" txt="Use CSP product mode" />
+        <str id="cfg.admin.mail.label" txt="Administrator mail" />
+        <!-- Tooltips -->
+        <str id="cfg.admin.user.label.tooltip" txt="<html><b>Admin user</b><br><br>
+        Processes will be executed under this user name.</html>" />
+        <str id="add.qmaster.host.label.tooltip" txt="<html><b>Qmaster host</b><br><br>
+        Host that will run qmaster daemon (main component).</html>" />
+        <str id="cfg.sge.root.label.tooltip" txt="<html><b>The Grid Engine root directory</b><br><br>
+        The directory where the the contents of the distribution media can be found.<br>
+        This directory is called the root directory, or <code>$SGE_ROOT</code>. When<br>
+        the Grid Engine system is running, this directory stores the current cluster<br>
+        configuration and all other data that must be spooled to disk.Use a valid<br>
+        path name for the directory that is network-accessible on all hosts.<br>
+        For example, if the file system is mounted using automounter, set<br>
+        <code>$SGE_ROOT</code> to /usr/SGE6, not to /tmp_mnt/usr/SGE6.<br><br>
+        <b>Variable: </b><code>$SGE_ROOT</code></html>"/>
+        <str id="cfg.cell.name.label.tooltip" txt="<html><b>Cell name</b><br><br>
+        You can set up the Grid Engine system as a single cluster or<br>
+        as a collection of loosely coupled clusters called cells.<br><br>
+        <b>Variable: </b><code>$SGE_CELL</code></html>" />
+        <str id="cfg.sge.cluster.name.label.tooltip" txt="<html><b>Cluster name</b><br><br>
+        The cluster name uniquely identifies a specific Sun Grid Engine cluster.<br>
+        The cluster name must be unique throughout your organization. The name <br>
+        is not related to the SGE cell.<br>
+        The cluster name must start with a letter ([A-Za-z]), followed by letters,<br>
+        digits ([0-9]), dashes (-) or underscores (_).<br><br>
+        <b>Variable: </b><code>$SGE_CLUSTER_NAME</code></html>"/>
+        <str id="cfg.sge.qmaster.port.label.tooltip" txt="<html><b>Qmaster port</b><br><br>
+        Communication port of qmaster deamon.<br><br>
+        <b>Variable: </b><code>$SGE_QMASTER_PORT</code></html>" />
+        <str id="cfg.sge.execd.port.label.tooltip" txt="<html><b>Execd port</b><br><br>
+        Communication port of execution deamon.<br><br>
+        <b>Variable: </b><code$>SGE_EXECD_PORT</code></html>" />
+        <str id="cfg.gid.range.label.tooltip" txt="<html><b>Group id range</b><br><br>
+        A range of IDs that will be assigned dynamically for jobs. The range<br>
+        must be big enough to provide enough numbers for the maximum number<br>
+        of Grid Engine jobs running at a single moment on a single host.<br>
+        For example, a range of 20000-20100 allows 100 jobs to run concurrently<br>
+        on a single host.<br><br>
+        <b>Variable: </b><code>$GID_RANGE</code></html>" />
+        <str id="cfg.shell.name.label.tooltip" txt="<html><b>Shell name</b><br><br>
+        Shell used to connect to remote host in order to install component(s).<br>
+        Default value: <b>ssh</b><br>Other option e.g.: <b>rsh</b></html>" />
+        <str id="cfg.copy.command.label.tooltip" txt="<html><b>Copy command</b><br><br>
+        Copy command used to transfer installation files to remote host.<br>
+        Default value: <b>scp</b><br>Other option e.g.: <b>rcp</b></html>" />
+        <str id="cfg.add.to.rc.label.tooltip" txt="<html><b>Automatically start service(s) at machine boot</b><br><br>
+        Component (service) will be automatically started at machine boot.</html>" />
+        <str id="add.sge.jmx.label.tooltip" txt="<html><b>Use JMX</b><br><br>
+        The JMX agent functionality enables access to a subset of <code>sge_qmaster</code> functionality<br>
+        via the JMX protocol.</html>" />
+        <str id="cfg.hostname.resolving.label.tooltip" txt="<html><b>Ignore domain names</b><br><br>
+        Disable it if you plan to have hosts in the cluster from different domains.<br><br>
+        <b>Variable: </b><code>$HOSTNAME_RESOLVING</code></html>" />
+        <!--<str id="add.product.mode.none.label.tooltip" txt="None" />
+        <str id="add.product.mode.csp.label.tooltip" txt="CSP" />
+        <str id="add.product.mode.afs.label.tooltip" txt="AFS" />-->
+        <str id="add.product.mode.label.tooltip" txt="<html><b>Use CSP product mode</b><br><br>
+        Grid Engine will be installed with certificate security protocol (CSP).<br><br></html>" />
+        <str id="cfg.admin.mail.label.tooltip" txt="<html><b>Administrator mail</b><br><br>
+        The email address of the administrator to whom problem reports are sent.<br>
+        You may use <code>none</code><br>if you do not wish to receive administrator mail.<br>
+        The email address has the following form: <code>user@foo.com</code><br><br>
+        <b>Variable: </b><code>$ADMIN_MAIL</code></html>" />
+        <!-- Validators -->
+        <str id="cfg.admin.user.notemptyvalidator" txt="Admin user is mandatory!" />
+        <str id="add.qmaster.host.notemptyvalidator" txt="Qmaster host is mandatory!" />
+        <str id="cfg.sge.root.notemptyvalidator" txt="Grid Engine root directory is mandatory!" />
+        <str id="cfg.sge.root.fileexistsvalidator" txt="Invalid Grid Engine root directory!" />
+        <str id="cfg.sge.root.fileexistsvalidator.2" txt="<html>Invalid Sun Grid Engine version!<br>Make sure you use Sun Grid Engine version 6.2 Update 2 or later.</html>" />
+        <str id="cfg.cell.name.notemptyvalidator" txt="Cell name is mandatory!" />
+        <str id="cfg.cell.name.exists.fileexistsvalidator"
+             txt="<html>A master host with the chosen cell name already exists!<br><br>
+                        If you don't want to install another master host, go back<br>
+                        to the previous screen and uncheck Qmaster component!</html>" />
+        <str id="cfg.cell.name.notexists.fileexistsvalidator"
+             txt="<html>A master host with the chosen cell name does not exist!<br><br>
+                        If you want to install another master host, go back to the<br>
+                        previous screen and check Qmaster component!</html>" />
+        <str id="cfg.sge.qmaster.port.notemptyvalidator" txt="Qmaster port is mandatory!" />
+        <str id="cfg.sge.qmaster.port.rangevalidator" txt="Qmaster port is invalid! Valid range is 1-65535." />
+        <str id="cfg.sge.execd.port.notemptyvalidator" txt="Execd port is mandatory!" />
+        <str id="cfg.sge.execd.port.rangevalidator" txt="Execd port is invalid! Valid range is 1-65535." />
+        <str id="cfg.sge.cluster.name.regularexpressionvalidator" txt="Cluster name is not valid!" />
+        <str id="cfg.gid.range.notemptyvalidator" txt="Group id range is mandatory!" />
+        <str id="cfg.gid.range.rangevalidator" txt="Invalid  group id range!" />
+        <str id="cfg.admin.mail.regularexpressionvalidator" txt="Invalid email address!" />
+        <str id="cfg.shell.name.notemptyvalidator" txt="Shell name is mandatory!" />
+        <str id="cfg.copy.command.notemptyvalidator" txt="Copy command is mandatory!" />
+
+    <!-- JMX Panel -->
+        <!-- Labels -->
+        <str id="cfg.sge.jmx.port.label" txt="JMX port" />
+        <str id="cfg.sge.jmx.ssl.label" txt="Enable SSL server authentication" />
+        <str id="cfg.sge.jmx.ssl.client.label" txt="Enable SSL client authentication" />
+        <str id="cfg.sge.jmx.ssl.keystore.label" txt="Path to the keystore" />
+        <str id="cfg.sge.jmx.ssl.keystore.pw.1" txt="Keystore password" />
+        <str id="cfg.sge.jmx.ssl.keystore.pw.2" txt="Retype password" />
+        <str id="cfg.sge.jvm.lib.path.label" txt="JVM library path" />
+        <str id="cfg.sge.additional.jvm.args.label" txt="Additional JVM args" />
+        <!-- Tooltips -->
+        <str id="cfg.sge.jmx.port.label.tooltip" txt="<html><b>JMX port</b><br><br>
+        The port used to communicate with <code>sge_qmaster</code> via JMX protocol.<br>
+        Range: <code>1-65500</code><br><br>
+        <b>Variable: </b><code>$SGE_JMX_PORT</code></html>" />
+        <str id="cfg.sge.jmx.ssl.label.tooltip" txt="<html><b>Enable SSL server authentication</b><br><br>
+        JMX SSL server authentication.<br><br>
+        <b>Variable: </b><code>$SGE_JMX_SSL</code></html>" />
+        <str id="cfg.sge.jmx.ssl.client.label.tooltip" txt="<html><b>Enable SSL client authentication</b><br><br>
+        JMX SSL client authentication.<br><br>
+        <b>Variable: </b><code>$SGE_JMX_SSL_CLIENT</code></html>" />
+        <str id="cfg.sge.jmx.ssl.keystore.label.tooltip" txt="<html><b>Path to the keystore</b><br><br>
+        JMX SSL server keystore path.<br><br>
+        <b>Variable: </b><code$>SGE_JMX_SSL_KEYSTORE</code></html>" />
+        <str id="cfg.sge.jmx.ssl.keystore.pw.1.tooltip" txt="<html><b>Keystore password</b><br><br>
+        JMX SSL server keystore password.<br><br>
+        <b>Variable: </b><code>$SGE_JMX_SSL_KEYSTORE_PW</code></html>" />
+        <str id="cfg.sge.jmx.ssl.keystore.pw.2.tooltip" txt="<html><b>Retype password</b><br><br>
+        Retype the keystore password.</html>" />
+        <str id="cfg.sge.jvm.lib.path.label.tooltip" txt="<html><b>JVM library path</b><br><br>
+        Path to the JVM library on the qmaster and/or shadow host(s). Leave it empty for auto detection.<br><br>
+        <b>Variable: </b><code>$SGE_JVM_LIB_PATH</code></html>" />
+        <str id="cfg.sge.additional.jvm.args.label.tooltip" txt="<html><b>Additional JVM arguments</b><br><br>
+        Additional arguments to be used when starting the JVM in qmaster.<br><br>
+        <b>Variable: </b><code>$SGE_ADDITIONAL_JVM_ARGS</code></html>" />
+        <!-- Validators -->
+        <str id="cfg.sge.jmx.port.notemptyvalidator" txt="JMX port is mandatory!" />
+        <str id="cfg.sge.jmx.port.rangevalidator" txt="JMX port has invalid range! Valid range is 1-65535." />
+        <str id="cfg.sge.jmx.ssl.keystore.notemptyvalidator" txt="Keystore path is mandatory!" />
+        <str id="cfg.sge.jmx.ssl.keystore.permissionvalidator" txt="No write permission on the keystore directory!" />
+        <str id="cfg.sge.jmx.ssl.keystore.pw.passwordequalityvalidator" txt="The keystore passwords must match!" />
+        <str id="cfg.sge.jmx.ssl.keystore.pw.regularexpressionvalidator" txt="The keystore password has to be at least 6 characters!" />
+        <str id="cfg.sge.jvm.lib.path.notemptyvalidator" txt="JVM library path is mandatory!" />
+        <str id="cfg.sge.jvm.lib.path.fileexistsvalidator" txt="JVM library does not exist!" />
+
+    <!-- Spooling Panel -->
+        <!-- Labels -->
+        <str id="cfg.qmaster.spool.dir.label" txt="Qmaster spool directory" />
+        <str id="cfg.execd.spool.dir.label" txt="Global execd spool directory" />
+        <str id="spooling.method.statictext" txt="Spooling method" />
+        <str id="cfg.spooling.method.classic.label" txt="Classic" />
+        <str id="cfg.spooling.method.bdb.label" txt="Berkeley DB" />
+        <str id="cfg.db.spooling.dir.label" txt="DB directory" />
+        <!-- Tooltips -->
+        <str id="cfg.qmaster.spool.dir.label.tooltip" txt="<html><b>Qmaster spool directory</b><br><br>
+        The qmaster spool directory is the place where the qmaster daemon stores<br>
+        the configuration and the state of the queuing system.<br>
+        The admin user '${cfg.admin.user}' must have read/write access to the<br>
+        qmaster spool directory.<br><br>
+        <b>Variable: </b><code>$ADMIN_USER</code></html>" />
+        <str id="cfg.execd.spool.dir.label.tooltip" txt="<html><b>Global execd spool directory</b><br><br>
+        The pathname of the spool directory of the execution hosts.<br>
+        This global spool directory will be used if no execution host specific<br>
+        spool directory has been specified.<br>
+        User '${cfg.admin.user}' must have the right to create this directory and<br>
+        to write into it.<br><br>
+        <b>Variable: </b><code>$EXECD_SPOOL_DIR</code></html>" />
+        <str id="cfg.spooling.method.classic.label.tooltip" txt="<html><b>Classic</b><br><br>
+        Spooling is done in human readable format.<br>
+        <b>Variable: </b><code>$SPOOLING_METHOD</code></html>" />
+        <str id="cfg.spooling.method.bdb.label.tooltip" txt="<html><b>Berkeley DB spooling</b><br><br>
+        The Berkeley DB spools into a local directory on this host (qmaster host).<br>
+        This setup is faster, but you can't setup a shadow master host.<br><br>
+        <b>Variable: </b><code>$SPOOLING_METHOD</code></html>" />
+        <str id="cfg.db.spooling.dir.label.tooltip" txt="<html><b>Database directory</b><br><br>
+        The location for the spooling directory.<br>
+        The spooling directory must be local to the spooling server.<br><br>
+        <b>Variable: </b><code>$DB_SPOOLING_DIR</code></html>" />
+        <!-- Validators -->
+        <str id="cfg.qmaster.spool.dir.notemptyvalidator" txt="Qmaster spool directory is mandatory!" />
+        <str id="cfg.qmaster.spool.dir.permissionvalidator" txt="No write permission on the qmaster spool directory!" />
+        <str id="cfg.execd.spool.dir.notemptyvalidator" txt="Global execd spool directory is mandatory!" />
+        <str id="cfg.execd.spool.dir.permissionvalidator" txt="No write permission on the execd spool directory!" />
+        <str id="cfg.db.spooling.server.notemptyvalidator" txt="Berkeley DB spooling server is mandatory!" />
+        <str id="cfg.db.spooling.dir.notemptyvalidator" txt="Spooling db directory is mandatory!" />
+        <str id="add.db.spooling.dir.bdb.filesystemtypevalidator" txt="NFS type spooling directory is not supported!" />
+        <str id="cfg.db.spooling.dir.permissionvalidator" txt="No write permission on the spooling directory!" />
+
+    <!-- CSP Panel -->
+        <!-- Labels -->
+        <str id="cfg.csp.recreate.label" txt="Recreate certificates and keys" />
+        <str id="cfg.csp.copy.certs.label" txt="Copy certificates and keys" />
+        <str id="cfg.csp.country.code.label" txt="Country code" />
+        <str id="cfg.csp.state.label" txt="State" />
+        <str id="cfg.csp.location.label" txt="Location" />
+        <str id="cfg.csp.orga.label" txt="Organization" />
+        <str id="cfg.csp.orga.unit.label" txt="Organization unit" />
+        <str id="cfg.csp.mail.address.label" txt="Email address" />
+        <!-- Tooltips -->
+        <str id="cfg.csp.recreate.label.tooltip" txt="Recreate certificates and keys" />
+        <str id="cfg.csp.copy.certs.label.tooltip" txt="Copy certificates and keys" />
+        <str id="cfg.csp.country.code.label.tooltip" txt="<html><b>Country code</b><br><br>
+        Two-letter country code, for example, US for the United States.<br><br>
+        <b>Variable: </b><code>$CSP_STATE</code></html>" />
+        <str id="cfg.csp.state.label.tooltip" txt="<html><b>State</b><br><br>State.<br><br><b>Variable: </b><code>$CSP_STATE/code></html>" />
+        <str id="cfg.csp.location.label.tooltip" txt="<html><b>Location</b><br><br>
+        Location, such as a city.<br><br>
+        <b>Variable: </b><code>$CSP_LOCATION</code></html>" />
+        <str id="cfg.csp.orga.label.tooltip" txt="<html><b>Organization</b><br><br>
+        Organization.<br><br>
+        <b>Variable: </b><code>$CSP_ORGA</code></html>" />
+        <str id="cfg.csp.orga.unit.label.tooltip" txt="<html><b>Organization unit</b><br><br>
+        Organization unit.<br><br>
+        <b>Variable: </b><code>$CSP_ORGA_UNIT</code></html>" />
+        <str id="cfg.csp.mail.address.label.tooltip" txt="<html><b>Email address</b><br><br>
+        CA email address.<br><br>
+        <b>Variable: </b><code>$CSP_MAIL_ADDRESS</code></html>" />
+        <!-- Validators -->
+        <str id="cfg.csp.country.code.notemptyvalidator" txt="Country code is mandatory!" />
+        <str id="cfg.csp.country.code.regularexpressionvalidator" txt="Country code has to be 2 characters long!" />
+        <str id="cfg.csp.state.notemptyvalidator" txt="State is mandatory!" />
+        <str id="cfg.csp.location.notemptyvalidator" txt="Location is mandatory!" />
+        <str id="cfg.csp.orga.notemptyvalidator" txt="Organization is mandatory!" />
+        <str id="cfg.csp.orga.unit.notemptyvalidator" txt="Organization unit is mandatory!" />
+        <str id="cfg.csp.mail.address.notemptyvalidator" txt="Email address is mandatory!" />
+        
+    <!-- Host Panel -->
+        <!-- Labels -->
+        <str id="hostinput.label" txt="Hostname or IP" />
+        <str id="hostinput.value" txt="<Enter a hostname or IP adress here ...>" />
+        <str id="fromfile.label" txt="From file" />
+        <str id="component.qmaster.host.label" txt="Master host" />
+        <str id="component.execd.host.label" txt="Execution host" />
+        <str id="component.shadow.host.label" txt="Shadow host" />
+        <str id="component.admin.host.label" txt="Admin host" />
+        <str id="component.submit.host.label" txt="Submit host" />
+        <str id="component.bdb.host.label" txt="Berkeley DB host" />
+        <str id="button.add.label" txt="Add" />
+        <str id="button.cancel.label" txt="Cancel" />
+        <str id="column.hostname.label" txt="Hostname" />
+        <str id="column.ip.address.label" txt="IP address" />
+        <str id="column.arch.label" txt="Architecture" />
+        <str id="column.qmaster.label" txt="Qmaster" />
+        <str id="column.shadowd.label" txt="Shadow" />
+        <str id="column.execd.label" txt="Exec" />
+        <str id="column.exec.spool.dir.label" txt="Exec spool dir" />
+        <str id="column.admin.label" txt="Admin" />
+        <str id="column.submit.label" txt="Submit" />
+        <str id="column.bdb.label" txt="BDB" />
+        <str id="column.state.label" txt="State" />
+        <str id="column.component.label" txt="Task" />                          <!-- Component, Procedure -->
+        <str id="column.progress.label" txt="Progress" />
+        <str id="column.log.label" txt="Log" />
+        <str id="cell.log.label" txt="Log" />
+        <str id="cell.nolog.label" txt="No log" />
+        <str id="tab.all.label" txt="All hosts" />
+        <str id="tab.reachable.label" txt="Reachable hosts" />
+        <str id="tab.unreachable.label" txt="Unreachable hosts" />
+        <str id="tab.installing.label" txt="Task List" />
+        <str id="tab.done.label" txt="Succeeded" />
+        <str id="tab.failed.label" txt="Failed" />
+        <str id="menu.title" txt="Edit actions"/>
+        <str id="menu.configure" txt="Configure..."/>
+        <str id="menu.set" txt="Set"/>
+        <str id="menu.unset" txt="Unset"/>
+        <str id="menu.all" txt="All as"/>
+        <str id="menu.selected" txt="Selected as"/>
+        <str id="menu.resolve.selected" txt="Refresh selected"/>
+        <str id="menu.resolve.all" txt="Refresh all"/>
+        <str id="menu.remove.selected" txt="Remove selected"/>
+        <str id="menu.remove.all" txt="Remove all"/>
+        <str id="menu.save.selection" txt="Save selection as..."/>
+        <str id="menu.save.all" txt="Save all as..."/>
+        <str id="progressbar.resolving.label" txt="Resolving"/>
+        <str id="progressbar.installing.label" txt="Processing tasks"/>
+        <str id="progressbar.checking.label" txt="Validating"/>
+        <!-- Tooltips -->
+        <str id="hostinput.label.tooltip" txt="<html><b>Hostname or IP</b><br><br>
+        The host(s) to be added to the table. The field accepts pattern.<br><br>
+        Examples:<br>
+        List of host names: grid01 grid02<br>
+        List of IP addresses: 192.168.0.1 192.168.0.2<br>
+        Host ranges: grid[00-10]<br>
+        Range of IP addresses: 192.168-169.0.[50-60]<br>
+        <br><b>Note:</b> The pattern does not support regular expression! Supported are<br>
+        lists and numeric ranges.
+        </html>" />
+        <str id="fromfile.label.tooltip" txt="Read and resolve host(s) from file" />
+        <str id="component.qmaster.host.label.tooltip" txt="Master host" />
+        <str id="component.execd.host.label.tooltip" txt="Execution host" />
+        <str id="component.shadow.host.label.tooltip" txt="Shadow host" />
+        <str id="component.admin.host.label.tooltip" txt="Admin host" />
+        <str id="component.submit.host.label.tooltip" txt="Submit host" />
+        <str id="component.bdb.host.label.tooltip" txt="Berkeley DB host" />
+        <str id="button.add.label.tooltip" txt="Resolve the specified host(s) and add to the table" />
+        <str id="button.cancel.label.tooltip" txt="Cancel running action(s)" />
+        <str id="column.hostname.label.tooltip" txt="Name of the remote host" />
+        <str id="column.ip.address.label.tooltip" txt="IP address of the remote host" />
+        <str id="column.arch.label.tooltip" txt="Architecture of the remote host" />
+        <str id="column.qmaster.label.tooltip" txt="Qmaster host" />
+        <str id="column.shadowd.label.tooltip" txt="Shadow host" />
+        <str id="column.execd.label.tooltip" txt="Execution host" />
+        <str id="column.exec.spool.dir.label.tooltip" txt="Execution spool directory" />
+        <str id="column.admin.label.tooltip" txt="Admin host" />
+        <str id="column.submit.label.tooltip" txt="Submit host" />
+        <str id="column.bdb.label.tooltip" txt="Berkeley DB host" />
+        <str id="column.state.label.tooltip" txt="State of the remote host" />
+        <str id="column.component.label.tooltip" txt="Component to be installed" />
+        <str id="column.progress.label.tooltip" txt="Installation progress " />
+        <str id="column.log.label.tooltip" txt="Install log" />
+        <str id="tab.all.label.tooltip" txt="All hosts" />
+        <str id="tab.reachable.label.tooltip" txt="Reachable hosts" />
+        <str id="tab.unreachable.label.tooltip" txt="Unreachable hosts" />
+        <str id="tab.installing.label.tooltip" txt="Tasks to be processed" />
+        <str id="tab.done.label.tooltip" txt="Successfully performed task(s)" />
+        <str id="tab.failed.label.tooltip" txt="Failed task(s)" />
+        <str id="menu.title.tooltip" txt="Edit actions"/>
+        <str id="menu.configure.tooltip" txt="Configure selected host(s)"/>
+        <str id="menu.setas.all.tooltip" txt="Set all hosts as {0}"/>
+        <str id="menu.unsetas.all.tooltip" txt="Unset all hosts as {0}"/>
+        <str id="menu.setas.selected.tooltip" txt="Set selected host(s) as {0}"/>
+        <str id="menu.unsetas.selected.tooltip" txt="Unset selected host(s) as {0}"/>
+        <str id="menu.resolve.selected.tooltip" txt="Resolve selected host(s)"/>
+        <str id="menu.resolve.all.tooltip" txt="Resolve all hosts"/>
+        <str id="menu.remove.selected.tooltip" txt="Remove selected host(s)"/>
+        <str id="menu.remove.all.tooltip" txt="Remove all hosts"/>
+        <str id="menu.save.selection.tooltip" txt="Save selected host(s) into file"/>
+        <str id="menu.save.all.tooltip" txt="Save all hosts into file"/>
+        <!-- Messages -->
+        <str id="warning.qmaster.arch.unsupported.message" txt="Architecture '${param1}' is not supported for qmaster installation!"/>
+        <str id="warning.bdbserver.arch.unsupported.message" txt="Architecture '${param1}' is not supported for Berkeley DB server installation!"/>
+        <str id="warning.no.components.to.install.message" txt="Cannot start installation. No components are selected!"/>
+        <str id="warning.only.admin.submit.to.install.message" txt="<html>No components were selected.<br><br>Do you want to add only the additional admin/submit hosts?</html>"/>
+        <str id="warning.comp.selected.but.no.host" txt="<html>${component} component was selected to be installed but none of the hosts is marked as ${host.type} host!<br><br>Do you want to continue the installation?</html>"/>
+        <str id="warning.invalid.hosts.message"  txt="<html>{0} out of {1} reachable hosts have configuration errors. These may fail during the installation.<br>Check host and their states for detailed error messages in the tooltips.<br><br>Do you want to continue the installation?</html>" />
+        <str id="warning.windows.needs.local.spooling.message"  txt="<html>Windows host(s) need local execution spool directory. These may fail during the installation.<br><br>Do you want to continue the installation?</html>" />
+        <str id="msg.previous.dependent.install.failed" txt="Not started! It depended on {0} task that failed."/>
+        <str id="msg.install.canceled" txt="Task has been canceled by the user."/>
+        <str id="msg.qmasterhost.already.selected" txt="<html>Do you really want to change qmaster host to <b>{0}</b>?<br>Currently selected qmaster host is <b>{1}</b>.<br></html>"/>
+        <str id="msg.bdbhost.already.selected" txt="<html>Do you really want to change BDB server to <b>{0}</b>?<br>Currently selected BDB server is <b>{1}</b>.<br></html>"/>
+        <str id="msg.qmaster.hastobe.admin.submit" txt="<html>Qmaster host has to be admin host!</html>"/>
+    <!-- Result Panel -->
+        <!-- Labels -->
+        <str id="result.info.label" txt="Read me"/>
+        <str id="button.save.label" txt="Save as..."/>
+        <str id="button.print.label" txt="Print"/>
+        <str id="button.startover.label" txt="Continue"/>
+        <!-- Tooltips -->
+        <str id="button.save.tooltip" txt="<html>Save Read Me into the specified file.</html>"/>
+        <str id="button.print.tooltip" txt="<html>Print the content of Read Me.</html>"/>
+        <str id="button.startover.tooltip" txt="<html>Continue installing more hosts.</html>"/>
+        <!-- Messages -->
+        <str id="error.can.not.open.browser.message" txt="Can not open browser!"/>
+        <str id="error.can.not.open.browser.title" txt="Error!"/>
+        
+    <!-- Help Frame -->
+        <!-- Labels -->
+        <str id="button.search.label" txt="Search"/>
+        <str id="step.label" txt="Topic"/>
+        <!-- Tooltips -->
+        <str id="button.search.tooltip" txt="Search"/>
+        <!-- General -->
+        <str id="search.result.page" txt="<html><body><h1>Search result</h1><br><br>${search.result}</body></html>"/>
+        <str id="search.noresult.page" txt="<html><body><h1>No matches found!</h1></body></html>"/>
+
+    <!-- Host Config Frame -->
+        <!-- Labels -->
+        <str id="host.config.frame.title" txt="Configuration of {0} host(s)"/>
+        <str id="cfg.exec.spool.dir.local.label" txt="Local execd spool directory"/>
+        <str id="connect.user.label" txt="Connect user"/>
+        <str id="resolve.timeout.label" txt="Resolve timeout (sec)"/>
+        <str id="install.timeout.label" txt="Install timeout (sec)"/>
+        <str id="sec.label" txt="sec"/>
+        <str id="button.ok.label" txt="Ok"/>
+        <!-- Tooltips -->
+        <str id="cfg.exec.spool.dir.local.tooltip" txt="<html><b>Local execd spool directory</b><br><br>
+        The pathname of the local spool directory for the execution host.<br>
+        If differs from the global spool directory this value will be used.<br>
+        User '${cfg.admin.user}' must have the right to create this directory and<br>
+        to write into it.</html>"/>
+        <str id="connect.user.tooltip" txt="<html><b>Connect user</b><br><br>
+        The name of the user that will be used to connect to remote host via ${cfg.shell.name}/${cfg.copy.command}.</html>"/>
+        <str id="resolve.timeout.tooltip" txt="<html><b>Resolve timeout</b><br><br>
+        A timeout value for any resolving task. Increase the default value if you see<br>
+        hosts with Unreachable state and you are sure that password-less connection<br>
+        is working correctly for the connect user.<br>
+        Host validation has a timeout which is always equal to (2 * Resolve timeout) value.</html>"/>
+        <str id="install.timeout.tooltip" txt="<html><b>Install timeout</b><br><br>
+        A timeout value for any installation task. Increase the default value if you see<br>
+        that the installation tasks are failing with a Timeout state.</html>"/>
+        <!-- General -->
+        <str id="multiple.values.text" txt="-- Multiple values --"/>
+        <str id="cfg.exec.spool.dir.local.notemptyvalidator" txt="Local execd spool directory is mandatory!"/>
+        <str id="connect.user.notemptyvalidator" txt="Connect user is mandatory!"/>
+        <str id="resolve.timeout.notemptyvalidator" txt="Resolve timeout is mandatory!"/>
+        <str id="install.timeout.notemptyvalidator" txt="Install timeout is mandatory!"/>
+        <str id="resolve.timeout.invalidnumber" txt="<html>Invalid resolve timeout value!<br>Has to be a number bigger then 1!</html>"/>
+        <str id="install.timeout.invalidnumber" txt="<html>Invalid install timeout value!<br>Has to be a number bigger then 1!</html>"/>
+
+    <!-- Log Window -->
+        <!-- Labels -->
+        <!-- Tooltips -->
+        <!-- General -->
+        <str id="log.message.emptylog" txt="Empty log."/>
+
+   <!-- General exit code mappings -->
+        <str id="msg.exit.fail.general"  txt="Installation failed with exit code {0}"/>
+        <str id="msg.exit.-4"  txt="Timeout ({0} seconds)! Operation did not finish during this time and was killed."/>
+   <!-- Used only in install_component -->
+        <str id="msg.exit.1"  txt="Task failed."/>
+        <str id="msg.exit.2" txt="Installation failed with exit code 2"/>
+        <str id="msg.exit.10" txt="Detected existing component installation. Can't proceed."/>
+        <str id="msg.exit.11" txt="Uninstallation failed."/>
+</langpack>

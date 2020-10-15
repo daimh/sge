@@ -1,0 +1,66 @@
+#
+#
+# This file contains cell wide default submit options which are
+# automatically applied to all job submission requests. Users can get rid of
+# these defaults by using the -clear option.
+#
+# See sge_request(5) for a detailed description of the file format.
+#
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+#
+# Sample #1 prevents job submissions of jobs which can
+# never be scheduled.
+# 
+# -w e
+#
+
+#
+# Sample #2 causes the jobs standard error stream to be merged 
+# into the standard outout stream. 
+#
+# -j y
+#
+
+#
+# Sample #3 assigns a low default submit priority. For higher 
+# prior jobs the priority can be increased at jobs submission 
+# time by uing "-p <higher_priority>". The value of 
+# <higher_priority> may not exeed 0 because priorities above
+# this value can only be set by managers. 
+#
+# Please notice that in GRD submission priorities have a 
+# different meaning.
+#
+# -p -100
+#

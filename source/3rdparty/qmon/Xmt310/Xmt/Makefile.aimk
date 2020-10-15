@@ -1,0 +1,502 @@
+# Changes by _AA 20.7.95
+# A changed version of the Xmt Makefile.aimk for
+# use with aimk 
+# The objects are build in the corresponding arch directory
+# The CFLAGS,XCFLAGS and the SDIR variable are delivered by aimk
+
+XMT_SDIR = ../Xmt310/Xmt
+
+XMTFLAGS = $(CFLAGS) -I../Xmt310
+
+XMT_SRCS =  \
+	$(XMT_SDIR)/All.c \
+	$(XMT_SDIR)/AppRes.c \
+	$(XMT_SDIR)/AskForBool.c \
+	$(XMT_SDIR)/AskForFile.c \
+	$(XMT_SDIR)/AskForItem.c \
+	$(XMT_SDIR)/AskForString.c \
+	$(XMT_SDIR)/AssertClass.c \
+	$(XMT_SDIR)/BSearch.c \
+	$(XMT_SDIR)/BitmapCvt.c \
+	$(XMT_SDIR)/Block.c \
+	$(XMT_SDIR)/CallbackCvt.c \
+	$(XMT_SDIR)/CheckFormat.c \
+	$(XMT_SDIR)/Chooser.c \
+	$(XMT_SDIR)/Cli.c \
+	$(XMT_SDIR)/Color.c \
+	$(XMT_SDIR)/ColorTable.c \
+	$(XMT_SDIR)/ColorTblCvt.c \
+	$(XMT_SDIR)/ContextHelp.c \
+	$(XMT_SDIR)/Create.c \
+	$(XMT_SDIR)/Cursor.c \
+	$(XMT_SDIR)/DECHack.c \
+	$(XMT_SDIR)/Dialog.c \
+	$(XMT_SDIR)/DialogPos.c \
+	$(XMT_SDIR)/Dialogs.c \
+	$(XMT_SDIR)/Discard.c \
+	$(XMT_SDIR)/EnumCvt.c \
+	$(XMT_SDIR)/FindFile.c \
+	$(XMT_SDIR)/FontListCvt.c \
+	$(XMT_SDIR)/GetPixmap.c \
+	$(XMT_SDIR)/HSLtoRGB.c \
+	$(XMT_SDIR)/Hash.c \
+	$(XMT_SDIR)/HelpBox.c \
+	$(XMT_SDIR)/HelpBrowser.c \
+	$(XMT_SDIR)/HelpNode.c \
+	$(XMT_SDIR)/IBMManage.c \
+	$(XMT_SDIR)/Icon.c \
+	$(XMT_SDIR)/Icons.c \
+	$(XMT_SDIR)/Include.c \
+	$(XMT_SDIR)/InitFocus.c \
+	$(XMT_SDIR)/Initialize.c \
+	$(XMT_SDIR)/InputField.c \
+	$(XMT_SDIR)/Layout.c \
+	$(XMT_SDIR)/LayoutBox.c \
+	$(XMT_SDIR)/LayoutCreate.c \
+	$(XMT_SDIR)/LayoutGadget.c \
+	$(XMT_SDIR)/LayoutParse.c \
+	$(XMT_SDIR)/LayoutPixmap.c \
+	$(XMT_SDIR)/LayoutSep.c \
+	$(XMT_SDIR)/LayoutSpace.c \
+	$(XMT_SDIR)/LayoutString.c \
+	$(XMT_SDIR)/Lexer.c \
+	$(XMT_SDIR)/Localize.c \
+	$(XMT_SDIR)/Lookup.c \
+	$(XMT_SDIR)/Menu.c \
+	$(XMT_SDIR)/MenuCvt.c \
+	$(XMT_SDIR)/MotifWidgets.c \
+	$(XMT_SDIR)/MsgDialogs.c \
+	$(XMT_SDIR)/MsgLine.c \
+	$(XMT_SDIR)/NameToWidget.c \
+	$(XMT_SDIR)/PixelCvt.c \
+	$(XMT_SDIR)/Pixmap.c \
+	$(XMT_SDIR)/PixmapCvt.c \
+	$(XMT_SDIR)/PixmapLstCvt.c \
+	$(XMT_SDIR)/Procedures.c \
+	$(XMT_SDIR)/Quarks.c \
+	$(XMT_SDIR)/RGBtoHSL.c \
+	$(XMT_SDIR)/Screen.c \
+	$(XMT_SDIR)/SetValue.c \
+	$(XMT_SDIR)/ShellUtil.c \
+	$(XMT_SDIR)/StringLstCvt.c \
+	$(XMT_SDIR)/Symbols.c \
+	$(XMT_SDIR)/Template.c \
+	$(XMT_SDIR)/Visual.c \
+	$(XMT_SDIR)/UnixProcs.c \
+	$(XMT_SDIR)/Wait.c \
+	$(XMT_SDIR)/Warning.c \
+	$(XMT_SDIR)/WidgetCvt.c \
+	$(XMT_SDIR)/WidgetType.c \
+	$(XMT_SDIR)/Working.c \
+	$(XMT_SDIR)/WorkingBox.c \
+	$(XMT_SDIR)/Xbm.c \
+	$(XMT_SDIR)/XmCSText.c \
+	$(XMT_SDIR)/XmComboBox.c \
+	$(XMT_SDIR)/XmScale.c \
+	$(XMT_SDIR)/XmStringCvt.c \
+	$(XMT_SDIR)/XmText.c \
+	$(XMT_SDIR)/XmTextField.c \
+	$(XMT_SDIR)/XmToggleB.c \
+	$(XMT_SDIR)/XmtProcs.c \
+	$(XMT_SDIR)/XmtWidgets.c \
+	$(XMT_SDIR)/Xpm.c \
+	$(XMT_SDIR)/XpmParse.c \
+	$(XMT_SDIR)/XtProcs.c\
+	$(XMT_SDIR)/ConvertData.c \
+	$(XMT_SDIR)/ChooserS.c\
+	$(XMT_SDIR)/CliS.c\
+	$(XMT_SDIR)/HelpBoxS.c\
+	$(XMT_SDIR)/HelpBrowserS.c\
+	$(XMT_SDIR)/InputFieldS.c\
+	$(XMT_SDIR)/LayoutS.c\
+	$(XMT_SDIR)/MenuS.c\
+	$(XMT_SDIR)/MsgLineS.c\
+	$(XMT_SDIR)/WorkingBoxS.c
+
+XMT_OBJS =  \
+	All.o \
+	AppRes.o \
+	AskForBool.o \
+	AskForFile.o \
+	AskForItem.o \
+	AskForString.o \
+	AssertClass.o \
+	BSearch.o \
+	BitmapCvt.o \
+	Block.o \
+	CallbackCvt.o \
+	CheckFormat.o \
+	Chooser.o \
+	Cli.o \
+	Color.o \
+	ColorTable.o \
+	ColorTblCvt.o \
+	ContextHelp.o \
+	Create.o \
+	Cursor.o \
+	DECHack.o \
+	Dialog.o \
+	DialogPos.o \
+	Dialogs.o \
+	Discard.o \
+	EnumCvt.o \
+	FindFile.o \
+	FontListCvt.o \
+	GetPixmap.o \
+	HSLtoRGB.o \
+	Hash.o \
+	HelpBox.o \
+	HelpBrowser.o \
+	HelpNode.o \
+	IBMManage.o \
+	Icon.o \
+	Icons.o \
+	Include.o \
+	InitFocus.o \
+	Initialize.o \
+	InputField.o \
+	Layout.o \
+	LayoutBox.o \
+	LayoutCreate.o \
+	LayoutGadget.o \
+	LayoutParse.o \
+	LayoutPixmap.o \
+	LayoutSep.o \
+	LayoutSpace.o \
+	LayoutString.o \
+	Lexer.o \
+	Localize.o \
+	Lookup.o \
+	Menu.o \
+	MenuCvt.o \
+	MotifWidgets.o \
+	MsgDialogs.o \
+	MsgLine.o \
+	NameToWidget.o \
+	PixelCvt.o \
+	Pixmap.o \
+	PixmapCvt.o \
+	PixmapLstCvt.o \
+	Procedures.o \
+	Quarks.o \
+	RGBtoHSL.o \
+	Screen.o \
+	SetValue.o \
+	ShellUtil.o \
+	StringLstCvt.o \
+	Symbols.o \
+	Template.o \
+	Visual.o \
+	UnixProcs.o \
+	Wait.o \
+	Warning.o \
+	WidgetCvt.o \
+	WidgetType.o \
+	Working.o \
+	WorkingBox.o \
+	Xbm.o \
+   XmCSText.o \
+	XmComboBox.o \
+	XmScale.o \
+	XmStringCvt.o \
+	XmText.o \
+	XmTextField.o \
+	XmToggleB.o \
+	XmtProcs.o \
+	XmtWidgets.o \
+	Xpm.o \
+	XpmParse.o \
+	XtProcs.o 
+
+XMT_UNSHAREDOBJS = \
+	ConvertData.o \
+	ChooserS.o\
+	CliS.o\
+	HelpBoxS.o\
+	HelpBrowserS.o\
+	InputFieldS.o\
+	LayoutS.o\
+	MenuS.o\
+	MsgLineS.o\
+	WorkingBoxS.o
+
+XMT_HEADERS = \
+	$(XMT_SDIR)/All.h \
+	$(XMT_SDIR)/AppResP.h \
+	$(XMT_SDIR)/AppRes.h \
+	$(XMT_SDIR)/Chooser.h \
+	$(XMT_SDIR)/ChooserP.h \
+	$(XMT_SDIR)/Cli.h \
+	$(XMT_SDIR)/CliP.h \
+	$(XMT_SDIR)/Color.h \
+	$(XMT_SDIR)/Converters.h \
+	$(XMT_SDIR)/ConvertersP.h \
+	$(XMT_SDIR)/Create.h \
+	$(XMT_SDIR)/Dialog.h \
+	$(XMT_SDIR)/DialogP.h \
+	$(XMT_SDIR)/Dialogs.h \
+	$(XMT_SDIR)/DialogsP.h \
+	$(XMT_SDIR)/Hash.h \
+	$(XMT_SDIR)/Help.h \
+	$(XMT_SDIR)/HelpBox.h \
+	$(XMT_SDIR)/HelpBoxP.h \
+	$(XMT_SDIR)/HelpBrowser.h \
+	$(XMT_SDIR)/HelpBrowserP.h \
+	$(XMT_SDIR)/Icon.h\
+	$(XMT_SDIR)/Include.h \
+	$(XMT_SDIR)/InputField.h \
+	$(XMT_SDIR)/InputFieldP.h \
+	$(XMT_SDIR)/Layout.h \
+	$(XMT_SDIR)/LayoutG.h \
+	$(XMT_SDIR)/LayoutGP.h \
+	$(XMT_SDIR)/LayoutP.h \
+	$(XMT_SDIR)/Lexer.h \
+	$(XMT_SDIR)/LookupP.h \
+	$(XMT_SDIR)/Menu.h \
+	$(XMT_SDIR)/MenuP.h \
+	$(XMT_SDIR)/MsgLine.h \
+	$(XMT_SDIR)/MsgLineP.h \
+	$(XMT_SDIR)/Pixmap.h \
+	$(XMT_SDIR)/Procedures.h \
+	$(XMT_SDIR)/ProceduresP.h \
+	$(XMT_SDIR)/QuarksP.h \
+	$(XMT_SDIR)/ScreenP.h \
+	$(XMT_SDIR)/SetValue.h \
+	$(XMT_SDIR)/Symbols.h \
+	$(XMT_SDIR)/Template.h \
+	$(XMT_SDIR)/Util.h \
+	$(XMT_SDIR)/WidgetType.h \
+	$(XMT_SDIR)/WorkingBox.h \
+	$(XMT_SDIR)/WorkingBoxP.h \
+	$(XMT_SDIR)/Xbm.h \
+	$(XMT_SDIR)/Xmt.h \
+	$(XMT_SDIR)/XmtP.h \
+	$(XMT_SDIR)/Xpm.h
+
+XMTLIB      = libXmt$(LIBEXT)
+
+all: $(XMTLIB)
+
+libXmt.a: $(XMT_OBJS) $(XMT_UNSHAREDOBJS)
+	$(AR) $(ARFLAGS) libXmt.a $(XMT_OBJS) $(XMT_UNSHAREDOBJS)
+	$(RANLIB) libXmt.a
+
+libXmt$(SHAREDEXT): $(XMT_OBJS) $(XMT_UNSHAREDOBJS)
+	$(SHAREDLD) $(XLFLAGS) $(SHARED_LFLAGS) -o libXmt$(SHAREDEXT) $(XMT_OBJS) $(XMT_UNSHAREDOBJS) $(XLIBS)
+
+#.c.o: $(SRCS) $(XMT_HEADERS)
+#	$(CC) -c $(CFLAGS) $*.c 
+
+
+All.o:		      $(XMT_SDIR)/All.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/All.c 
+AppRes.o:		   $(XMT_SDIR)/AppRes.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/AppRes.c 
+AskForBool.o:     $(XMT_SDIR)/AskForBool.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/AskForBool.c 
+AskForFile.o:		$(XMT_SDIR)/AskForFile.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/AskForFile.c 
+AskForItem.o:		$(XMT_SDIR)/AskForItem.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/AskForItem.c 
+AskForString.o:	$(XMT_SDIR)/AskForString.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/AskForString.c 
+AssertClass.o:		$(XMT_SDIR)/AssertClass.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/AssertClass.c 
+BSearch.o:		   $(XMT_SDIR)/BSearch.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/BSearch.c 
+BitmapCvt.o:		$(XMT_SDIR)/BitmapCvt.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/BitmapCvt.c 
+Block.o:		      $(XMT_SDIR)/Block.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Block.c 
+CallbackCvt.o:		$(XMT_SDIR)/CallbackCvt.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/CallbackCvt.c 
+CheckFormat.o:		$(XMT_SDIR)/CheckFormat.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/CheckFormat.c 
+Chooser.o:		   $(XMT_SDIR)/Chooser.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Chooser.c 
+Cli.o:		      $(XMT_SDIR)/Cli.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Cli.c 
+Color.o:		      $(XMT_SDIR)/Color.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Color.c 
+ColorTable.o:		$(XMT_SDIR)/ColorTable.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/ColorTable.c 
+ColorTblCvt.o:		$(XMT_SDIR)/ColorTblCvt.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/ColorTblCvt.c 
+ContextHelp.o:		$(XMT_SDIR)/ContextHelp.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/ContextHelp.c 
+Create.o:		   $(XMT_SDIR)/Create.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Create.c 
+Cursor.o:		   $(XMT_SDIR)/Cursor.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Cursor.c 
+DECHack.o:		   $(XMT_SDIR)/DECHack.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/DECHack.c 
+Dialog.o:		   $(XMT_SDIR)/Dialog.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Dialog.c 
+DialogPos.o:		$(XMT_SDIR)/DialogPos.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/DialogPos.c 
+Dialogs.o:		   $(XMT_SDIR)/Dialogs.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Dialogs.c 
+Discard.o:		   $(XMT_SDIR)/Discard.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Discard.c 
+EnumCvt.o:		   $(XMT_SDIR)/EnumCvt.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/EnumCvt.c 
+FindFile.o:		   $(XMT_SDIR)/FindFile.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/FindFile.c 
+FontListCvt.o:		$(XMT_SDIR)/FontListCvt.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/FontListCvt.c 
+GetPixmap.o:		$(XMT_SDIR)/GetPixmap.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/GetPixmap.c 
+HSLtoRGB.o:		   $(XMT_SDIR)/HSLtoRGB.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/HSLtoRGB.c 
+Hash.o:		      $(XMT_SDIR)/Hash.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Hash.c 
+HelpBox.o:		   $(XMT_SDIR)/HelpBox.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/HelpBox.c 
+HelpBrowser.o:		$(XMT_SDIR)/HelpBrowser.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/HelpBrowser.c 
+HelpNode.o:		   $(XMT_SDIR)/HelpNode.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/HelpNode.c 
+IBMManage.o:		$(XMT_SDIR)/IBMManage.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/IBMManage.c 
+Icon.o:		      $(XMT_SDIR)/Icon.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Icon.c 
+Icons.o:		      $(XMT_SDIR)/Icons.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Icons.c 
+Include.o:		   $(XMT_SDIR)/Include.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Include.c 
+InitFocus.o:		$(XMT_SDIR)/InitFocus.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/InitFocus.c 
+Initialize.o:		$(XMT_SDIR)/Initialize.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Initialize.c 
+InputField.o:		$(XMT_SDIR)/InputField.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/InputField.c 
+Layout.o:		   $(XMT_SDIR)/Layout.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Layout.c 
+LayoutBox.o:		$(XMT_SDIR)/LayoutBox.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/LayoutBox.c 
+LayoutCreate.o:   $(XMT_SDIR)/LayoutCreate.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/LayoutCreate.c 
+LayoutGadget.o:	$(XMT_SDIR)/LayoutGadget.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/LayoutGadget.c 
+LayoutParse.o:		$(XMT_SDIR)/LayoutParse.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/LayoutParse.c 
+LayoutPixmap.o:	$(XMT_SDIR)/LayoutPixmap.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/LayoutPixmap.c 
+LayoutSep.o:		$(XMT_SDIR)/LayoutSep.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/LayoutSep.c 
+LayoutSpace.o:		$(XMT_SDIR)/LayoutSpace.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/LayoutSpace.c 
+LayoutString.o:	$(XMT_SDIR)/LayoutString.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/LayoutString.c 
+Lexer.o:		      $(XMT_SDIR)/Lexer.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Lexer.c 
+Localize.o:		   $(XMT_SDIR)/Localize.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Localize.c 
+Lookup.o:		   $(XMT_SDIR)/Lookup.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Lookup.c 
+Menu.o:		      $(XMT_SDIR)/Menu.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Menu.c 
+MenuCvt.o:		   $(XMT_SDIR)/MenuCvt.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/MenuCvt.c 
+MotifWidgets.o:	$(XMT_SDIR)/MotifWidgets.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/MotifWidgets.c 
+MsgDialogs.o:		$(XMT_SDIR)/MsgDialogs.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/MsgDialogs.c 
+MsgLine.o:		   $(XMT_SDIR)/MsgLine.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/MsgLine.c 
+NameToWidget.o:	$(XMT_SDIR)/NameToWidget.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/NameToWidget.c 
+PixelCvt.o:		   $(XMT_SDIR)/PixelCvt.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/PixelCvt.c 
+Pixmap.o:	  	   $(XMT_SDIR)/Pixmap.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Pixmap.c 
+PixmapCvt.o:		$(XMT_SDIR)/PixmapCvt.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/PixmapCvt.c 
+PixmapLstCvt.o:	$(XMT_SDIR)/PixmapLstCvt.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/PixmapLstCvt.c 
+Procedures.o:		$(XMT_SDIR)/Procedures.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Procedures.c 
+Quarks.o:		   $(XMT_SDIR)/Quarks.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Quarks.c 
+RGBtoHSL.o:		   $(XMT_SDIR)/RGBtoHSL.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/RGBtoHSL.c 
+Screen.o:		   $(XMT_SDIR)/Screen.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Screen.c 
+SetValue.o:		   $(XMT_SDIR)/SetValue.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/SetValue.c 
+ShellUtil.o:		$(XMT_SDIR)/ShellUtil.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/ShellUtil.c 
+StringLstCvt.o:   $(XMT_SDIR)/StringLstCvt.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/StringLstCvt.c 
+Symbols.o:		   $(XMT_SDIR)/Symbols.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Symbols.c 
+Template.o:		   $(XMT_SDIR)/Template.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Template.c 
+Visual.o:		   $(XMT_SDIR)/Visual.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Visual.c 
+UnixProcs.o:		$(XMT_SDIR)/UnixProcs.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/UnixProcs.c 
+Wait.o:		      $(XMT_SDIR)/Wait.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Wait.c 
+Warning.o:		   $(XMT_SDIR)/Warning.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Warning.c 
+WidgetCvt.o:		$(XMT_SDIR)/WidgetCvt.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/WidgetCvt.c 
+WidgetType.o:		$(XMT_SDIR)/WidgetType.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/WidgetType.c 
+Working.o:		   $(XMT_SDIR)/Working.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Working.c 
+WorkingBox.o:		$(XMT_SDIR)/WorkingBox.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/WorkingBox.c 
+Xbm.o:		      $(XMT_SDIR)/Xbm.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Xbm.c 
+XmCSText.o:		   $(XMT_SDIR)/XmCSText.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XmCSText.c 
+XmComboBox.o:		$(XMT_SDIR)/XmComboBox.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XmComboBox.c 
+XmScale.o:		   $(XMT_SDIR)/XmScale.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XmScale.c 
+XmStringCvt.o:		$(XMT_SDIR)/XmStringCvt.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XmStringCvt.c 
+XmText.o:		   $(XMT_SDIR)/XmText.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XmText.c 
+XmTextField.o:		$(XMT_SDIR)/XmTextField.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XmTextField.c 
+XmToggleB.o:		$(XMT_SDIR)/XmToggleB.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XmToggleB.c 
+XmtProcs.o:		   $(XMT_SDIR)/XmtProcs.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XmtProcs.c 
+XmtWidgets.o:		$(XMT_SDIR)/XmtWidgets.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XmtWidgets.c 
+Xpm.o:		      $(XMT_SDIR)/Xpm.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Xpm.c 
+XpmParse.o:		   $(XMT_SDIR)/XpmParse.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XpmParse.c 
+XtProcs.o:		   $(XMT_SDIR)/XtProcs.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XtProcs.c 
+
+ConvertData.o:	   $(XMT_SDIR)/ConvertData.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/ConvertData.c 
+ChooserS.o:		   $(XMT_SDIR)/ChooserS.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/ChooserS.c 
+CliS.o:		      $(XMT_SDIR)/CliS.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/CliS.c 
+HelpBoxS.o:		   $(XMT_SDIR)/HelpBoxS.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/HelpBoxS.c 
+HelpBrowserS.o:   $(XMT_SDIR)/HelpBrowserS.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/HelpBrowserS.c 
+InputFieldS.o:		$(XMT_SDIR)/InputFieldS.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/InputFieldS.c 
+LayoutS.o:		   $(XMT_SDIR)/LayoutS.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/LayoutS.c 
+MenuS.o:		      $(XMT_SDIR)/MenuS.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/MenuS.c 
+MsgLineS.o:		   $(XMT_SDIR)/MsgLineS.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/MsgLineS.c 
+WorkingBoxS.o:		$(XMT_SDIR)/WorkingBoxS.c $(XMT_HEADERS)
+	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/WorkingBoxS.c 
+
+
+Xmt_clean:
+	$(RM) $(XMT_OBJS) $(XMT_UNSHAREDOBJS)
+	$(RM) libXmt.a libXmt$(SHAREDEXT)

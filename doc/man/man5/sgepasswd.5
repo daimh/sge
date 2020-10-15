@@ -1,0 +1,57 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\" $RCSfile: sgepasswd.5,v $     Last Update: $Date: 2007-07-19 09:04:33 $     Revision: $Revision: 1.2 $
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH xxQS_NAME_Sxx_SGE_PASSWD 5 2007-07-19 "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+sgepasswd \- xxQS_NAMExx password file format
+.\"
+.\"
+.SH DESCRIPTION
+.I sgepasswd
+contains a list of user names and their corresponding encrypted Microsoft
+Windows passwords. If available, the password file will be used by
+.M sge_shepherd 8 
+and 
+.M sge_execd 8 .
+To change the contents of this file please use the
+.M sgepasswd 1
+command. It is not advised to change the file manually.
+.\"
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M sgepasswd 1
+.\" .M sgepasswd 1 ,
+.\" .I xxQS_NAMExx Installation and Administration Guide
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

@@ -1,0 +1,210 @@
+= DTrace-based Master monitoring under Solaris 10 =
+
+== Copyright statement ==
+
+'''Note:''' This document is under Grid Engine project [http://gridengine.sunsource.net/license.html SISSL license].
+
+== Introduction ==
+
+Trouble-shooting in a distributed system spanning multiple thousands active components like Grid Engine can become a real challenge. In practice Grid Engine administrators have no apriori certainty about reasons for performance
+degradation degregation in their production environments and reproducing such problems is not easy for those who wish to help. For that reason it is important to have a utility for on-site performance monitoring of the Grid Engine
+master component. Thanks to [http://docs.sun.com/app/docs/doc/817-6223 DTrace(1) support in Solaris 10] a platform exists that is suited even for monitoring of multi-threaded/multi-processing components like Grid Engine master
+(=qmaster+scheduler) :)
+
+== Project Overview ==
+
+=== Project Aim ===
+
+Aim is to provide an easy-to-use DTrace-based bottleneck analysis first-aid kit to Grid Engine administrators. Though with this utility it will not be possible to entirely understand any single case where performance degregation
+occurs. However in a majority of cases it will provide sufficient insight required by administrator to independently find an appropriate remedy. In other cases it shall deliver a base  that facilitates more experienced people to
+help in a determined and time-saving way.
+
+=== Project Benefit ===
+
+Grid Engine administrators will be able to independently tune their Grid Engine clusters and can get faster and better help from those who made comparable experiences in other challenging cases.
+
+== Block diagram ==
+
+Imagine one of these nice block diagrams pictures. Components apparently are
+
+* Grid Engine master
+* DTrace master monitor (D scripts)
+* dtrace(1M) command
+* Solaris 10
+
+== Performance Impact ==
+
+There is no performance impact to Grid Engine when DTrace is not enabled. When DTrace is enabled, the overhead is negligible because DTrace does not stop and restart the qmaster for each traced function. Instead, DTrace collects
+data in per-CPU buffers which dtrace(1M) asynchronously reads. (ref 1)
+
+== User Documentation ==
+
+That is kept under [http://gridengine.sunsource.net/source/browse/*checkout*/gridengine/source/scripts/dtrace/README-dtrace.txt?rev=HEAD README-dtrace.txt].
+
+== Packaging ==
+
+Master monitor will be part of the 'common' package in $SGE_ROOT/dtrace directory.
+
+== Implementation ==
+
+The master monitor soley depends on DTrace pid provider probes. These probes are used to track calls to throughput-sensitive functions in qmaster/scheduler. Note, for the DTrace pid provider based monitor to function it is required
+these functions are not inlined as explained in DTrace documentation [http://bugs.opensolaris.org/view_bug.do?bug_id=6480235 CR #6480235].
+
+The list of the functions tracked by the monitor is:
+
+* cl_message_list_append_receive()
+* cl_message_list_append_send()
+* cl_message_list_remove_receive()
+* cl_message_list_remove_send()
+* dispatch_jobs()
+* do_c_ack()
+* do_gdi_packet()
+* report_list_send()
+* select_assign_debit()
+* sge_c_gdi_add()
+* sge_c_gdi_copy()
+* sge_c_gdi_del()
+* sge_c_gdi_get()
+* sge_c_gdi_mod()
+* sge_c_gdi_permcheck()
+* sge_c_gdi_trigger()
+* sge_c_report()
+* sge_lock()
+* sge_log()
+* sge_mirror_process_events()
+* sge_unlock()
+* spool_delete_object()
+* spool_write_object()
+* spool_read_object()
+* spool_delete_script()
+* spool_write_script()
+* spool_read_script()
+
+== Appendix ==
+
+=== Example #1 ===
+
+The following monitoring output sample illustrates a case where a Grid Engine master bottleneck could be detected. With the at hand sample performance degregation happend between 17:40:32 and 17:41:05.
+<pre>
+CPU     ID                    FUNCTION:NAME
+  0      1                           :BEGIN                 Time |   #wrt  wrt/ms |#rep #gdi #ack|   #dsp  dsp/ms    #sad|   #snd    #rcv|  #in++   #in--  #out++  #out--|  #lck0  #ulck0   #lck1  #ulck1
+  0  36909                       :tick-3sec 2006 Nov 24 17:39:23 |      43       3|   0    8    4|      3     691     121|      4       4|     11      11      15      15|     68      68     289     288
+  0  36909                       :tick-3sec 2006 Nov 24 17:39:26 |      83      16|   0   10    3|      3     699     122|      3       3|     14      13      17      17|     90      90     681     681
+  0  36909                       :tick-3sec 2006 Nov 24 17:39:29 |     117      24|   0    9    4|      4    1092     198|      4       4|     13      13      17      17|     71      71     591     591
+  0  36909                       :tick-3sec 2006 Nov 24 17:39:32 |      19       4|   0    9    3|      3     591     147|      3       3|     12      12      15      15|     44      43     249     249
+  0  36909                       :tick-3sec 2006 Nov 24 17:39:35 |     144      28|   0    9    4|      4    1012     173|      4       4|     13      13      17      17|     61      62    1246    1247
+  0  36909                       :tick-3sec 2006 Nov 24 17:39:38 |      46       5|   0    8    3|      3     705     122|      3       3|     11      11      14      14|     67      67     293     293
+  0  36909                       :tick-3sec 2006 Nov 24 17:39:41 |     154      31|   0    9    3|      4     894     198|      3       3|     13      13      16      16|     73      72     968     969
+  0  36909                       :tick-3sec 2006 Nov 24 17:39:44 |      46       5|   0   10    4|      4     971     162|      4       4|     13      13      17      17|     71      72     304     304
+  0  36909                       :tick-3sec 2006 Nov 24 17:39:47 |     154      29|   0    8    3|      3     739     158|      3       3|     11      11      14      14|     67      67     990     990
+  0  36909                       :tick-3sec 2006 Nov 24 17:39:50 |      46       5|   0   10    4|      4     815     162|      4       4|     14      14      18      18|     76      76     692     693
+  0  36909                       :tick-3sec 2006 Nov 24 17:39:53 |      74      15|   0    8    3|      3     746     136|      3       3|     12      12      15      15|     54      53     571     571
+  0  36909                       :tick-3sec 2006 Nov 24 17:39:56 |     116      20|   0   11    4|      4     992     184|      4       4|     14      14      18      18|     80      81     669     669
+  0  36909                       :tick-3sec 2006 Nov 24 17:39:59 |      87      18|   0   11    4|      4     851     176|      5       4|     15      15      21      21|     77      76     670     670
+  0  36909                       :tick-3sec 2006 Nov 24 17:40:02 |     109      20|   0   12    5|      4     930     184|      4       5|     17      17      20      20|     77      78     624     624
+  0  36909                       :tick-3sec 2006 Nov 24 17:40:05 |      88      15|   0    9    3|      4     995     176|      3       3|     12      12      15      15|     71      71    1026    1026
+  0  36909                       :tick-3sec 2006 Nov 24 17:40:08 |     112      20|   0   12    4|      4     927     184|      5       4|     16      16      22      22|     81      81     652     652
+  0  36909                       :tick-3sec 2006 Nov 24 17:40:11 |      32       6|   0    7    4|      3     618     121|      3       4|     11      11      13      13|     54      53     336     336
+  0  36909                       :tick-3sec 2006 Nov 24 17:40:14 |     145      30|   0   11    4|      4     988     199|      4       4|     15      15      19      19|     64      65     827     827
+  0  36909                       :tick-3sec 2006 Nov 24 17:40:17 |      43       3|   0    7    3|      3     618     121|      3       3|     10      10      13      13|     64      64     286     286
+  0  36909                       :tick-3sec 2006 Nov 24 17:40:20 |     157      31|   0   11    4|      4     977     199|      4       4|     15      15      19      19|     80      80    1406    1408
+  0  36909                       :tick-3sec 2006 Nov 24 17:40:23 |      43       4|   0    7    3|      3     701     121|      3       3|     10      10      13      13|     64      64     285     285
+  0  36909                       :tick-3sec 2006 Nov 24 17:40:26 |      73      18|   0   11    4|      4     948     171|      4       4|     15      15      19      19|     77      77     700     700
+  0  36909                       :tick-3sec 2006 Nov 24 17:40:29 |     127      31|   0   10    4|      4     968     189|      4       4|     14      14      18      18|     74      74     584     584
+  0  36909                       :tick-3sec 2006 Nov 24 17:40:32 |      10       3|   0    6    0|      1     203      41|      0       0|     58       8      62      62|     23      22     106     106
+  0  36909                       :tick-3sec 2006 Nov 24 17:40:35 |      19       5|   0    5    0|      0       0       0|      0       0|      8       5      13      13|     30      30     200     200
+  0  36909                       :tick-3sec 2006 Nov 24 17:40:38 |      16       5|   0    5    1|      0       0       0|      0       0|      5       6      10      10|     27      26     558     559
+  0  36909                       :tick-3sec 2006 Nov 24 17:40:41 |       1       0|   0    4    0|      0       0       0|      0       0|      7       4      11      11|      9       9      34      34
+  0  36909                       :tick-3sec 2006 Nov 24 17:40:44 |       0       0|   0    4    0|      0       0       0|      0       0|      7       4      11      11|      8       8      28      28
+  0  36909                       :tick-3sec 2006 Nov 24 17:40:47 |       0       0|   0    6    0|      1     744      81|      1       1|     10       6      15      15|     14      14      33      33
+  0  36909                       :tick-3sec 2006 Nov 24 17:40:50 |       1       0|   0    5    1|      0       0       0|      0       0|      8       6      14      14|     11      11      49      49
+  0  36909                       :tick-3sec 2006 Nov 24 17:40:53 |       0       0|   0    4    0|      0       0       0|      0       0|      9       4      12      12|      6       7      28      28
+  0  36909                       :tick-3sec 2006 Nov 24 17:40:56 |       0       0|   0    5    0|      0       0       0|      0       0|      8       5      13      13|     12      12     420     420
+  0  36909                       :tick-3sec 2006 Nov 24 17:40:59 |       0       0|   0    4    0|      0       0       0|      0       0|      8       4      12      12|      9       8      30      30
+  0  36909                       :tick-3sec 2006 Nov 24 17:41:02 |       0       0|   0    4    1|      0       0       0|      0       0|     12       5      16      16|      7       8      25      25
+  0  36909                       :tick-3sec 2006 Nov 24 17:41:05 |     165      41|   0   48   60|      0       0       0|      1       1|     23     106      71      71|     96      97    1236    1236
+  0  36909                       :tick-3sec 2006 Nov 24 17:41:08 |     178      28|   0   15   53|      4     965     206|      4       4|     68      68      75      75|    130     130    1336    1336
+  0  36909                       :tick-3sec 2006 Nov 24 17:41:11 |     106      23|   0   27   35|      4     855     166|      4       4|     82      82      91      91|    115     114    1040    1040
+  0  36909                       :tick-3sec 2006 Nov 24 17:41:14 |     198      37|   0   41   70|      4    1189     196|      4       4|    185     185     185     185|    134     135    1327    1327
+  0  36909                       :tick-3sec 2006 Nov 24 17:41:17 |      16       5|   0    9    5|      4     940     161|      3       3|     17      17      20      20|     43      42     234     234
+  0  36909                       :tick-3sec 2006 Nov 24 17:41:20 |     162      35|   0   13    8|      4     958     200|      4       4|     23      23      28      28|     80      81    1018    1018
+  0  36909                       :tick-3sec 2006 Nov 24 17:41:23 |      44       6|   0    6    3|      2     544      81|      3       3|      8       8      11      11|     63      63     747     747
+  0  36909                       :tick-3sec 2006 Nov 24 17:41:26 |     150      34|   0   13    6|      4     921     199|      4       4|     21      21      25      25|     73      72     923     923
+  0  36909                       :tick-3sec 2006 Nov 24 17:41:29 |      43       3|   0    5    2|      2     506      81|      2       2|      7       7       9       9|     57      57     260     260
+  0  36909                       :tick-3sec 2006 Nov 24 17:41:32 |     157      37|   0    9    3|      4     978     199|      3       3|     13      13      16      16|     73      72     970     970
+  0  36909                       :tick-3sec 2006 Nov 24 17:41:35 |      43       3|   0    7    3|      2     512      85|      3       3|      9       9      12      12|     61      62     274     274
+  0  36909                       :tick-3sec 2006 Nov 24 17:41:38 |     127      29|   0    8    3|      4     994     185|      3       3|     11      11      14      14|     68      68    1265    1265
+  0  36909                       :tick-3sec 2006 Nov 24 17:41:41 |      66      11|   0   10    4|      4     973     171|      4       4|     14      14      18      18|     67      67     354     354
+  0  36909                       :tick-3sec 2006 Nov 24 17:41:44 |      48      10|   0    8    3|      3     785     128|      3       3|     11      11      14      14|     52      51     399     399
+  0  36909                       :tick-3sec 2006 Nov 24 17:41:47 |     142      31|   0   12    4|      4     913     192|      5       4|     17      17      23      23|     89      90     830     830
+  0  36909                       :tick-3sec 2006 Nov 24 17:41:50 |      64      13|   0   11    5|      4     853     168|      4       5|     15      15      18      18|     75      75     542     542
+</pre>
+
+cause for the performance degregation were a couple of dozens 'qsub -sync y' as explained in [http://gridengine.sunsource.net/issues/show_bug.cgi?id=2125 qmaster performance gets throttled if qsub -sync y is used when many jobs are
+in the system]
+
+
+=== Example #2 ===
+
+This case shows how the 6.0u8+ based DTrace script ([http://gridengine.sunsource.net/files/documents/7/97/SGE60-dtrace.tar.gz SGE60-dtrace.tar.gz])
+helped to understand the cause of sporadic 'qmaster alive timeout expiring' loggings
+
+<pre>
+                Time |    #wrt  wrt/ms|#rep #gdi #ack|   #dsp  dsp/ms    #sad|   #snd    #rcv|  #lck0  #ulck0   #lck1  #ulck1
+2006 Oct 21 04:04:52 |      80    2020|  77   30   15|     15     810      30|     15      15|    199     199    1660    1660
+2006 Oct 21 04:05:07 |     101    2563|  76   30   15|     15     808      36|     15      15|    197     197    1701    1702
+2006 Oct 21 04:05:22 |     130    3502| 100   31   15|     15     818      40|     15      15|    232     232    2028    2027
+2006 Oct 21 04:05:37 |     161    4798| 103   30   15|     15     804      47|     15      15|    224     224    2050    2050
+2006 Oct 21 04:05:52 |     169    4926| 108   30   15|     15     818      50|     15      15|    230     230    2133    2136
+2006 Oct 21 04:06:07 |     134    3809|  98   30   15|     15     801      41|     15      15|    219     219    1942    1942
+2006 Oct 21 04:06:22 |     192    5838| 113   31   15|     15     836      53|     15      15|    245     245    2172    2170
+2006 Oct 21 04:06:37 |     346   13390| 185   27   13|     14     828      89|     13      13|    296     295    3064    3063
+2006 Oct 21 04:06:52 |     364   13975| 178   13    6|      7     449      80|      7       7|    231     231    2879    2879
+2006 Oct 21 04:07:07 |     355   14263| 182    7    4|      3     243      72|      3       3|    212     212    2991    2992
+2006 Oct 21 04:07:22 |     335   14190| 179    5    2|      2     187      70|      2       2|    207     207    2857    2858
+2006 Oct 21 04:07:37 |     297   14203| 178    3    1|      2     206      90|      2       2|    190     190    2639    2641
+2006 Oct 21 04:07:52 |     383   13728| 133    4    2|      3     419     219|      2       3|    153     153    2442    2442
+2006 Oct 21 04:08:07 |     432   13680| 115    3    1|      2     328     190|      1       2|    126     126    1930    1931
+2006 Oct 21 04:08:22 |     498   13451| 226    6    2|      2     281     142|      3       2|    251     251    3086    3085
+2006 Oct 21 04:08:37 |     411   13331|  89    4    2|      2     422     245|      2       2|    114     114    1938    1939
+2006 Oct 21 04:08:52 |     473   13595| 136    3    1|      2     420     264|      1       2|    147     147    2194    2193
+2006 Oct 21 04:08:57 | sge_log(4, qmaster alive timeout expired)
+2006 Oct 21 04:09:07 |     322   11950|  85    3    1|      0       0       0|      2       1|    100     100    1561    1561
+2006 Oct 21 04:09:22 |     512    9825| 291    9    1|      1     356     215|      2       1|    325     325    3850    3849
+2006 Oct 21 04:09:37 |     226   14398|   0    0    0|      1     353     215|      0       1|      0       0     843     843
+2006 Oct 21 04:09:40 | sge_log(4, qmaster alive timeout expired)
+2006 Oct 21 04:09:52 |     200   13072|  30    1    0|      0       0       0|      1       1|     35      35    1301    1301
+2006 Oct 21 04:10:07 |     516   11657| 139    2    0|      0       0       0|      1       0|    148     148    1900    1900
+2006 Oct 21 04:10:22 |     302    9965| 434    3    0|      0       0       0|      0       0|    449     450    4439    4441
+2006 Oct 21 04:10:37 |     404   12147|  10    5    1|      2     759     456|      1       2|     26      25    1214    1214
+2006 Oct 21 04:10:44 | sge_log(4, qmaster alive timeout expired)
+2006 Oct 21 04:10:52 |     225   14003|   0    0    0|      0       0       0|      0       1|      0       0     834     834
+2006 Oct 21 04:11:07 |     381   12033| 120    1    0|      0       0       0|      1       0|    127     127    1733    1733
+2006 Oct 21 04:11:22 |     502   12540| 338    2    0|      0       0       0|      1       0|    346     346    3492    3493
+2006 Oct 21 04:11:37 |     434   12547| 151    7    1|      2     708     422|      1       2|    179     179    2964    2963
+2006 Oct 21 04:11:47 | sge_log(4, qmaster alive timeout expired)
+2006 Oct 21 04:11:52 |     187   14300|   0    0    0|      0       0       0|      0       1|      0       0     706     706
+2006 Oct 21 04:12:07 |     378   12619|  93    1    0|      0       0       0|      1       0|    100     100    1483    1483
+2006 Oct 21 04:12:22 |     474   13377| 357    2    0|      0       0       0|      1       0|    365     365    3897    3897
+2006 Oct 21 04:12:37 |     384    8363| 154    8    1|      1     371     220|      1       1|    184     184    2809    2809
+2006 Oct 21 04:12:52 |     203   14475|   0    0    0|      1     376     220|      0       1|      0       0     770     770
+2006 Oct 21 04:12:52 | sge_log(4, qmaster alive timeout expired)
+2006 Oct 21 04:13:07 |     234   13167|  98    1    0|      0       0       0|      1       1|    105     105    1556    1556
+2006 Oct 21 04:13:22 |     430   11001|  21    1    0|      0       0       0|      0       0|     24      24    1080    1080
+2006 Oct 21 04:13:37 |     332   14139| 387    1    0|      0       0       0|      1       0|    394     394    4101    4101
+2006 Oct 21 04:13:52 |     420   12256| 141    8    1|      2     820     488|      1       2|    169     169    2227    2227
+2006 Oct 21 04:14:03 | sge_log(4, qmaster alive timeout expired)
+2006 Oct 21 04:14:07 |     212   14377|   0    0    0|      0       0       0|      0       1|      0       0     788     788
+2006 Oct 21 04:14:22 |     274   12997|  86    1    0|      0       0       0|      1       0|     93      93    1537    1537
+2006 Oct 21 04:14:37 |     376   11234|  23    1    0|      0       0       0|      0       0|     26      26    1020    1020
+2006 Oct 21 04:14:52 |     273   14371| 325    1    0|      0       0       0|      1       0|    332     332    3274    3274
+</pre>
+
+here inadequately set-up spooling (classic over NFS) caused that qmaster was almost entirely busy with IO. This can be concluded from the interval being 15 seconds with 'wrt/ms' being up to 14.475 seconds. The qmaster alive timeout
+was a side implication. The bug is described under [http://gridengine.sunsource.net/issues/show_bug.cgi?id=2108 qmaster logging "scheduler tried to remove a incomplete"]
+
+= Reference =
+* [http://www.sun.com/books/catalog/solaris_perf_tools.xml McDougall, Richard; Mauro, Jim; and Gregg, Brendan. Solaris Performance and Tools, page 57. Prentice Hall PTR, 2007.]
+
+= See also =
+* [https://dtrace.developer.network.com/nonav/using-dtrace-in-grid.html  Sun Grid Application Observability Using DTrace]

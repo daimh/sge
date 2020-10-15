@@ -1,0 +1,224 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH QMOD 1 "2011-05-20" "xxRELxx" "xxQS_NAMExx User Commands"
+.SH NAME
+qmod \- modify a xxQS_NAMExx queue and running job
+.\"
+.SH SYNTAX
+.B qmod
+.RI [ options ]
+.RI [ wc_job_range_list | wc_queue_list ]
+.PP
+.SH DESCRIPTION
+.I Qmod
+enables users classified as \fIowners\fP (see
+.M queue_conf 5
+for details) of a workstation to modify
+the state of xxQS_NAMExx queues for their machine as well
+as the state of their own jobs.
+A manager/operator, or root, can execute
+.I qmod
+for any queue and job in a cluster, but only from administrative hosts.
+Find additional information concerning
+\fIwc_queue_list\fP and \fIwc_job_list\fP in
+.M sge_types 5 .
+.\"
+.SH OPTIONS
+.\"
+.IP "\fB\-c\fP"
+.IP "\fB\-\-clear\fP"
+.B Note:
+Deprecated, may be removed in future release.
+Please use the \fB\-cj\fP or \fB\-cq\fP switch instead.
+.br
+Clears the error state of the specified jobs(s)/queue(s).
+.IP "\fB\-cj\fP"
+.IP "\fB\-\-clearjob\fP"
+Clears the error state of the specified jobs(s).
+.IP "\fB\-cq\fP"
+.IP "\fB\-\-clearqueue\fP"
+Clears the error state of the specified queue(s).
+.IP "\fB\-d\fP"
+.IP "\fB\-\-disable\fP"
+Disables the queue(s), i.e. no further jobs are dispatched to
+disabled queues while jobs already executing in these queues
+are allowed to finish.
+.IP "\fB\-e\fP"
+.IP "\fB\-\-enable\fP"
+Enables the queue(s).
+.IP "\fB\-f\fP"
+.IP "\fB\-\-force\fP"
+Force the modification action for the queue despite the
+apparent current state of the queue. For example if a queue
+appears to be suspended but the job execution seems to be
+continuing, the manager/operator can force a suspend operation on
+the jobs. In any case, the queue or
+job status will be set, even if the
+.M xxqs_name_sxx_execd 8
+controlling the queues/jobs cannot be reached. Requires
+manager/operator privileges.
+.\"
+.IP "\fB\-help\fP"
+.IP "\fB\-\-help\fP"
+Prints a listing of all options.
+.\"
+.IP "\fB\-r\fP"
+.IP "\fB\-\-reschedule\fP"
+.B Note:
+Deprecated, may be removed in future release.
+Please use the \fB\-rj\fP or \fB\-rq\fP switch instead.
+.br
+If applied to queues,
+reschedules all jobs currently running in this queue.
+If applied to running jobs, reschedules the jobs. Requires root or 
+manager privileges.  In order for a job to be rescheduled, it, or the queue in
+which it is executing must have the rerun flag activated.  (See -r
+option in the
+.M qsub 1
+man page and the \fIrerun\fP option in the
+.M queue_conf 5
+man page for more information.)
+Additional
+restrictions apply for parallel and checkpointing jobs.  (See the
+\fIreschedule_unknown\fP description in the
+.M sge_conf 5
+man page for details).
+.\"
+.IP "\fB\-rj\fP"
+.IP "\fB\-\-reschedulejob\fP"
+If applied to running jobs, reschedules the jobs. Requires root or 
+manager privileges.
+.\"
+.IP "\fB\-rq\fP"
+.IP "\fB\-\-reschedulequeue\fP"
+Reschedules all jobs currently running in the specified queues.
+Requires root or manager privileges.
+.\"
+.IP "\fB\-s\fP"
+.IP "\fB\-\-suspend\fP"
+.B Note:
+Deprecated, may be removed in future release.
+Please use the \fB\-sj\fP or \fB\-sq\fP switch instead.
+.br
+If applied to queues,
+suspends the queues and any jobs which might
+be active in them. If applied to running jobs, suspends the jobs. 
+.\"
+.IP "\fB\-sj\fP"
+.IP "\fB\-\-suspendjob\fP"
+If applied to running jobs, suspends the jobs. If a job is
+both suspended explicitly and via suspension of its queue, a
+subsequent unsuspend of the queue will not release the suspension
+state on the job.
+.\"
+.IP "\fB\-sq\fP"
+.IP "\fB\-\-suspendqueue\fP"
+Suspends the specified queues and any jobs which might
+be active in them. 
+.\"
+.IP "\fB\-us\fP"
+.IP "\fB\-\-unsuspend\fP"
+.B Note:
+Deprecated, may be removed in future release.
+Please use the \fB\-usj\fP or \fB\-usq\fP switch instead.
+.br
+If applied to queues,
+unsuspends the queues and any jobs which might
+be active in them. If applied to jobs, unsuspends the jobs.
+.\"
+.IP "\fB\-usj\fP"
+.IP "\fB\-\-unsuspendjob\fP"
+Unsuspends the specified jobs. If a job is
+both suspended explicitly and via suspension of its queue, a
+subsequent unsuspend of the queue will not release the suspension
+state on the job.
+.\"
+.IP "\fB\-usq\fP"
+.IP "\fB\-\-unsuspendqueue\fP"
+Unsuspends the specified queues and any jobs which might
+be active in them.
+.\"
+.SH "ENVIRONMENT VARIABLES"
+.\" 
+.IP "\fBxxQS_NAME_Sxx_ROOT\fP" 1.5i
+Specifies the location of the xxQS_NAMExx standard configuration
+files.
+.\"
+.IP "\fBxxQS_NAME_Sxx_CELL\fP" 1.5i
+If set, specifies the default xxQS_NAMExx cell. To address a xxQS_NAMExx
+cell
+.I qmod
+uses (in the order of precedence):
+.sp 1
+.RS
+.RS
+The name of the cell specified in the environment 
+variable xxQS_NAME_Sxx_CELL, if it is set.
+.sp 1
+The name of the default cell, i.e. \fBdefault\fP.
+.sp 1
+.RE
+.RE
+.\"
+.IP "\fBxxQS_NAME_Sxx_DEBUG_LEVEL\fP" 1.5i
+If set, specifies that debug information
+should be written to stderr. In addition the level of
+detail in which debug information is generated is defined.
+.\"
+.IP "\fBxxQS_NAME_Sxx_QMASTER_PORT\fP" 1.5i
+If set, specifies the tcp port on which
+.M xxqs_name_sxx_qmaster 8
+is expected to listen for communication requests.
+Most installations will use a services map entry for the
+service "sge_qmaster" instead to define that port.
+.\"
+.\"
+.SH FILES
+.nf
+.ta \w'<xxqs_name_sxx_root>/     'u
+\fI<xxqs_name_sxx_root>/<cell>/common/act_qmaster\fP
+	xxQS_NAMExx master host file
+.fi
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M xxqs_name_sxx_ckpt 1 ,
+.M qstat 1 ,
+.M queue_conf 5 ,
+.M xxqs_name_sxx_execd 8 ,
+.M xxqs_name_sxx_types 1 .
+.\"
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

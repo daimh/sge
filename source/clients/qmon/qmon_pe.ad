@@ -1,0 +1,186 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Parallel Environment Configuration
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_pe.xmtChildren:  unmanaged XmtLayout pe_layout;
+
+Qmon*qmon_pe.pe_layout.autoUnmanage:  False
+Qmon*qmon_pe.pe_layout.resizePolicy:  RESIZE_NONE
+Qmon*qmon_pe.pe_layout.dialogTitle:  @{QMON  +++  Parallel Environment Configuration}
+!Qmon*qmon_pe.pe_layout.fontList:   $dialog_font
+
+Qmon*qmon_pe.pe_layout.xmtChildren: \
+   XmPushButton   pe_main_link; \
+   XmScrolledList pe_names, pe_conf_list; \
+   XmPushButton   pe_delete, pe_add, pe_modify, pe_done, pe_help;
+
+Qmon*qmon_pe.pe_layout.layout: \
+   Fixed Shadowed Out 4 2 LREvenSpaced Row peconfig_title { \
+      Fixed Centered pe_main_link \
+      Centered Color "$title_fg" "@{@fBParallel Environment Configuration}" \
+   } \
+   # \
+   Row { \
+      Caption tl "@{PE List}" 2 in pe_names \
+      Caption tl "@{Configuration}" 5 in pe_conf_list \
+      Fixed Shadowed Col { \
+         Fixed pe_add \
+         Fixed pe_modify \
+         Fixed pe_delete \
+         Fixed pe_done \
+         Fixed pe_help \
+      } \
+   }
+
+Qmon*qmon_pe.pe_layout.pe_main_link.labelType:   PIXMAP
+Qmon*qmon_pe.pe_layout.pe_main_link.labelPixmap: logo
+Qmon*qmon_pe.pe_layout.pe_main_link.shadowThickness:    1
+Qmon*qmon_pe.pe_layout.pe_main_link.highlightThickness: 0
+Qmon*qmon_pe.pe_layout.pe_main_link.marginHeight:       0
+Qmon*qmon_pe.pe_layout.pe_main_link.marginWidth:        0
+
+Qmon*qmon_pe.pe_layout.pe_delete.labelString:    @{Delete}
+Qmon*qmon_pe.pe_layout.pe_add.labelString:       @{Add}
+Qmon*qmon_pe.pe_layout.pe_modify.labelString:    @{Modify}
+Qmon*qmon_pe.pe_layout.pe_done.labelString:      @{Done}
+Qmon*qmon_pe.pe_layout.pe_help.labelString:      @{Help}
+
+!! We can't directly specify the parent of pe_names or pe_conf_list
+Qmon*qmon_pe.pe_layout*scrollBarDisplayPolicy:          AS_NEEDED
+Qmon*qmon_pe.pe_layout*listSizePolicy:                  CONSTANT
+
+Qmon*qmon_pe.pe_layout*pe_names.fontList:               $fixed_font
+Qmon*qmon_pe.pe_layout*pe_names.selectionPolicy:        BROWSE_SELECT
+Qmon*qmon_pe.pe_layout*pe_names.visibleItemCount:       8
+
+Qmon*qmon_pe.pe_layout*pe_conf_list.fontList:           $fixed_font
+Qmon*qmon_pe.pe_layout*pe_conf_list.selectionPolicy:    BROWSE_SELECT
+Qmon*qmon_pe.pe_layout*pe_conf_list.visibleItemCount:   8
+
+Qmon*pe_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+
+
+Qmon*pe_ask_shell.xmtChildren: unmanaged XmtLayout pe_ask_layout;
+
+Qmon*pe_ask_shell.pe_ask_layout.autoUnmanage:  False
+Qmon*pe_ask_shell.pe_ask_layout.resizePolicy:  RESIZE_NONE
+Qmon*pe_ask_shell.pe_ask_layout.dialogTitle:   @{Add/Modify PE}
+Qmon*pe_ask_shell.pe_ask_layout.fontList:      $dialog_font
+
+Qmon*pe_ask_shell.pe_ask_layout.XmtInputField.marginWidth:       2
+Qmon*pe_ask_shell.pe_ask_layout.XmtInputField.marginHeight:      2
+
+Qmon*pe_ask_shell.pe_ask_layout.xmtChildren: \
+   InputField     pe_name; \
+   Spinbox        pe_slots; \
+   XmScrolledList pe_users; \
+   XmScrolledList pe_xusers; \
+   InputField     pe_start_proc_args; \
+   InputField     pe_stop_proc_args; \
+   InputField     pe_allocation_rule; \
+   InputField     pe_urgency_slots; \
+   InputField     pe_qsort_args; \
+   XmToggleButton pe_control_slaves; \
+   XmToggleButton pe_job_is_first_task; \
+   XmToggleButton pe_accounting_summary; \
+   XmPushButton   pe_ok, pe_cancel, pe_usersPB, pe_xusersPB;
+
+Qmon*pe_ask_layout.layout: \
+   Row { \
+      Shadowed Col { \
+         Fixed Row { \
+            Centered Caption "@{Name}" pe_name \
+            Centered Caption "@{Slots}" pe_slots \
+         } \
+         Equal Row { \
+            Row { \
+               Stretchable Caption tl "@{User Lists}" 2 in pe_users \
+               Fixed Centered pe_usersPB \
+            } \
+            Row { \
+               Stretchable Caption tl "@{Xuser Lists}" 2 in pe_xusers \
+               Fixed Centered pe_xusersPB \
+            } \
+         } \
+         Fixed Caption tl "@{Start Proc Args}" pe_start_proc_args \
+         Fixed Caption tl "@{Stop Proc Args} " pe_stop_proc_args \
+         Fixed Caption tl "@{Allocation Rule}" pe_allocation_rule \
+         Fixed Caption tl "@{Urgency Slots}" pe_urgency_slots \
+         Row { \
+            Fixed pe_control_slaves \
+            Fixed pe_job_is_first_task \
+            Fixed pe_accounting_summary \
+         } \
+         Fixed Caption tl "@{Qsort Args} " pe_qsort_args \
+      } \
+      Fixed Shadowed Col { \
+         Fixed pe_ok \
+         Fixed pe_cancel \
+      } \
+   }
+
+Qmon*pe_ask_layout.pe_control_slaves.alignment: ALIGNMENT_BEGINNING
+Qmon*pe_ask_layout.pe_control_slaves.labelString: @{@fBControl Slaves}
+
+Qmon*pe_ask_layout.pe_job_is_first_task.alignment: ALIGNMENT_BEGINNING
+Qmon*pe_ask_layout.pe_job_is_first_task.labelString: @{@fBJob is first task}
+
+Qmon*pe_ask_layout.pe_accounting_summary.alignment: ALIGNMENT_BEGINNING
+Qmon*pe_ask_layout.pe_accounting_summary.labelString: @{@fBAccounting Summary}
+
+Qmon*pe_ask_layout.pe_ok.labelString:     @{Ok}
+Qmon*pe_ask_layout.pe_cancel.labelString: @{Cancel}
+
+Qmon*pe_ask_layout.pe_slots.buttonSizeFixed:   True
+Qmon*pe_ask_layout.pe_slots.minimum:           0
+Qmon*pe_ask_layout.pe_slots.maximum:           10000000
+Qmon*pe_ask_layout.pe_slots.spinboxStyle:      SPINBOX_STACKED_RIGHT
+
+Qmon*pe_ask_layout*scrollBarDisplayPolicy:     AS_NEEDED
+Qmon*pe_ask_layout*listSizePolicy:             CONSTANT
+
+Qmon*pe_ask_layout*pe_users.selectionPolicy:   BROWSE_SELECT
+Qmon*pe_ask_layout*pe_users.visibleItemCount:  5
+
+Qmon*pe_ask_layout*pe_xusers.selectionPolicy:  BROWSE_SELECT
+Qmon*pe_ask_layout*pe_xusers.visibleItemCount: 5
+
+Qmon*pe_ask_layout.pe_queuesPB.labelType:      PIXMAP
+Qmon*pe_ask_layout.pe_queuesPB.labelPixmap:    qask
+Qmon*pe_ask_layout.pe_queuesPB.labelInsensitivePixmap:    qask
+Qmon*pe_ask_layout.pe_usersPB.labelType:       PIXMAP
+Qmon*pe_ask_layout.pe_usersPB.labelPixmap:     aclask
+Qmon*pe_ask_layout.pe_xusersPB.labelType:      PIXMAP
+Qmon*pe_ask_layout.pe_xusersPB.labelPixmap:    aclask
+

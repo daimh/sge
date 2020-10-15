@@ -1,0 +1,59 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\" $RCSfile: sge_coshepherd.8,v $     Last Update: $Date: 2011-05-14 13:06:11 $     Revision: $Revision: 1.12 $
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.\" Text from coshepherd.html
+.TH xxQS_NAME_Sxx_COSHEPHERD 8 "$Date: 2011-05-14 13:06:11 $" "xxRELxx" "xxQS_NAMExx Administrative Commands"
+.SH NAME
+xxqs_name_sxx_coshepherd \- xxQS_NAMExx single job-controlling agent
+.\"
+.SH SYNOPSIS
+.B xxqs_name_sxx_coshepherd
+.\"
+.SH DESCRIPTION
+.I xxqs_name_sxx_coshepherd
+is needed to run the token manipulation executables if Grid Engine
+is run in an AFS environment.  It is started by the shepherd process
+and belongs to the same PAG (process authentication group) as the
+shepherd and the user's job, babysitting AFS tokens as specified by
+.B set_token_cmd
+and
+.B token_extend_time
+of
+.M sge_conf 5 .
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_shepherd 5 ,
+.M xxqs_name_sxx_conf 1 .
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

@@ -1,0 +1,226 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\" $RCSfile: drmaa_jobcontrol.3,v $     Last Update: $Date: 2009-06-17 09:50:13 $     Revision: $Revision: 1.7 $
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de M    \" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH drmaa_jobcontrol 3 "$Date: 2009-06-17 09:50:13 $" "xxRELxx" "xxQS_NAMExx DRMAA"
+.\"
+.\"
+.\"
+.SH NAME
+drmaa_job_ps, drmaa_control, \- Monitor and control jobs
+.PP
+.\"
+.\"
+.\"
+.SH SYNOPSIS
+.B #include """drmaa.h"""
+.PP
+.\"
+.\"
+.\"
+.nf
+\fBint drmaa_job_ps(\fP
+.RS
+.BI "const char *" job_id ,
+.BI "int *" remote_ps ,
+.BI "char *" error_diagnosis ,
+.BI size_t\  error_diag_len
+.RE
+.fi
+\fB);\fP
+.PP
+.nf
+\fBint drmaa_control(\fB
+.RS
+.BI "const char *" jobid ,
+.BI int\  action ,
+.BI "char *" error_diagnosis ,
+.BI size_t\  error_diag_len
+.RE
+.fi
+\fB);\fP
+.PP
+.\"
+.\"
+.\"
+.SH DESCRIPTION
+The drmaa_job_ps() function returns the status of the xxQS_NAMExx job \fIjob_id\fP 
+into the integer pointed to by \fIremote_ps\fP. Possible return values are
+listed below.  See
+.M sge_status 5
+for the correspondence between them and the xxQS_NAMExx status.
+.sp 1
+.RS
+.TS
+tab(@);
+l l.
+DRMAA_PS_UNDETERMINED        @ job status cannot be determined
+DRMAA_PS_QUEUED_ACTIVE       @ job is queued and active
+DRMAA_PS_SYSTEM_ON_HOLD      @ job is queued and in system hold
+DRMAA_PS_USER_ON_HOLD        @ job is queued and in user hold
+DRMAA_PS_USER_SYSTEM_ON_HOLD @ job is queued and in user and system hold
+DRMAA_PS_RUNNING             @ job is running
+DRMAA_PS_SYSTEM_SUSPENDED    @ job is system suspended
+DRMAA_PS_USER_SUSPENDED      @ job is user suspended
+DRMAA_PS_DONE                @ job finished normally
+DRMAA_PS_FAILED              @ job finished, but failed
+.TE
+.RE
+.sp 1
+Jobs' user hold and user suspend states can be controlled via 
+.M drmaa_control 3 .
+For affecting system hold and system suspend states the appropriate
+xxQS_NAMExx interfaces must be used.
+.\" 
+.\" 
+.\" 
+.SS "drmaa_control()"
+The drmaa_control() function applies control operations on xxQS_NAMExx jobs.
+\fIjobid\fP may contain either an xxQS_NAMExx jobid or
+`DRMAA_JOB_IDS_SESSION_ALL' to refer to all jobs submitted during the DRMAA
+session opened using
+.M drmaa_init 3 .
+Legal values for \fIaction\fP and their meanings are: 
+.sp 1
+.RS
+.TS
+tab(@);
+l l.
+DRMAA_CONTROL_SUSPEND   @ suspend the job
+DRMAA_CONTROL_RESUME    @ resume the job
+DRMAA_CONTROL_HOLD      @ put the job on-hold
+DRMAA_CONTROL_RELEASE   @ release the hold on the job
+DRMAA_CONTROL_TERMINATE @ kill the job
+.TE
+.RE
+.sp 1
+The DRMAA suspend/resume operations are equivalent to the use of 
+.BI \-sj\  jobid
+and
+.BI \-usj\  jobid
+options with xxQS_NAMExx
+.M qmod 1 .
+The DRMAA hold/release operations are equivalent to the use of 
+xxQS_NAMExx
+.M qhold 1 
+and 
+.M qrls 1 .
+The DRMAA terminate operation is equivalent to the use of 
+xxQS_NAMExx
+.M qdel 1 .
+Only user hold and user suspend can be controlled via 
+.M drmaa_control 3 . 
+For affecting system hold and system suspend states the appropriate
+xxQS_NAMExx interfaces must be used.
+.PP
+.\"
+.\"
+.\"
+.SH "ENVIRONMENTAL VARIABLES"
+.\"
+.IP "\fBxxQS_NAME_Sxx_ROOT\fP" 1.5i
+Specifies the location of the xxQS_NAMExx standard configuration files.
+.\"
+.IP "\fBxxQS_NAME_Sxx_CELL\fP" 1.5i
+If set, specifies the default xxQS_NAMExx cell to be used. To address a xxQS_NAMExx
+cell xxQS_NAMExx uses (in the order of precedence):
+.sp 1
+.RS
+.RS
+The name of the cell specified in the environment
+variable xxQS_NAME_Sxx_CELL, if it is set.
+.sp 1
+The name of the default cell, i.e. \fBdefault\fP.
+.sp 1
+.RE
+.RE
+.\"
+.IP "\fBxxQS_NAME_Sxx_DEBUG_LEVEL\fP" 1.5i
+If set, specifies that debug information
+should be written to stderr. In addition the level of
+detail in which debug information is generated is defined.
+.\"
+.IP "\fBxxQS_NAME_Sxx_QMASTER_PORT\fP" 1.5i
+If set, specifies the tcp port on which
+.M xxqs_name_sxx_qmaster 8
+is expected to listen for communication requests.
+Most installations will use a services map entry instead
+to define that port.
+.\"
+.\"
+.\"
+.SH "RETURN VALUES"
+Upon successful completion, drmaa_job_ps(), and drmaa_control() return 
+DRMAA_ERRNO_SUCCESS. Other values indicate an error. Up to \fIerror_diag_len\fP characters of error related diagnosis 
+information is then provided in the buffer, \fIerror_diagnosis\fP.
+.PP
+.\"
+.\"
+.\"
+.SH "ERRORS"
+The drmaa_job_ps() and drmaa_control() functions may fail with:
+.\" 
+.TP
+.B DRMAA_ERRNO_INTERNAL_ERROR
+Unexpected or internal DRMAA error, like system call failure, etc.
+.\" 
+.TP
+.B DRMAA_ERRNO_DRM_COMMUNICATION_FAILURE
+Could not contact DRM system for this request.
+.\" 
+.TP
+.B DRMAA_ERRNO_AUTH_FAILURE
+The specified request was not processed successfully due to authorization failure.
+.\" 
+.TP
+.B DRMAA_ERRNO_INVALID_ARGUMENT
+The input value for an argument is invalid.
+.\" 
+.TP
+.B DRMAA_ERRNO_NO_ACTIVE_SESSION
+Failed because there is no active session.
+.\" 
+.TP
+.B DRMAA_ERRNO_NO_MEMORY
+Failed allocating memory.
+.\" 
+.TP
+.B DRMAA_ERRNO_INVALID_JOB
+The specified job does not exist.
+.PP
+.\"
+The drmaa_control() function may fail with:
+.\" 
+.TP
+.B DRMAA_ERRNO_RESUME_INCONSISTENT_STATE
+The job is not suspended. The resume request will not be processed.
+.\" 
+.TP
+.B DRMAA_ERRNO_SUSPEND_INCONSISTENT_STATE
+The job is not running and thus cannot be suspended.
+.\" 
+.TP
+.B DRMAA_ERRNO_HOLD_INCONSISTENT_STATE
+The job cannot be moved to a hold state.
+.\" 
+.TP
+.B DRMAA_ERRNO_RELEASE_INCONSISTENT_STATE
+The job is not in a hold state.
+.PP
+.\" 
+.\" 
+.\" 
+.SH "SEE ALSO"
+.M drmaa_submit 3 ,
+.M drmaa_wait 3 ,
+.M sge_status 5 .

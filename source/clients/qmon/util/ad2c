@@ -1,0 +1,94 @@
+#!/bin/sh
+#
+# ad2c : Convert app-defaults file to C strings decls.
+#
+# DESCRIPTION
+#      Ad2c  converts  X  resource  files  into   C   declarations,
+#      appropriate  for  inclusion as fallback resources.
+#      It reads from the given files (or stdin if none  are  given)
+#      and writes the C declarations to stdout.
+# 
+# AUTHOR
+#      George Ferguson, ferguson@cs.rochester.edu, 12 Nov 1990.
+# 
+# DISCLAIMER
+#      This software is provided as is with no  warranty  expressed
+#      or  implied.  I hope you find it useful, but I won't be held
+#      responsable for any damage that may occur from reading, com-
+#      piling, installing or using it.
+# 
+#      You are free to use any part of this  code  for  other  pur-
+#      poses.  It  would  be nice if you could keep my name on some
+#      part of whatever the final product is.
+# 
+# CHANGE HISTORY
+#	19 Mar 1991: gf
+#		Made it self-contained.
+#	6 Jan 1992: mycroft@gnu.ai.mit.edu (Charles Hannum)
+#		Removed use of "-n" and ":read" label since Gnu and
+#		IBM sed print pattern space on "n" command. Still works
+#		with Sun sed, of course.
+#	7 Jan 1992: matthew@sunpix.East.Sun.COM (Matthew Stier)
+#		Escape quotes after escaping backslashes.
+#	8 Jul 1992: Version 1.6
+#       24 Feb 1994: david@ora.com (David Flanagan)
+#		convert `!' comments to C-style comments.
+#		output blank lines rather than deleting them.
+#		this makes the output resemble the input a bit more.
+#	30 May 1995: david@ora.com (David Flanagan)
+#		an Xmt-specific change to comment out xmtRequires lines,
+#		as suggested by Mike McGary.
+#
+
+
+# convert comments
+
+# comment out xmtRequires lines, since we probably will run this script
+# on those files too.  Only do this if the line is not \-terminated, since
+# the multi-line case is too tricky and rare to bother handling correctly.
+# Thanks to Mike McGary for this suggestion.
+
+# ignore blanks
+
+# escape backslash
+
+# except the line continuation ones
+
+# escape quotes
+
+# add leading quote
+
+# just like "read" only does not add leading quote
+
+sed '
+/^!$/ {
+	s/^!$//
+	b
+}
+/^!/ {
+	s|^!\(.*\)|/\*\1 \*/|
+	b
+}
+/xmtRequires:.*[^\\]$/ {
+	s|^\(.*\)$|/\* \1 \*/|
+	b
+}
+/^$/b
+s/\\/\\\\/g
+s/\\$//g
+s/"/\\"/g
+s/^/"/
+: test
+/\\$/b slash
+s/$/",/
+p
+d
+: slash
+n
+s/"/\\"/g
+s/\\\\/\\/g
+s/\\n/\\\\n/g
+s/\\t/\\\\t/g
+s/\\f/\\\\f/g
+s/\\b/\\\\b/g
+b test' "$@"

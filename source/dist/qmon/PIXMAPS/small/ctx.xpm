@@ -1,0 +1,95 @@
+/* XPM */
+/*___INFO__MARK_BEGIN__*/
+/*************************************************************************
+ * 
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ * 
+ *  Sun Microsystems Inc., March, 2001
+ * 
+ * 
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ * 
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ * 
+ *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ * 
+ *   Copyright: 2001 by Sun Microsystems, Inc.
+ * 
+ *   All Rights Reserved.
+ * 
+ ************************************************************************/
+/*___INFO__MARK_END__*/
+static char *ctx[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 42 1",
+"  c #210010",
+". c #585858",
+"X c gray35",
+"o c #626262",
+"O c #696966",
+"+ c DimGray",
+"@ c #6A6A6A",
+"# c #6C6C6C",
+"$ c #777777",
+"% c #818181",
+"& c gray52",
+"* c #909090",
+"= c #929292",
+"- c #959595",
+"; c gray60",
+": c #9D9D9D",
+"> c gray62",
+", c gray67",
+"< c gray68",
+"1 c gray69",
+"2 c gray71",
+"3 c gray73",
+"4 c gray77",
+"5 c #C5C5C5",
+"6 c #C6C6C6",
+"7 c gray78",
+"8 c #C8C8C8",
+"9 c #D2D2CC",
+"0 c #D2D2D2",
+"q c gray83",
+"w c gray84",
+"e c gainsboro",
+"r c gray88",
+"t c #EAEAEA",
+"y c gray92",
+"u c #ECECEC",
+"i c gray93",
+"p c #EEEEEE",
+"a c #EFEFEF",
+"s c gray94",
+"d c gray100",
+"f s mask c None",
+/* pixels */
+"f;%%%%%%%%%%%%ff",
+"f%dddddddddddd%f",
+"f%duttuutuuusd%f",
+"f%dt46676666sd%f",
+"f%dtut+++0ussd%f",
+"f%dt66<XXX77sd%f",
+"f%du+0u0+Ouusd%f",
+"f%dt..<X++9usd%f",
+"f%du+++++++wsd%f",
+"f%du<XXXXXo#ed%f",
+"f%duususw$&=>d%f",
+"f%du677772=>,d%f",
+"f%duuussssr<3d%f",
+"f%dddddddddddd%f",
+"f-%%%%%%%%%%%%-f",
+"ffffffffffffffff"
+};

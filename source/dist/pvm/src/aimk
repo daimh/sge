@@ -1,0 +1,226 @@
+#!/bin/csh -fb
+#
+#
+# aimk - Architecture Independent MaKefile
+#
+# Originally aimk comes from the PVM distribution
+#
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+#
+# IMPORTANT NOTE: this script should be seen as a template - it will need to
+#                 be adjusted in most cases.
+#
+
+set noglob
+
+if (! $?PVM_ROOT) then
+   echo Please set your PVM_ROOT environment variable before calling aimk
+   echo
+   exit 1
+endif
+
+if (! $?PVM_ARCH) then
+   echo Please set your PVM_ARCH environment variable before calling aimk
+   echo
+   exit 1
+endif
+
+if (! -d $PVM_ROOT || ! -d $PVM_ROOT/lib/$PVM_ARCH) then
+   echo "your PVM_ROOT=$PVM_ROOT or PVM_ARCH=$PVM_ARCH directory doesn't exist"
+   echo
+   echo please verify your PVM environment variables and call this script again 
+   echo
+   exit 1
+endif
+
+if (! -f $SGE_ROOT/util/arch ) then
+   echo "the file \$SGE_ROOT/util/arch does not exist"
+   echo "please set \$SGE_ROOT and call this script again."
+   echo
+   exit 1
+endif
+
+setenv ARCH `$SGE_ROOT/util/arch`
+
+# common compiler and linker settings 
+#
+unsetenv LD_LIBRARY_PATH
+set CC         = cc
+set MAKE       = make
+set MAKEFILE   = ../Makefile
+set SDIR       = ".."
+set CFLAGS     = "-I../ -I$PVM_ROOT/include"
+set QSYST_PVM_DIR = "$SGE_ROOT/pvm/lib/$ARCH"
+set LFLAGS     = "-L$PVM_ROOT/lib/$PVM_ARCH -L$QSYST_PVM_DIR -L."  
+set LIBS       = ""
+set PVM_ROOT   = "$PVM_ROOT"
+set PVM_ARCH   = "$PVM_ARCH"
+set DEBUG_FLAG = ""
+set RANLIB     = echo
+set STATIC     = "-static -nostartfiles"
+set START_FILE = ""
+set KRBLIBS    = ""
+set KLFLAGS    = ""
+set KLIBS      = ""
+
+unset nomk
+set found
+
+while ($#argv >= 1 && $?found)
+
+   switch ("$argv[1]")
+   case "-h":
+   case "-help":
+      echo "aimk options:"
+      echo '     -nomk  dont call make - echo architecture and exit'
+      echo '     -debug compile with "-g" option'
+      echo '     -cc    force usage of "cc" as compiler'
+      echo '     -gcc   force usage of "gcc" as compiler'
+      exit 0
+      breaksw
+   case "-nomk":
+      set nomk
+      set argv = ($argv[2-])
+      breaksw
+   case "-debug":
+      set argv  = ($argv[2-])
+      set DEBUG_FLAG = "$DEBUG_FLAG -g"
+      breaksw      
+   case "-gcc"
+      set argv     = ($argv[2-])
+      set CC       = gcc
+      breaksw
+   case "-cc"
+      set argv     = ($argv[2-])
+      set CC       = cc
+      breaksw
+   case "-kerberos"
+      set argv     = ($argv[2-])
+      set KRBLIBS  = "-lkrb"
+      set KLFLAGS  = "-L/krb5/lib"
+      set KLIBS    = "-lkrb5 -lcrypto -lcom_err"
+      breaksw
+   default:
+      unset found
+      breaksw
+   endsw
+end
+
+set CTOR = ""
+set DTOR = ""
+
+switch ($ARCH)
+
+case aix51:
+   set CFLAGS = "-DAIX -DUSE_STDARG $DEBUG_FLAG $CFLAGS"
+   set LFLAGS = "$DEBUG_FLAG $LFLAGS"
+   set LIBS = "$LIBS"
+   breaksw
+
+case irix65:
+   set CFLAGS = "-DIRIX6 $DEBUG_FLAG $CFLAGS"
+   set LFLAGS = "$DEBUG_FLAG $LFLAGS"
+   set LIBS = "$LIBS"
+   set DTOR = "/usr/lib/crt1.o"
+   set DTOR = "/usr/lib/crtn.o"
+	set STATIC   = "-nostartfiles"
+   breaksw
+
+case hp11:
+   if ( $CC == gcc ) then
+      set CFLAGS = "-Wall -Wstrict-prototypes -DHPUX $DEBUG_FLAG $CFLAGS"
+   else
+      set CFLAGS = "-Aa -D_HPUX_SOURCE -DHPUX $DEBUG_FLAG $CFLAGS"
+   endif
+   set LFLAGS = "$DEBUG_FLAG $LFLAGS"
+   set LIBS = "$LIBS"
+   breaksw
+
+case lx-x86:
+   set CC = gcc
+   set CFLAGS = "-O -Wall -Werror -Wstrict-prototypes -DLINUX $DEBUG_FLAG $CFLAGS"
+   set LFLAGS = "$DEBUG_FLAG $LFLAGS"
+   set LIBS = "$LIBS"
+   set START_FILE = "/usr/lib/crti.o /usr/lib/crtbegin.o"
+   set CTOR = "/usr/lib/crti.o /usr/lib/crtbegin.o"
+   set DTOR = "/usr/lib/crtend.o /usr/lib/crtn.o"
+   breaksw
+
+case tru64:
+   if ( $CC == gcc ) then
+      set CFLAGS = "-Wall -Wstrict-prototypes -D_BSD -DALPHA $DEBUG_FLAG $CFLAGS"
+   else
+      set CFLAGS = "-std1 -warnprotos -D_BSD -DALPHA $DEBUG_FLAG $CFLAGS -Olimit 1500"
+   endif
+   set LFLAGS = "$DEBUG_FLAG $LFLAGS"
+   set LIBS = "$LIBS"
+   breaksw
+
+case sol-sparc:
+case sol-sparc64:
+	set CC   = "gcc"
+   if ( $CC == gcc ) then
+      set CFLAGS   = "-DSOLARIS -O -Wall -Wstrict-prototypes -Werror $DEBUG_FLAG $CFLAGS"
+   else
+      set CFLAGS = "-DSOLARIS -O $DEBUG_FLAG $CFLAGS"
+   endif
+   set LIBS = "$LIBS -lsocket -lnsl"         
+	set STATIC   = "-nostartfiles"
+   breaksw
+
+default:
+   echo "ERROR: Architecture not supported"
+   exit 1
+endsw
+
+#----------------------------------------
+if ($?nomk) then
+   echo $ARCH
+   exit 0
+endif
+
+if ( ! -d $ARCH ) then
+   echo "INFO: Architecture directory $ARCH doesn't exist. Making"
+   mkdir $ARCH
+endif
+
+echo making in $ARCH/
+cd $ARCH
+
+
+$MAKE -f $MAKEFILE "CC=$CC" "CFLAGS=$CFLAGS" "LFLAGS=$LFLAGS $KLFLAGS" \
+      "SDIR=$SDIR" "LIBS=$LIBS $KLIBS" "PVM_ROOT=$PVM_ROOT" \
+      "PVM_ARCH=$PVM_ARCH" "RANLIB=$RANLIB" "STATIC=$STATIC" "ARCH=$ARCH" \
+      "QSYST_PVM_DIR=$QSYST_PVM_DIR" "START_FILE=$START_FILE" \
+      "CTOR=$CTOR" "DTOR=$DTOR" "KRBLIBS=$KRBLIBS" $argv

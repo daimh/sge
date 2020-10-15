@@ -1,0 +1,216 @@
+###########################
+ Some Notes to the Jqmon
+###########################
+
+############################
+
+
+
+------------
+ Short Info
+------------
+
+Jqmon is a Codine/GRD-Monitor entirely written in Java using the Swing library.
+Comparing it to the QMON X-Windows/Motif-GUI, its primary advantage is that it is suitable for any architecture (especially Windows) providing the JRE.
+A further improvement is the user-friendly hirarchical structure of the Codine-objects.
+
+The original version relied on the <Java Native Interface>.
+The recent version of Jqmon uses the CORBA-Interface to extract the Codine objects from the master-core-system
+An event client informs Jqmon whenever an object changed in the master system.
+This requires the existence of a running CORBA-Event-Service.
+
+
+-----------------------------------------
+ Compiling / Configuring / Running Jqmon
+-----------------------------------------
+
+Compiling Jqmon:
+	aimk -noqmon -jqmon
+	
+	Either client or master can be specified as a makefile target
+	
+		aimk -nocore -noqmon -jqmon client
+		aimk -nocore -noqmon -jqmon master
+
+Adapting uid, euid, gid, egid, host:
+	The "get"-functions of the master require a Context-parameter, that stores the uid,euid,gid,egid and the host of the current user.
+	The "Context"-mechanism is not implemented in the Jqmon yet (see also TODO-List below)
+	Therefore the uid, euid, gid, egid and the host are passed as constants.
+	In the "contact()"-Funktion of the JWorkerThread class these constants eventually have to be adapted.
+
+
+Starting CORBA-Event-Service:
+	
+	Specify a port when starting the Event-Service
+		eventserv -OAport 10000
+
+        Create a config-file, where host, port and servicename are stored in:
+		ooc.service.EventService=iiop://gloin:10000/DefaultEventChannel
+			(Note: This Notation ist ORBacus-specific)
+		
+	We can also paste the IOR of the EventService into the config-file (specifying the -i option when starting eventserv displays the IOR):
+	ooc.service.EventService=IOR:010000003200000049444c3a6f6d672e6f72672f436f734576656e744368616e6e656c41646d696e2f4576656e744368616e6e656c3a312e300000000100000000000000340000000101000010000000474c4f494e2e67656e6961732e646500102700001400000044656661756c744576656e744368616e6e656c00
+			(Theoretically this should work. It didn't anyway. Only the ORBacus-specific notation worked well)	
+
+	Possibility 1:
+		Pass the config-file as ORBconfig parameter when starting the master(see also ORBacus-documentation):
+			grd_qcmaster -ORBconfig /cod_home/hartmut/C4/orb.cfg
+
+   	Possibility 2:
+		Set the ORBACUS_CONFIG environment variable (this way the master can be started without specifying a config file):
+			setenv	ORBACUS_CONFIG /cod_home/hartmut/C4/orb.cfg
+
+
+Executing Jqmon:
+	Just execute the shell-script "java_qmon" in the "jqmon_corba/jqmon" directory.
+	As you might suggest, a running master is required.
+
+
+
+-----------------
+ Class structure
+-----------------
+
+The following section provides a brief explanation of the most significant classes/files and their purpose
+ 	
+
+	Makefile: 		located in jqmon_corba/
+	--------
+	   master as target:	
+	   	-generates IDL-files out of the CULL-list-definitions
+	   	-translates IDL-files into JAVA-files
+		-compiles all generated JAVA-files and builds CLASS-files
+	
+	   client as target:		
+        	-compiles all client JAVA-files and builds CLASS-files
+
+
+
+	Jqmon-classes:		located in jqmon_corba/jqmon/jqmon/
+	-------------
+		Jqmon
+			The application's entry point
+			Represents the main frame of Jqmon
+			Initializes and runs the JWorkerThread
+			Creates a JCodineWindow whenever the "New document"-button is clicked
+
+		JWorkerThread
+			Fetches the Master-reference via ior-file, string_to_object()- and narrow()- methods
+			Delivers the Codine objects from the master and initializes the related Jqmon-object-classes
+			Initializes and starts the JEventClient
+
+      JEventClient
+			Receives "untyped", "pushed" events from the master
+			Updates corresponding objects, informs Event-Listener
+
+		JCodineWindow
+			Creates the JTreeView
+			Creates the Views for all codine objects
+			Implements the EventListeners
+
+In order to avoid writing ***-blanks, the calendar object is chosen exemplary.
+As you might guess, the same classes exists for all objects.
+
+	JIDL-Generated classas: located in jqmon_corba/Codine/
+	-----------------------
+		
+		Calendar
+			Defines the Interface of the Calendar-object
+			Provides the set- und get- functions declared in the IDL-Interface			
+
+		CalendarHolder
+			Contains a Calendar object and functions for type-determination, in- and output
+
+		CalendarSeqHolder
+			Contains a Calendar vector and functions for type-determination, in- and output
+
+		CAL_name
+		CAL_week_calendar
+		CAL_year_calendar
+			Any constant in "elemcodes.idl" maps to a class with just a single member ("value")		
+
+
+   Object-classes		located in jqmon_corba/jqmon/jcodine/
+	--------------
+		JCalendar
+			Jqmon-class for a calendar object
+			Contains a Calendar object and the related set- and get- functions
+			
+		JCalendarList
+	      Just a class derived from java.util.Vector -> not typesafe
+		
+		JUpdateCalendarList		
+			Contains aJCalendarList
+			Provides methods to inform the event listeners when a new list is available
+
+
+
+	View-classes:		located in jqmon_corba/jqmon/jqmon/views/     and      jqmon_corba/jqmon/jqmon/util/
+	-------------
+		JTreeView
+			Displays the Codine objects on the right side of the JCodineWindow in a tree
+
+		JCalendarView                       	
+		JCalendarGeneralPanel
+        	These classes display single calendar objects with all their attributes on the right side of the JCodineWindow
+
+		JCalendarsView
+		JCalendarsCalendarsPanel
+		JCalendarsTableModel
+			These classes display all calendars in a list on the right side of the JCodineWindow
+                	
+
+		
+	
+
+------------
+ TODO-List:
+------------
+
+Jqmon is still under construction.
+Some of the goals still waiting for completion:
+
+
+  	- implement a mechanism, that generates the object files(J***.java, J***List.java, J***Set.java, J***UpdateCalendarList, ) out of the CULL-list-definitins (similar to  QIDL)
+          (*** can be replaced by any object name (for example Calendar, Queue) )
+	- avoid redundant data, many objects are kept at various places, the objects should be stored in just one central location
+	  (the Update***List-classes for instance are kept in the  Jqmon-class, in the Workerthread, in the Eventclient  and in the JCodineWindow-class and are passed through from one object to the other)
+	  (the J***List-classes are kept in the ***sView-classes and in the ***TableModel-classes )
+	- provide a safe update/add/delete-mechanism for the objects, whenever a Mod/Add/Del-event is dispatched
+	- develop a strategy for displaying list attributes in the object list (J***sView)
+	- develop a strategy for the display and the handling of objects referencing each other in the TreeView
+
+
+	- implement all codine objects and attributes (only queues, jobs, complexes, calendars, and exechosts are currently implemented and only some of their attributes)
+	- Jqmon currently provides just monitoring function -> provide the functinality to add, modify and delete objects from within Jqmon
+	(- simplify the directory structure in the jqmon_corba/ - directory (if its reasonable at all))
+	- multiple selection in the TreeView and the related functionality (Changing an attribut in more then one object simultanously) similar to NTQmon
+   - implement the JCodSet-classes and the derived object-specific classes similar to NTQmon
+
+
+	- run Jqmon using SUNS JAVA2 (this is already done !!!!)
+	- extract the Context parameters at runtime, instead of passing constants
+	- optimize the Makefile (the Makefile always compiles all *.java-classes), only the files that changed should be rebuild (-> use JavaDepend )
+	- derive JCodineWindow from JInternalFrame instead of JFrame, so that any JCodineWindow seems to be embedded in the main frame
+	- create tree icons for all codine objects
+
+
+At the present point of time, Jqmon's facilities are restricted to a simple monitoring function.
+Its not possible to create/update/delete Codine objects with the Jqmon.
+Some of the mentioned goals are only reasonable, if a future version of the Jqmon will provide
+this functionality in addition.
+
+Some of the classes are maintained just to ensure equivalence with the NTQmon
+(JWorkerthread, JCodSet, JNodeInfo, J***List,  usw.)
+If Jqmons facilities are expanded, similar to NTQmon these classes may be needed.
+For the current version of Jqmon they are no longer needed.
+
+So the class structure may be simplified eventually.
+	
+
+Copyright: 2001 by Sun Microsystems, Inc.
+ 
+All Rights Reserved.	
+	
+
+

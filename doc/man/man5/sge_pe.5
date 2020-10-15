@@ -1,0 +1,475 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\" Copyright (C) 2011, 2012, 2013  Dave Love, University of Liverpool
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\"
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\" "
+.\"
+.de URL
+\\$2 \(laURL: \\$1 \(ra\\$3
+..
+.if \n[.g] .mso www.tmac
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.de MO		\" external man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH xxQS_NAME_Sxx_PE 5 2012-09-11 "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+xxqs_name_sxx_pe \- xxQS_NAMExx parallel environment configuration file format
+.\"
+.\"
+.SH DESCRIPTION
+Parallel environments are parallel programming and runtime environments
+supporting the execution of shared memory or distributed memory
+parallelized applications. Parallel environments usually require some
+kind of setup to be operational before starting parallel applications.
+Examples of common parallel environments are OpenMP on shared memory
+multiprocessor systems, and Message Passing Interface (MPI) on shared
+memory or distributed systems.
+.PP
+.I xxqs_name_sxx_pe
+allows for the definition of interfaces to arbitrary parallel environments.
+Once a parallel environment is defined or modified with the \fB\-ap\fP or
+\fB\-mp\fP options to
+.M qconf 1
+and linked with one or more queues via \fIpe_list\fP in 
+.M queue_conf 5
+the environment can be requested for a job via the \fB\-pe\fP switch
+to
+.M qsub 1
+together with a request for a numeric range of parallel processes
+to be allocated by the job. Additional \fB\-l\fP options may be used
+to specify more detailed job requirements.
+.PP
+Note, xxQS_NAMExx allows backslashes (\\) be used to escape newline
+characters. The backslash and the newline are replaced with a
+space character before any interpretation.
+.\"
+.\"
+.SH FORMAT
+The format of a
+.I xxqs_name_sxx_pe
+file is defined as follows:
+.\"
+.\"
+.SS "\fBpe_name\fP"
+The name of the parallel environment in the format for \fIpe_name\fP in
+.M xxqs_name_sxx_types 1 .
+To be used in the
+.M qsub 1
+\fB\-pe\fP switch.
+.\"
+.\"
+.SS "\fBslots\fP"
+The total number of slots (normally one per parallel process or thread) allowed
+to be filled concurrently under the parallel environment.
+Type is integer, valid values are 0 to 9999999.
+.\"
+.\"
+.SS "\fBuser_lists\fP"
+.SS "\fBxuser_lists\fP" 
+A comma-separated list of user access list names (see
+.M access_list 5 ).
+.PP
+Each user contained in at least one of the
+.B user_lists
+access lists has access to the parallel environment. If the
+\fBuser_lists\fP parameter is set to NONE (the default) any user has
+access if not explicitly excluded via the \fBxuser_lists\fP parameter.
+.PP
+Each user contained in at least one of the
+.B xuser_lists
+access lists is not allowed to access the parallel environment. If the
+\fBxuser_lists\fP parameter is set to NONE (the default) any user has
+access.
+.PP
+If a user is contained both in an access list in \fBxuser_lists\fP and
+\fBuser_lists\fP the user is denied access to the parallel
+environment.
+.\"
+.\"
+.SS "\fBstart_proc_args\fP"
+.SS "\fBstop_proc_args\fP"
+The command line respectively of a startup or shutdown procedure (an
+executable command, plus possible arguments) for the parallel environment, or
+"none" for no procedure (typically for tightly integrated PEs).
+The command line is started directly, not in a shell.
+An optional prefix "\fIuser\fP\fB@\fP" specifies the username under which the
+procedure is to be started.  In that case see the SECURITY section below
+concerning security issues running as a privileged user.
+.PP
+The startup procedure is invoked by
+.M xxqs_name_sxx_shepherd 8
+on the master node of the job
+prior to executing the job script. Its purpose is to setup the
+parallel environment according to its needs.
+The shutdown procedure is invoked by
+.M xxqs_name_sxx_shepherd 8
+after the job script has finished. Its purpose is to stop the
+parallel environment and to remove it from all participating
+systems.
+The standard output of the
+procedure is redirected to the file \fIREQUEST\fP.po\fIJID\fP in the
+job's working 
+directory (see
+.M qsub 1 ),
+with \fIREQUEST\fP being the name of the job as 
+displayed by
+.M qstat 1 ,
+and \fIJID\fP being the job's identification number.
+Likewise,
+the standard error output is redirected to \fIREQUEST\fP.pe\fIJID\fP.
+.\" Fixme: check & xref with submit
+If the
+.B \-e
+or
+.B \-o
+options are given on job submission, the PE error and standard output
+is merged into the paths specified.
+.PP
+The following special
+variables, expanded at runtime, can be used (besides any other
+strings which have to be interpreted by the start and stop procedures)
+to constitute a command line:
+.IP "\fI$pe_hostfile\fP"
+The pathname of a file containing
+a detailed description of the layout of the parallel environment to be
+setup by the start-up procedure. Each line of the file refers to a host
+on which parallel processes are to be run. The first entry of each line
+denotes the hostname, the second entry the number of parallel processes
+to be run on the host, the third entry the name of the queue.  The
+entries are separated by spaces.  If
+.B \-binding pe
+is specified on job submission, the fourth column is the core binding
+specification as colon-separated socket-core pairs, like "0,0:0,1",
+meaning the first core on the first socket and the second
+core on the first socket can be used for binding.  Otherwise it will
+be "UNDEFINED".  With the obsolete queue
+.B processors
+specification the fourth entry could be a multi-processor
+configuration (or "<NULL>").
+.IP "\fI$host\fP"
+The name of the host on which the startup or stop procedures are run.
+.IP "\fI$ja_task_id\fP"
+The array job task index (0 if not an array job).
+.IP "\fI$job_owner\fP"
+The user name of the job owner.
+.IP "\fI$job_id\fP"
+xxQS_NAMExx's unique job identification number.
+.IP "\fI$job_name\fP"
+The name of the job.
+.IP "\fI$pe\fP"
+The name of the parallel environment in use.
+.IP "\fI$pe_slots\fP"
+Number of slots granted for the job.
+.IP "\fI$processors\fP"
+The \fBprocessors\fP string as contained in the queue configuration
+(see
+.M queue_conf 5 )
+of the master queue (the queue in which the startup and stop procedures
+are run).
+.IP "\fI$queue\fP"
+The cluster queue of the master queue instance.
+.IP \fI$sge_cell\fP
+The SGE_CELL environment variable (useful for locating files).
+.IP \fI$sge_root\fP
+The SGE_ROOT environment variable (useful for locating files).
+.IP \fI$stdin_path\fP
+The standard input path.
+.IP \fI$stderr_path\fP
+The standard error path.
+.IP \fI$stdout_path\fP
+The standard output path.
+.\" fixme: doc these
+.IP \fI$merge_stderr\fP
+.IP \fI$fs_stdin_host\fP
+.IP \fI$fs_stdin_path\fP
+.IP \fI$fs_stdin_tmp_path\fP
+.IP \fI$fs_stdin_file_staging\fP
+.IP \fI$fs_stdout_host\fP
+.IP \fI$fs_stdout_path\fP
+.IP \fI$fs_stdout_tmp_path\fP
+.IP \fI$fs_stdout_file_staging\fP
+.IP \fI$fs_stderr_host\fP
+.IP \fI$fs_stderr_path\fP
+.IP \fI$fs_stderr_tmp_path\fP
+.IP \fI$fs_stderr_file_staging\fP
+.PP
+The start and stop commands are run with the same environment setting
+as that of the job to be started afterwards (see
+.M qsub 1 ).
+.\"
+.\"
+.SS "\fBallocation_rule\fP"
+The allocation rule is interpreted by the scheduler thread
+and helps the scheduler to decide how to distribute parallel
+processes among the available machines. If, for instance,
+a parallel environment is built for shared memory applications
+only, all parallel processes have to be assigned to a single
+machine, no matter how many suitable machines are available.
+If, however, the parallel environment follows the
+distributed memory paradigm, an even distribution of processes
+among machines may be favorable, as may packing processes onto the
+minimum number of machines.
+.PP
+The current version of the scheduler only understands the
+following allocation rules:
+.IP "\fIint\fP"
+An integer, fixing the number of processes per
+host. If it is 1, all processes have to reside
+on different hosts. If the special name
+.B $pe_slots
+is used, the full range of processes as specified with the
+.M qsub 1
+\fB\-pe\fP switch has to be allocated on a single host
+(no matter what value belonging to the range is finally
+chosen for the job to be allocated).
+.IP "\fB$fill_up\fP"
+Starting from the best suitable host/queue, all available slots are 
+allocated. Further hosts and queues are "filled up" as long as a job still 
+requires slots for parallel tasks.
+.IP "\fB$round_robin\fP"
+From all suitable hosts, a single slot is allocated until all tasks 
+requested by the parallel job are dispatched. If more tasks are requested 
+than suitable hosts are found, allocation starts again from the first host. 
+The allocation scheme walks through suitable hosts in a most-suitable-first 
+order.
+.\"
+.\"
+.SS "\fBcontrol_slaves\fP"
+This parameter can be set to TRUE or FALSE (the default). It indicates 
+whether xxQS_NAMExx is the creator of the slave tasks of a parallel application
+via 
+.M xxqs_name_sxx_execd 8
+and
+.M xxqs_name_sxx_shepherd 8
+and thus has full control over all processes in a parallel
+application  ("tight integration").  This enables:
+.IP \(bu
+resource limits are enforced for all tasks, even on slave hosts;
+.IP \(bu
+resource consumption is properly accounted on all hosts;
+.IP \(bu
+proper control of tasks, with no need to write a customized terminate
+method to ensure that whole job is finished on
+.I qdel
+and that tasks are properly reaped in the case of abnormal job
+termination;
+.IP \(bu
+all tasks are started with the appropriate nice value which was
+configured as
+.B priority
+in the queue configuration;
+.IP \(bu
+propagation of the job environment to slave hosts, e.g. so that they
+write into the appropriate per-job temporary directory specified by TMPDIR,
+which is created on each host and properly cleaned up.
+.PP
+To gain control over the
+slave tasks of a parallel application, a sophisticated PE interface is
+required, which works closely together with xxQS_NAMExx facilities,
+typically interpreting the xxQS_NAMExx hostfile and starting remote
+tasks with
+.M qrsh 1
+and its
+.B \-inherit
+option.
+See, for instance, the
+.B $SGE_ROOT/mpi
+directory and the
+.URL http://arc.liv.ac.uk/SGE/howto/#Tight%20Integration%20of%20Parallel%20Libraries "howto pages" .
+.sp 1
+Please set the \fBcontrol_slaves\fP parameter to false for all other PE
+interfaces.
+.\"
+.\"
+.SS "\fBjob_is_first_task\fP"
+.\" fixme: https://arc.liv.ac.uk/trac/SGE/ticket/816
+The
+.B job_is_first_task
+parameter can be set to TRUE or FALSE. A value of 
+TRUE indicates that the xxQS_NAMExx job script already contains one of 
+the tasks of the parallel application
+(and the number of slots reserved for the job is the number of slots
+requested with the \-pe switch).
+FALSE indicates that the
+job script (and its child processes) is not part of the parallel
+program, just being used to kick off the tasks that do the work;
+then the number of slots reserved for the job in the master queue is
+increased by 1, as indicated by
+.IR qstat / qhost .
+.PP
+This should be TRUE for the common modern MPI implementations with
+tight integration.  Consider if the allocation rule is
+.BR $fill_up ,
+and a job is allocated only a single slot on the master host; then one
+of the MPI processes actually runs in that slot, and should be
+accounted as such, so the job is the first task.
+.PP
+If wallclock accounting is used
+.RB ( execd_params
+.B ACCT_RESERVED_USAGE
+ and/or
+.B SHARETREE_RESERVED_USAGE
+Is
+.BR TRUE )
+and 
+.B control_slaves
+is set to FALSE, the
+.B job_is_first_task
+parameter influences the accounting for the job:
+A value of TRUE means that accounting for CPU and requested memory
+gets multiplied by the number of slots requested with the \-pe switch.
+FALSE means the accounting information gets multiplied by number of
+slots + 1.  Otherwise, the only significant effect of the parameter is
+on the display of the job.
+.\"
+.\"
+.SS "\fBurgency_slots\fP"
+For pending jobs with a slot range PE request with different minimum
+and maximum, the number of slots they will actually use
+is not determined. This setting specifies the method to be used by
+xxQS_NAMExx to assess the number of slots such jobs might finally
+get.
+.PP
+The assumed slot allocation has a meaning when determining the 
+resource-request-based priority contribution for numeric resources
+as described in
+.M xxqs_name_sxx_priority 5
+and is displayed when
+.M qstat 1
+is run without \fB\-g t\fP option.
+.PP
+The following methods are supported:
+.IP "\fIint\fP"
+The specified integer number is directly used as prospective slot amount.
+.IP "\fBmin\fP"
+The slot range minimum is used as prospective slot amount. If no
+lower bound is specified with the range, 1 is assumed.
+.IP "\fBmax\fP"
+The slot range maximum is used as prospective slot amount.
+If no upper bound is specified with the range, the absolute maximum
+possible due to the PE's \fBslots\fP setting is assumed.
+.IP "\fBavg\fP"
+The average of all numbers occurring within the job's PE range 
+request is assumed.
+.\"
+.\"
+.SS "\fBaccounting_summary\fP"
+This parameter is only checked if
+.B control_slaves
+(see above) is set to TRUE 
+and thus xxQS_NAMExx is the creator of the slave tasks of a parallel 
+application via
+.M xxqs_name_sxx_execd 8
+and
+.M xxqs_name_sxx_shepherd 8 .
+In this case, accounting information is available for every single
+slave task started by xxQS_NAMExx.
+.PP
+The
+.B accounting_summary
+parameter can be set to TRUE or FALSE. A value of 
+TRUE indicates that only a single accounting record is written to the
+.M accounting 5
+file, containing the accounting summary of the whole job, including all slave tasks,
+while a value of FALSE indicates an individual
+.M accounting 5
+record is written for every slave task, as well as for the master task.
+.PP
+.B Note:
+When running tightly integrated jobs with \fISHARETREE_RESERVED_USAGE\fP set,
+and \fIaccounting_summary\fP enabled in the parallel environment,
+reserved usage will only be reported by the master task of the parallel job.
+No per-parallel task usage records will be sent from execd to qmaster, which
+can significantly reduce load on the qmaster when running large,
+tightly integrated parallel jobs.  However, this removes the only
+post-hoc information about which hosts a job used.
+.SS "\fBqsort_args \fIlibrary qsort-function \fR[\fParg1 \fR...]\fP"
+Specifies a method for specifying the queues/hosts and order that
+should be used to schedule a parallel job.  For details, and the API,
+consult the header file
+.IR $SGE_ROOT/include/sge_pqs_api.h .
+.I library
+is the path to the qsort dynamic library,
+.I qsort-function
+is the name of the qsort function implemented by the library, and the
+.IR arg s
+are arguments passed to
+.IR qsort .
+Substitutions from the hard requested resource list for the job
+are made for any strings of the form
+.RI $ resource ,
+where
+.I resource
+is the full name of the resource as defined in the
+.M complex 5
+list.  If
+.I resource
+is not requested in the job, a null string is substituted.
+.\"
+.\"
+.SH RESTRICTIONS
+\fBNote\fP that the functionality of the start and stop
+procedures remains the full responsibility
+of the administrator configuring the parallel environment.
+xxQS_NAMExx will invoke these procedures and evaluate their
+exit status.  A non-zero exit status will put the queue into an error
+state.  If the start procedure has a non-zero exit status, the job
+will be re-queued.
+.\"
+.SH SECURITY
+If
+.BR start_proc_args ,
+or
+.B stop_proc_args
+is specified with a
+.IB user @
+prefix, the same considerations apply as for the prolog and epilog, as
+described in the SECURITY section of
+.M xxqs_name_sxx_conf 5 .
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M xxqs_name_sxx__types 1 ,
+.M qconf 1 ,
+.M qdel 1 ,
+.M qmod 1 ,
+.M qrsh 1 ,
+.M qsub 1 ,
+.M access_list 5 ,
+.M xxqs_name_sxx_conf 5 ,
+.M xxqs_name_sxx_qmaster 8 ,
+.M xxqs_name_sxx_shepherd 8 .
+.\"
+.SH FILES
+.I $SGE_ROOT/include/sge_pqs_api.h
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

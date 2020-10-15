@@ -1,0 +1,108 @@
+Simple Job Category Implementation
+Sun N1 Grid Engine 6.0 update 1
+Daniel Templeton
+7 October 2004
+
+0. Abstract
+
+It is desirable for an administrator to be able to group together clusters of
+submit options and assign each group a name, so that end users need only know
+the name of the appropriate group instead of all the relevant command line
+switches.  For example, the user, instead having to know that, in order to
+submit a RNA spread spectrum analysis job to one of the Solaris machines in the
+DNA Research Grid he must use a series of 6 qsub switches, including
+"-l arch=SPARC", "-ckpt rna_ckpt", and "-r no", using job categories he would
+instead only have to know the category name, e.g. "rna_spread_spec_solaris".
+This provides two large wins.  The first is that life is easier for end users,
+as they only have to remember one switch instead of several.  The second is that
+administrators maintain control.  If in the above example, the checkpoint name
+changed, without job categories the administrator would have to communicate to
+all the end users that the -ckpt option now should take a different parameter.
+With job categories, however, the administrator need only make the change in the
+job category.  The users need never know that the change happened.
+There are also cases where users regularly submit the same types of jobs with
+possibly complex lists of command line switches.  Currently users deal with this
+situation by writing custom scripts.  Allowing user-defined job categories would
+provide a native mechanism for Grid Engine to support these users' needs.
+
+1. Definition
+
+This document presents a simple notion of job categories.  For the purpose of
+this document, job category will be defined as "a named grouping of command line
+switches which can be used as an argument to a submission utility in place of
+the switches it represents."  This definition has several implications:
+
+o Job categories exist only at submission time.  After submission they dissolve
+  into their component command line switches.
+o A job category has no effect on job scheduling outside of the effect its
+  component switches have.
+o Job categories need only be understood by submission utilites, i.e. qsub, qsh,
+  qlogin, qrsh, and qtcsh.
+o Job categories are closely related to qtcsh qtask files.
+o The submission utilities will be required to support a new command line
+  switch, e.g. -cat <job_category>
+
+1.1 Job Classes
+
+The concept of job classes has been previously discussed.  Job classes are a
+qmaster construct which would allow the functional grouping jobs for easier
+processing.  While job classes and job categories may provide some of the same
+benefits, they are completely unrelated concepts, and complement each other very
+well.  For example, it is easy to imagine a job class which uses job cateogies
+to specify some or all of the options associated with the job class.
+
+2. Implementation
+
+Because job categories are so closely related to the qtcsh qtask files, it makes
+sense to leverage this pre-existing functionality as much as possible.  qtcsh
+defines a "char **sge_get_qtask_args(const char *cmd, lList **alp)" function
+which searches for the command name in the heirarchy of qtask files and returns
+an array of the command line switches that the qtask command represents.  This
+functionality is easily applied to fill the role of job category.
+In order to implement job categories by reusing the qtask infrastructure, the
+following must be done:
+
+1) Add a job category switch, e.g. -cat <job_category>, to cull_parse_cmdline()
+   so that qsub, qrsh, qlogin, and qsh can parse the swtich.
+2) Modify qsub, qrsh, qlogin, and qsh to call sge_get_qtask_args() with the job
+   category switch parameter and pass the results to
+   opt_list_append_opts_from_qsub_cmdline() to arrive at a set of attributes to
+   be applied to any job that may be submitted.
+3) Add the job category switch to the usage and sge_options modules.
+4) Update the man pages for qsub, qrsh, qlogin, and qsh to describe the usage of
+   the job category switch.
+5) Write testsuite tests for qsub, qrsh, qlogin, and qsh to ensure that the job
+   category switch functions properly.
+
+2.1 qtcsh
+qtcsh already supports the use of qtask files.  A qtask file is used to
+associate a command name with a set of options to be used for submitting that
+command.  In an abstract sense, this is identical to job categories as defined
+above.  To make the point more clearly, consider running a remotely displayed
+Mozilla job.  In qtcsh, one would start qtcsh and then enter the "mozilla"
+command.  qtcsh would search the qtask files for something matching the name
+"mozilla" and then apply any options listed there to the job submission.  To run
+the same job with qsub, one would want the same options applied to it.  With job
+categories, one could run "qsub -b y -cat mozilla /usr/local/bin/mozilla".  qsub
+would then look through the qtask files to find the "mozilla" entry and apply
+any options found there to the job.  Both commands need the same functionality.
+With job categories, both commands are able to leverage the same code to achieve
+that functionality, reducing time to market and support costs.
+
+2.2 DRMAA
+
+The DRMAA library already makes use of the job category concept as described in
+this document.  Because DRMAA makes use of the same internal utilities for
+option parsing as qsub, step 1 of the above list has already been done and is
+included in the Grid Engine 6.0 release.  The drmaajob2sgejob() function also
+serves as an example of step 2 above.  As part of implementing the DRMAA
+library, the second part of step 3 above, adding the job category switch to the
+sge_options module, has also already been done and is included in the Grid
+Engine 6.0 release.
+
+3 Summary
+
+Using functionality that is already in Grid Engine 6.0 and has been proven to
+work, one could implement job categories as defined in this document.  The
+resulting increase in usability and administerability would be large in
+comparison to the amount of effort required.

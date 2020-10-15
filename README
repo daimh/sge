@@ -1,0 +1,7 @@
+Son of Grid Engine
+
+See http://arc.liv.ac.uk/projects/SGE.
+
+See source/README.BUILD for information on building and installation;
+the GUI installer may or may not be available, depending on the
+platform and packaging.  See also other source/README.* files.

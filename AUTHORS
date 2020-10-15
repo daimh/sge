@@ -1,0 +1,68 @@
+Apart from the employees of Genias, Gridware, Sun, and Univa, the following
+community members are known to have contributed to the distribution in
+some way.  Thanks to them all, and please report any omissions.
+Thanks also to the authors of the "3rd party" code and external
+libraries used, particularly hwloc <http://www.open-mpi.org/projects/hwloc/>
+and MUNGE <https://code.google.com/p/munge/>.
+See the doc/LICENCES directory for information on the "3rd party" code
+and the revision control logs for details of individual contributions,
+including the ones not mentioned in NEWS.
+
+  Alain Champenois (work based on Tango project icons
+                    <http://tango.freedesktop.org/>)
+  Andreas Haupt
+  Andrew Shewmaker
+  Bill Barth
+  Brooks Davis
+  Chris Dagdigian
+  Dave Love
+  Florian La Roche
+  Goeran Uddeborg
+  Ilya Barygin
+  Jesse Becker
+  John Marshall
+  Jon Stahl
+  Kevin Buckley
+  Kevin Squire
+  Marco Schmidt
+  Mark Dixon
+  Mark Hymers (and probably reporters of bugs against the Debian version)
+  Mark Olesen
+  Nicolas Joly
+  Olaf Flebbe
+  Orion Poplawski (and probably reporters of bugs against the Fedora version)
+  Patrik Koch
+  Paul Millar
+  Raphael Graf
+  Rayson Ho
+  Reuti (Thomas Reuter) (conspicuous gallantry in the face of
+                         documentation and user questions)
+  Richard Maes
+  Rising Sun Pictures
+  Ron Chen
+  Sean Dilda
+  Shannon V. Davidson
+  Stephen Dennis
+  Thimo Neubauer
+  Thomas Mainka
+  Tommy Karlsson
+  Uriel Carrasquilla
+  William Hay
+
+The following are only identified by email address or sunsource id.
+Corrections welcome.
+
+  anbe
+  ehthayer
+  hrathh at uni-konstanz physik
+  htl10@users.sourceforge.net
+  johna (Sun?)
+  klaprade
+  koenig@science-computing.de
+  saper@saper.info
+  skeno@foi.se
+  tholzer@wetafx.co.nz
+
+Thanks to everyone who has reported bugs and made suggestions or asked
+questions that prompted changes.  See the issue tracker, mail list,
+and thanks in checkin log messages.

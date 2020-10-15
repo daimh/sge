@@ -1,0 +1,5 @@
+/opt/sge/man
+/opt/sge/doc/javadocs
+/opt/sge/doc/logfile-trimming.asc
+/opt/sge/doc/README-DRMAA.txt
+source/README.upgrade /opt/sge/doc/README.upgrade

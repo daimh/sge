@@ -1,0 +1,425 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! SGE/SGEE qmon, Version 5.3 (->Qmon*qmon_version: 5300)
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! LEAVE THE VERSION UNTOUCHED AND DONT REMOVE RESOURCE ENTRIES IF YOU USE
+!! THIS FILE
+!! OVERWRITING VALUES IS ALLOWED, IN CASE OF MISFUNCTIONING RENAME THIS FILE
+!! TO USE DEFAULT SETTINGS
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_version:   5300
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Fetch new data every n seconds
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*fetch_time: 30
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Number of Rows in main toolbar
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*MainControl.MainRowCol.numColumns:  2
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! show the Host tab in Queue Configuration
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*showHostTab:  TRUE
+Qmon*automaticUpdateHostTab: TRUE
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! job configuration settings
+!! Qmon*job_form*columnWidths: nr of characters per column for 
+!!                                the first 6 cols
+!! Qmon*job_form*visibleColumns: nr of visible columns (without scrollbar)
+!!                               if the column sizes shall be bigger this can
+!!                               be lowered to show only the first n cols and
+!!                               the rest can be reached with the horizontal
+!!                               scrollbar
+!!                               
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*job_form*columnWidths:      12,8,10,10,7,16
+Qmon*job_form*visibleColumns:    6
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! AR configuration settings
+!! Qmon*ar_form*columnWidths: nr of characters per column for 
+!!                                the first 7 cols
+!! Qmon*ar_form*visibleColumns: nr of visible columns (without scrollbar)
+!!                               if the column sizes shall be bigger this can
+!!                               be lowered to show only the first n cols and
+!!                               the rest can be reached with the horizontal
+!!                               scrollbar
+!!                               
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*ar_form*columnWidths:      12,20,10,10,10,10,10
+Qmon*ar_form*visibleColumns:    7
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! F O N T S 
+!!
+!! If the specified fonts are not available you can either specify
+!! fonts that are available on your system or use xfs (-> xfs(1)) to 
+!! export the predefined fonts. xset +fp <server>:<portnumber>/ makes
+!! them visible to your Xserver.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*FontList: $interface
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! default fonts
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+_FontLists_.small.*.interface: \
+-adobe-helvetica-medium-r-*-*-12-*-*-*-p-*-*-*=R,\
+-adobe-helvetica-bold-r-*-*-12-*-*-*-p-*-*-*=B,\
+-adobe-helvetica-medium-r-*-*-18-*-*-*-p-*-*-*=BIG,\
+-adobe-helvetica-medium-r-*-*-10-*-*-*-p-*-*-*=SMALL,\
+-adobe-helvetica-medium-r-*-*-20-*-*-*-p-*-*-*=HUGE,\
+-adobe-courier-medium-r-*-*-12-*-*-*-m-*-*-*=LIST,\
+-adobe-courier-bold-r-*-*-12-*-*-*-m-*-*-*=LISTBOLD,\
+-adobe-courier-medium-r-*-*-10-*-*-*-m-*-*-*=LISTSMALL,\
+-adobe-helvetica-medium-r-*-*-9-*-*-*-p-*-*-*=QUEUEICON
+
+_FontLists_.small.*.dialog_font:  -adobe-courier-medium-r-*-*-12-*-*-*-m-*-*-*
+_FontLists_.small.*.matrix_font:  -adobe-helvetica-medium-r-*-*-12-*-*-*-p-*-*-*
+_FontLists_.small.*.browser_font: -adobe-courier-medium-r-*-*-10-*-*-*-m-*-*-*
+_FontLists_.small.*.fixed_font:  -adobe-courier-medium-r-*-*-12-*-*-*-m-*-*-*
+
+_FontLists_.big.*.interface: \
+-adobe-helvetica-medium-r-*-*-18-*-*-*-p-*-*-*=R,\
+-adobe-helvetica-bold-r-*-*-18-*-*-*-p-*-*-*=B,\
+-adobe-helvetica-medium-r-*-*-24-*-*-*-p-*-*-*=BIG,\
+-adobe-helvetica-medium-r-*-*-14-*-*-*-p-*-*-*=SMALL,\
+-adobe-helvetica-medium-r-*-*-34-*-*-*-p-*-*-*=HUGE,\
+-adobe-courier-medium-r-*-*-18-*-*-*-m-*-*-*=LIST,\
+-adobe-courier-bold-r-*-*-18-*-*-*-m-*-*-*=LISTBOLD,\
+-adobe-courier-medium-r-*-*-14-*-*-*-m-*-*-*=LISTSMALL,\
+-adobe-helvetica-medium-r-*-*-10-*-*-*-p-*-*-*=QUEUEICON
+
+_FontLists_.big.*.dialog_font:  -adobe-courier-medium-r-*-*-17-*-*-*-m-*-*-*
+_FontLists_.big.*.matrix_font:  -adobe-helvetica-medium-r-*-*-17-*-*-*-p-*-*-*
+_FontLists_.big.*.browser_font: -adobe-courier-medium-r-*-*-14-*-*-*-m-*-*-*
+_FontLists_.big.*.fixed_font:  -adobe-courier-medium-r-*-*-17-*-*-*-m-*-*-*
+
+_FontLists_.*.interface: \
+-adobe-helvetica-medium-r-*--14-*-*-*-p-*-*-*=R,\
+-adobe-helvetica-bold-r-*--14-*-*-*-p-*-*-*=B,\
+-adobe-helvetica-medium-r-*--20-*-*-*-p-*-*-*=BIG,\
+-adobe-helvetica-medium-r-*--12-*-*-*-p-*-*-*=SMALL,\
+-adobe-helvetica-medium-r-*--24-*-*-*-p-*-*-*=HUGE,\
+-adobe-courier-medium-r-*--14-*-*-*-m-*-*-*=LIST,\
+-adobe-courier-bold-r-*--14-*-*-*-m-*-*-*=LISTBOLD,\
+-adobe-courier-medium-r-*--12-*-*-*-m-*-*-*=LISTSMALL,\
+-adobe-helvetica-medium-r-*--10-*-*-*-p-*-*-*=QUEUEICON
+
+_FontLists_.*.dialog_font:  -adobe-courier-medium-r-*--14-*-*-*-m-*-*-*
+_FontLists_.*.matrix_font:  -adobe-helvetica-medium-r-*--14-*-*-*-p-*-*-*
+_FontLists_.*.browser_font: -adobe-courier-medium-r-*--12-*-*-*-m-*-*-*
+_FontLists_.*.fixed_font:  -adobe-courier-medium-r-*--14-*-*-*-m-*-*-*
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! japanese fonts
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+_FontLists_*.ja.*.interface: \
+    -*-*gothic*-medium-r-*-14-*:R,\
+    -*-*gothic*-bold-r-*-14-*:B,\
+    -*-*gothic*-medium-i-*-14-*:I,\
+    -*-*gothic*-bold-i-*-14-*:BI,\
+    -*-*gothic*-bold-r-*-16-*:BIG,\
+    -*-*gothic*-bold-r-*-18-*:HUGE,\
+    -*-*gothic*-medium-r-*-10-*:SMALL,\
+    -*-*gothic*-medium-r-*-12-*:LIST,\
+    -*-*gothic*-bold-r-*-14-*:LISTBOLD,\
+    -*-*gothic*-medium-r-*-14-*:LISTSMALL,\
+    -*-*gothic*-bold-r-*-10-*:QUEUEICON
+
+_FontLists_*.ja.*.dialog_font: \
+    -*-*gothic*-medium-r-*-14-*:R,\
+    -*-*gothic*-bold-r-*-14-*:B,\
+    -*-*gothic*-medium-i-*-14-*:I,\
+    -*-*gothic*-bold-i-*-14-*:BI,\
+    -*-*gothic*-bold-r-*-16-*:BIG,\
+    -*-*gothic*-bold-r-*-18-*:HUGE,\
+    -*-*gothic*-medium-r-*-10-*:SMALL,\
+    -*-*gothic*-medium-r-*-12-*:LIST,\
+    -*-*gothic*-bold-r-*-14-*:LISTBOLD,\
+    -*-*gothic*-medium-r-*-14-*:LISTSMALL,\
+    -*-*gothic*-bold-r-*-10-*:QUEUEICON
+
+_FontLists_*.ja.*.matrix_font: \
+    -*-*gothic*-medium-r-*-14-*:R,\
+    -*-*gothic*-bold-r-*-14-*:B,\
+    -*-*gothic*-medium-i-*-14-*:I,\
+    -*-*gothic*-bold-i-*-14-*:BI,\
+    -*-*gothic*-bold-r-*-16-*:BIG,\
+    -*-*gothic*-bold-r-*-18-*:HUGE,\
+    -*-*gothic*-medium-r-*-10-*:SMALL,\
+    -*-*gothic*-medium-r-*-12-*:LIST,\
+    -*-*gothic*-bold-r-*-14-*:LISTBOLD,\
+    -*-*gothic*-medium-r-*-14-*:LISTSMALL,\
+    -*-*gothic*-bold-r-*-10-*:QUEUEICON
+
+_FontLists_*.ja.*.browser_font: \
+    -*-*gothic*-medium-r-*-14-*:R,\
+    -*-*gothic*-bold-r-*-14-*:B,\
+    -*-*gothic*-medium-i-*-14-*:I,\
+    -*-*gothic*-bold-i-*-14-*:BI,\
+    -*-*gothic*-bold-r-*-16-*:BIG,\
+    -*-*gothic*-bold-r-*-18-*:HUGE,\
+    -*-*gothic*-medium-r-*-10-*:SMALL,\
+    -*-*gothic*-medium-r-*-12-*:LIST,\
+    -*-*gothic*-bold-r-*-14-*:LISTBOLD,\
+    -*-*gothic*-medium-r-*-14-*:LISTSMALL,\
+    -*-*gothic*-bold-r-*-10-*:QUEUEICON
+
+_FontLists_*.ja.*.fixed_font:\
+    -*-*gothic*-medium-r-*-14-*:R,\
+    -*-*gothic*-bold-r-*-14-*:B,\
+    -*-*gothic*-medium-i-*-14-*:I,\
+    -*-*gothic*-bold-i-*-14-*:BI,\
+    -*-*gothic*-bold-r-*-16-*:BIG,\
+    -*-*gothic*-bold-r-*-18-*:HUGE,\
+    -*-*gothic*-medium-r-*-10-*:SMALL,\
+    -*-*gothic*-medium-r-*-12-*:LIST,\
+    -*-*gothic*-bold-r-*-14-*:LISTBOLD,\
+    -*-*gothic*-medium-r-*-14-*:LISTSMALL,\
+    -*-*gothic*-bold-r-*-10-*:QUEUEICON
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! chinese fonts
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+_FontLists_*.zh.*.interface: \
+    -*-medium-r-*-16-*:R,\
+    -*-bold-r-*-16-*:B,\
+    -*-medium-r-*-16-*:I,\
+    -*-bold-r-*-16-*:BI,\
+    -*-bold-r-*-18-*:BIG,\
+    -*-bold-r-*-22-*:HUGE,\
+    -*-medium-r-*-14-*:SMALL,\
+    -*-medium-r-*-14-*:LIST,\
+    -*-bold-r-*-16-*:LISTBOLD,\
+    -*-medium-r-*-16-*:LISTSMALL,\
+    -adobe-helvetica-medium-r-*-*-9-*-*-*-p-*-*-*=QUEUEICON
+
+_FontLists_*.zh.*.dialog_font: \
+    -*-medium-r-*-16-*:R,\
+    -*-bold-r-*-16-*:B,\
+    -*-medium-r-*-16-*:I,\
+    -*-bold-r-*-16-*:BI,\
+    -*-bold-r-*-18-*:BIG,\
+    -*-bold-r-*-22-*:HUGE,\
+    -*-medium-r-*-14-*:SMALL,\
+    -*-medium-r-*-14-*:LIST,\
+    -*-bold-r-*-16-*:LISTBOLD,\
+    -*-medium-r-*-16-*:LISTSMALL,\
+    -adobe-helvetica-medium-r-*-*-9-*-*-*-p-*-*-*=QUEUEICON
+
+_FontLists_*.zh.*.matrix_font: \
+    -*-medium-r-*-16-*:R,\
+    -*-bold-r-*-16-*:B,\
+    -*-medium-r-*-16-*:I,\
+    -*-bold-r-*-16-*:BI,\
+    -*-bold-r-*-18-*:BIG,\
+    -*-bold-r-*-22-*:HUGE,\
+    -*-medium-r-*-14-*:SMALL,\
+    -*-medium-r-*-14-*:LIST,\
+    -*-bold-r-*-16-*:LISTBOLD,\
+    -*-medium-r-*-16-*:LISTSMALL,\
+    -adobe-helvetica-medium-r-*-*-9-*-*-*-p-*-*-*=QUEUEICON
+
+_FontLists_*.zh.*.browser_font: \
+    -*-medium-r-*-16-*:R,\
+    -*-bold-r-*-16-*:B,\
+    -*-medium-r-*-16-*:I,\
+    -*-bold-r-*-16-*:BI,\
+    -*-bold-r-*-18-*:BIG,\
+    -*-bold-r-*-22-*:HUGE,\
+    -*-medium-r-*-14-*:SMALL,\
+    -*-medium-r-*-14-*:LIST,\
+    -*-bold-r-*-16-*:LISTBOLD,\
+    -*-medium-r-*-16-*:LISTSMALL,\
+    -adobe-helvetica-medium-r-*-*-9-*-*-*-p-*-*-*=QUEUEICON
+
+_FontLists_*.zh.*.fixed_font:\
+    -*-medium-r-*-16-*:R,\
+    -*-bold-r-*-16-*:B,\
+    -*-medium-r-*-16-*:I,\
+    -*-bold-r-*-16-*:BI,\
+    -*-bold-r-*-18-*:BIG,\
+    -*-bold-r-*-22-*:HUGE,\
+    -*-medium-r-*-14-*:SMALL,\
+    -*-medium-r-*-14-*:LIST,\
+    -*-bold-r-*-16-*:LISTBOLD,\
+    -*-medium-r-*-16-*:LISTSMALL,\
+    -adobe-helvetica-medium-r-*-*-9-*-*-*-p-*-*-*=QUEUEICON
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! end of font specs
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! pixmapFilePath: here we find pixmaps
+!! bitmapFilePath: here we find bitmaps
+!! contextHelpFile: here we find the help file
+!! htmlHelpFile:   location of the html index file 
+!! %R    the directory specified by the SGE_ROOT environment variable
+!! %H    the users home directory
+!! %a    the application name ( = qmon )
+!! %A    the application class name ( = Qmon )
+!! %v    the visual type ( gray, monochrome, color )
+!! %z    the approximate screen size ( small, medium, large )
+!! %d    the screen depth in bitplanes
+!! %N    the filename
+!! %S    the file suffix
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! remove comments for big toolbar icons and comment the following line
+!! Qmon*pixmapFilePath:  %R/qmon/PIXMAPS/big/%N.xpm:%R/qmon/PIXMAPS/%N.xpm
+Qmon*pixmapFilePath:   %R/qmon/PIXMAPS/%N.xpm
+Qmon*contextHelpFile:  qmon_help
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! C O L O R S 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*background:              #9d986d
+Qmon*foreground:              black
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! C O L O R S , symbolic colors are used ->$menu_bg, $menu_fg .... 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! %Hue/Saturation/Lightness  
+!! Hue: [0-360] (red,yellow,green,cyan,blue,magenta)
+!! Saturation: [0-100] 
+!! Lightness:  [0-100] black=0, white=100
+!!
+!! BE CAREFUL CHANGING THESE ENTRIES
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*colorTable: \
+fg="$foreground", \
+bg="$background", \
+text_fg="black", \
+text_bg="white", \
+button_bg="-%+0/-10/-12", \
+button_fg="+%+0/-10/-12", \
+q_fg="$fg", \
+q_bg="$bg", \
+mask="$button_bg",\
+menu_bg="$bg", \
+menu_fg="$fg", \
+matrix_odd_bg="-%+0/-10/-10", \
+matrix_even_bg="-%+0/-10/-20", \
+matrix_fg="$fg", \
+matrix_label="brown", \
+title_bg="red", \
+title_fg="$fg", \
+toggle_select="beige", \
+msgline_bg="$bg", \
+msgline_fg="+%+30/+0/+0", \
+fg_gc_foreground="blue", \
+fg_gc_background="beige", \
+qb_gc_foreground="$fg", \
+qb_gc_background="$bg", \
+traffic_green="green", \
+traffic_yellow="beige", \
+traffic_red="red", \
+warning_color="red", \
+requestable_resources="$background", \
+job_suspend_color="turquoise", \
+job_suspend_on_subordinate_color="magenta", \
+job_delete_color="orange", \
+job_hold_color="cyan4", \
+job_error_color="red", \
+q_running_color="seagreen", \
+q_alarm_color="red", \
+q_error_color="maroon", \
+q_suspend_color="beige", \
+q_disable_color="orange", \
+q_caldisable_color="cyan", \
+q_calsuspend_color="pink", \
+q_selected_color="brown", \
+stree_share="white", \
+stree_functional="white", \
+stree_deadline="white", \
+stree_override="white", \
+tooltip_fg="brown", \
+tooltip_bg="$bg"
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Selected Tab Color                                                    !!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*XmTab*highlightColor:   cyan4
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! HelpBox Colors                                                        !!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*XmtHelpBox.helpCursorForeground:       red
+Qmon*XmtHelpBox.helpCursorBackground:       black
+Qmon*XmtHelpBox.helpBackground:             lightgrey
+Qmon*XmtHelpBox.helpForeground:             black
+Qmon*XmtHelpBox*visibleLines:               20
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! MsgBox Colors                                                        !!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*xmtMessageDialog*background:           $bg
+Qmon*xmtMessageDialog*foreground:           $warning_color
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#include "../clients/qmon/qmon_main.ad"
+#include "../clients/qmon/qmon_qaction.ad"
+#include "../clients/qmon/qmon_submit.ad"
+#include "../clients/qmon/qmon_job.ad"
+#include "../clients/qmon/qmon_browser.ad"
+#include "../clients/qmon/qmon_host.ad"
+#include "../clients/qmon/qmon_manop.ad"
+#include "../clients/qmon/qmon_request.ad"
+#include "../clients/qmon/qmon_jobcustom.ad"
+#include "../clients/qmon/qmon_cluster.ad"
+#include "../clients/qmon/qmon_pe.ad"
+#include "../clients/qmon/qmon_ticket.ad"
+#include "../clients/qmon/qmon_share.ad"
+#include "../clients/qmon/qmon_cq.ad"
+#include "../clients/qmon/qmon_fticket.ad"
+#include "../clients/qmon/qmon_project.ad"
+#include "../clients/qmon/qmon_ckpt.ad"
+#include "../clients/qmon/qmon_sconf.ad"
+#include "../clients/qmon/qmon_cplx.ad"
+#include "../clients/qmon/qmon_message.ad"
+#include "../clients/qmon/qmon_qcustom.ad"
+#include "../clients/qmon/qmon_calendar.ad"
+#include "../clients/qmon/qmon_loadmon.ad"
+#include "../clients/qmon/qmon_resource_quota.ad"
+#include "../clients/qmon/qmon_ar.ad"
+#include "../clients/qmon/qmon_arcustom.ad"
+#include "../clients/qmon/qmon_arsub.ad"

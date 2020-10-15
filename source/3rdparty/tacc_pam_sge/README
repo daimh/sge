@@ -1,0 +1,104 @@
+This is mail from Bill Barth a while ago.  I asked for the code after
+it was referred to on the SGE list.  I later wrote and asked if it was
+OK to publish it, but didn't hear back.  However, it's free software,
+helpfully supplied, and I assume they're happy to have it used with
+thanks.  (As yet, I haven't actually built it, so probably can't
+provide help.)
+
+Dave Love <d.love@liverpool.ac.uk>  2010-09-08
+
+http://mail.cse.ohio-state.edu/pipermail/mvapich-discuss/2009-July/002383.html
+
+This is similar to the pam_pbssimpleauth and pam_slurm modules for
+Torque and SLURM respectively.  For a different approach, see the
+pam_authuser module distributed with torque (though you can use
+pam_access with similar prolog and epilog scripts, rather than the
+separate authuser module), or you can use pam_limits
+e.g. <http://gridengine.markmail.org/thread/mu3i7haeshlevu6q>.
+
+----------
+
+See attached, Dave. 
+
+Getting this going is somewhat non-trivial. You'll need to check out a
+copy of sge 6.2u5. It should work with earlier/later versions, too,
+but I know it works with u5. You have to match the version you check
+out to the version you're running. However, there's a change in this
+that wasn't needed until we moved from u3 to u5 (grep for init in the
+.c file), so if you go back to an older version you may have to
+comment that line out. I had to get the SGE devs to track that fix
+down for me.
+
+Untar the attachment in source/libs. Edit the Makefile there to
+include the Makefile in the untarred directory. Do a build of the main
+SGE clients and servers (that's enough to have bootstrapped
+everything, you can probably build less, but I haven't tested it).
+
+Then edit the pam_sge_authorize.c to point to your execd spool
+directory (it's in a #define at the top of the code) and compile it
+with:
+
+aimk [your options here] tacclib_so
+
+That should drop the pam module in your target architecture directory
+(e.g source/LINUXAMD64_26).
+
+Then you should copy the module to /lib/security on your compute nodes
+and then edit your /etc/pam.d/sshd to look something like (the last
+line is the key one):
+
+#%PAM-1.0
+auth       include      system-auth
+account    required     pam_nologin.so
+account    include      system-auth
+password   include      system-auth
+session    optional     pam_keyinit.so force revoke
+session    include      system-auth
+session    required     pam_loginuid.so
+account    required     /lib/security/pam_TACC_SGE.so bypass_users=foo,bar,baz,qux
+
+where foo, bar, baz, and qux are people who you want this module to
+ignore. Root is already in this list by default. The module short
+circuits on root login immediately, so the overhead is as small as
+possible.
+
+VERY IMPORTANT: Be very, very careful with this module. You can lock
+yourself out of ssh access to a node if you screw up the
+process. ALWAYS have an extra ssh or LOM console session as root open
+to the node you're testing in case you need to comment the line in
+/etc/pam.d/sshd out. DO NOT change this file on all your compute nodes
+until you know that it works on one and you're comfortable with
+it. Locking yourself out of all your compute nodes is not fun--even if
+you have remote console access through LOM hardware. :)
+
+Testing: Try sshing as root to the installed node. It should work
+(assuming you allow this currently). Try sshing as a bypass user. It
+should also work. Try sshing as a non-bypass user. It should
+fail. Depending on your ssh version it will either prompt you for
+passwords but not accept them, or it'll fail immediately. Then, fire a
+job at that node with qsub -l h=nodename. Put a long sleep in your job
+script, and make sure that you can ssh to the node while the job is
+there. If that's all working, enable the module on another node, and
+test an MPI job that spans two nodes to make sure that the internal
+ssh for it is still working (-l 'h=node1|node2'). After that, you
+should be able to enable the module on the rest of your compute
+nodes. Obviously, this shouldn't be installed on your login or
+management nodes since they don't run jobs.
+
+I highly recommend that you keep the bypass list as short as
+possible. I don't put myself in it, for example. It's really terrible
+to be unable to reproduce a user's problem using your account because
+you're in the pam bypass list and they're not. :)
+
+Best of luck, Dave, and feel free to ping me if you have any trouble
+getting it working.
+
+Regards,
+Bill.
+
+
+
+--
+Bill Barth, Ph.D., Director, HPC
+bbarth@tacc.utexas.edu        |   Phone: (512) 232-7069
+Office: ROC 1.435             |   Fax:   (512) 475-9445

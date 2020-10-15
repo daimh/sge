@@ -1,0 +1,4 @@
+/opt/sge/utilbin
+/opt/sge/bin/*/*
+/opt/sge/examples/jobsbin
+/opt/sge/lib/*/*

@@ -1,0 +1,169 @@
+/* XPM */
+/*___INFO__MARK_BEGIN__*/
+/*************************************************************************
+ * 
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ * 
+ *  Sun Microsystems Inc., March, 2001
+ * 
+ * 
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ * 
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ * 
+ *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ * 
+ *   Copyright: 2001 by Sun Microsystems, Inc.
+ * 
+ *   All Rights Reserved.
+ * 
+ ************************************************************************/
+/*___INFO__MARK_END__*/
+static char *xterm[] = {
+/* columns rows colors chars-per-pixel */
+"32 19 113 2",
+"   c black",
+".  c #000100",
+"X  c #010301",
+"o  c #020302",
+"O  c #060808",
+"+  c #080A0A",
+"@  c #090B0C",
+"#  c #0A0C0D",
+"$  c #0B0D0E",
+"%  c #0C0E10",
+"&  c #0F1112",
+"*  c #0F1213",
+"=  c #0F1214",
+"-  c #131517",
+";  c #141719",
+":  c #14181B",
+">  c #16191B",
+",  c #1A1D21",
+"<  c #1A1E21",
+"1  c #1D2227",
+"2  c #1E2226",
+"3  c #1E2227",
+"4  c #1F2326",
+"5  c #202428",
+"6  c #20242A",
+"7  c #23272B",
+"8  c #22272E",
+"9  c #23282D",
+"0  c #23292E",
+"q  c #252A31",
+"w  c #252B30",
+"e  c #282E35",
+"r  c #292F37",
+"t  c #30373F",
+"y  c #373F49",
+"u  c #383E45",
+"i  c #3A424D",
+"p  c #3B434F",
+"a  c #414956",
+"s  c #424B58",
+"d  c #424C5A",
+"f  c #444E5C",
+"g  c #454F5D",
+"h  c #4E5866",
+"j  c #515C6D",
+"k  c #57616F",
+"l  c #5A6679",
+"z  c #3C5DA4",
+"x  c #4263A8",
+"c  c #416DB2",
+"v  c #416DB4",
+"b  c #4471B6",
+"n  c #4471B7",
+"m  c #4472B6",
+"M  c #4676BA",
+"N  c #4676BB",
+"B  c #4776BA",
+"V  c #4B75B7",
+"C  c #4D78BA",
+"Z  c #606E83",
+"A  c #616F85",
+"S  c #627086",
+"D  c #657388",
+"F  c #65738A",
+"G  c #65748A",
+"H  c #6B7887",
+"J  c #6C7C95",
+"K  c #7586A0",
+"L  c #7687A2",
+"P  c #7A8BA7",
+"I  c #798BA8",
+"U  c #7A8CAA",
+"Y  c #7C8DAA",
+"T  c #7C8EAB",
+"R  c #7F91B0",
+"E  c #5D86C2",
+"W  c #618BC4",
+"Q  c #6F94C9",
+"!  c #6F95C9",
+"~  c #7094C9",
+"^  c #7095C9",
+"/  c #7297CC",
+"(  c #7298CB",
+")  c #7298CC",
+"_  c #759BCE",
+"`  c #779ED0",
+"'  c #82847F",
+"]  c #8295B3",
+"[  c #899CBD",
+"{  c #8A9DBD",
+"}  c #8CA0C2",
+"|  c #8CA1C3",
+" . c #8DA2C4",
+".. c #8EA3C5",
+"X. c #C5C5C5",
+"o. c #C8C8C7",
+"O. c #C8C8C8",
+"+. c gray82",
+"@. c gray83",
+"#. c gray84",
+"$. c gray85",
+"%. c #DADAD9",
+"&. c gray91",
+"*. c gray92",
+"=. c #ECECEC",
+"-. c #EBF1F7",
+";. c #ECF2F8",
+":. c #EDF3F8",
+">. c #EEF4F8",
+",. c gray94",
+"<. c #F3F3F3",
+"1. c #F2F6FA",
+"2. s mask c None",
+/* pixels */
+"2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.",
+"2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.",
+"2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.",
+"2.2.a     # ..2.2.2.2.2.2.2.T = 2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.",
+"2.2.2.0     e 2.2.2.2.2.2.| 4 F 2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.",
+"2.2.2.T %     j 2.2.2.2.2.t f 2.2.2.2.' ' ' ' ' ' ' ' ' ' ' ' H ",
+"2.2.2.2.l     o T 2.2.2.h 4 2.2.2.2.2.' o.-.-.-.-.-.-.-.-.-.%.' ",
+"2.2.2.2.2.i     # ..2.F @ [ 2.2.2.2.2.' -.z x x x x x x x z >.' ",
+"2.2.2.2.2.2.w     w K - P 2.2.2.2.2.2.' 1.x ^ ^ ! ^ ! ^ ! x >.' ",
+"2.2.2.2.2.2.R *   4 6 F 2.2.2.2.2.2.2.' >.x / / / / / / V x >.' ",
+"2.2.2.2.2.2.2.f * u o L 2.2.2.2.2.2.2.' >.x _ _ _ E C c v x >.' ",
+"2.2.2.2.2.2.I 4 k     > | 2.2.2.2.2.2.' -.x ` E m n n n m x >.' ",
+"2.2.2.2.2.2.< A 2.6     0 2.2.2.2.2.2.' ;.x M M M M M M N x ;.' ",
+"2.2.2.2.2.0 i 2.2.[ @     d 2.2.2.2.2.' 1.z x x x x x x x z ;.' ",
+"2.2.2.2.a 6 2.2.2.2.S     O J 2.2.2.2.' #.-.-.-.;.-.-.-.-.-.@.' ",
+"2.2.2.A 4 ..2.2.2.2.2.i     > ..2.2.2.' ' ' ' ' ' ' ' ' ' ' ' ' ",
+"2.2.] > T 2.2.2.2.2.2.2.,   o e 2.2.2.' <.,.+.*.*.*.&.o.X.X.&.' ",
+"2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.' %.%.%.%.$.%.%.@.%.%.%.' ",
+"2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.2.' ' ' ' ' K ' ' ' ' ' ' ' "
+};

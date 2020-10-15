@@ -1,0 +1,166 @@
+             Specification of the Grid Engine Master monitoring
+                            output format
+   
+                             Stephan Grell
+                             05 July 2005
+                           (work in progress)  
+                               
+0. Introduction
+
+   The extended work with the existing profiling in the SGE 6.0
+   system, which is used in the scheduler and the master, showed that
+   it is not enough to understand bottlenecks in the master. Furthermore
+   it does not keep any statistics on the kind of messages processed. This
+   information is vital to enhance the performance of the master and 
+   understand issues the customer is facing. This document will describe the
+   kind of data, which is monitored and of the output is formatted.
+
+1. Discussion
+
+   We currently have two different ways to get performance information about
+   the qmaster:
+   - qping              - health monitoring and commlib load
+   - qmaster profiling  - measures different sections in the master
+
+   The qmaster profiling output is printed to the master message file while
+   qping has its own way print information. The monitoring should use both
+   ways to ensure easy processing of the data. 
+   
+   The monitoring should be capable of monitor unlimited number of threads 
+   without to many pitfalls. 
+   
+   The health monitoring is currently implemented on top of the profiling 
+   library. Due to the similarity of the health monitoring and the performance
+   monitoring, should that be changed. The health monitoring should be built
+   on top of the new monitoring.
+
+   The implementation documentation and how to use the monitoring in one's
+   own code is described in the files 'source/uti/sge_monitor.[c|h]'
+
+2. New switches:
+
+   The monitoring is only implemented for the qmaster. Therefore qconf -mconf
+   got 2 new switches for the qmaster_params documented in sge_conf(5):
+
+>   MONITOR_TIME
+>      Specifies the time interval when the monitoring information should be printed. The
+>      monitoring is disabled per default and can be enabled by specifying an interval.
+>      The monitoring is per thread and is written to the messages file or displayed by
+>      the "qping -f" command line tool. Example: MONITOR_TIME=0:0:10 generates the
+>      monitoring information most likely every 10 seconds and prints it. The specified
+>      time is a guideline and not a fixed interval. The used interval is printed and
+>      can be everything between 9 seconds and 20 in this example. 
+
+
+   LOG_MONITOR_MESSAGE
+>      The monitoring information is logged into the messages files per default. In addition
+>      it is provided for qping and can be requested by it. The messages files can become
+>      quite big, if the monitoring is enabled all the time, therefore this switch allows
+>      to disable the logging into the messages files and the monitoring data will only
+>      be available via "qping -f".
+
+3. Monitoring Data:
+
+   GDI thread (MT):
+
+   Event Master Thread (EDT):
+      
+   Timed Event Thread (TET):
+      
+      
+4. Format:
+
+   Each monitoring result for a thread is printed in one line. 
+   Example:
+   
+   TET: runs: 0.10r/s out: 0.00m/s APT: 0.0001s/m idle: 100.00% \
+        wait: 0.00% time: 10.00s
+   MT(1): runs: 0.14r/s (execd (l:0.00,j:0.00,c:0.00,p:0.00,a:0.00)/s \
+          GDI (a:0.00,g:0.00,m:0.00,d:0.00,c:0.00,t:0.00,p:0.00)/s \
+          event-acks: 0.00/s) out: 0.00m/s APT: 0.0000s/m idle: 100.00% \
+          wait: 0.00% time: 7.01s
+   MT(2): runs: 0.14r/s (execd (l:0.00,j:0.00,c:0.00,p:0.00,a:0.00)/s \
+          GDI (a:0.00,g:0.00,m:0.00,d:0.00,c:0.00,t:0.00,p:0.00)/s \
+          event-acks: 0.00/s) out: 0.00m/s APT: 0.0000s/m idle: 100.00% \
+          wait: 0.00% time: 7.01s
+   EDT: runs: 2.00r/s out: 0.00m/s APT: 0.0007s/m idle: 99.87% \
+        wait: 0.00% time: 5.00s
+
+   Line format:     "<NAME><NR>: <RUNS>: <OPTIONAL> <EXTENDED_DATA>"
+
+   <NAME>:          Thread name
+   <NR>:            This is optional, it is only there, if more threads share 
+                    the same name
+   <RUNS>:          The number of thread loops per second 
+   <OPTIONAL>:      The printed data depends on the configuration and the thread. 
+                    However it is always enclosed in brackets 
+                    (Example: "(reports...)"),
+                    
+   <EXTENDED_DATA>: "<OUT>: <APT>: <IDLE>: <WAIT>: <TIME>:"
+
+   <OUT>:           The number of messages send per second.
+   <APT>:           Average processing time for the thread loop.
+   <IDLE>:          The percentage of the time spend waiting for an event, 
+                    message, or...
+   <WAIT>:          The percentage of the time spend waiting for important
+                    locks.
+   <TIME>:          The length of the timeframe the measuring was done in
+                    seconds.
+        
+5. Monitoring Data:
+
+   3.1 GDI thread (MT):
+
+      <RUNS> : Number of messages processed per second
+      <OUT>  : Number of messages send per second
+      <IDLE> : Percentage waited in the comlib for a new message to process
+      <WAIT> : Percentage waited for the global lock or at the safe gard
+      
+      <OPTIONAL> : will have two settings: a default and an extended monitoring
+         Default:
+            <execd>:  number of messages from the execd, in detail
+               l:  - number of (l)oad reports
+               j:  - number of (j)ob reports
+               c:  - number of execd (c)onfig version compares
+               p:  - number of (p)rocessor reports
+               a:  - number of (a)cknowledges
+               
+            <GDI>: number of GDI requests, in detail
+               a:  - number of (a)dd requests
+               g:  - number of (g)et requests
+               m:  - number of (m)odify requests
+               d:  - number of (d)elete requests
+               c:  - number of (c)opy requests
+               t:  - number of (t)rigger requests
+               p:  - number of verify (p)ermission requests
+
+            <event-acks>:  number of event client acknowledges and execd acknowledges
+      
+   3.2 Event Master Thread (EDT): (Under construction)
+      <RUNS> : Number of times the EDT was triggered
+      <OUT>  : Number of messages send per second to the event client
+      <IDLE> : Percentage waited for the next trigger
+      <WAIT> : Percentage waited for the global lock (Other important locks
+               need to be determined.
+      
+      <OPTIONAL> : 
+        <clients> : Number of connected clients
+        <mod>     : Number of modified event clients per second
+        <ack>     : Number of processed acknowledges per second
+        <blocked> : Number of blocked event clients
+        <busy>    : Number of busy event clients
+        <events>  : Number of new events to send out
+        <added>   : Number of assigned events to the different event clients
+        <skipped> : Number of ignored events, no subscriptions
+      
+   3.3 Timed Event Thread (TET):
+      <RUNS> : Number of times the EDT was triggered (new events and 
+               event execution)
+      <OUT>  : Number of messages send per second to the event client
+      <IDLE> : Percentage waited for the next event
+      <WAIT> : Percentage waited for the global lock 
+      
+      <OPTIONAL> : 
+         <pending>   : Number of pending timed events
+         <executed>  : Number of executed events per second.
+                    

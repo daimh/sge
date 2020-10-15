@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# Copyright (c) Dave Love <d.love@liverpool.ac.uk>, 2009
+# Licence: FreeBSD <http://www.gnu.org/licenses/license-list.html#FreeBSD>
+
+usage () {
+    msg="Unlimit the SGE global configuration to allow users to submit
+jobs again.  (See also sge-disable-submits.)"                                 
+    if [  $# -eq 1 -a $1 != 0 ]; then echo "$msg" 1>&2
+    else echo "$msg"; fi
+    exit $?
+}
+
+case $1 in
+'') ;;
+--help) usage 0 ;;
+*) usage 1 ;;
+esac
+
+EDITOR=ed qconf -mconf <<EOF
+/^user_lists/s/testing/none
+wq
+EOF

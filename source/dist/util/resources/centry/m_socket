@@ -1,0 +1,12 @@
+# Version: Grid Engine 6.2u5
+# 
+# DO NOT MODIFY THIS FILE MANUALLY!
+# 
+name        m_socket 
+shortcut    socket 
+type        INT 
+relop       <=
+requestable YES
+consumable  NO 
+default     0
+urgency     0

@@ -1,0 +1,26 @@
+top - a program that will give continual reports about the state of the system
+
+Grid Engine uses portions of code of "top" to retrieve load values and
+memory values.
+
+For the following operating systems portions of "top" sources are used:
+
+Digital Unix/Tru64:   load average, memory values
+                      author: Anthony Baxter, <anthony@aaii.oz.au>
+
+HP:		      load average
+		      author: Rich Holland <holland@synopsys.com>
+                      author: adapted from Kevin Schmidt <kevin@mcl.ucsb.edu> 
+
+SGI:		      load average
+                      author: Sandeep Cariapa <cariapa@sgi.com> 
+                      author: 6.2 mods bytda10@cam.ac.uk
+
+
+"top" is copyrighted software by William LeFebvre and other contributors.
+
+The original copyright notice of "top-3.5beta5" can be found in the file
+
+    COPYRIGHT 
+
+in this directory.

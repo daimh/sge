@@ -1,0 +1,120 @@
+qsched and tools
+================
+
+Grid Engine is a batch queue system with a mechanism to reserve resources
+for jobs, thereby preventing them from being "starved" by other, easier to
+schedule jobs.
+
+Unfortunately, this has often been considered a black-box, with it being
+difficult to divine what the scheduler is actually thinking.
+
+The purpose of this collection of programs is to display what the scheduler's
+resource reservation feature is thinking.
+
+
+INSTALLATION
+~~~~~~~~~~~~
+
+1) Enable the scheduler logging feature:
+
+  $ qconf -msconf
+
+    Replace "params NONE" with "params MONITOR=1", save and exit the editor
+    (or, if there is already a value for params, add it to the comma
+    separated list).
+
+  If you are beginning from the default configuration, the you should see
+  the specific output from the following command:
+
+  $ qconf -ssconf | egrep ^params
+  params                            MONITOR=1
+
+  This will create a file called $SGE_ROOT/$SGE_CELL/common/schedule
+
+2) Start the schedule logfile processing program
+
+  If you don't start it with the SGE_ROOT and SGE_CELL set suitably in
+  the environment, look near the top of process-scheduler-log for the
+  definition for variable $sge_common. Set it to the
+  $SGE_ROOT/$SGE_CELL/common directory for your installation of Grid
+  Engine.
+
+  Execute the program from an account with write access to that
+  directory.
+
+  You will probably want to write a startup script appropriate for your
+  operating system.
+
+3) Install the qsched command
+
+  Put file "qsched" somewhere in your path. Optionally edit $trim_string
+  to shorten some of the output you may see.
+
+  You might need to install the XML::Simple Perl module. On Red Hat
+  Enterprise Linux or related operating systems, you will need to install
+  the perl-XML-Simple RPM.
+
+
+USAGE
+~~~~~
+
+Execute "qsched -a", which should report the list of jobs that resources
+are currently being reserved for.
+
+Options:
+
+$ qsched -h
+Usage: qsched [OPTION...]
+
+  -u <user>      - view jobs belonging to user
+  -a             - view jobs belonging to all users (synonym for '-u *')
+  -j <jid_list>  - comma-separated list of JIDs to view
+  -f             - print all available data for each job
+  -s j           - sort by JID
+  -q             - sort by queue
+  -d             - print debugging info
+  -h             - print this message
+
+Example output:
+
+$ qsched
+job-ID     user     start                end                  slots  h_vmem
+---------  -------  -------------------  -------------------  -----  ------
+ 347471.1  bob      03/06/2011 18:14:46  03/08/2011 18:19:45      8      1G
+
+$ qsched -f -j 347471.1
+Job 347471.1
+    user      = bob
+    start     = Mon Mar  7 19:40:18 2011
+    end       = Wed Mar  9 19:45:17 2011
+    slots     = 8
+    h_vmem    = 1G
+    pe        = iblocal (slots = 8)
+    queue     = arc1.q@c2s3b0n0 (slots = 8)
+    resources = c2s3b0n0 (exclusive = 8, h_vmem = 8G)
+
+
+TIPS
+~~~~
+
+1) "Rotate" your schedule file
+
+The schedule file is continually appended to by Grid Engine. Consider deleting
+it once a day to prevent it from growing too large.
+
+2) NFS performance problems with $SGE_ROOT
+
+Our $SGE_ROOT is mounted from an NFS server onto the qmaster host, allowing
+us to run a shadow qmaster. We recently found that Grid Engine was continually
+making small writes to the schedule file, causing excessive I/O on the NFS
+server, and poor responsiveness on the qmaster.
+
+Replacing the schedule file with a symlink to an area of disk space local to
+the qmaster resolved this issue.
+
+
+AUTHOR
+~~~~~~
+
+Mark Dixon <m.c.dixon@leeds.ac.uk>
+

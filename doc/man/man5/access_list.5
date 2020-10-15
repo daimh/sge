@@ -1,0 +1,111 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH ACCESS_LIST 5 "2011-05-19" "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+access_list \- xxQS_NAMExx access list file format
+.\"
+.SH DESCRIPTION
+Access lists are used in xxQS_NAMExx to define access permissions of users
+to queues (see
+.M queue_conf 5 ),
+parallel environments (see
+.M xxqs_name_sxx_pe 5 ),
+execution hosts (see
+.M host_conf 5 ),
+or the whole cluster (
+see
+.M sge_conf 5 ).
+A list of currently configured 
+access lists can be displayed via the
+.M qconf 1
+\fB\-sul\fP option. The contents of each access list can
+shown via the \fB\-su\fP switch. The output follows the
+.I access_list
+format description. New access lists can be created and existing ones can be
+modified via the \fB\-au\fP and \fB\-du\fP options to
+.M qconf 1 .
+.PP
+Departments are a special form of access list that additionally allow
+assignment of functional shares and override tickets. 
+.PP
+Note, xxQS_NAMExx allows backslashes (\\) be used to escape newline
+characters. The backslash and the newline are replaced with a
+space character before any interpretation.
+.\"
+.\"
+.SH FORMAT
+The following list of \fIaccess_list\fP parameters specifies the
+.I access_list
+content:
+.SS "\fBname\fP"
+The name of the access list in the format for \fIuserset_name\fP in
+.M sge_types 5 .
+.SS "\fBtype\fP"
+The type of the access list, currently one of
+.I ACL,
+or
+.I DEPT
+or a  combination of both in a comma-separated list. Depending on this parameter,
+the access list can be used as an access list only, or as a department.
+.SS "\fBoticket\fP"
+The number of override tickets currently assigned to the department.
+.SS "\fBfshare\fP"
+The current functional share of the department.
+.SS "\fBentries\fP"
+A comma-separated list of those UNIX users (see \fIuser_name\fP in
+.M sge_types 5 )
+or those primary UNIX groups that are assigned to the access list 
+or the department. Only a user's primary UNIX group is used; secondary groups
+are ignored. Only symbolic names are allowed.  A group
+is differentiated from a user name by prefixing the group name with a '@' sign. 
+Pure access lists allow listing any user or group in any access list.
+.PP
+When using departments, each user or group may only be listed
+in one department, in order to ensure a unique assignment of jobs to
+departments.
+If the
+.I defaultdepartment
+is defined, it is assigned to jobs whose users do not match with any of
+the users or groups listed under
+.IR entries .
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M sge_types 5 ,
+.M qconf 1 ,
+.M xxqs_name_sxx_pe 5 ,
+.M queue_conf 5 .
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

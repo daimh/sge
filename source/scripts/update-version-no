@@ -1,0 +1,24 @@
+#!/bin/sh
+
+if [ $# -ne 2 ]; then
+    echo "Usage: $0 <old version> <new version>" >&2
+    exit 1
+fi
+if [ ! -f gridengine.spec ]; then
+    echo "Run from distribution top level" >&2
+    exit 1
+fi
+
+old=$(echo $1 | sed -e "s/\\./\\\\./g")
+new=$2
+
+set -e
+
+sed -i -e "s/Version: $old/Version: $new/" gridengine.spec
+sed -i -e "s/SGE_VERSION=\"$old\"/SGE_VERSION=\"$new\"/" source/dist/inst_sge
+sed -i -e "s/GDI_VERSION[[]] = \"$old\"/GDI_VERSION[] = \"$new\"/" source/libs/gdi/version.c
+sed -i -e "s/xxRELxx = \"SGE $old\"/xxRELxx = \"SGE $new\"/" source/scripts/mk_ascman
+sed -i -e "s/gridengine [(]$old/gridengine ($new/" debian/changelog
+sed -i -e "s/sge_ca $old/sge_ca $new/" source/dist/util/sgeCA/sge_ca
+
+echo "Also fix debian/changelog!"

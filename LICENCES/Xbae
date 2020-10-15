@@ -1,0 +1,46 @@
+The Xbae Matrix Widget is used by qmon
+
+   Copyright(c) 1992 Bell Communications Research, Inc. (Bellcore)
+   Copyright(c) 1995-99 Andrew Lister
+
+   Bellcore, previous and current maintainers of the Xbae widgets
+   (collectively 'authors') provide this information solely to
+   professionals who have the appropriate degree of experience to
+   understand and interpret its contents in accordance with generally
+   accepted engineering or other professional standards and applicable
+   regulations. No recommendations as to products or vendors is made or
+   should be implied.
+
+   Permission to use, copy, modify and distribute this material for
+   any purpose and without fee is hereby granted, provided that the
+   above copyright notice and this permission notice appear in all
+   copies, and that the name of any author not be used in advertising
+   or publicity pertaining to this material without the specific,
+   prior written permission of an authorized representative of
+   Bellcore and current maintainer.
+
+   While the information contained herein has been prepared from sources
+   deemed to be reliable, the authors reserve the right to revise the
+   information without notice, but has no obligation to do so. Unless the
+   recipient has been expressly granted a license by Bellcore under
+   separate applicable written agreement with Bellcore, no license,
+   expressed or implied, is granted under any patents, copyrights or
+   other intellectual property rights. Use of the information is at your
+   discretion and shall not be deemed an inducement by Bellcore to
+   infringe any existing or later-issued patent, copyrights or other
+   intellectual property right.
+
+   THE AUTHORS MAKES NO REPRESENTATIONS AND EXTENDS NO WARRANTIES,
+   EXPRESS OR IMPLIED, WITH RESPECT TO THE INFORMATION, INCLUDING, BUT
+   NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+   FOR ANY PARTICULAR PURPOSE, AND THE WARRANTY AGAINST INFRINGEMENT OF
+   PATENTS OR OTHER INTELLECTUAL PROPERTY RIGHTS. THE INFORMATION IS
+   PROVIDED "AS IS", AND IN NO EVENT SHALL THE AUTHORS OR ANY OF ITS
+   AFFILIATES BE LIABLE FOR ANY DAMAGES, INCLUDING ANY LOST PROFITS OR
+   OTHER INCIDENTAL OR CONSEQUENTIAL DAMAGES RELATING TO THE INFORMATION.
+
+   Copyright 1991 Bellcore.  All Rights Reserved.
+
+   The above no warranty extends to all additions and contributions.  No
+   contributor shall be held liable; this work is provided "as is".  If
+   this is a problem for you, then don't use this software.

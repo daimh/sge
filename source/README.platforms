@@ -1,0 +1,88 @@
+SGE Platform Support (as of version 8.1.3)
+==========================================
+
+Please report portability problems, preferably with fixes, or success
+on platforms not listed.  This is a summary of current knowledge.
+
+GNU/Linux
+---------
+
+* x86_64/amd64:  Widely in production.  Should work at least on any
+  currently-supported distribution (e.g. Debian stable, RHEL 5 or
+  later).  Binary packages are available for RHEL 5 and 6.
+
+* Other GNU/Linux architectures:  x86 known to work, others should
+  work.  Problems are most likely due to naming conventions for
+  architectures (uname -m) and Java locations.
+
+Source packaging is available for Debian (and derivatives) and RHEL
+but probably needs small adjustment for SuSE.  The included dpkg
+packaging is a much better bet than the current official Debian
+packaging (which is being worked on); it doesn't provide GUI installer
+or Hadoop support.  See README.packages.
+
+Some support libraries are available in
+<http://arc.liv.ac.uk/downloads/SGE/support/>.
+
+Solaris
+-------
+
+* Known to build on Solaris 10 with GCC or the system compiler and
+  should do on 11.  Requires add-on library support for openssl,
+  Berkeley DB, and hwloc, e.g. from <http://www.opencsw.org/>.
+
+MS Windows
+----------
+
+* Interix/SUA/SFU:  See README.windows.  Supposed to work with Server
+  2003 Release 2, Server 2008, Vista Enterprise, and Vista Ultimate
+  using Subsystem for UNIX-based Applications; also for Server 2003,
+  XP Professional with at least Service Pack 1, Windows 2000 Server
+  with at least Service Pack 3, or Windows 2000 Professional with at
+  least Service Pack 3 using Services for UNIX.  qmaster, qmon, DRMAA,
+  and qsh not supported.
+
+* Cygwin:  Builds, and clients work, but there are problems with
+  daemons (tested on Windows 7), apparently related to threading.
+
+FreeBSD, NetBSD, DragonFly, OpenBSD
+-----------------------------------
+
+Works on recent NetBSD.  Support present for FreeBSD and OpenBSD, with
+available patches imported.  Binding/topology support via hwloc may
+not work.
+
+Darwin (Apple Mac OS X)
+-----------------------
+
+Support present for recent versions (10.4+?) on x86 and Power.
+
+AIX
+---
+
+Support present for version 5.1 and above.
+
+HP-UX
+-----
+
+Support present for version 11, 32- or 64-bit.
+
+Tru64
+-----
+
+Support present for Tru64 5.  Not known to be tested, and expected to
+be removed with final HP support for Tru64 finishing.
+
+Irix
+----
+
+Support present for Irix 6.5.  Not known to be tested, and expected to
+be removed with final SGI support for Irix finishing.
+
+Others
+------
+
+Support for obsolete NEC SX, ("classic") Cray, and vestigial bits for
+other systems has been removed, but could conceivably be revived from
+the repository.  (SX had possibly-interesting resource management
+features.)

@@ -1,0 +1,2261 @@
+diff -b -r xmt_212/Xmt/AskForBool.c Xmt310/Xmt/AskForBool.c
+118c121
+< static Cardinal button_values[] = {
+---
+> static int button_values[] = {
+274c277
+<                          long icon_type_default,
+---
+>                          int icon_type_default,
+290c293
+< long icon_type_default;
+---
+> int icon_type_default;
+360,363c363,366
+<     title = XmtCreateLocalizedXmString(w, data.title);
+<     yes_label = XmtCreateLocalizedXmString(w, data.yes_label);
+<     no_label = XmtCreateLocalizedXmString(w, data.no_label);
+<     cancel_label = XmtCreateLocalizedXmString(w, data.cancel_label);
+---
+>     title = XmtCreateXmString(data.title);
+>     yes_label = XmtCreateXmString(data.yes_label);
+>     no_label = XmtCreateXmString(data.no_label);
+>     cancel_label = XmtCreateXmString(data.cancel_label);
+
+
+
+diff -b -r xmt_212/Xmt/AskForFile.c Xmt310/Xmt/AskForFile.c
+23d25
+< #include <Xm/List.h>
+40d41
+< /*     extern int errno; */
+239,242c240,243
+<     message = XmtCreateLocalizedXmString(w, data.message);
+<     title = XmtCreateLocalizedXmString(w, data.title);
+<     directory = XmtCreateLocalizedXmString(w, data.directory);
+<     pattern = XmtCreateLocalizedXmString(w, data.pattern);
+---
+>     message = XmtCreateXmString(data.message);
+>     title = XmtCreateXmString(data.title);
+>     directory = XmtCreateXmString(data.directory);
+>     pattern = XmtCreateXmString(data.pattern);
+
+
+
+diff -b -r xmt_212/Xmt/AskForItem.c Xmt310/Xmt/AskForItem.c
+< #include <Xm/List.h>
+197,199c199,201
+<     message = XmtCreateLocalizedXmString(w, data.message);
+<     title = XmtCreateLocalizedXmString(w, data.title);
+<     list_title = XmtCreateLocalizedXmString(w, data.list_title);
+---
+>     message = XmtCreateXmString(data.message);
+>     title = XmtCreateXmString(data.title);
+>     list_title = XmtCreateXmString(data.list_title);
+216c218
+<         item_labels[i] = XmtCreateLocalizedXmString(w, data.items[i]);
+---
+> 	item_labels[i] = XmtCreateXmString(data.items[i]);
+221c223
+<         default_item_label = XmtCreateLocalizedXmString(w, buffer_return);
+---
+> 	default_item_label = XmtCreateXmString(buffer_return);
+
+
+
+diff -b -r xmt_212/Xmt/AskForString.c Xmt310/Xmt/AskForString.c
+234a238
+>     Widget text_widget;
+323,324c327,328
+<     message = XmtCreateLocalizedXmString(w, data.message);
+<     title = XmtCreateLocalizedXmString(w, data.title);
+---
+>     message = XmtCreateXmString(data.message);
+>     title = XmtCreateXmString(data.title);
+
+
+
+diff -b -r xmt_212/Xmt/AssertClass.c Xmt310/Xmt/AssertClass.c
+< #include <stdlib.h>
+< 
+36a38,39
+>     extern void abort();
+>     
+
+
+
+diff -b -r xmt_212/Xmt/CallbackCvt.c Xmt310/Xmt/CallbackCvt.c
+531d533
+<    return True;
+
+
+diff -b -r xmt_212/Xmt/Chooser.c Xmt310/Xmt/Chooser.c
+205,206d207
+< /* printf("cw->chooser.type => %d\n", cw->chooser.type); */
+<     
+509c510
+<     size_t size = cw->chooser.num_items * cw->chooser.value_size;
+---
+>     int size = cw->chooser.num_items * cw->chooser.value_size;
+586c587
+<     static Cardinal values[] = {
+---
+>     static int values[] = {
+817,818c818
+<             item_labels[i] = XmtCreateLocalizedXmString((Widget) nw, 
+<                                                 nw->chooser.strings[i]);
+---
+> 	    item_labels[i] = XmtCreateXmString(nw->chooser.strings[i]);
+
+
+
+diff -b -r xmt_212/Xmt/Chooser.h Xmt310/Xmt/Chooser.h
+18c21
+<     XmtChooserRadioBox = 0, /* one-of-many toggles */
+---
+>     XmtChooserRadioBox,     /* one-of-many toggles */
+
+
+
+diff -b -r xmt_212/Xmt/Cli.c Xmt310/Xmt/Cli.c
+735c738
+<     buf = XtMalloc(len+2);
+---
+>     buf = XtMalloc(len+1);
+740c743
+<     if (cw->cli.escape_newlines && (len > 0) && buf[len-1] == '\\') {
+---
+>     if (cw->cli.escape_newlines && buf[len-1] == '\\') {
+974c977
+<     XmString label = XmtCreateLocalizedXmString((Widget) cw, cw->cli.page_string);
+---
+>     XmString label = XmtCreateXmString(cw->cli.page_string);
+1493,1494d1495
+<     if (!s)
+<       s = "";
+
+
+
+diff -b -r xmt_212/Xmt/Color.c Xmt310/Xmt/Color.c
+12,17d14
+< /*
+< ** undefine if you don't want the full colormap fix
+< ** contributed by Glenn Carr 
+< */
+< #define CLOSEST_COLOR
+< 
+99,227d95
+< #ifdef CLOSEST_COLOR
+< 
+< /* Legal Garbage:  I borrowed the basis of this code from the...
+<  *
+<  * The Tk Toolkit
+<  * by John Ousterhout (and many others at Sun Microsystems and elsewhere)
+<  * john.ousterhout@eng.sun.com
+<  *
+<  * This software is copyrighted by the Regents of the University of
+<  * California, Sun Microsystems, Inc., and other parties.  The following
+<  * terms apply to all files associated with the software unless explicitly
+<  * disclaimed in individual files.
+<  * 
+<  * The authors hereby grant permission to use, copy, modify, distribute,
+<  * and license this software and its documentation for any purpose, provided
+<  * that existing copyright notices are retained in all copies and that this
+<  * notice is included verbatim in any distributions. No written agreement,
+<  * license, or royalty fee is required for any of the authorized uses.
+<  * Modifications to this software may be copyrighted by their authors
+<  * and need not follow the licensing terms described here, provided that
+<  * the new terms are clearly indicated on the first page of each file where
+<  * they apply.
+<  * 
+<  * IN NO EVENT SHALL THE AUTHORS OR DISTRIBUTORS BE LIABLE TO ANY PARTY
+<  * FOR DIRECT, INDIRECT, SPECIAL, INCIDENTAL, OR CONSEQUENTIAL DAMAGES
+<  * ARISING OUT OF THE USE OF THIS SOFTWARE, ITS DOCUMENTATION, OR ANY
+<  * DERIVATIVES THEREOF, EVEN IF THE AUTHORS HAVE BEEN ADVISED OF THE
+<  * POSSIBILITY OF SUCH DAMAGE.
+<  * 
+<  * THE AUTHORS AND DISTRIBUTORS SPECIFICALLY DISCLAIM ANY WARRANTIES,
+<  * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY,
+<  * FITNESS FOR A PARTICULAR PURPOSE, AND NON-INFRINGEMENT.  THIS SOFTWARE
+<  * IS PROVIDED ON AN "AS IS" BASIS, AND THE AUTHORS AND DISTRIBUTORS HAVE
+<  * NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
+<  * MODIFICATIONS.
+<  * 
+<  * RESTRICTED RIGHTS: Use, duplication or disclosure by the government
+<  * is subject to the restrictions as set forth in subparagraph (c) (1) (ii)
+<  * of the Rights in Technical Data and Computer Software Clause as DFARS
+<  * 252.227-7013 and FAR 52.227-19.
+<  */
+< 
+< #if NeedFunctionPrototypes
+< static void
+< FindClosestColor(Screen * screen,
+<                  Colormap colormap,
+<                  XColor * pxcolorDesired,
+<                  XColor * pxcolorActual)
+< #else
+< static void
+< FindClosestColor(screen, colormap, pxcolorDesired, pxcolorActual)
+< Screen * screen;
+< Colormap colormap;
+< XColor * pxcolorDesired;
+< XColor * pxcolorActual;
+< #endif
+< {
+<     float           closestDistance, distance, tmp;
+<     Display        *dpy = DisplayOfScreen(screen);
+<     XtAppContext    appContext = XtDisplayToApplicationContext(dpy);
+<     Visual         *pvisual = XDefaultVisualOfScreen(screen);
+<     static XColor  *pxcolors;
+<     int             i, closest;
+<     int             nColors = pvisual->map_entries;
+< 
+<     /*
+<      * Get all the colors from the colormap.  These should all be
+<      * allocated, otherwise we wouldn't be here.
+<      */
+<     if (NULL == pxcolors) {
+<         pxcolors = calloc(nColors, sizeof(*pxcolors));
+<         for (i = 0; i < nColors; i++)
+<             pxcolors[i].pixel = i;
+<     }
+<     XQueryColors(dpy, colormap, pxcolors, pvisual->map_entries);
+< 
+<     while (nColors > 0) {
+<         closestDistance = 1e30;
+<         closest = 0;
+<         for (i = 0; i < nColors; i++) {
+<             /*
+<              * Use Euclidean distance in RGB space, weighted by Y (of YIQ)
+<              * as the objective function;  this accounts for differences
+<              * in the color sensitivity of the eye.
+<              */
+<             tmp = .30 * (((int) pxcolorDesired->red) - (int) pxcolors[i].red);
+<             distance = tmp * tmp;
+<             tmp = .61 * (((int) pxcolorDesired->green) - (int) pxcolors[i].green);
+<             distance += tmp * tmp;
+<             tmp = .11 * (((int) pxcolorDesired->blue) - (int) pxcolors[i].blue);
+<             distance += tmp * tmp;
+<             if (distance < closestDistance) {
+<                 closest = i;
+<                 closestDistance = distance;
+<             }
+<         }
+<         if (XAllocColor(dpy, colormap, &pxcolors[closest])) {
+<             *pxcolorActual = pxcolors[closest];
+<             return;
+<         }
+<         pxcolors[closest] = pxcolors[nColors - 1];
+<         nColors -= 1;
+<     }
+< 
+<     /*
+<      * Should never get here, but just in case...
+<      */
+<     {
+<         char            szColor[64];
+<         Cardinal        num_params = 1;
+<         String          params[1]; 
+< 
+<         params[0] = szColor;
+< 
+<         sprintf(szColor, "#%04x%04x%04x",
+<                 pxcolorDesired->red,
+<                 pxcolorDesired->green,
+<                 pxcolorDesired->blue);
+< 
+<         XtAppWarningMsg(appContext, "badValue", "cvtStringToPixel",
+<                         "FindClosestColor",
+<                         "Can't find approximation for color \"%s\"",
+<                         params, &num_params);
+<     }
+< 
+< }                               /* FindClosestColor */
+< 
+< #endif
+< 
+262,265d129
+< #ifdef CLOSEST_COLOR
+<     Screen* screen = XtScreen(w);
+< #endif
+< 
+304,307d167
+< #ifdef CLOSEST_COLOR
+<         if (XAllocColor(dpy, cmap, &c1) == 0)
+<             FindClosestColor(screen, cmap, &c1, &c1);
+< #else
+309d168
+< #endif
+316,319d174
+< #ifdef CLOSEST_COLOR
+<         if (XAllocColor(dpy, cmap, &c1) == 0)
+<             FindClosestColor(screen, cmap, &c1, &c1);
+< #else
+321d175
+< #endif
+354,360d207
+< #ifdef CLOSEST_COLOR
+<             if (XLookupColor(dpy, cmap, name, &c1, &c2)) {
+<                 FindClosestColor(screen, cmap, &c2, &c2);
+<                 *pixel_return = c2.pixel;
+<                 return 0;
+<             }
+< #else
+362d208
+< #endif
+368d213
+< 
+504c349
+<          * GDI doesn't include a function for storing colors in
+---
+> 	 * API doesn't include a function for storing colors in
+
+
+
+diff -b -r xmt_212/Xmt/ColorTable.c Xmt310/Xmt/ColorTable.c
+180c183
+<     static char name[14];
+---
+>     char name[14];
+186d188
+<     color.red = color.green = color.blue = 0;
+
+
+diff -b -r xmt_212/Xmt/Converters.h Xmt310/Xmt/Converters.h
+37,38c40,41
+< extern void XmtRegisterEnumConverter(StringConst, String *, Cardinal *,
+<                                      Cardinal, String *);
+---
+> extern void XmtRegisterEnumConverter(StringConst, String *, int *,
+> 				     int, String *);
+
+
+
+diff -b -r xmt_212/Xmt/Create.c Xmt310/Xmt/Create.c
+24a28,30
+> #include <unistd.h>
+> 
+> 
+317c323
+<             (*styles)[*num_styles] = style;
+---
+> 	    *styles[*num_styles] = style;
+765,776c771
+<     if (((CompositeWidget)shell)->composite.num_children) {
+< #if XTECH 
+<       /* _AA
+<       ** I love Motif uaahh, for our xtech Motif(SUN4) the dialog shells
+<       ** have four children for protocol stuff 
+<       ** the last child is the real child of the shell 
+<       ** I try this workaround
+<       ** get the number of children and return the last one
+<       */
+<       int last = ((CompositeWidget)shell)->composite.num_children - 1;
+<         return ((CompositeWidget)shell)->composite.children[last];
+< #endif
+---
+>     if (((CompositeWidget)shell)->composite.num_children)
+778d772
+<    }
+
+
+diff -b -r xmt_212/Xmt/Dialog.c Xmt310/Xmt/Dialog.c
+97,100c100
+<             if (d->types[i]->set_value_proc) {
+<                   /*_AA*/
+<                   if (XtIsManaged(d->widgets[i]))
+<                   /*_AA*/
+---
+> 	    if (d->types[i]->set_value_proc)
+104d103
+<             }
+107c106
+<                      "Resource '%s':\n\twidget type '%s' has no set value procedure",
+---
+> 		     "Resource '%s':\n\twidget type '%s' nas no set value procedure",
+395,398c394,396
+<     d->widgets = num_resources ? 
+<                   (Widget *)XtCalloc(num_resources, sizeof(Widget)) : NULL;
+<     d->types = num_resources ? (XmtWidgetType **)
+<         XtCalloc(num_resources, sizeof(XmtWidgetType *)) : NULL;
+---
+>     d->widgets = (Widget *)XtCalloc(num_resources, sizeof(Widget));
+>     d->types = (XmtWidgetType **)
+> 	XtCalloc(num_resources, sizeof(XmtWidgetType *));
+
+
+
+diff -b -r xmt_212/Xmt/Dialogs.h Xmt310/Xmt/Dialogs.h
+225c228
+<                                 XmtButtonType, long, XmtWideBoolean, Boolean *,
+---
+> 				XmtButtonType, int, XmtWideBoolean, Boolean *,
+
+
+
+diff -b -r xmt_212/Xmt/EnumCvt.c Xmt310/Xmt/EnumCvt.c
+18,19c21,22
+<                                XrmValuePtr args, Cardinal *num_args,
+<                                XrmValuePtr from, XrmValuePtr to, XtPointer *data)
+---
+> 			       XrmValue *args, Cardinal *num_args,
+> 			       XrmValue *from, XrmValue *to, XtPointer *data)
+23c26
+< XrmValuePtr args;
+---
+> XrmValue *args;
+25,26c28,29
+< XrmValuePtr from;
+< XrmValuePtr to;
+---
+> XrmValue *from;
+> XrmValue *to;
+32,35c35,36
+< /*     Cardinal *values = *(Cardinal**)args[2].addr; */
+< /*     Cardinal num = (Cardinal)*(XtPointer*)args[3].addr; */
+<     Cardinal *values = (Cardinal*)*(XtPointer*)args[2].addr;
+<     Cardinal num = (Cardinal)*(XtPointer*)args[3].addr;
+---
+>     int *values = *(int **)args[2].addr;
+>     int num = *(int *)args[3].addr;
+40c41
+<     static Cardinal value;  /* static for converter return */
+---
+>     static int value;  /* static for converter return */
+61,63d61
+< 
+< /* printf("XmtBSearch(target, names, num) => %d\n", i); */
+< 
+80,84d77
+< #ifdef CRAY /* short and int are the same size (8 bytes) on the Cray */
+<         case sizeof(int):
+<             *(int *)to->addr = value;
+<             break;
+< #else
+88,89c81,82
+<         case sizeof(Cardinal):
+<             *(Cardinal *)to->addr = value;
+---
+> 	case sizeof(int):
+> 	    *(int *)to->addr = value;
+91d83
+< #endif
+93,95c85,87
+<             if (to->size > sizeof(Cardinal)) {
+<                 to->size = sizeof(Cardinal);
+<                 *(Cardinal *)to->addr = value;
+---
+> 	    if (to->size > sizeof(int)) {
+> 		to->size = sizeof(int);
+> 		*(int *)to->addr = value;
+98c90
+<                 to->size = sizeof(Cardinal);
+---
+> 		to->size = sizeof(int);
+113,114c105,106
+< void XmtRegisterEnumConverter(StringConst type, String *names, Cardinal *values,
+<                               Cardinal num, String *prefixes)
+---
+> void XmtRegisterEnumConverter(StringConst type, String *names, int *values,
+> 			      int num, String *prefixes)
+119,120c111,112
+< Cardinal *values;
+< Cardinal num;
+---
+> int *values;
+> int num;
+
+
+
+diff -b -r xmt_212/Xmt/FindFile.c Xmt310/Xmt/FindFile.c
+18d20
+< #include <stdlib.h>
+20,22d21
+< #include <stdlib.h>
+< #include <unistd.h>
+< 
+34,35d32
+< /* _AA */
+< #if 0
+39d35
+< #endif 
+41d36
+< 
+44d38
+< #include <unistd.h>
+59a54
+>     extern uid_t getuid();
+61a57
+>     extern int getuid();
+91,93d86
+< #ifdef NeedFunctionPrototypes
+< static Boolean DebugPredicate(String path)
+< #else
+96d88
+< #endif
+
+
+
+diff -b -r xmt_212/Xmt/FontListCvt.c Xmt310/Xmt/FontListCvt.c
+40d42
+< #if 0    
+42,49d43
+<     XFontSet fontset;
+<     char **missing_list;
+<     int missing_count;
+<     int i;
+<     char *def_string = NULL; 
+< #endif    
+<     XmFontListEntry entry;
+<     
+118,119d111
+<    if (next_entry == NULL)
+<       next_entry = strchr(s, ':');
+151,181d142
+< #if 0
+<    /*
+<    ** fontset support it is a bit tricky, but needed for multibyte chars
+<    ** FIXME: figure out how to do it
+<    */
+< 
+<         fontset = XCreateFontSet(dpy, s, &missing_list, &missing_count,
+<                                  &def_string);
+<         for (i=0; i<missing_count; i++) {
+<             printf("missing_list[%d]: '%s'\n", i, missing_list[i]);
+<             XtFree(missing_list[i]);
+<         }    
+<         XtFree((char *)missing_list);
+< #if  !defined(SOLARIS) && !defined(SOLARIS64)
+<         entry = XmFontListEntryLoad(dpy, s, XmFONT_IS_FONT, tag);
+< #else        
+<         entry = XmFontListEntryLoad(dpy, s, XmFONT_IS_FONTSET, tag);
+< #endif        
+< 
+< #endif
+<         /*
+<         ** FIXME: replace the following line with the correct version
+<         **        for multibyte chars and fontsets
+<         */
+<         entry = XmFontListEntryLoad(dpy, s, XmFONT_IS_FONT, tag);
+< 
+<         fontlist = XmFontListAppendEntry(fontlist, entry);
+<         XmFontListEntryFree(&entry);
+<         
+< 
+< #if 0
+188d148
+< 
+204d163
+< #endif
+
+
+
+diff -b -r xmt_212/Xmt/GetPixmap.c Xmt310/Xmt/GetPixmap.c
+14,16d16
+< #include <stdlib.h>
+< #include <unistd.h>
+< 
+60a61
+>     extern char *getenv();
+
+
+
+diff -b -r xmt_212/Xmt/HSLtoRGB.c Xmt310/Xmt/HSLtoRGB.c
+< #include <Xmt/Xmt.h>
+< 
+
+
+
+diff -b -r xmt_212/Xmt/Hash.c Xmt310/Xmt/Hash.c
+28,30c31,33
+<     long size;                   /* log2 of the size */
+<     long mask;                   /* Current size of hash table minus 1. */
+<     long numentries;             /* Number of entries currently in table. */
+---
+>     int size;                   /* log2 of the size */
+>     int mask;			/* Current size of hash table minus 1. */
+>     int numentries;		/* Number of entries currently in table. */
+35c38
+<     (ht)->table[(((long)(key)) >> 2) & (ht)->mask]
+---
+>     (ht)->table[(((int)(key)) >> 2) & (ht)->mask]
+46c49
+<     long otablesize;
+---
+>     int otablesize;
+48c51
+<     register long i;
+---
+>     register int i;
+94c97
+<     register long i;
+---
+>     register int i;
+115c118
+<     register long i;
+---
+>     register int i;
+
+
+
+diff -b -r xmt_212/Xmt/HelpBox.c Xmt310/Xmt/HelpBox.c
+201,202c204,205
+<     int lines = 0;
+<     Dimension width = 0, height = 0;
+---
+>     int lines;
+>     Dimension width, height;
+237,238c240
+< /*AA*/    
+<     height = ((int)(height-4) * hb->help_box.visible_lines) / (lines + 4);
+---
+>     height = ((int)(height-4) * hb->help_box.visible_lines) / lines + 4;
+
+
+
+diff -b -r xmt_212/Xmt/HelpBrowser.c Xmt310/Xmt/HelpBrowser.c
+422c425
+<     label = XmtCreateLocalizedXmString(w, hb->help_browser.toc_label);
+---
+>     label = XmtCreateXmString(hb->help_browser.toc_label);
+435c438
+<     label = XmtCreateLocalizedXmString(w, hb->help_browser.index_label);
+---
+>     label = XmtCreateXmString(hb->help_browser.index_label);
+465c468
+<     label = XmtCreateLocalizedXmString(w, hb->help_browser.crossref_label);
+---
+>     label = XmtCreateXmString(hb->help_browser.crossref_label);
+568c571
+<         (XtArgVal)XmtCreateLocalizedXmString(w, hb->help_browser.next_label);
+---
+> 	(XtArgVal)XmtCreateXmString(hb->help_browser.next_label);
+574c577
+<         (XtArgVal)XmtCreateLocalizedXmString(w, hb->help_browser.prev_label);
+---
+> 	(XtArgVal)XmtCreateXmString(hb->help_browser.prev_label);
+580c583
+<         (XtArgVal)XmtCreateLocalizedXmString(w, hb->help_browser.done_label);
+---
+> 	(XtArgVal)XmtCreateXmString(hb->help_browser.done_label);
+1318c1321
+<         label = XmtCreateLocalizedXmString((Widget) sw, sw->help_browser.next_label);
+---
+> 	label = XmtCreateXmString(sw->help_browser.next_label);
+1324c1327
+<         label = XmtCreateLocalizedXmString((Widget) sw, sw->help_browser.prev_label);
+---
+> 	label = XmtCreateXmString(sw->help_browser.prev_label);
+1330c1333
+<         label = XmtCreateLocalizedXmString((Widget) sw, sw->help_browser.done_label);
+---
+> 	label = XmtCreateXmString(sw->help_browser.done_label);
+
+
+
+diff -b -r xmt_212/Xmt/HelpNode.c Xmt310/Xmt/HelpNode.c
+310,311d312
+< /*     extern int errno; */
+<     
+
+
+
+diff -b -r xmt_212/Xmt/IBMManage.c Xmt310/Xmt/IBMManage.c
+51c54
+< #include <X11/IntrinsicP.h>
+---
+> #include "IntrinsicP.h"
+
+
+diff -b -r xmt_212/Xmt/Include.c Xmt310/Xmt/Include.c
+31d33
+< /*     extern int errno; */
+60c62
+<     static Boolean required_quarks_inited = False;
+---
+>     static required_quarks_inited = False;
+70c72
+<     XtPointer dummy = NULL;
+---
+>     XtPointer dummy;
+
+
+
+diff -b -r xmt_212/Xmt/InputField.c Xmt310/Xmt/InputField.c
+13a17
+> #include <string.h>
+267c271
+< #if NeedFunctionPrototypes
+---
+> #if NeedFunctionPrototype
+284a289,296
+> /* ARGSUSED */
+> #if NeedFunctionPrototypes
+> static int isoctal(int c)
+> #else
+> static int isoctal(c)
+> int c;
+> #endif
+> {
+285a298,300
+>     return (int)(strchr ("01234567", c));
+> }
+> 
+287a303,313
+> static int ishex(int c)
+> #else
+> static int ishex(c)
+> int c;
+> #endif
+> {
+>     return (int)(strchr ("0123456789abcdefABCDEF", c));
+> }
+> 
+> /* ARGSUSED */
+> #if NeedFunctionPrototypes
+325c351,353
+<                     ((*c >= 'A')&&(*c <= 'C')))
+---
+> 		    ((*c >= 'A')&&(*c <= 'C')) ||
+> 		    (*c == 'h') ||
+> 		    (*c == 'o'))
+370a399,404
+>         case 'o':
+> 	  if (!isoctal(*c)) data->doit = False;
+> 	  break;
+>         case 'h':
+> 	  if (!ishex(*c)) data->doit = False;
+>           break;
+706d739
+<     if (input)
+708,709d740
+<     else 
+<       input_length = 0; 
+904,909c935,936
+<     /* 
+<     ** if there is a pattern, get its length. Copy it, because it is
+<     ** free'd in the SetValue() and Destroy() routines
+<     */
+<     if (iw->input_field.pattern) {
+<         iw->input_field.pattern = XtNewString(iw->input_field.pattern);
+---
+>     /* if there is a pattern, get its length */
+>     if (iw->input_field.pattern)
+911d937
+<     }
+1163c1189
+<     if (iw->input_field.input) {
+---
+>     if (iw->input_field.input)
+1165,1166d1190
+<         iw->input_field.input = NULL;
+<     }
+1171d1194
+< 
+1236,1241d1258
+<     /*
+<     ** changed by _AA, there was no test if s is not NULL, if 
+<     ** yes everything works, but if s == NULL tha atoi() calls 
+<     ** fail on some architectures
+<     */
+<     if (!s) {
+1243,1280d1259
+<            *(String *)address = NULL;
+<        else if (type == XmtQBuffer) {
+<              strncpy(address, "", size-1);
+<            ((char *)address)[size-1] = '\0';
+<        }
+<        /* XXX
+<         * unsigned values should be handled better here.
+<         * the XmtInputField should also probably have resources to
+<         * set that will automatically verify that the value is valid.
+<         */
+<        else if ((type == XmtQShort) || (type == XmtQPosition) ||
+<                 (type == XmtQDimension))
+<            *(short *)address = 0;
+<        else if ((type == XmtQInt) || (type == XmtQCardinal))
+<            *(int *)address = 0;
+<        else if (type == XmtQFloat)
+<            *(float *)address = 0.0;
+<        else if (type == XmtQDouble)
+<            *(double *)address = 0.0;
+<        else
+<            XmtWarningMsg("XmtInputField", "getvalue",
+<                          "Type mismatch:\n\tCan't set input value on a resource of type '%s'.  String or Buffer expected.",
+<                          XrmQuarkToString(type));
+< 
+< 
+<        return;
+<     }
+<       
+<    
+< /* printf("XrmQuark type %d %s '%s'\n", type, XrmQuarkToString(type), s); */
+< 
+< 
+< /*
+< ** Changed by _AA, we get a copy of the string of an input field
+< ** cause with this statement the memory gets corrupted in using
+< ** XmtDialogSetDialogValues
+< **
+<     if (type == XmtQString)
+1282,1284d1260
+< */
+<     if (type == XmtQString)
+<         *(String *)address = XtNewString(s);
+
+
+
+diff -b -r xmt_212/Xmt/InputFieldP.h Xmt310/Xmt/InputFieldP.h
+55,56c58,59
+<     Cardinal pattern_length;   /* strlen(pattern); */
+<     Cardinal pattern_skip;     /* state variable for HandlePattern() */
+---
+>     short pattern_length;   /* strlen(pattern); */
+>     short pattern_skip;     /* state variable for HandlePattern() */
+61c64
+<     Cardinal max_length;         /* used with overstrike mode */
+---
+>     int max_length;         /* used with overstrike mode */
+
+
+
+diff -b -r xmt_212/Xmt/Layout.c Xmt310/Xmt/Layout.c
+22,24d24
+< #if (XmVersion >= 2000)
+< #include <Xm/RowColumnP.h>  /* declaration of Motif drawing routines */
+< #endif
+262c262
+<     static Cardinal justification_values[] = {
+---
+>     static int justification_values[] = {
+270c270
+<     static Cardinal edge_values[] = {
+---
+>     static int edge_values[] = {
+279c279
+<     static Cardinal line_type_values[] = {
+---
+>     static int line_type_values[] = {
+289c289
+<     static Cardinal frame_type_values[] = {
+---
+>     static int frame_type_values[] = {
+296c296
+<     static Cardinal position_values[] = {
+---
+>     static int position_values[] = {
+303c303
+<     static Cardinal space_type_values[] = {
+---
+>     static int space_type_values[] = {
+445a446,449
+> #if (XmVersion >= 2001)
+> 		    XmRenderTableAddRenditions(NULL, &rendition, 1,
+> 					       XmMERGE_REPLACE);
+> #else
+446a451
+> #endif
+690a696,698
+> #if (XmVersion >= 2001)
+>            XmRenderTableAddRenditions(NULL, &rendition, 1, XmMERGE_REPLACE);
+> #else
+691a700
+> #endif
+805,810d813
+< /* _AA 
+<    printf("+++++++++++++++++++++++++++++\n");
+<    printf("lw/lw->layout.toplevel: 0x%x/0x%x/%s\n", 
+<             lw, lw->layout.toplevel, XtName(lw->layout.toplevel));
+<    printf("+++++++++++++++++++++++++++++\n");
+<  _AA */
+1044,1046c1047,1049
+<     int x=0, y=0, w=0, h=0;      /* coordinates of widget */
+<     int fx=0, fy=0, fw=0, fh=0;  /* coordinates of outside of frame */
+<     int cx=0, cy=0, cw=0, ch=0;  /* coordinates of caption bounding box*/
+---
+>     int x, y, w, h;      /* coordinates of widget */
+>     int fx, fy, fw, fh;  /* coordinates of outside of frame */
+>     int cx, cy, cw, ch;  /* coordinates of caption bounding box*/
+1053c1056
+<     int caption_total_width=0, caption_total_height=0;
+---
+>     int caption_total_width, caption_total_height;
+1067,1068c1070,1071
+<     frame_type = (XmtLayoutFrameType) cc->frame_type;
+<     frame_line_type = (XmtLayoutFrameLineType) cc->frame_line_type;
+---
+>     frame_type = cc->frame_type;
+>     frame_line_type = cc->frame_line_type;
+1071c1074
+<     frame_position = (XmtLayoutFramePosition) cc->frame_position;
+---
+>     frame_position = cc->frame_position;
+1383c1386,1387
+<     Dimension width, height;
+---
+>     Position x,y;
+>     Dimension width, height, border_width;
+1456c1460
+<     if ((request->request_mode & (CWWidth | CWHeight)) == (CWWidth | CWHeight)
+---
+>     if (request->request_mode & (CWWidth | CWHeight) == (CWWidth | CWHeight)
+2028c2032
+<                       "Widget %s: can't set XtNx or XtNy resources of a child of\n\tan XmtLayout widget.  Changes ignored.", XtName((Widget) set));
+---
+> 		      "Widget %s: can't set XtNx or XtNy resources of a child of\n\tan XmtLayout widget.  Changes ignored.");
+
+
+
+diff -b -r xmt_212/Xmt/LayoutBox.c Xmt310/Xmt/LayoutBox.c
+23,27d25
+< #if _AA 
+< {XmNbackgroundPixmap, XmCPixmap, XtRPixmap,
+<      sizeof(Pixmap), offset(backgroundPixmap),
+<      XtRImmediate, (XtPointer) None},
+< #endif
+130,139d127
+< #if _AA
+<    if (lb->layout_box.backgroundPixmap != None &&
+<          lb->layout_box.backgroundPixmap != XtUnspecifiedPixmap) {
+<       XGCValues gcv;
+<       gcv.tile = lb->layout_box.backgroundPixmap;
+<       gcv.fill_style = FillTiled;
+<       lb->layout_box.gc = XtGetGC(init, GCTile|GCFillStyle, &gcv);
+<    }
+<    else if (lb->layout_box.background != (Pixel)-1) {
+< #else
+141d128
+< #endif
+289,290c276,277
+<         frame_type = (XmtLayoutFrameType) cc->frame_type;
+<         frame_position = (XmtLayoutFramePosition) cc->frame_position;
+---
+> 	frame_type = cc->frame_type;
+> 	frame_position = cc->frame_position;
+371,372c358,359
+<         frame_type = (XmtLayoutFrameType) cc->frame_type;
+<         frame_position = (XmtLayoutFramePosition) cc->frame_position;
+---
+> 	frame_type = cc->frame_type;
+> 	frame_position = cc->frame_position;
+474,477c461,464
+<     int major_start = 0, minor_start = 0;    /* instead of x, y */
+<     int major_length = 0, minor_length = 0;  /* instead of width, height */
+<     int cx = 0, cy = 0;  /* child x, y */
+<     int cw = 0, ch = 0;  /* child w, h */
+---
+>     int major_start, minor_start;    /* instead of x, y */
+>     int major_length, minor_length;  /* instead of width, height */
+>     int cx, cy;  /* child x, y */
+>     int cw, ch;  /* child w, h */
+481c468
+<     int margin_width = 0, margin_height = 0, top_margin = 0, left_margin = 0;
+---
+>     int margin_width, margin_height, top_margin, left_margin;
+484c471
+<     int total_space, space, interval=0;
+---
+>     int total_space, space, interval;
+496,499c483,484
+<         cmajor0 = &cx; 
+<    cminor0 = &cy;
+<         cmajorlen = &cw; 
+<    cminorlen = &ch;
+---
+> 	cmajor0 = &cx; cminor0 = &cy;
+> 	cmajorlen = &cw; cminorlen = &ch;
+508,511c493,494
+<         cmajor0 = &cy; 
+<    cminor0 = &cx;
+<         cmajorlen = &ch; 
+<    cminorlen = &cw;
+---
+> 	cmajor0 = &cy; cminor0 = &cx;
+> 	cmajorlen = &ch; cminorlen = &cw;
+
+
+
+diff -b -r xmt_212/Xmt/LayoutGP.h Xmt310/Xmt/LayoutGP.h
+116,118d118
+< #if _AA
+<     Pixmap backgroundPixmap;
+< #endif
+
+
+
+diff -b -r xmt_212/Xmt/LayoutParse.c Xmt310/Xmt/LayoutParse.c
+359,360c362
+<         i->constraints.caption = XmtCreateLocalizedXmString((Widget)lw, 
+<                                                             GetStrValue());
+---
+> 	i->constraints.caption = XmtCreateXmString(GetStrValue());
+
+
+
+diff -b -r xmt_212/Xmt/LayoutString.c Xmt310/Xmt/LayoutString.c
+216c219
+<             XmtCreateLocalizedXmString((Widget) lw, ls->layout_string.label);
+---
+> 	    XmtCreateXmString(ls->layout_string.label);
+261d263
+<     Dimension cs_width, cs_height;
+269,270d270
+<         cs_width  = cs->layout_string.width;
+<         cs_height = cs->layout_string.height;
+272,273d271
+<         if (cs_width  != ss->layout_string.width ||
+<                 cs_height != ss->layout_string.height)
+275,276d272
+<         else  
+<             redisplay = True;
+282c278
+<             XmtCreateLocalizedXmString((Widget) lw, ss->layout_string.label);
+---
+> 	    XmtCreateXmString(ss->layout_string.label);
+284,285d279
+<         cs_width  = cs->layout_string.width;
+<         cs_height = cs->layout_string.height;
+287,288d280
+<         if (cs_width  != ss->layout_string.width ||
+<                 cs_height != ss->layout_string.height)
+290,291d281
+<         else
+<             redisplay = True;
+327,330c317
+<     if (redisplay && XtIsRealized((Widget)lw)) {
+<          Redisplay((Widget)ss, (XEvent *)NULL, (Region)NULL);
+<     }
+<     else if ( relayout && XtIsRealized((Widget)lw)) {
+---
+>     if ((redisplay | relayout) && XtIsRealized((Widget)lw))
+335d321
+<     }
+
+
+
+Only in xmt_212/Xmt: Makefile
+
+diff -b -r xmt_212/Xmt/Makefile.aimk Xmt310/Xmt/Makefile.aimk
+7c7
+< XMT_SDIR = ../xmt_212/Xmt
+---
+> XMT_SDIR = ../qmon/Xmt310/Xmt
+9,10d8
+< XMTFLAGS = $(CFLAGS) -I../xmt_212
+< 
+276d273
+< XMTLIB      = libXmt$(LIBEXT)
+278c275
+< all: $(XMTLIB)
+---
+> all: libXmt.a
+284,286d280
+< libXmt$(SHAREDEXT): $(XMT_OBJS) $(XMT_UNSHAREDOBJS)
+< 	$(SHAREDLD) $(XLFLAGS) $(SHARED_LFLAGS) -o libXmt$(SHAREDEXT) $(XMT_OBJS) $(XMT_UNSHAREDOBJS) $(XLIBS)
+< 
+292c286
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/All.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/All.c 
+294c288
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/AppRes.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/AppRes.c 
+296c290
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/AskForBool.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/AskForBool.c 
+298c292
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/AskForFile.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/AskForFile.c 
+300c294
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/AskForItem.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/AskForItem.c 
+302c296
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/AskForString.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/AskForString.c 
+304c298
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/AssertClass.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/AssertClass.c 
+306c300
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/BSearch.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/BSearch.c 
+308c302
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/BitmapCvt.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/BitmapCvt.c 
+310c304
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Block.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Block.c 
+312c306
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/CallbackCvt.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/CallbackCvt.c 
+314c308
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/CheckFormat.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/CheckFormat.c 
+316c310
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Chooser.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Chooser.c 
+318c312
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Cli.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Cli.c 
+320c314
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Color.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Color.c 
+322c316
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/ColorTable.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/ColorTable.c 
+324c318
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/ColorTblCvt.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/ColorTblCvt.c 
+326c320
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/ContextHelp.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/ContextHelp.c 
+328c322
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Create.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Create.c 
+330c324
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Cursor.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Cursor.c 
+332c326
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/DECHack.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/DECHack.c 
+334c328
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Dialog.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Dialog.c 
+336c330
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/DialogPos.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/DialogPos.c 
+338c332
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Dialogs.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Dialogs.c 
+340c334
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Discard.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Discard.c 
+342c336
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/EnumCvt.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/EnumCvt.c 
+344c338
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/FindFile.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/FindFile.c 
+346c340
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/FontListCvt.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/FontListCvt.c 
+348c342
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/GetPixmap.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/GetPixmap.c 
+350c344
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/HSLtoRGB.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/HSLtoRGB.c 
+352c346
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Hash.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Hash.c 
+354c348
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/HelpBox.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/HelpBox.c 
+356c350
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/HelpBrowser.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/HelpBrowser.c 
+358c352
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/HelpNode.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/HelpNode.c 
+360c354
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/IBMManage.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/IBMManage.c 
+362c356
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Icon.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Icon.c 
+364c358
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Icons.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Icons.c 
+366c360
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Include.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Include.c 
+368c362
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/InitFocus.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/InitFocus.c 
+370c364
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Initialize.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Initialize.c 
+372c366
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/InputField.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/InputField.c 
+374c368
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Layout.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Layout.c 
+376c370
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/LayoutBox.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/LayoutBox.c 
+378c372
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/LayoutCreate.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/LayoutCreate.c 
+380c374
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/LayoutGadget.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/LayoutGadget.c 
+382c376
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/LayoutParse.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/LayoutParse.c 
+384c378
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/LayoutPixmap.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/LayoutPixmap.c 
+386c380
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/LayoutSep.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/LayoutSep.c 
+388c382
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/LayoutSpace.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/LayoutSpace.c 
+390c384
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/LayoutString.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/LayoutString.c 
+392c386
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Lexer.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Lexer.c 
+394c388
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Localize.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Localize.c 
+396c390
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Lookup.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Lookup.c 
+398c392
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Menu.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Menu.c 
+400c394
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/MenuCvt.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/MenuCvt.c 
+402c396
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/MotifWidgets.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/MotifWidgets.c 
+404c398
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/MsgDialogs.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/MsgDialogs.c 
+406c400
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/MsgLine.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/MsgLine.c 
+408c402
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/NameToWidget.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/NameToWidget.c 
+410c404
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/PixelCvt.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/PixelCvt.c 
+412c406
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Pixmap.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Pixmap.c 
+414c408
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/PixmapCvt.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/PixmapCvt.c 
+416c410
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/PixmapLstCvt.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/PixmapLstCvt.c 
+418c412
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Procedures.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Procedures.c 
+420c414
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Quarks.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Quarks.c 
+422c416
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/RGBtoHSL.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/RGBtoHSL.c 
+424c418
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Screen.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Screen.c 
+426c420
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/SetValue.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/SetValue.c 
+428c422
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/ShellUtil.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/ShellUtil.c 
+430c424
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/StringLstCvt.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/StringLstCvt.c 
+432c426
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Symbols.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Symbols.c 
+434c428
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Template.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Template.c 
+436c430
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Visual.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Visual.c 
+438c432
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/UnixProcs.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/UnixProcs.c 
+440c434
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Wait.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Wait.c 
+442c436
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Warning.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Warning.c 
+444c438
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/WidgetCvt.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/WidgetCvt.c 
+446c440
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/WidgetType.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/WidgetType.c 
+448c442
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Working.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Working.c 
+450c444
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/WorkingBox.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/WorkingBox.c 
+452c446
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Xbm.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Xbm.c 
+454c448
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XmCSText.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/XmCSText.c 
+456c450
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XmComboBox.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/XmComboBox.c 
+458c452
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XmScale.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/XmScale.c 
+460c454
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XmStringCvt.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/XmStringCvt.c 
+462c456
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XmText.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/XmText.c 
+464c458
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XmTextField.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/XmTextField.c 
+466c460
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XmToggleB.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/XmToggleB.c 
+468c462
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XmtProcs.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/XmtProcs.c 
+470c464
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XmtWidgets.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/XmtWidgets.c 
+472c466
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/Xpm.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/Xpm.c 
+474c468
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XpmParse.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/XpmParse.c 
+476c470
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/XtProcs.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/XtProcs.c 
+479c473
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/ConvertData.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/ConvertData.c 
+481c475
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/ChooserS.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/ChooserS.c 
+483c477
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/CliS.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/CliS.c 
+485c479
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/HelpBoxS.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/HelpBoxS.c 
+487c481
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/HelpBrowserS.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/HelpBrowserS.c 
+489c483
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/InputFieldS.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/InputFieldS.c 
+491c485
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/LayoutS.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/LayoutS.c 
+493c487
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/MenuS.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/MenuS.c 
+495c489
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/MsgLineS.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/MsgLineS.c 
+497c491
+< 	$(CC) -c $(XMTFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XMT_SDIR)/WorkingBoxS.c 
+---
+> 	$(CC) -c $(CFLAGS) $(XCFLAGS) $(XMT_SDIR)/WorkingBoxS.c 
+502c496
+< 	$(RM) libXmt.a libXmt$(SHAREDEXT)
+---
+> 	$(RM) libXmt.a
+
+
+Only in Xmt310/Xmt: Makefile.simple
+
+
+
+diff -b -r xmt_212/Xmt/Menu.c Xmt310/Xmt/Menu.c
+29d31
+< #include <Xm/TraitP.h>
+31a34,36
+> #if XmVersion >= 2001
+> #include <Xm/TraitP.h>
+> #endif
+61c66
+< #if NeedFunctionPrototypes
+---
+> #if NeedFunctionPrototype
+197c202
+< #if XmVersion >= 2000
+---
+> #if XmVersion == 2000
+199,200c204
+< /* extern XmMenuSystemTraitRec _XmRC_menuSystemRecord; */
+< static XmMenuSystemTraitRec *xmt_menuSystemRecord;
+---
+> extern XmMenuSystemTraitRec _XmRC_menuSystemRecord;
+220c224
+< #if XmVersion >= 2000
+---
+> #if XmVersion == 2000
+222,228d225
+< /*     XmeTraitSet((XtPointer) xmtMenuWidgetClass, XmQTmenuSystem, */
+< /*                 (XtPointer) &_XmRC_menuSystemRecord);  */
+<     /*
+<     ** set trait record of the superclass
+<     */
+<     xmt_menuSystemRecord = XmeTraitGet((XtPointer) xmRowColumnWidgetClass, 
+<                                           XmQTmenuSystem);
+230c227
+<                 (XtPointer) xmt_menuSystemRecord); 
+---
+>                 (XtPointer) &_XmRC_menuSystemRecord);
+231a229,234
+> #if XmVersion >= 2001
+>     /* Trait records */
+>     XmeTraitSet((XtPointer) xmtMenuWidgetClass, XmQTmenuSystem,
+>                 XmeTraitGet ((XtPointer) xmRowColumnWidgetClass,
+> 			     XmQTmenuSystem));
+> #endif
+281c284
+<     XmToggleButtonSetState(item->w, (int)value, False);
+---
+>     XmToggleButtonSetState(item->w, value, False);
+339,341c342,344
+<     XmString accel_label = NULL;
+<     char namebuf[20], submenu_buf[30];
+<     char *name = NULL, *submenu_name;
+---
+>     XmString accel_label;
+>     char namebuf[10], submenu_buf[20];
+>     char *name, *submenu_name;
+416c419
+<             else item->label1 = XmtCreateLocalizedXmString(w, item->alt_label);
+---
+> 	    else item->label1 = XmtCreateXmString(item->alt_label);
+431c434
+<             else item->label0 = XmtCreateLocalizedXmString(w, item->label);
+---
+> 	    else item->label0 = XmtCreateXmString(item->label);
+
+
+
+diff -b -r xmt_212/Xmt/MenuCvt.c Xmt310/Xmt/MenuCvt.c
+396c399
+<         int len = 0;
+---
+> 	int len;
+398c401
+<         Boolean stat = False;
+---
+> 	Boolean stat;
+
+
+
+diff -b -r xmt_212/Xmt/MotifWidgets.c Xmt310/Xmt/MotifWidgets.c
+134c137
+< #if (XmVersion == 2000)
+---
+> #if XmVersion == 2000
+
+
+
+diff -b -r xmt_212/Xmt/MsgDialogs.c Xmt310/Xmt/MsgDialogs.c
+118c121
+<     help = XmtCreateLocalizedXmString(w, cache->help_strings[i]);
+---
+>     help = XmtCreateXmString(cache->help_strings[i]);
+230c233
+<     Widget dialog = 0, help_button;
+---
+>     Widget dialog, help_button;
+451,452c454,455
+<     msg = XmtCreateLocalizedXmString(w, data.message);
+<     title = XmtCreateLocalizedXmString(w, data.title);
+---
+>     msg = XmtCreateXmString(data.message);
+>     title = XmtCreateXmString(data.title);
+
+
+
+diff -b -r xmt_212/Xmt/MsgLine.c Xmt310/Xmt/MsgLine.c
+427d429
+<     mw->msgline.input_type = STRING;
+
+
+
+diff -b -r xmt_212/Xmt/NameToWidget.c Xmt310/Xmt/NameToWidget.c
+180,182d182
+< #if NeedFunctionPrototypes
+< typedef Widget (*NameMatchProc)(XrmNameList, XrmBindingList, int, WidgetList, int, int, int*, int*);
+< #else
+184d183
+< #endif
+331c330
+< static Widget NameListToWidget(Widget root,
+---
+> static Widget NameListToWidget(register Widget root,
+338c337
+< Widget root;
+---
+> register Widget root;
+
+
+
+diff -b -r xmt_212/Xmt/PixelCvt.c Xmt310/Xmt/PixelCvt.c
+43,47d45
+< /* _AA 
+<  XmtWarningMsg("XmtConvertStringToPixel","info","addr visual is %p", &visual);
+<  XmtWarningMsg("XmtConvertStringToPixel","info","visual is %p", visual);
+<  _AA **/
+< 
+
+
+
+diff -b -r xmt_212/Xmt/PixmapCvt.c Xmt310/Xmt/PixmapCvt.c
+12,13d14
+< #define XMT_CDE_BUG_FIX 
+< 
+38,40d38
+< #ifdef XMT_CDE_BUG_FIX 
+<     if (strcmp(str, "unspecified_pixmap")) {
+< #endif
+46,51d43
+< #ifdef XMT_CDE_BUG_FIX 
+<     }
+<     else
+<         pixmap = XmUNSPECIFIED_PIXMAP;
+< #endif
+< 
+
+
+
+diff -b -r xmt_212/Xmt/Procedures.c Xmt310/Xmt/Procedures.c
+51c54
+<         XmtProcedureInfo *p = NULL; 
+---
+>         XmtProcedureInfo *p; 
+
+
+
+diff -b -r xmt_212/Xmt/Quarks.c Xmt310/Xmt/Quarks.c
+35c38
+<     static int inited = False;
+---
+>     static inited = False;
+
+
+
+diff -b -r xmt_212/Xmt/RGBtoHSL.c Xmt310/Xmt/RGBtoHSL.c
+12,13d14
+< #include <Xmt/Xmt.h>
+< 
+
+
+
+diff -b -r xmt_212/Xmt/ScreenP.h Xmt310/Xmt/ScreenP.h
+25,29d27
+< /* _AA added XmtAskForTime(), XmtAskForMemory() */
+<     Widget time_dialog;
+<     Widget memory_dialog;
+<     Widget items_dialog;
+< /******_AA******************/
+
+
+
+diff -b -r xmt_212/Xmt/SetValue.c Xmt310/Xmt/SetValue.c
+48,50d50
+<         if (strcmp(type, XtRString) == 0) {
+<             arg.value = (XtArgVal) to.addr;
+<         } else {
+52,56d51
+< #ifdef CRAY
+<                 case sizeof(char):   arg.value = (XtArgVal)*(char *)to.addr; break;
+<                 case sizeof(int):    arg.value = (XtArgVal)*(int *)to.addr; break;
+<                 default:             arg.value = (XtArgVal)to.addr; break;
+< #else
+61d55
+< #endif
+63d56
+<         }
+
+
+
+diff -b -r xmt_212/Xmt/ShellUtil.c Xmt310/Xmt/ShellUtil.c
+70c73
+<     static Atom wm_delete_window = 0;
+---
+>     static Atom wm_delete_window;
+261c264
+< static Cardinal focus_values[] = {FocusSetInput, FocusMove, FocusNone, FocusWarp};
+---
+> static int focus_values[] = {FocusSetInput, FocusMove, FocusNone, FocusWarp};
+
+
+
+diff -b -r xmt_212/Xmt/Symbols.c Xmt310/Xmt/Symbols.c
+18,25d20
+< #if NeedFunctionPrototypes
+<         void _XtCopyToArg(XtPointer, XtArgVal *, Cardinal);
+<         void _XtCopyFromArg(XtArgVal, XtPointer, Cardinal);
+< #else
+<         void _XtCopyToArg();
+<         void _XtCopyFromArg();
+< #endif
+< 
+256a252
+>     extern void _XtCopyFromArg();
+334a331
+>     extern void _XtCopyToArg();
+381a379,380
+>     extern void _XtCopyToArg();
+> 
+
+
+
+diff -b -r xmt_212/Xmt/UnixProcs.c Xmt310/Xmt/UnixProcs.c
+13d15
+< #include <X11/Xos.h>
+24a27,31
+> /* these aren't declared in SunOS 4.1.1 */
+> extern int puts();
+> extern int system();
+> 
+> 
+
+
+
+diff -b -r xmt_212/Xmt/Util.h Xmt310/Xmt/Util.h
+38d40
+< extern XmString XmtCreateLocalizedXmString(Widget, StringConst);
+60d61
+< extern String _XmtLocalize(Screen* , StringConst, StringConst, StringConst);
+75d75
+< extern XmString XmtCreateLocalizedXmString();
+
+
+
+diff -b -r xmt_212/Xmt/Visual.c Xmt310/Xmt/Visual.c
+24d26
+< #ifdef ENABLE_ALT_VISUALS
+28d29
+< #endif
+47d47
+< #ifdef ENABLE_ALT_VISUALS
+51d50
+< #endif
+
+
+
+diff -b -r xmt_212/Xmt/WidgetType.c Xmt310/Xmt/WidgetType.c
+39c42
+<                       (XtPointer)(long) XrmPermStringToQuark(name),
+---
+> 		      (XtPointer)XrmPermStringToQuark(name),
+65c68
+<                       (XtPointer)(long)XrmPermStringToQuark(name),
+---
+> 		      (XtPointer)XrmPermStringToQuark(name),
+90c93
+<                       (XtPointer)(long)XrmPermStringToQuark(name),
+---
+> 		      (XtPointer)XrmPermStringToQuark(name),
+116c119
+<                       (XtPointer)(long)XrmPermStringToQuark(name),
+---
+> 		      (XtPointer)XrmPermStringToQuark(name),
+135c138
+<                           (XtPointer)(long)XrmPermStringToQuark(types[i].name),
+---
+> 			  (XtPointer)XrmPermStringToQuark(types[i].name),
+193c196
+<                            (XtPointer) (long)XrmStringToQuark(name),
+---
+> 			   (XtPointer) XrmStringToQuark(name),
+
+
+
+diff -b -r xmt_212/Xmt/WidgetType.h Xmt310/Xmt/WidgetType.h
+37c40
+<     Cardinal popup;
+---
+>     int popup;
+57,63d59
+< #if XmVersion >= 2000
+< extern void XmtRegisterXmComboBox(void);
+< #endif /* XmVersion >= 2000 */
+< #if (XmVersion == 2000)
+< extern void XmtRegisterXmCSText(void);
+< extern void XmtRegisterXmScrolledCSText(void);
+< #endif /* XmVersion >= 2000 */
+79,85d74
+< #if XmVersion >= 2000
+< extern void XmtRegisterXmComboBox();
+< #endif   /* XmVersion >= 2000 */
+< #if (XmVersion == 2000)
+< extern void XmtRegisterXmCSText();
+< extern void XmtRegisterXmScrolledCSText();
+< #endif   /* XmVersion == 2000 */
+
+
+
+diff -b -r xmt_212/Xmt/Working.c Xmt310/Xmt/Working.c
+132c135
+<     title = XmtCreateLocalizedXmString(w, data.title);
+---
+>     title = XmtCreateXmString(data.title);
+
+
+
+diff -b -r xmt_212/Xmt/WorkingBox.c Xmt310/Xmt/WorkingBox.c
+282c285
+<     label = XmtCreateLocalizedXmString((Widget) wd, wd->working_box.message);
+---
+>     label = XmtCreateXmString(wd->working_box.message);
+294c297
+<     label = XmtCreateLocalizedXmString((Widget)wd, wd->working_box.scale_label);
+---
+>     label = XmtCreateXmString(wd->working_box.scale_label);
+314c317
+<     label = XmtCreateLocalizedXmString((Widget) wd, wd->working_box.button_label);
+---
+>     label = XmtCreateXmString(wd->working_box.button_label);
+389c392
+<             label = XmtCreateLocalizedXmString((Widget) sw, sw->working_box.message);
+---
+> 	    label = XmtCreateXmString(sw->working_box.message);
+399c402
+<             label = XmtCreateLocalizedXmString((Widget) sw, sw->working_box.scale_label);
+---
+> 	    label = XmtCreateXmString(sw->working_box.scale_label);
+409c412
+<             label = XmtCreateLocalizedXmString((Widget) sw, sw->working_box.button_label);
+---
+> 	    label = XmtCreateXmString(sw->working_box.button_label);
+
+
+
+diff -b -r xmt_212/Xmt/XmCSText.c Xmt310/Xmt/XmCSText.c
+19c22
+< #if (XmVersion == 2000)
+---
+> #if XmVersion == 2000
+23d25
+< 
+26d27
+< 
+42c43
+<         xmString = XmtCreateLocalizedXmString(w, *(String *)address);
+---
+>         xmString = XmtCreateXmString(*(String *)address);
+47c48
+<         xmString = XmtCreateLocalizedXmString(w, (char *)address);
+---
+>         xmString = XmtCreateXmString((char *)address);
+113c114
+<     (XmtWidgetConstructor)XmCreateCSText,
+---
+>     XmCreateCSText,
+121c122
+<     (XmtWidgetConstructor)XmCreateScrolledCSText,
+---
+>     XmCreateScrolledCSText,
+146c147
+< #else  /* if XmVersion < 2000 */
+---
+> #else  /* if XmVersion = 2000 */
+
+
+
+diff -b -r xmt_212/Xmt/XmStringCvt.c Xmt310/Xmt/XmStringCvt.c
+12d14
+< #include <stdlib.h>
+16,17c18
+< #if 0 
+< /* #if XmVersion >= 2000 */
+---
+> #if XmVersion >= 2000
+61,62d61
+< /* printf("...> '%s'\n", (char *) *text); */
+< 
+104c103
+<        if ( indicator == '{' )
+---
+>        if ( indicator == '[' )
+106c105
+<                          "'@{' locale indicator may occur only at beginning of string.");
+---
+> 			 "'@[' locale indicator may occur only at beginning of string.");
+205c204
+<         Arg args[4];
+---
+> 	Arg args[3];
+210d208
+<         XtSetArg(args[n], XmNpatternType, XmMULTIBYTE_TEXT); n++;
+217d214
+<         XtSetArg(args[n], XmNpatternType, XmMULTIBYTE_TEXT); n++;
+225d221
+<         XtSetArg(args[n], XmNpatternType, XmMULTIBYTE_TEXT); n++;
+233c229
+<     return XmStringParseText((XtPointer) str, NULL, NULL, XmMULTIBYTE_TEXT,
+---
+>     return XmStringParseText((XtPointer) str, NULL, NULL, XmCHARSET_TEXT,
+252d247
+< #if 0
+254,295d248
+<    char *mtxt = NULL;
+<       
+<    if (fixup) {
+<       wchar_t *s, *t;
+<       wchar_t *ws = NULL;
+<       int n;
+< 
+<       n = mbstowcs(NULL, txt, 0);
+<       if (n>0) {
+<          ws = (wchar_t*)malloc(sizeof(wchar_t)*(n+1));
+<       }
+<       if (ws) {
+<          mbstowcs(ws, txt, (n+1));
+<       }  
+<       for(s=t=ws; *s; s++, t++) {
+<             *t = *s;
+<             if ((*s == L'@') && (*(s+1) == L'@')) s++;
+<        }
+<        *t = *s;  /* copy the terminating '\0' */
+<        n = wcstombs(NULL, ws, 0);
+<        if (n > 0) {
+<          mtxt = (char*)malloc(sizeof(char)*(n+1));
+<       }
+<       if (mtxt) {
+<          wcstombs(mtxt, ws, (n+1));
+<       }  
+<       else {
+<          mtxt = strdup(txt);
+<       }   
+<       XtFree((char*)ws);
+<    }
+< 
+<    s1 = XmStringSegmentCreate(mtxt, charset, XmSTRING_DIRECTION_L_TO_R, sep);
+<    if (!to) return s1;
+<    s2 = XmStringConcat(to, s1);
+<    XmStringFree(to);
+<    XmStringFree(s1);
+<    XtFree(mtxt);
+<    return s2;
+< 
+< #else
+<     XmString s1, s2;
+312d264
+< #endif    
+322d273
+< #if 0
+341,345d291
+<     /*
+<      * make a copy of the string so we can frob with it
+<      * We keep pointer r so we can free it when done
+<      */
+<     r = s = XtNewString(str);
+347,421d292
+< 
+<     for(t = s; *s; s++) {
+<         switch(*s) {
+<         case '\n':
+<             *s = '\0';  /* null terminate the string */
+<             result = appendstring(t, result, True, charset, fixup);
+<             fixup = False;
+<             t = s+1;
+<             break;
+<         case '@':
+<             if ((*s == '@') && (*(s+1) == '@')) {
+<                 /* set a flag to strip doubled escapes later */
+<                 fixup = True;
+<                 s++;
+<                 break;
+<             }
+<             else if (*(s+1) != 'f') break;
+<             /* its a font change, so add the string up to here, if any */
+<             *s = '\0'; /* null terminate the string */
+<             if (s != t)
+<                 result = appendstring(t, result, False, charset, fixup);
+<             fixup = False;
+< 
+<             /* and now get the new charset */
+<             if (*(s+2) == '\0') break;
+<             s+=2;
+<             if (*s == '[') {  /* read till close ']' */
+<                 s = charset = s+1;
+<                 while (*s && (*s != ']')) s++;
+<                 if (*s == '\0') break;
+<                 *s = '\0';  /* null-terminate the charset string */
+<             }
+<             else if (*s == '(') { /* charset is next 2 chars */
+<                 if (*(s+1)) s++; else break;
+<                 charset_buf[0] = *s;
+<                 if (*(s+1)) s++; else break;
+<                 charset_buf[1] = *s;
+<                 charset_buf[2] = '\0';
+<                 charset = charset_buf;
+<             }
+<             else if (*s) { /* charset is single current character */
+<                 charset_buf[0] = *s;
+<                 charset_buf[1] = '\0';
+<                 charset = charset_buf;
+<             }
+< 
+<             t = s+1;
+<             break;
+<         }
+<     }
+<     if (s != t) result = appendstring(t, result, False, charset, fixup);
+<     
+<     XtFree(r);
+< 
+<     return result;
+< 
+< #else
+<     String r, s, t;
+< #ifdef XMSTRING_TO_COMPOUND_TEXT_BUG
+<     String charset = XmSTRING_DEFAULT_CHARSET;
+< #else    
+< #  if XmVersion < 1002
+<     String charset = XmSTRING_DEFAULT_CHARSET;
+< #  else
+<     String charset = XmFONTLIST_DEFAULT_TAG;
+< #  endif
+< #endif    
+<     char charset_buf[3];
+<     XmString result = NULL;
+<     Boolean fixup = False;
+<     
+<     if (!str) return NULL;
+<     else if (!*str)
+<         return XmStringSegmentCreate((String)str, charset,
+<                                      XmSTRING_DIRECTION_L_TO_R, False);
+428d298
+< 
+477a348
+> 
+481d351
+< 
+483,484d352
+< #endif    
+< /*     return XmStringCreateLocalized(str); */
+491c359,362
+< static XmString XmtCreateLocalizedXmString_(Screen *screen, StringConst str)
+---
+> Boolean XmtConvertStringToXmString(Display *dpy,
+> 				   XrmValue *args, Cardinal *num_args,
+> 				   XrmValue *from, XrmValue *to,
+> 				   XtPointer *converter_data)
+493,495c364,371
+< static XmString XmtCreateLocalizedXmString_(screen, str)
+< Screen* screen;
+< StringConst str;
+---
+> Boolean XmtConvertStringToXmString(dpy, args, num_args,
+> 				   from, to, converter_data)
+> Display *dpy;
+> XrmValue *args;
+> Cardinal *num_args;
+> XrmValue *from;
+> XrmValue *to;
+> XtPointer *converter_data;
+498,499c374,376
+<     XmString value = NULL;
+<     String category, tag, defaultstr;
+---
+>     String s = (String) from->addr;
+>     Screen *screen = *(Screen **)args[0].addr;
+>     String category, tag;
+501c378
+<     String s = NULL;
+---
+>     XmString value;
+508,511d384
+<     if (!str)
+<         return NULL;
+< 
+< /* printf("==> '%s'\n", str); */
+513,514c386,387
+<     if ((str[0] == '@') && (str[1] == '{')) {
+<         s = XtNewString(str);
+---
+>     if ((s[0] == '@') && (s[1] == '[')) {
+> 	s = XtNewString(s);
+517d389
+< /* printf("=-> '%s'\n", s); */
+519,520c391
+<         tag = NULL;
+<         defaultstr = s;
+---
+> 	tag = s;
+524,525c395,396
+<                 category = defaultstr;
+<                 defaultstr = s+1;
+---
+> 		category = tag;
+> 		tag = s+1;
+527c398
+<             if (*s == '.' && !tag) {
+---
+> 	    if (*s == ']') {
+529,533d399
+<                 tag = defaultstr;
+<                 defaultstr = s+1;
+<             }
+<             if (*s == '}') {
+<                 *s = '\0';
+538d403
+< /* printf("-=> '%s'\n", free_me+2); */
+540,541d404
+<         if (!tag)
+<            tag = defaultstr;
+544c407
+<         s = _XmtLocalize(screen, defaultstr, category, tag);
+---
+> 	s = _XmtLocalize(screen, s, category, tag);
+546,548d408
+<     else {
+<         s = (String)str;
+<     }
+550,551d409
+< /* printf("--> '%s'\n", s); */
+< 
+553d410
+< 
+555a413
+>     done(XmString, value);
+557,558d414
+<     return value;
+< 
+561c417,418
+<     return NULL;
+---
+>     XtDisplayStringConversionWarning(dpy, (String)from->addr, XmRXmString);
+>     return False;
+581,625d437
+< 
+< 
+< 
+< /* ARGSUSED */
+< #if NeedFunctionPrototypes
+< Boolean XmtConvertStringToXmString(Display *dpy,
+<                                    XrmValue *args, Cardinal *num_args,
+<                                    XrmValue *from, XrmValue *to,
+<                                    XtPointer *converter_data)
+< #else
+< Boolean XmtConvertStringToXmString(dpy, args, num_args,
+<                                    from, to, converter_data)
+< Display *dpy;
+< XrmValue *args;
+< Cardinal *num_args;
+< XrmValue *from;
+< XrmValue *to;
+< XtPointer *converter_data;
+< #endif
+< {
+<     String s = (String) from->addr;
+<     Screen *screen = *(Screen **)args[0].addr;
+<     XmString value;
+<     
+<     value = XmtCreateLocalizedXmString_(screen, s);
+<     if (!value) goto error;
+<     done(XmString, value);
+< 
+<  error:
+<     XtDisplayStringConversionWarning(dpy, (String)from->addr, XmRXmString);
+<     return False;
+< }
+< 
+< /* ARGSUSED */
+< #if NeedFunctionPrototypes
+< XmString XmtCreateLocalizedXmString(Widget w, StringConst s)
+< #else
+< XmString XmtCreateLocalizedXmString(w, s)
+< Widget w;
+< StringConst s;
+< #endif
+< {
+<    return XmtCreateLocalizedXmString_(XtScreen(w), s);
+< }
+< 
+
+
+
+diff -b -r xmt_212/Xmt/Xmt.h Xmt310/Xmt/Xmt.h
+19a23,31
+> #if !defined (XMT_HAS_STRERROR)
+> # if defined (XMT_HAS_SYS_ERRLIST)
+> extern char *sys_errlist[];
+> #   define strerror(err) sys_errlist[err]
+> # else
+> #   define strerror(err) "strerror is unsupported"
+> # endif /* XMT_HAS_SYS_ERRLIST */
+> #endif /* !XMT_HAS_STERROR */
+> 
+43c55
+< #define XmtVERSION      2
+---
+> #define XmtVERSION      3
+46c58
+< #define XmtPatchlevel   2
+---
+> #define XmtPatchlevel   0
+80,86c92,98
+< #ifdef __cplusplus              /* for C++ V2.0 */
+< #define _XFUNCPROTOBEGIN extern "C" {
+< #define _XFUNCPROTOEND }
+< #else
+< #define _XFUNCPROTOBEGIN
+< #define _XFUNCPROTOEND
+< #endif /* __cplusplus */
+---
+> #  ifdef __cplusplus	       	/* for C++ V2.0 */
+> #    define _XFUNCPROTOBEGIN extern "C" {
+> #    define _XFUNCPROTOEND }
+> #  else
+> #    define _XFUNCPROTOBEGIN
+> #    define _XFUNCPROTOEND
+> #  endif /* __cplusplus */
+333c345
+< #define memmove(a,b,n) bcopy((char*)(b),(char*)(a),n)
+---
+> #define memmove(a,b,n) bcopy(b,a,n)
+
+
+
+diff -b -r xmt_212/Xmt/Xpm.c Xmt310/Xmt/Xpm.c
+264c267
+<         (char *) XtMalloc(((*image_return)->bytes_per_line * height));
+---
+> 	(char *) XtMalloc((*image_return)->bytes_per_line * height);
+496,499c499,500
+<     else {
+< /*         XtFree((char *)alloc_pixels_return); */
+<         XtFree((char *)alloc_pixels);
+<     }
+---
+>     else
+> 	XtFree((char *)alloc_pixels_return);
+844c845
+< #if !defined(WORD64) && !defined(LONG64) && !defined(SOLARIS64)
+---
+> #if !defined(WORD64) && !defined(LONG64)
+
+
+
+diff -b -r xmt_212/Xmt/XpmParse.c Xmt310/Xmt/XpmParse.c
+86,89c89,92
+<  {"", '\0', '\n', "", "", "", "" },     /* Natural type */
+<  {"C", '"', '"', ",\n", "static char *", "[] = {\n", "};\n" },
+<  {"Lisp", '"', '"', "\n", "(setq ", " '(\n", "))\n" },
+<  {NULL, 0, 0, NULL, NULL, NULL, NULL }
+---
+>  "", '\0', '\n', "", "", "", "",	/* Natural type */
+>  "C", '"', '"', ",\n", "static char *", "[] = {\n", "};\n",
+>  "Lisp", '"', '"', "\n", "(setq ", " '(\n", "))\n",
+>  NULL, 0, 0, NULL, NULL, NULL, NULL
+321,322d323
+< /*     extern int errno; */
+< 

@@ -1,0 +1,109 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76C-CCK-MCD Netscape [en] (X11; U; SunOS 5.8 sun4u) [Netscape]">
+   <meta name="AUTHOR" content="Ernst Bablick">
+   <meta name="CREATED" content="20010608;9065700">
+   <meta name="CHANGEDBY" content="Ernst Bablick">
+   <meta name="CHANGED" content="20010620;15043200">
+<style>
+	<!--
+		@page { margin-left: 1.25in; margin-right: 1.25in; margin-top: 1in; margin-bottom: 1in }
+		H2 { margin-bottom: 0.08in; font-family: "helvetica", sans-serif; font-size: 14pt; font-style: italic }
+		TD P { margin-bottom: 0.08in }
+		H1 { margin-bottom: 0.08in; font-family: "helvetica", sans-serif; font-size: 16pt }
+		P { margin-bottom: 0.08in }
+		P.sdfootnote { margin-left: 0.2in; text-indent: -0.2in; margin-bottom: 0in; font-size: 10pt }
+		A.sdfootnoteanc { font-size: 57% }
+	-->
+	</style>
+    <title>GDI</title>
+</head>
+<body>
+
+<div STYLE="margin-top: 0.17in; page-break-after: avoid">
+<h1>
+<font face="helvetica, sans-serif"><font size="+4">Gridengine Database Interface
+- GDI</font></font><a NAME="sdfootnote1anc" CLASS="sdfootnoteanc" HREF="#sdfootnote1sym"></a></h1>
+</div>
+
+    <strong>NB.  This refers to an obsolete version of GDI.  </strong>
+<h1>
+Introduction</h1>
+
+<div STYLE="margin-bottom: 0in">The Grid Engine Database Interface (GDI)
+standardizes the mechanism for creating, retrieving, changing and deleting
+objects stored within a Grid Engine qmaster process. The GDI is the main
+interface to communicate with an instance of a qmaster for each client
+and server application which is part of the Grid Engine distribution.
+<p>Please note, the GDI represents an internal and evolving interface designed
+to connect project internal components which evolve with the project. If
+you intend to plugin an external component to the Grid Engine system, then
+the GDI is not the right choice. One of the initial objectives of the Grid
+Engine project is to design and develop generic and stable APIs which are
+suitable interfaces for the integration of such external applications.</div>
+
+<h1>
+Internal data representation</h1>
+
+<div STYLE="margin-bottom: 0in">The qmaster stores all information in objects
+such as queues, jobs, hosts, users, etc. These objects are represented
+internally via the Common Usabel List Library (<a href="../cull/cull.html">CULL</a>).</div>
+
+<div STYLE="margin-bottom: 0in">The GDI provides the means to exchange
+CULL-objects between different Grid Engine components running on different
+hosts. The GDI utilizes the Grid Engine communication
+system for the network-wide date exchange.</div>
+
+<h1>
+Interface</h1>
+The GDI consists of three groups of functions - initialisation, interacting
+with qmaster and shutting down the GDI. All functions are contained in
+the library libgdi.a. The function prototypes and any pertinent constants
+are defined in sge_gdi.h.
+<p>This page only provides an overview on the GDI. For more detailed documentation
+about the functions mentioned below, please see the sge_gdi(3) manual page
+and related manual pages as well as documentation in the source files.
+The functions described mentioned below can be found in source/libs/gdi/gdi_setup.c
+and source/libs/gdi/sge_gdi_request.c.
+<h2>
+Initializing the GDI</h2>
+The function sge_gdi_setup() initializes the GDI as well as the Grid Engine
+communication system.
+<p>To modify the behavior of this function it is possible to use sge_gdi_param()
+before calling sge_gdi_setup().
+<h2>
+Creating, retrieving, changing and deleting qmaster objects</h2>
+Only a single function serves this purpose: sge_gdi(). A more advanced
+variant exists with sge_gdi_multi() and a third function, sge_gdi_extract_answer(),
+is available to retrieve status and error messages in a convenient fashion.
+<h2>
+Shutting down GDI library</h2>
+
+<div STYLE="margin-bottom: 0in">Shutting down the GDI is performed with
+sge_gdi_shutdown(). This function has to be called before exiting the program.
+It deregisters from the communication system.</div>
+
+<h1>
+<font size="+2">Modules</font></h1>
+Most files contained in source/libs/gdi contain CULL object definitions.
+By convention, each of those files has a capital L in front of the .h file
+suffix.
+<p>Files with the word "parse" in their name, contain parsing code producing
+CULL objects.
+<h2>
+<br>
+<br>
+<br>
+<br>
+<BR></h2>
+
+<div ID="sdfootnote1">
+<center><a NAME="sdfootnote1sym" CLASS="sdfootnotesym" HREF="#sdfootnote1anc"></a>Copyright
+2001 Sun Microsystems, Inc. All rights reserved.</center>
+</div>
+
+</body>
+</html>

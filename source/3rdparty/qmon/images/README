@@ -1,0 +1,221 @@
+                                         README - 2011/03/15
+                                         QMON updated icons (3)
+
+
+[The files from the original attachment have been reorganized in the
+repo, including creating a 3rdparty/qmon/images directory for the png
+files, and the `original' versions have been deleted.]
+
+Content
+-------
+
+ 1) Purpose
+ 2) History
+ 2) Term of Use
+ 3) Compatibility
+ 4) Preview
+ 5) Installation
+ 6) Icons format
+ 7) Obsolete icons
+ 8) Insensitive icons
+ 9) Big toolbar icons
+
+
+1) Purpose
+----------
+
+This package is a proposal for a complete replacement for the icon set used by the QMON application 
+part of GridEngine 6.2u5
+
+2) History
+----------
+
+After seeing the following issue in the gridengine tracker database:
+
+  Issue 2623 : qmon icons are terrifyingly bad
+  http://gridengine.sunsource.net/issues/show_bug.cgi?id=2623
+
+I decided to give a try at finding a valid replacement for QMON icons. 
+
+To keep the UI consistent and remove any licensing issues, I've settle on only using icons from the 
+Tango Desktop Project (version 0.8.90) as suggested in the issue report. 
+
+Unfortunately the Tango icon doesn't provide all the needed icons for QMON and I had to create a couple 
+of new ones. Overall, 70% of the icons came untouched from the Tango library, 15% came from the Tango 
+library but have been modified and 15% are completely new.
+
+Gimp 2.6 and Inskape 0.46 were used to develop these icons using either the .svg or .png files provided 
+in the Tango library.
+
+Changes done in updates #2 #3:
+  - correct contrast for some icons
+  - update introduction logo to remove obsolete http link
+  - correction of the big icon toolbar_queue.xpm
+  - add missing license information for big icons
+
+
+  
+3) Terms of Use 
+---------------
+
+This icons package is release to the public domain. It's base on the icons from the Tango Desktop 
+Project 0.8.90 which is part of the public domain. There is not licensing restriction in using this 
+package.
+
+More information about the Tango Desktop Project can be found at:
+
+  http://tango.freedesktop.org/Tango_Desktop_Project
+
+
+
+4) Compatiblity
+---------------
+
+This icon package have been tested on Linux and Solaris for GE version 6.0, 6.1 and 6.2u5. The 
+package should be compatible with all 6.x versions of GE on any platform. Please note some included 
+icons are only accessible with GE 6.1 or 6.2.
+
+5) Preview
+----------
+
+You can preview and compare all the provided icons by opening the included HTML file preview.html
+
+In it, you will a side-to-side comparison between the current and proposed icons, accompanied 
+by comments and a reference to original Tango library icons.
+
+
+
+6) Installation
+---------------
+
+QMON icons are loaded at runtime and can therefore be changed without having to recompile or 
+reinstall the GE binaries.
+
+The QMON icons are located in the directory:
+
+  $SGE_ROOT/qmon/PIXMAPS
+  
+To use the proposed icon package you can do one of the following:
+ - replace the central directory $SGE_ROOT/qmon/PIXMAPS  with the new PIXMAPS directory 
+ - update the central configuration file $SGE_ROOT/qmon/Qmon to point to the new PIXMAPS directory
+ - do the previous change on a local configuration file
+ 
+The new icons will then appear on the next restart of QMON.
+
+
+6) Icons format
+---------------
+
+QMON support icon in the XPM format (X PixMap). XPM is an ASCII-text-based image format used by the 
+X Window System.
+
+QMON only support 256 colors XPM. Transparency is enabled in the two ways:
+
+  Using the default transparent colorname (when background color is #)
+  c None
+    
+  Using a symbolic name for the transparent colorname (when background color is #)
+  s mask c None
+
+
+The XPM format doesn't support alphablending with transparency. Because of this, hard edge can 
+appear when the icon transition to the background color. With the original icon set, this type 
+of artifact was very visible.
+
+To remove the hard edge, all the semi-transparent icon edges have been blended with the expected 
+background color. This way, the icons now have a smooth transition with the background color.
+
+
+
+
+
+7) Obsolete icons
+----------------
+
+Some icons are not longer in use. While some are still being instantiated in the QMON code, 
+I haven't seen any actual use for them. Here is the list of icon I think are obsolete:
+
+   head_open.png
+   leaf_minus.png
+   leaf_plus.png
+   xterm-blank.png 
+   xterm-axp.png   
+   xterm-cray.png  
+   xterm-dec.png   
+   xterm-hp.png    
+   xterm-ibm.png   
+   xterm-linux.png 
+   xterm-sgi1.png  
+   xterm-sgi.png   
+   xterm-sol.png   
+   xterm-sun.png   
+   xterm.png     
+   unknown.xpm  
+   binary_on_ins.png
+   qsh_on_ins.png
+   qsh_off_ins.png
+
+Also, some icons still are duplicated and could be remove from the code
+
+   leaf_open.png        same as  leaf.png
+   peconf.png           same as  toolbar_pe.png
+   
+
+Please note that while these icons are considered obsolete, a new version was still created for them.
+   
+Finally, some icons felt no longer pertinent and have been replaced them with a blank icon to 
+keep compatibility for existing QMON binaries
+
+
+   memorybig.png
+   days.png
+   hours.png
+   minutes.png
+   seconds.png
+
+These icons have become obsolete and could remove from the code.  
+
+
+8) Insensitive icons
+--------------------
+
+An insensitive icon is use to represent a disabled or unusable functionality. It's normally a 
+gray-out and/or dim copy from the original icon.
+
+In QMON, several icons have insensitive version named with the suffix '_ins'. In parallel, QMON 
+also make use of the API functionality to render insensitive icon using the original icon.
+
+You can see the API effect in the panel 'General Configuration' of the 'Cluster Queues->Modify' 
+window. When a feature is locked, its corresponding icon and text are automatically gray out by 
+the API.
+
+I suggest we should use the API insensitive method where pertinent for icons that need to become 
+insensitive instead of supporting a dedicated set of insensitive icons. This way, the insensitive 
+icons would have a uniform look and it would also reduce the workload of creating and maintaining 
+additional insensitive icons.
+
+The following icons could be removed and replaced by the API insensitive method
+
+   21cal_ins.png  
+   deadline_ins.png  
+   mailbox_ins.png  
+   project_ins.png  
+   script_file_ins.png  
+   stderror_ins.png  
+   stdinput_ins.png  
+   stdoutput_ins.png  
+  
+Only the 2 followings icons would be better rendered using their current insensitive icon:
+
+   open_lock_insensitive.png  
+   binary_off_ins.png
+
+
+9) Big toolbar icons
+--------------------
+
+The QMON toolbar can use big icon (64x64 pixels) instead of the default normal icon (32x32 pixels). 
+To do so, you need update the $SGE_ROOT/qmon/Qmon configuration for the variable 'Qmon*pixmapFilePath'.
+More information on this change can be found in the qmon customization documentations.
+
+

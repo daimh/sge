@@ -1,0 +1,400 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\" $RCSfile: drmaa_wait.3,v $     Last Update: $Date: 2004-11-12 15:40:05 $     Revision: $Revision: 1.7 $
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de M    \" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH drmaa_wait 3 "$Date: 2004-11-12 15:40:05 $" "xxRELxx" "xxQS_NAMExx DRMAA"
+.\"
+.\"
+.\"
+.SH NAME
+drmaa_synchronize, drmaa_wait, drmaa_wifexited, drmaa_wexitstatus, drmaa_wifsignaled, drmaa_wtermsig, drmaa_wcoredump,
+drmaa_wifaborted \- Waiting for jobs to finish
+.PP
+.\"
+.\"
+.\"
+.SH SYNOPSIS
+.B #include """drmaa.h"""
+.PP
+.\"
+.\"
+.\"
+.nf
+\fBint drmaa_synchronize(\fP
+.RS
+.BI "const char *" job_ids [],
+.BI "signed long " timeout ,
+.BI int\  dispose ,
+.BI "char *" error_diagnosis ,
+.BI size_t\  error_diag_len
+.RE
+.fi
+\fB);\fP
+.PP
+.\"
+.\"
+.\"
+.nf
+\fBint drmaa_wait(\fP
+.RS
+.BI "const char *" job_id ,
+.BI "char *" job_id_out ,
+.BI size_t\ job_id_out_len ,
+.BI "int *" stat ,
+.BI "signed long " timeout ,
+.BI "drmaa_attr_values_t **" rusage ,
+.BI "char *" error_diagnosis ,
+.BI size_t\  error_diagnois_len
+.RE
+.fi
+\fB);\fP
+.PP
+.\"
+.\"
+.\"
+.nf
+\fBint drmaa_wifaborted(\fP
+.RS
+.BI "int *" aborted ,
+.BI int\  stat ,
+.BI "char *" error_diagnosis ,
+.BI size_t\  error_diag_len
+.RE
+.fi
+\fB);\fP
+.PP
+.\"
+.\"
+.\"
+.nf
+\fBint drmaa_wifexited(\fP
+.RS
+.BI "int *" exited ,
+.BI int\  stat ,
+.BI "char *" error_diagnosis ,
+.BI size_t\  error_diag_len
+.RE
+.fi
+\fB);\fP
+.PP
+.\"
+.\"
+.\"
+.nf
+\fBint drmaa_wifsignaled(\fP
+.RS
+.BI "int *" signaled ,
+.BI int\  stat ,
+.BI "char *" error_diagnosis ,
+.BI size_t\  error_diag_len
+.RE
+.fi
+\fB);\fP
+.PP
+.\"
+.\"
+.\"
+.nf
+\fBint drmaa_wcoredump(\fP
+.RS
+.BI "int *" core_dumped ,
+.BI int\  stat ,
+.BI "char *" error_diagnosis ,
+.BI size_t\  error_diag_len
+.RE
+.fi
+\fB);\fP
+.PP
+.\"
+.\"
+.\"
+.nf
+\fBint drmaa_wexitstatus(\fP
+.RS
+.BI "int *" exit_status ,
+.BI int\  stat ,
+.BI "char *" error_diagnosis ,
+.BI size_t\  error_diag_len
+.RE
+.fi
+\fB);\fP
+.PP
+.\"
+.\"
+.\"
+.nf
+\fBint drmaa_wtermsig(\fB
+.RS
+.BI "char *" signal ,
+.BI size_t\  signal_len ,
+.BI int\  stat ,
+.BI "char *" error_diagnosis ,
+.BI size_t\  error_diag_len
+.RE
+.fi
+\fB);\fP
+.PP
+.\"
+.\"
+.\"
+.SH DESCRIPTION
+The drmaa_synchronize() function blocks the calling thread until all jobs specified in \fIjob_ids\fP 
+have failed or finished execution. If \fIjob_ids\fP contains 'DRMAA_JOB_IDS_SESSION_ALL', then this 
+function waits for all jobs submitted during this DRMAA session. The \fIjob_ids\fP pointer array
+must be NULL terminated.  
+.PP
+To prevent blocking indefinitely in this call, the caller may use the \fItimeout\fP, specifying 
+how many seconds to wait for this call to complete before timing out. The special value
+DRMAA_TIMEOUT_WAIT_FOREVER can be used to wait indefinitely for a result. The special value
+DRMAA_TIMEOUT_NO_WAIT can be used to return immediately. 
+If the call exits before \fItimeout\fP seconds, all the specified jobs have completed or
+the calling thread received an interrupt.  In both cases, the return code is DRMAA_ERRNO_EXIT_TIMEOUT. 
+.PP
+The \fIdispose\fP parameter specifies how to treat reaping information. 
+If '0' is passed to this parameter, job finish information will still be available when 
+.M drmaa_wait 3
+is used. If '1' is passed, 
+.M drmaa_wait 3
+will be unable to access this job's finish information.
+.\" 
+.\" 
+.\" 
+.SS "drmaa_wait()"
+The drmaa_wait() function blocks the calling thread until a job fails or finishes execution.
+This routine is modeled on the 
+.M wait4 3 
+routine. 
+If the special string 'DRMAA_JOB_IDS_SESSION_ANY' is passed as \fIjob_id\fP, this routine 
+will wait for any job from the session. Otherwise the \fIjob_id\fP must be the job identifier
+of a job or array job task that was submitted during the session.
+.PP
+To prevent blocking indefinitely in this call, the caller may use \fItimeout\fP, specifying 
+how many seconds to wait for this call to complete before timing out. The special value
+DRMAA_TIMEOUT_WAIT_FOREVER can be to wait indefinitely for a result. The special value
+DRMAA_TIMEOUT_NO_WAIT can be used to return immediately. 
+If the call exits before \fItimeout\fP seconds have passed, all the specified jobs have completed or
+the calling thread received an interrupt.  In both cases, the return code is DRMAA_ERRNO_EXIT_TIMEOUT. 
+.PP
+The routine reaps jobs on a successful call, so any subsequent calls to 
+.M drmaa_wait 3 
+will fail returning a DRMAA_ERRNO_INVALID_JOB error, meaning that the job has already been reaped. 
+This error is the same as if the job were unknown. Returning due to an elapsed timeout or an
+interrupt does not cause the job information to be reaped.  This means that,
+in this case, it is possible to issue 
+.M drmaa_wait 3
+multiple times for the same \fIjob_id\fP. 
+.PP
+If \fIjob_id_out\fP is not a null pointer, then on return from a successful 
+.M drmaa_wait 3
+call, up to \fIjob_id_out_len\fP characters from the job id of the failed 
+or finished job are returned.
+.PP
+If \fIstat\fP is not a null pointer, then on return from a successful 
+.M drmaa_wait 3
+call, the status of the job is stored in the integer pointed to by \fIstat\fP.
+\fIstat\fP indicates whether job failed or finished and other information. The 
+information encoded in the integer value can be accessed via 
+.M drmaa_wifaborted 3 ,
+.M drmaa_wifexited 3 ,
+.M drmaa_wifsignaled 3 ,
+.M drmaa_wcoredump 3 ,
+.M drmaa_wexitstatus 3 ,
+and
+.M drmaa_wtermsig 3 .
+.PP
+If \fIrusage\fP is not a null pointer, then on return from a successful
+.M drmaa_wait 3
+call, a summary of the  resources used by the terminated job is returned in form of a
+DRMAA  values  string  vector. The entries in the DRMAA values string vector can be
+extracted using
+.M drmaa_get_next_attr_value 3 . 
+Each string returned by
+.M drmaa_get_next_attr_value 3
+will be of the format 
+\fIname\fP\fB=\fP\fIvalue\fP, where
+.I name
+and
+.I value
+specify name and
+amount of resources consumed by the job, respectively.  See
+.M accounting 5
+for an explanation of the resource information.
+.PP
+.\"
+.\" 
+.\" 
+.SS "drmaa_wifaborted()"
+The drmaa_wifaborted() function evaluates into the integer pointed to by \fIaborted\fP
+a non-zero value if \fIstat\fP was returned from a job that ended before entering the 
+running state.
+.PP
+.\"
+.\" 
+.\" 
+.SS "drmaa_wifexited()"
+The drmaa_wifexited() function evaluates into the integer pointed to by \fIexited\fP a 
+non-zero value if \fIstat\fP was returned from a job that terminated normally. A 
+zero value can also indicate that although the job has terminated normally, an exit 
+status is not available, or that it is not known whether the job terminated normally. 
+In both cases 
+.M drmaa_wexitstatus 3
+will not provide exit status information. A non-zero value returned in \fIexited\fP 
+indicates more detailed diagnosis can be provided by means of 
+.M drmaa_wifsignaled 3 , 
+.M drmaa_wtermsig 3 
+and 
+.M drmaa_wcoredump 3 .
+.PP
+.\"
+.\"
+.\"
+.SS "drmaa_wifsignaled()"
+The drmaa_wifsignaled() function evaluates into the integer pointed to by \fIsignaled\fP 
+a non-zero value if \fIstat\fP was returned for a job that terminated due to the receipt of a 
+signal. A zero value can also indicate that although the job has terminated due to the receipt of 
+a signal, the signal is not available, or it is not known whether the job terminated due to 
+the receipt of a signal. In both cases 
+.M drmaa_wtermsig 3
+will not provide signal information. A non-zero value returned in \fIsignaled\fP 
+indicates signal information can be retrieved by means of 
+.M drmaa_wtermsig 3 .
+.PP
+.\"
+.\"
+.\"
+.SS "drmaa_wcoredump()"
+If
+.M drmaa_wifsignaled 3 
+returned a non-zero value in the \fIsignaled\fP parameter, the drmaa_wcoredump() function evaluates into the 
+integer pointed to by \fIcore_dumped\fP a non-zero value if a core image of the terminated 
+job was created. 
+.PP
+.\"
+.\"
+.\"
+.SS "drmaa_wexitstatus()"
+If 
+.M drmaa_wifexited 3
+returned a non-zero value in the \fIexited\fP parameter, the drmaa_wexitstatus() function evaluates into the
+integer pointed to by \fIexit_code\fP the exit code that the job passed to 
+.M exit 2 
+or the value that the child process returned from main.
+.PP
+.\"
+.\"
+.\"
+.SS "drmaa_wtermsig()"
+If 
+.M drmaa_wifsignaled 3
+returned a non-zero value in the \fIsignaled\fP parameter, the drmaa_wtermsig() function evaluates 
+into \fIsignal\fP up to \fIsignal_len\fP characters of a string representation of the signal 
+that caused the termination of the job. For signals declared by POSIX.1, the symbolic names 
+are returned (e.g., SIGABRT, SIGALRM). For signals not declared by POSIX, any other string 
+may be returned.
+.PP
+.\"
+.\"
+.\"
+.SH "ENVIRONMENTAL VARIABLES"
+.\"
+.IP "\fBxxQS_NAME_Sxx_ROOT\fP" 1.5i
+Specifies the location of the xxQS_NAMExx standard configuration files.
+.\"
+.IP "\fBxxQS_NAME_Sxx_CELL\fP" 1.5i
+If set, specifies the default xxQS_NAMExx cell to be used. To address a xxQS_NAMExx
+cell xxQS_NAMExx uses (in the order of precedence):
+.sp 1
+.RS
+.RS
+The name of the cell specified in the environment
+variable xxQS_NAME_Sxx_CELL, if it is set.
+.sp 1
+The name of the default cell, i.e. \fBdefault\fP.
+.sp 1
+.RE
+.RE
+.\"
+.IP "\fBxxQS_NAME_Sxx_DEBUG_LEVEL\fP" 1.5i
+If set, specifies that debug information
+should be written to stderr. In addition the level of
+detail in which debug information is generated is defined.
+.\"
+.IP "\fBxxQS_NAME_Sxx_QMASTER_PORT\fP" 1.5i
+If set, specifies the tcp port on which
+.M xxqs_name_sxx_qmaster 8
+is expected to listen for communication requests.
+Most installations will use a services map entry instead
+to define that port.
+.\"
+.\"
+.\"
+.SH "RETURN VALUES"
+Upon successful completion, drmaa_run_job(), drmaa_run_bulk_jobs(), and drmaa_get_next_job_id()
+return DRMAA_ERRNO_SUCCESS. Other values indicate an error.
+Up to \fIerror_diag_len\fP characters of error related diagnosis 
+information is then provided in the buffer \fIerror_diagnosis\fP.
+.PP
+.\"
+.\"
+.\"
+.SH "ERRORS"
+The drmaa_synchronize(), drmaa_wait(), drmaa_wifexited(), drmaa_wexitstatus(), 
+drmaa_wifsignaled(), drmaa_wtermsig(), drmaa_wcoredump(), and drmaa_wifaborted()
+functions can fail with:
+.\" 
+.TP
+.B DRMAA_ERRNO_INTERNAL_ERROR
+Unexpected or internal DRMAA error, like system call failure, etc.
+.\" 
+.TP
+.B DRMAA_ERRNO_DRM_COMMUNICATION_FAILURE
+Could not contact DRM system for this request.
+.\" 
+.TP
+.B DRMAA_ERRNO_AUTH_FAILURE
+The specified request is not processed successfully due to authorization failure.
+.\" 
+.TP
+.B DRMAA_ERRNO_INVALID_ARGUMENT
+The input value for an argument is invalid.
+.\" 
+.TP
+.B DRMAA_ERRNO_NO_ACTIVE_SESSION
+Failed because there is no active session.
+.\" 
+.TP
+.B DRMAA_ERRNO_NO_MEMORY
+Failed allocating memory.
+.\" 
+.PP
+The drmaa_synchronize() and drmaa_wait() functions can fail with:
+.TP
+.B DRMAA_ERRNO_EXIT_TIMEOUT
+Time-out condition.
+.\" 
+.TP
+.B DRMAA_ERRNO_INVALID_JOB
+The job specified by the does not exist.
+.\" 
+.PP
+The drmaa_wait() can fail with:
+.TP
+.B DRMAA_ERRNO_NO_RUSAGE
+This error code is returned by drmaa_wait() when a job 
+has finished but no rusage and stat data could be provided.
+.PP
+.\" 
+.\" 
+.\" 
+.SH "SEE ALSO"
+.M drmaa_submit 3 .

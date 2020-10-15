@@ -1,0 +1,72 @@
+JobStart(char *job_identifier, TaskMap[])
+
+   struct TaskMap {
+      int index;
+      char *name;
+   }
+
+  - bases on sge_gdi(schedd order)
+  - we will provide JobStart() and a source snippet using JobStart() to show
+    how to have SGE start a job by using a specific number of tasks for each
+    SGE execution host
+
+JobCancel(char *job_identifier, int purge_or_reschedule)
+
+  - we will provide JobCancel() basing on sge_gdi(qdel) and a source
+    snippet using JobCancel() to show how to "terminate and purge"
+  - when time allows we will enhance JobCancel() towards "terminate
+    and reschedule" basing on sge_gdi(qmod -s) and provide a source
+    snippet using JobCancel() to show how to "terminate and reschedule"
+    SGE jobs. This will work only for jobs supporting SGE "userdefined
+    checkpointing"
+
+GetData(via global data)
+
+  - bases on event client interface
+  - we will provide GetData()
+  - this call is used to collect all relevant resource manager information
+    into Maui's local memory. No processessing or updating of Maui object
+    should be done in this call. The loaded data should include the
+    following:
+
+      execution host list
+      job list
+      PE list
+
+GetClusterInfo(lList *hosts)
+
+  - bases on data retrieved by GetData()
+  - we will provide GetClusterInfo() and a code snippet which steps through all
+    detected execution hosts and prints host id as well as the following attributes:
+
+      NodeID (hostname?)
+      CPU load
+      Architecture
+      Operating System
+      Configured and available real memory
+      Configured and available processors
+      Configured and available swap
+      Configured and available local disk
+
+GetWorkloadInfo(lList *jobs)
+
+  - bases on data retrieved by GetData()
+  - we will provide GetWorkloadInfo() and a code snippet which steps through all
+    SGE jobs and prints the following attributes
+
+     +job identifier
+      user name
+      group name
+      wall time requested
+      job start time
+      processors requested
+      hostlist requested (if specified)
+
+GetPolicyInfo(lList *pes)
+
+  - bases on data retrieved by GetData()
+  - we will provide GetPolicyInfo() and a code snippet which steps through all SGE PE
+    objects and prints information about determine PE task distribution policies,
+    PE to host mappings, PE defaults, and PE job and policy constraints. The first
+    instantiation of the interface will require a SGE configuration with one unlimited
+    queue per host.

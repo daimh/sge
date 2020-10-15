@@ -1,0 +1,33 @@
+Upgrading SGE installations
+===========================
+
+It is possible to do a live upgrade an installation of a previous SGE 8
+release or a 6.2u5-compatible one, without stopping jobs on the
+cluster, but at least ensure you have a configuration backup in case
+of problems <http://arc.liv.ac.uk/SGE/howto/backup.html>.  For
+upgrading from an older version, see
+<http://arc.liv.ac.uk/SGE/howto/install62patch.txt>.  From Oracle OGE
+6.2u6 or 6.2u7, or Univa UGE 8.1+, a re-installation will be required.
+
+* Stop the execds (qconf -ke).
+
+* Install the new binaries.  With an RPM- or dpkg-packaged version,
+  install all the packages with rpm/yum or dpkg/apt-get, as
+  appropriate, satisfying any necessary dependencies.  To upgrade the
+  grid engine version in Rocks the notes at
+  <https://wiki.rocksclusters.org/wiki/index.php/FAQ#Administration>
+  may help.
+
+  Otherwise, you want to avoid just copying the new binaries over the
+  old ones.  If you have built from source, source/scripts/distinst
+  can use install(1), and does automatically on GNU/Linux, so
+  something like this can be used (in the build directory, and
+  assuming a shared installation):
+
+    scripts/distinst -local -allall
+
+* Re-start the qmaster, e.g.
+    /etc/init.d/sgeqmaster restart
+
+* Re-start the execds, e.g.
+    pdsh ... /etc/init.d/sgeexecd start

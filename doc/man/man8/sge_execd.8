@@ -1,0 +1,236 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH xxQS_NAME_Sxx_EXECD 8 "2011-12-29" "xxRELxx" "xxQS_NAMExx Administrative Commands"
+.SH NAME
+xxqs_name_sxx_execd, xxqs_name_sxx_loadsensor \- xxQS_NAMExx job execution agent and load sensor interface
+.\"
+.\"
+.SH SYNOPSIS
+.B xxqs_name_sxx_execd
+[
+.B \-help
+]
+.\"
+.\"
+.SH DESCRIPTION
+.PP
+.I xxqs_name_sxx_execd
+controls the xxQS_NAMExx queues local to the machine on which
+.I xxqs_name_sxx_execd
+is running and executes/controls the jobs sent from
+.M xxqs_name_sxx_qmaster 8
+to be run on these queues via
+.M sge_shepherd 8
+or the
+.B shepherd_cmd
+of
+.M sge_conf 5 .
+.\"
+.\"
+.SH OPTIONS
+.\"
+.SS "\fB\-help\fP"
+Prints a listing of all options.
+.\"
+.\"
+.SH "LOAD SENSORS"
+One of more \fBload sensor\fPs may be configured for
+.I xxqs_name_sxx_execd
+via the possibilities listed in
+.M xxqs_name_sxx_conf 5 :
+the global host configuration, the
+execution-host-specific cluster configuration, the default
+.IR qloadsensor ,
+or
+.IR qidle
+(when
+.B USE_QIDLE
+is set \- see 
+.M sge_conf 5 ).
+The executable path of the load sensor is invoked by
+.I xxqs_name_sxx_execd
+on a regular basis (governed by
+.B load_report_time
+in
+.M sge_conf 5 ),
+and delivers one or multiple load figures for the execution host (e.g.
+users currently logged in) or the complete cluster (e.g. free
+disk space on a network wide scratch file system).  A load
+sensor may be a script or a binary executable. In either case
+its handling of the STDIN and STDOUT streams and its control
+flow must comply with the following rules.  Load sensors are restarted
+if their modification time changes or they are killed.  If they read a
+configuration file, for instance, killing will be necessary
+to  pick up modifications to it unless the sensor will re-read a
+modified version.
+.SS "Load sensor interface"
+The load sensor must be written as an infinite loop, waiting at
+a certain point for input from STDIN. If the string "quit"
+is read from STDIN, the load sensor should exit.  When an
+end-of-line is read from STDIN, a load data retrieval cycle should
+start. The load sensor then performs whatever
+operation is necessary to compute the desired load figures.
+At the end of the cycle the load sensor writes the result to
+stdout. The format is as follows:
+.IP "\(bu" 3n
+A load value report starts with a line containing only either the word  "start"
+or the word "begin".
+.IP "\(bu" 3n
+Individual load values are separated by newlines.
+.IP "\(bu" 3n
+Each load value report consists of three parts separated by
+colons (":") and containing no blanks.
+.IP "\(bu" 3n
+The first part of a load value information is either the name of
+the host for which load is reported or the special name
+"global".
+.IP "\(bu" 3n
+The second part is the symbolic name of the load value as
+defined in the host or global complex list (see
+.M complex 5
+for details).  This must be the full name of the complex, not the
+shortcut name.
+If a load value is
+reported for which no entry in the host or global complex
+list exists, the reported load value is not used.
+.IP "\(bu" 3n
+The third part is the measured load value.
+.IP "\(bu" 3n
+A load value report ends with a line with only the word "end".
+.PP
+NB. If the runtime of the language in which the sensor is written
+buffers the output (e.g. Perl), ensure it is flushed on each
+iteration.
+.\" 
+.SH "ENVIRONMENT VARIABLES"
+.\" 
+.IP "\fBxxQS_NAME_Sxx_ROOT\fP" 1.5i
+Specifies the location of the xxQS_NAMExx standard configuration
+files.
+.\"
+.IP "\fBxxQS_NAME_Sxx_CELL\fP" 1.5i
+If set, specifies the default xxQS_NAMExx cell. To address a xxQS_NAMExx
+cell
+.I xxqs_name_sxx_execd
+uses (in the order of precedence):
+.sp 1
+.RS
+.RS
+The name of the cell specified in the environment
+variable xxQS_NAME_Sxx_CELL, if it is set.
+.sp 1
+The name of the default cell, i.e. \fBdefault\fP.
+.sp 1
+.RE
+.RE
+.\"
+.IP "\fBxxQS_NAME_Sxx_DEBUG_LEVEL\fP" 1.5i
+If set, specifies that debug information
+should be written to stderr. In addition, the level of
+detail in which debug information is generated is defined.
+.\"
+.IP "\fBxxQS_NAME_Sxx_QMASTER_PORT\fP" 1.5i
+If set, specifies the tcp port on which
+.M xxqs_name_sxx_qmaster 8
+is expected to listen for communication requests.
+Most installations will use a services map entry for the
+service "sge_qmaster" instead to define that port.
+.\"
+.IP "\fBxxQS_NAME_Sxx_EXECD_PORT\fP" 1.5i
+If set, specifies the tcp port on which
+.M xxqs_name_sxx_execd 8
+is expected to listen for communication requests.
+Most installations will use a services map entry for the
+service "sge_execd" instead to define that port.
+.\"
+.IP "\fBSGE_ND\fP" 1.5i
+If set, don't daemonize the program (for debugging).
+.\"
+.IP "\fBSGE_ENABLE_COREDUMP\fP" 1.5i
+If set, enable core dumps on Linux when the admin_user is not root.
+Linux normally disables core dumps when the daemon has changed uid or
+gid.  Setting SGE_ENABLE_COREDUMP in xxqs_name_sxx_execd's environment
+defeats that to enable core dumps for debugging if they are otherwise
+allowed.  This is typically not a big hazard with xxQS_NAME_Sxx, since
+most information is exposed in the spool area anyhow.  Dumps will
+appear in the qmaster spool directory, which need not be
+world-readable.
+.br
+On Solaris,
+.M coreadm 1
+may be used to enable such dumps.
+.\"
+.IP \fBSGE_EXECD_PIDFILE\fP 1.5i
+Path name of file to which to write the daemon process id at startup
+(default "execd.pid").  Note that this must be writable by the admin
+user (see
+.M bootstrap 5 ).
+.\"
+.SH RESTRICTIONS
+.I xxqs_name_sxx_execd
+usually is started from root on each machine in the xxQS_NAMExx pool.
+If started by a normal user, a spool directory must be used to which
+the user has read/write access. In this case only jobs being submitted
+by that same user are handled correctly by the system.
+.\"
+.\"
+.SH FILES
+.nf
+.ta \w'<xxqs_name_sxx_root>/     'u
+\fI<xxqs_name_sxx_root>/<cell>/common/configuration\fP
+	xxQS_NAMExx global configuration
+\fI<xxqs_name_sxx_root>/<cell>/common/local_conf/<host>\fP
+	xxQS_NAMExx host specific configuration
+\fI<xxqs_name_sxx_root>/<cell>/spool/<host>\fP
+	Default execution host spool directory
+\fI<xxqs_name_sxx_root>/<cell>/common/act_qmaster\fP
+	xxQS_NAMExx master host file
+\fI<xxqs_name_sxx_root>/bin/<arch>/qloadsensor\fP
+	Default load sensor
+\fI<xxqs_name_sxx_root>/bin/<arch>/qidle\fP
+	Idle load sensor per USE_QIDLE in execd_params
+\fI<xxqs_name_sxx_root>/<cell>/common/sgepasswd\fP
+	Password information used on Microsoft Windows hosts.  See
+.M sgepasswd 5 .
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M xxqs_name_sxx_conf 5 ,
+.M complex 5 ,
+.M load_parameters 5 ,
+.M sgepasswd 5 ,
+.M xxqs_name_sxx_shepherd 8 ,
+.M xxqs_name_sxx_qmaster 8 .
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

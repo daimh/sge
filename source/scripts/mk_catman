@@ -1,0 +1,110 @@
+#!/bin/sh
+#
+# Creates packed catman files in directories CAT{1,...} from ASCII
+# manuals in directories ASCMAN{1,...}. The directories CAT{1,...}
+# are created if they do not exist. The procedure must be executed
+# in the directory in which the ASCMAN{1,...} directories reside.
+#
+# The procedure uses the SGI pack program to compress the manual
+# pages, thus it has to be executed on an SGI
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+umask 022
+
+MANBUILDDIR=$1/MANSBUILD_$2
+
+if [ $# -gt 2 ]; then
+   MANBUILDDIR=$3
+fi
+
+#if [ `/sbin/uname` != IRIX -a `/sbin/uname` != IRIX64 ]; then
+#        echo "Error: need to be executed on an SGI - we need pack."
+#        exit 1
+#fi
+if [ ! -f `which pack` ]; then
+   echo "Error: the command 'pack' was not found!"
+   exit 1
+fi
+
+echo "Building catman pages in $MANBUILDDIR/ASCMAN/man"
+
+# Build the list of the available sections
+SECTION_LIST=""
+for n in 1 2 3 4 5 6 7 8; do
+   if [ -d $MANBUILDDIR/ASCMAN/man/man${n} ]; then
+     if [ "$SECTION_LIST" == "" ]; then
+        SECTION_LIST=$n
+     else
+        SECTION_LIST="$SECTION_LIST $n"
+     fi
+   fi
+done
+
+for n in $SECTION_LIST; do
+   mkdir -p $MANBUILDDIR/CAT/man${n}
+
+   if [ ! -d $MANBUILDDIR/CAT/man${n} ]; then
+      echo "Error: Couldnt create subdirectory CAT/man${n}."
+      exit
+   fi
+
+   echo copying and compressing section $n
+	cd $MANBUILDDIR/ASCMAN/man/man${n}
+	for f in *; do
+		/bin/cp $f $MANBUILDDIR/CAT/man${n}
+	done
+	cd $MANBUILDDIR/CAT/man${n}
+
+	rm -f *.z
+	pack -f *
+done
+
+for n in $SECTION_LIST; do
+   if [ $n == 1 ]; then
+      category_dir="u_man"
+   else if [ $n == 3 ]; then
+      category_dir="p_man"
+   else
+      category_dir="a_man"
+   fi
+
+   mkdir -p $MANBUILDDIR/ASCMAN/catman/${category_dir}/cat${n}
+   if [ ! -d $MANBUILDDIR/ASCMAN/catman/${category_dir}/cat${n} ]; then
+     echo "Error: Couldn't create directories."
+     exit 1
+   fi
+   rm -f $MANBUILDDIR/ASCMAN/catman/${category_dir}/cat${n}/*
+   echo copying cat${n} ...
+   cp  $MANBUILDDIR/CAT/man${n}/* $MANBUILDDIR/ASCMAN/catman/${category_dir}/cat${n} 2> /dev/null
+done
+echo ... done

@@ -1,0 +1,120 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76 [en] (X11; U; Linux 2.2.18-SMP i686) [Netscape]">
+   <meta name="AUTHOR" content="Ernst Bablick">
+   <meta name="CREATED" content="20010612;10123300">
+   <meta name="CHANGEDBY" content="Ernst Bablick">
+   <meta name="CHANGED" content="20010628;12083100">
+<style>
+	<!--
+		@page { size: 8.27in 11.69in; margin-left: 1.25in; margin-right: 1.25in; margin-top: 1in; margin-bottom: 1in }
+		TD P { margin-bottom: 0.08in }
+		H2 { margin-bottom: 0.08in; font-family: "helvetica", sans-serif; font-size: 14pt; font-style: italic }
+		P { margin-bottom: 0.08in }
+		P.sdfootnote { margin-left: 0.2in; text-indent: -0.2in; margin-bottom: 0in; font-size: 10pt }
+		A.sdfootnoteanc { font-size: 57% }
+	-->
+	</style>
+</head>
+<body>
+
+<h1 STYLE="margin-top: 0.17in; margin-bottom: 0.08in; page-break-after: avoid">
+<font face="helvetica, sans-serif">Qmaster<a NAME="sdfootnote1anc" CLASS="sdfootnoteanc" HREF="#sdfootnote1sym"></a></font><sup><a href="#sdfootnote1sym" CLASS="sdfootnoteanc" NAME="sdfootnote1anc">1</a></sup></h1>
+
+<p><br>Qmaster is the central application within a Grid Engine installation.
+A running instance of this application controls the overall behavior of
+a whole Grid Engine cluster.
+<p>This process holds the most current data about states of jobs, queues
+and other necessary objects. Data persistence is secured by the qmaster
+daemon. Objects are spooled to a filesystem before the user gets a confirmation
+about requested changes. Every daemon and client application which is interested
+in information about a specific object has to ask the qmaster daemon. Communication
+with qmaster is possible via the Grid Engine Database Interface (<a href="../../libs/gdi/gdi.html">GDI</a>
+)
+<p>Qmaster incorporates a scheduler thread, which may be referred to
+as "<a href="schedd.html">schedd</a>, which was the name of the separate daemon which
+originally did the scheduling for the task of assigning suitable resources (hosts, queues) to jobs waiting
+for execution.</font>
+<br>Once schedd has determined an assignment
+of jobs to queues, it produces a list of so called "orders".
+<p>Such a job execution order will result in qmaster sending
+the corresponding job to the execution daemon <a href="../execd/execd.html">execd
+</a>of the selected host. This execd will start with the execution of the
+job. The current status of a job or a host again will be reported to qmaster
+by execd using the GDI.
+<h2>
+Interoperating with Clients &mdash; Implementing the Grid Engine Database Interface</h2>
+GDI stands for Grid Engine Database Interface. All functions which are
+needed for a client application or a daemon to use this interface are packaged
+together in the library libgdi.a. Documentation for this library can be
+found <a href="../../libs/gdi/gdi.html">here.</a><i><font color="#CC0000"></font></i><i><font color="#CC0000"></font></i>
+<p>One of the core tasks of qmaster is to implement the framework which
+handles incoming GDI requests. The most important part of this framework
+is the array gdi_object[]. Its elements contain the same constants used
+to identify GDI requests, and function pointers describing which functions
+serve a particular request.
+<p>When a client request arrives at qmaster it will pass through several
+steps. Information from the gdi_object[] array will be used as necessary.
+The following explains the steps being processed in the example of a modify
+request of a Checkpointing object. Please find all function definitions
+and constants mentioned below in source/libs/gdi/sge_gdi.h and source/daemons/qmaster/sge_c_gdi.c.
+<ol>sge_c_gdi() will be called with a new request structure. The function
+recognizes that it got a SGE_GDI_MOD-request and calls sge_c_gdi_mod().
+
+<p>sge_c_gdi_mod() identifies the type of the object which should be modified
+(SGE_CKPT_LIST). It calls sge_gdi_add_mod_generic().
+
+<p STYLE="margin-bottom: 0in">sge_gdi_add_mod_generic() looks up the following
+three function pointer entries in gdi_object[] and executes them in the
+right order:
+<br>&nbsp;
+<ol>A function which is capable of changing a copy of an object according
+to the information received from the client,
+<p>a function which will spool the changed object to a corresponding file,
+and
+<p>a function which will be called after the object was successfully modified.</ol>
+
+<p><br>During the previous steps, lists will be filled with answer messages
+sent to the client before the request is completely finished.</ol>
+
+<h2>
+Interoperating with the Execution Daemon &mdash; Job and Load Protocols</h2>
+Jobs get dispatched to execd by qmaster and execd reports job, host status
+and load information back to qmaster. A protocol between qmaster and execd
+handles these and similar tasks. More information about it can be found
+<a href="../execd/execd.html">here</a>.
+<h2>
+Process Flow</h2>
+When Qmaster starts up successfully following actions are taken:
+<blockquote>
+
+<div STYLE="margin-left: 0.79in">Prevent other Qmaster processes
+starting up successfully.</div>
+
+<div STYLE="margin-left: 0.79in">Read Qmasters configuration</div>
+
+<div STYLE="margin-left: 0.79in">Read all spooled GDI objects from the
+filesystem</div>
+</blockquote>
+After startup, Qmaster enters its main loop where it
+<blockquote>
+<div STYLE="margin-left: 0.79in">accepts GDI requests</div>
+
+<div STYLE="margin-left: 0.79in">gets reports from Execds</div>
+
+<div STYLE="margin-left: 0.79in">answers acknowledge requests</div>
+</blockquote>
+You can find the implementation of the main loop in the main() function
+in source/daemons/qmaster/qmaster.c
+<br>&nbsp;
+<br>&nbsp;
+<div ID="sdfootnote1">
+<center><a NAME="sdfootnote1sym" CLASS="sdfootnotesym" HREF="#sdfootnote1anc"></a><a href="#sdfootnote1anc" CLASS="sdfootnotesym" NAME="sdfootnote1sym">1</a>Copyright
+2001 Sun Microsystems, Inc. All rights reserved.</center>
+</div>
+
+</body>
+</html>

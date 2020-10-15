@@ -1,0 +1,421 @@
+#!/bin/sh
+#
+#  arch
+#
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+#
+#  The original idea of "aimk" where this script is based on came from the
+#  PVM 3.x distribution, 22 Jul 1991 Robert Manchek manchek@CS.UTK.EDU.
+#
+#  call:   arch       (print SGE architecture string)
+#          arch -m    (print default MANPATH of system)
+#          arch -mt   (print either "man" or "catman")
+#          arch -lib  (print name of variable to extend shared library path)
+
+# On some architectures, it is necessary to run the manpath(1) command
+# with the user's path instead of our "safe" one.  Thus we need to
+# save the old value of PATH for later restoration.
+#
+
+# NB this must avoid features not in Solaris /bin/sh, potentially
+# even in non-Solaris-specific bits of the code.  E.g. using $(...) in
+# "case ... in ... Linux) ..." failed on Solaris 10.
+
+SAFE_PATH=/bin:/usr/bin:/usr/sbin
+OLD_PATH=$PATH
+PATH=$SAFE_PATH
+
+ARCH=UNKNOWN
+
+if [ -x /bin/uname ]; then
+   UNAME=/bin/uname
+elif [ -x /usr/bin/uname ]; then
+   UNAME=/usr/bin/uname
+else
+   echo ERROR: \"uname\" command not found
+   exit 1
+fi
+
+ossysname="`$UNAME -s`" 2>/dev/null || ossysname=unknown
+osmachine="`$UNAME -m`" 2>/dev/null || osmachine=unknown
+osrelease="`$UNAME -r`" 2>/dev/null || osrelease=unknown
+
+maybe_el () {
+dummy=`mktemp`.c
+cat <<EOF >$dummy
+#undef MYARCH
+#undef ${lxmachine}
+#undef ${lxmachine}el
+#if defined(__MIPSEL__) || defined(__MIPSEL) || defined(_MIPSEL) || defined(MIPSEL)
+MYARCH=${lxmachine}el
+#else
+#if defined(__MIPSEB__) || defined(__MIPSEB) || defined(_MIPSEB) || defined(MIPSEB)
+MYARCH=${lxmachine}
+#else
+MYARCH=
+#endif
+#endif
+EOF
+eval `c89 -E $dummy 2>/dev/null | grep '^MYARCH'`
+[ -n "$MYARCH" ] && lxmachine=$MYARCH
+rm $dummy
+}
+
+case $ossysname in
+AIX)
+   osversion=`$UNAME -v`
+   case $osversion in
+   5|6|7)
+      ARCH=aix51
+      ;;
+   *)
+      ARCH=UNSUPPORTED-aix-$osrelease
+      ;;
+   esac
+   ;;
+Darwin)
+   osrelease=`/usr/bin/sw_vers -productVersion`
+   case $osmachine in
+      i386|x86_64)
+         case $osrelease in
+            10.1.*)
+               darwin_machine=x86
+               ;;
+            10.[2-9].*|10.10.*)
+               darwin_machine=x64
+               ;;
+            *)
+               darwin_machine=unknown
+               ;;
+            esac
+         ;;
+      *)
+         darwin_machine=unsupported
+         ;;
+   esac
+   osversion=`echo $osrelease | cut -f 1 -d .`
+   if [ $osversion -lt 8 ]; then
+      ARCH=darwin
+   else
+      ARCH=darwin-$darwin_machine
+   fi
+   ;;
+FreeBSD|DragonFly)
+   ARCH=fbsd-$osmachine
+   ;;
+NetBSD)
+    osprocessor="`$UNAME -p`"
+    ARCH=nbsd-$osprocessor
+    ;;
+OpenBSD)
+    osprocessor="`$UNAME -p`"
+    ARCH=obsd-$osprocessor
+    ;;
+IRIX*)
+   case $osrelease in
+   6.5)
+      ARCH=irix65
+      ;;
+   6.*)
+      ARCH=UNSUPPORTED-irix-$osrelease
+      ;;
+   esac
+   ;;
+HP-UX)
+   case $osmachine in
+   ia64)
+      ARCH=hp11
+      ;;
+   9000/*)
+      case $osrelease in
+      *.11.*)
+      if [ -x /usr/bin/getconf ]; then
+         bits="`/usr/bin/getconf KERNEL_BITS`"
+         if [ $bits -eq 64 ]; then
+            ARCH=hp11-64
+         else
+            ARCH=hp11
+         fi
+      else
+         ARCH=hp11
+      fi
+      ;;
+      esac
+   esac
+   ;;
+Linux)
+   unsupported=""
+
+   case $osmachine in
+   i*86)
+      lxmachine=x86
+      ;;
+   alpha | sparc | parisc | ia64 | ppc | ppc64 | ppc64le | mips64 | s390 | s390x)
+      lxmachine=$osmachine
+      ;;
+   aarch64)
+      lxmachine=arm64
+      ;;
+   arm*b)
+      lxmachine=armeb
+      ;;
+   arm*)
+      if /usr/bin/cpp -dM </dev/null | grep -q __ARM_PCS_VFP; then
+          lxmachine=armhf       # what Debian calls it, at least (hard float)
+      else
+          lxmachine=arm
+      fi
+      ;;
+   sparc64)
+      lxmachine=sparc
+      ;;
+   x86_64)
+      lxmachine=amd64
+      ;;
+   mips)
+      lxmachine=mips
+      maybe_el
+      ;;
+   powerpc)
+      lxmachine=ppc
+      ;;
+   powerpc64)
+      lxmachine=ppc64
+      ;;
+   powerpc64le | powerpc64el)
+      lxmachine=ppc64el
+      ;;
+   *)
+      unsupported="UNSUPPORTED-"
+      lxmachine=$osmachine
+   esac
+
+   # Fixme: Dispense with this stuff and just ignore ancient kernels.
+   # It's most robust to use the glibc API, but this should work on
+   # the supported patforms anyhow.  See section 4.9 in
+   # http://sourceware.org/git/?p=glibc.git;a=blob_plain;f=FAQ;hb=HEAD
+   if [ "$unsupported" != "UNSUPPORTED-" ]; then
+      case $osrelease in
+      2.4.*|2.6.*|[3-9].*)
+         # verify the GNU C lib version
+         # we expect libc version to be
+         # >= 2.3 - this is our supported lx-* platform
+         # == 2.2 - unsupported but known to build and work: ulx-* platform
+         # <= 2.2 - not accepted as build or execution platform
+
+	 # This should account for, say /lib64/x86_64-linux-gnu/libc.so.6
+	 # in Ubuntu 11.04.
+	 libc=`ldd /bin/date 2>/dev/null | awk '/[ \t]+libc\.so/ {print $3}'`
+	 case $libc in
+	 */libc.*) ;;
+	 *)			# fallbacks
+            case $lxmachine in
+            amd64)
+               libc=/lib64/libc.so.6
+               ;;
+            ia64)
+               libc=/lib/libc.so.6.1
+               ;;
+            *)
+               libc=/lib/libc.so.6
+               ;;
+   	    esac ;;
+         esac
+
+         libc_string=`$libc | head -n 1`
+         # retrieving libc version failed
+         if [ $? -ne 0 ]; then
+            unsupported="UNSUPPORTED-"
+         else
+            libc_version=`expr "$libc_string" : ".* version [0-9]*\\.\([0-9]*\)[^0-9]" 2>/dev/null`
+            if expr "$libc_version" : "[0-9][0-9]*$" >/dev/null 2>&1; then
+               if [ $? -ne 0 -o $? -ne 0 -o $libc_version -lt 2 ]; then
+                  unsupported="UNSUPPORTED-GLIBC-2.${libc_version}"
+               else
+                  if [ $libc_version -eq 2 ]; then
+                     unsupported="u"
+                  fi
+               fi
+            fi
+         fi
+         ;;
+      *)
+         unsupported="UNSUPPORTED-$osrelease"
+      esac
+      fi
+      ARCH=${unsupported}lx-${lxmachine}
+      ;;
+OSF1)
+   case $osrelease in
+   V4*)
+      ARCH=osf4
+      ;;
+    V5*|T5*)
+       ARCH=tru64
+       ;;
+    *)
+       ARCH=UNSUPPORTED-osf1-$osrelease
+       ;;
+    esac
+    ;;
+SunOS)
+   case $osmachine in
+   sun4)
+      ARCH=UNSUPPORTED-sun4
+      ;;
+   i86*)
+      ARCH=sol-x86
+      case $osrelease in
+      5.[8]*)
+         ARCH=usol-x86
+         ;;
+      5.[91]*)
+         if [ `isainfo -b` = 64 ]; then
+            ARCH=sol-amd64
+         else
+            ARCH=sol-x86
+         fi
+         ;;
+      *)
+         ARCH=UNSUPPORTED-SunOS-$osrelease
+         ;;
+      esac
+      ;;
+   *)
+      case $osrelease in
+      5.[8]*)
+         if [ `isainfo -b` = 64 ]; then
+            ARCH=usol-sparc64
+         else
+            ARCH=usol-sparc
+         fi
+         ;;
+      5.[91]*)
+         if [ `isainfo -b` = 64 ]; then
+            ARCH=sol-sparc64
+         else
+            ARCH=sol-sparc
+         fi
+         ;;
+      *)
+         ARCH=UNSUPPORTED-SunOS-$osrelease
+         ;;
+      esac
+      ;;
+   esac
+   ;;
+Interix)
+   ARCH=win32-x86
+   ;;
+CYGWIN*)
+   case $osmachine in
+   i*) ARCH=cygwin-x86 ;;
+   x86_64) ARCH=cygwin-x86_64 ;;
+   *) ARCH=UNSUPPORTED-cygwin ;;
+   esac
+   ;;
+*)
+   ARCH=UNSUPPORTED-${ossysname}-${osmachine}-${osrelease}
+   ;;
+esac
+
+if [ "$1" = "-m" -o "$1" = "-mt" -o "$1" = "-lib" ]; then
+   MANTYPE=man
+   SHARED_LIBRARY_PATH="LD_LIBRARY_PATH"
+   DEFAULTMANPATH=/usr/man
+   case $ARCH in
+   aix*)
+      DEFAULTMANPATH=/usr/man
+      SHARED_LIBRARY_PATH="LIBPATH"
+      ;;
+   darwin-*)
+      DEFAULTMANPATH=`/usr/bin/manpath -q`
+      SHARED_LIBRARY_PATH="DYLD_LIBRARY_PATH"
+      ;;
+   fbsd-*)
+      PATH=$OLD_PATH
+      DEFAULTMANPATH=`/usr/bin/manpath -q`
+      PATH=$SAFE_PATH
+      ;;
+   nbsd-*)
+      PATH=$OLD_PATH
+      DEFAULTMANPATH=/usr/pkg/man:/usr/local/man:/usr/X11R7/man:/usr/share/man
+      PATH=$SAFE_PATH
+      ;;
+   obsd-*)
+      PATH=$OLD_PATH
+      DEFAULTMANPATH=/usr/local/man:/usr/X11R6/man:/usr/share/man
+      PATH=$SAFE_PATH
+      ;;
+   hp*)
+      DEFAULTMANPATH=/usr/man:/usr/contrib/man:/usr/local/man
+      SHARED_LIBRARY_PATH="SHLIB_PATH"
+      ;;
+   irix65)
+      DEFAULTMANPATH=/usr/share/catman:/usr/share/man:/usr/catman:/usr/man
+      MANTYPE=catman
+      ;;
+   lx*)
+      if [ "`which manpath 2>/dev/null`" != "" ]; then
+         DEFAULTMANPATH=`manpath 2>/dev/null`
+      else
+         DEFAULTMANPATH=/usr/local/man:/usr/share/man:/usr/man:/usr/X11R6/man
+      fi
+      ;;
+   sol-*)
+      DEFAULTMANPATH=/usr/share/man
+      # if bit-specific variable already set, use this variable!
+      SHARED_LIBRARY_PATH_BITS="LD_LIBRARY_PATH_`isainfo -b`"
+      if eval [ x\$$SHARED_LIBRARY_PATH_BITS != x ]; then
+              SHARED_LIBRARY_PATH=$SHARED_LIBRARY_PATH_BITS
+      fi
+      ;;
+   tru64)
+      DEFAULTMANPATH=/usr/share/man:/usr/dt/share/man:/usr/local/man
+      ;;
+   win32*)
+      DEFAULTMANPATH=/usr/share/man
+      MANTYPE=catman/cat
+      ;;
+   esac
+
+   if [ "$1" = "-m" ]; then
+      echo $DEFAULTMANPATH
+   elif [ "$1" = "-lib" ]; then
+      echo $SHARED_LIBRARY_PATH
+   else
+      echo $MANTYPE
+   fi
+else
+   echo $ARCH
+fi

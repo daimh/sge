@@ -1,0 +1,88 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\" $RCSfile: project.5,v $     Last Update: $Date: 2011-05-17 21:12:00 $     Revision: $Revision: 1.9 $
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH PROJECT 5 "$Date: 2011-05-17 21:12:00 $" "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+project \- xxQS_NAMExx project entry file format
+.\"
+.SH DESCRIPTION
+Jobs can be submitted to projects, and a project can be assigned
+with a certain level of importance, via the functional or the override
+policy. This level of importance is then inherited by the jobs executing
+under that project.
+.PP
+A list of currently configured projects can be displayed via the
+.M qconf 1
+\fB\-sprjl\fP option. The contents of each listed project definition
+can be shown via the \fB\-sprj\fP switch. The output follows the
+.I project
+format description. New projects can be created, and existing ones can be
+modified, via the \fB\-aprj\fP, \fB\-mprj\fP and \fB\-dprj\fP options to
+.M qconf 1 .
+.PP
+Note, xxQS_NAMExx allows backslashes (\\) be used to escape newline
+characters. The backslash and the newline are replaced with a space
+character before any interpretation.
+.\"
+.\"
+.SH FORMAT
+A project definition contains the following parameters:
+.SS "\fBname\fP"
+The project name in the format for \fIproject_name\fP in
+.M sge_types 5 .
+.SS "\fBoticket\fP"
+The number of override tickets currently assigned to the project.
+.SS "\fBfshare\fP"
+The current functional share of the project.
+.SS "\fBacl\fP"
+A list of user access lists (ACLs \- see
+.M access_list 5 )
+referring to those users allowed to submit jobs to the project.
+.PP
+If the \fBacl\fP parameter is set to NONE, all users are allowed to submit jobs
+to the project except for those listed in the \fBxacl\fP parameter described below.
+.SS "\fBxacl\fP"
+A list of user access lists (ACLs \- see
+.M access_list 5 )
+referring to those users not allowed to submit jobs to the project.
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M xxqs_name_sxx_types 1 ,
+.M qconf 1 ,
+.M access_list 5 .
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

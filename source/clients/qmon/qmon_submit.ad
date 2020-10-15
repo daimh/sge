@@ -1,0 +1,856 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Submit Control 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_submit.xmtType:   TopLevelShell
+Qmon*qmon_submit.allowShellResize: True
+
+Qmon*qmon_submit.xmtChildren: unmanaged XmtLayout submit_layout;
+Qmon*submit_layout.autoUnmanage:    False
+Qmon*submit_layout.dialogTitle:  @{QMON +++ Job Submission}
+
+Qmon*submit_layout.xmtChildren: \
+   Folder            submit_folder; \
+   XmToggleButton    submit_interactive, submit_binary; \
+   XmPushButton      submit_submit, submit_done, submit_help, \
+                     submit_edit, submit_clear, submit_save, \
+                     submit_load, submit_reload, submit_main_link; \
+   XmtMsgLine        submit_message;
+
+Qmon*submit_layout.layout: \
+   Fixed Shadowed Out 4 2 LREvenSpaced Row submit_title { \
+      Fixed Centered submit_main_link \
+      Centered Color "$title_fg" "@{@fBJob Submission}" \
+   } \
+   ## \
+   Row submit_always { \
+      submit_folder \
+      Fixed Shadowed Col { \
+         Fixed submit_interactive \
+         Fixed submit_binary \
+         Fixed submit_submit \
+         Fixed submit_edit \
+         Fixed submit_clear \
+         Fixed submit_reload \
+         Fixed submit_save \
+         Fixed submit_load \
+         Fixed submit_done \
+         Fixed submit_help \
+         <> \
+         Fixed submit_message \
+      } \
+   }
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! space between the layout children and a courier font
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*submit_folder*fontList:          $dialog_font
+
+Qmon*submit_message*columns:         20
+
+Qmon*submit_folder*defaultSpacing:   2
+Qmon*submit_folder*marginWidth:   0
+Qmon*submit_detail*marginHeight:  0
+
+Qmon*submit_folder*XmtInputField.marginHeight:   1
+Qmon*submit_folder*XmtInputField.marginWidth:    1
+!Qmon*submit_folder*XmPushButton.marginWidth:   1
+!Qmon*submit_folder*XmPushButton.marginHeight:  1
+
+Qmon*submit_folder.xmtChildren: \
+   XmtLayout submit_general, \
+             submit_detail; \
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! submit_general
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*submit_general.tabLabel: @{@fBGeneral}
+Qmon*submit_general.xmtChildren: \
+   InputField        submit_script = job_script, \
+                     submit_name = job_name, \
+                     submit_tasks = job_tasks, \
+                     submit_project = project,  \
+                     submit_wd = wd_path, \
+                     submit_prefix = directive_prefix; \
+   TimeInput         submit_execution_time = execution_time; \
+   StrListField      submit_job_args = job_args, \
+                     submit_task_hold = task_range, \
+                     submit_stdoutput = stdoutput_path_list, \
+                     submit_stdinput = stdinput_path_list, \
+                     submit_stderror = stderror_path_list, \
+                     submit_shell = shell_list; \
+   XmToggleButton    submit_output_merge = merge_output, \
+                     submit_notify  = notify, \
+                     submit_hold = hold, \
+                     submit_reservation = reservation, \
+                     submit_cwd = cwd, \
+                     submit_now = now; \
+   Spinbox           submit_priority = priority; \
+   Spinbox           submit_jobshare = jobshare; \
+   Spinbox           submit_taskconcurrency = task_concurrency; \
+   XmPushButton      submit_scriptPB, submit_resources, submit_stdoutputPB, \
+                     submit_stdinputPB, submit_stderrorPB, submit_exec_timePB, \
+                     submit_projectPB, submit_shellPB; \
+   XmtChooser        submit_restart = restart;
+
+Qmon*submit_general.layout: \
+   Row submit_always { \
+      Shadowed Col { \
+         Row { Fixed Caption l "@{Prefix}" 4 em submit_prefix <> } \
+         Row { \
+            Centered Caption tl "@{Job Script}" 30 em submit_script \
+            <> \
+            Fixed FlushBottom submit_scriptPB \
+         } \
+         Row { Fixed Caption tl "@{Job Tasks}" 30 em submit_tasks <> } \
+         Row { Fixed Caption tl "@{Job Name}" 30 em submit_name <> } \
+         Row { Fixed Caption tl "@{Job Args}" 30 em submit_job_args <> } \
+         Row { \
+            Fixed Caption tl "@{Priority}" submit_priority \
+            <> \
+            Fixed Caption tl "@{Job Share}" submit_jobshare \
+            <> \
+            Fixed Caption tl "@{Max Tasks}" submit_taskconcurrency \
+            <> \
+         } \
+         Row { \
+            Centered Caption tl "@{Start At}" 30 em submit_execution_time \
+            <> \
+            Fixed FlushBottom submit_exec_timePB \
+         } \
+         Row { \
+            Centered Caption tl "@{Project}" 30 em submit_project \
+            <> \
+            Fixed FlushBottom submit_projectPB \
+         } \
+         Col { \
+            Fixed submit_cwd \
+            Caption tl "@{Working Directory}" 30 em submit_wd \
+         } \
+         Row { \
+            Centered Caption tl "@{Shell}" 30 em submit_shell \
+            <> \
+            Fixed FlushBottom submit_shellPB \
+         } \
+         <>\
+      } \
+      Fixed Shadowed Col { \
+         Row { submit_output_merge <> } \
+         Row { \
+            Centered Caption tl "@{stdout}" 30 em submit_stdoutput \
+            <> \
+            Fixed FlushBottom submit_stdoutputPB \
+         } \
+         Row { \
+            Centered Caption tl "@{stderr}" 30 em submit_stderror \
+            <> \
+            Fixed FlushBottom submit_stderrorPB \
+         } \
+         Row { \
+            Centered Caption tl "@{stdin}" 30 em submit_stdinput \
+            <> \
+            Fixed FlushBottom submit_stdinputPB \
+         } \
+         ### \
+         Caption tl "@{Request Resources}" Row { \
+            Centered Fixed submit_resources \
+         } \
+         Fixed submit_restart \
+         Fixed submit_notify \
+         Row { \
+            Fixed Centered submit_hold \
+            20 em submit_task_hold \
+            <> \
+         } \
+         Fixed submit_now \
+         Fixed submit_reservation \
+         <> \
+      } \
+   }
+
+
+Qmon*submit_layout*submit_main_link.labelType:          PIXMAP
+Qmon*submit_layout*submit_main_link.labelPixmap:        logo
+Qmon*submit_layout*submit_main_link.shadowThickness:    1
+Qmon*submit_layout*submit_main_link.highlightThickness: 0
+Qmon*submit_layout*submit_main_link.marginHeight:       0
+Qmon*submit_layout*submit_main_link.marginWidth:        0
+
+!Qmon*submit_layout*submit_script.beepOnError:         True
+Qmon*submit_layout*submit_name.highlightOnError:    True
+Qmon*submit_layout*submit_name.errorBackground:     $warning_color
+Qmon*submit_layout*submit_pe.highlightOnError:    True
+Qmon*submit_layout*submit_pe.errorBackground:     $warning_color
+Qmon*submit_layout*submit_pe_range.highlightOnError:    True
+Qmon*submit_layout*submit_pe_range.errorBackground:     $warning_color
+
+!Qmon*submit_layout*submit_stdoutput.editable:          False
+!Qmon*submit_layout*submit_stdinput.editable:           False
+!Qmon*submit_layout*submit_stderror.editable:           False
+!Qmon*submit_layout*submit_shell.editable:              False
+!Qmon*submit_layout*submit_env.editable:                False
+!Qmon*submit_layout*submit_ctx.editable:                False
+
+Qmon*submit_layout*submit_priority.minimum:         -1023
+Qmon*submit_layout*submit_priority.incrementLarge:  5
+Qmon*submit_layout*submit_priority.maximum:         1024
+Qmon*submit_layout*submit_priority.spinboxStyle:    SPINBOX_STACKED_RIGHT
+Qmon*submit_layout*submit_priority.buttonSizeFixed: True
+Qmon*submit_layout*submit_priority.columns:         5
+Qmon*submit_layout*submit_priority.spinboxUseClosestValue:   True
+Qmon*submit_layout*submit_priority.value:           0
+
+Qmon*submit_layout*submit_jobshare.minimum:         0
+Qmon*submit_layout*submit_jobshare.incrementLarge:  10
+Qmon*submit_layout*submit_jobshare.spinboxStyle:    SPINBOX_STACKED_RIGHT
+Qmon*submit_layout*submit_jobshare.buttonSizeFixed: True
+Qmon*submit_layout*submit_jobshare.columns:         5
+Qmon*submit_layout*submit_jobshare.spinboxUseClosestValue:   True
+Qmon*submit_layout*submit_jobshare.value:           0
+
+Qmon*submit_layout*submit_taskconcurrency.minimum:         0
+Qmon*submit_layout*submit_taskconcurrency.incrementLarge:  10
+Qmon*submit_layout*submit_taskconcurrency.spinboxStyle:    SPINBOX_STACKED_RIGHT
+Qmon*submit_layout*submit_taskconcurrency.buttonSizeFixed: True
+Qmon*submit_layout*submit_taskconcurrency.columns:         5
+Qmon*submit_layout*submit_taskconcurrency.spinboxUseClosestValue:   True
+Qmon*submit_layout*submit_taskconcurrency.value:           0
+
+Qmon*submit_layout*submit_script.navigationType: TAB_GROUP
+Qmon*submit_layout*submit_scriptPB.navigationType: TAB_GROUP
+Qmon*submit_layout*submit_name.navigationType: TAB_GROUP
+Qmon*submit_layout*submit_priority.navigationType: TAB_GROUP
+Qmon*submit_layout*submit_wd.navigationType: TAB_GROUP
+Qmon*submit_layout*submit_cwd.navigationType: TAB_GROUP
+Qmon*submit_layout*submit_shell.navigationType: TAB_GROUP
+Qmon*submit_layout*submit_shellPB.navigationType: TAB_GROUP
+Qmon*submit_layout*submit_project.navigationType: TAB_GROUP
+Qmon*submit_layout*submit_projectPB.navigationType: TAB_GROUP
+Qmon*submit_layout*submit_output_merge.navigationType: TAB_GROUP
+Qmon*submit_layout*submit_stdoutput.navigationType: TAB_GROUP
+Qmon*submit_layout*submit_stdoutputPB.navigationType: TAB_GROUP
+Qmon*submit_layout*submit_stdinput.navigationType: TAB_GROUP
+Qmon*submit_layout*submit_stdinputPB.navigationType: TAB_GROUP
+Qmon*submit_layout*submit_stderror.navigationType: TAB_GROUP
+Qmon*submit_layout*submit_stderrorPB.navigationType: TAB_GROUP
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! submit_detail
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*submit_detail.tabLabel: @{@fBAdvanced}
+Qmon*submit_detail.xmtChildren: \
+   InputField        submit_ckpt_obj = ckpt_obj, \
+                     submit_pe = pe, \
+                     submit_ar = ar_id, \
+                     submit_jsv_url = jsv_url, \
+                     submit_binding = binding, \
+                     submit_account = account_string; \
+   TimeInput         submit_deadline = deadline; \
+   StrListField      submit_mail_user = mail_list, \
+                     submit_hard_queue_list = hard_queue_list, \
+                     submit_soft_queue_list = soft_queue_list, \
+                     submit_master_queue_list = master_queue_list, \
+                     submit_hold_jid = hold_jid, \
+                     submit_hold_jid_ad = hold_jid_ad, \
+                     submit_env = env_list, \
+                     submit_ctx = ctx_list; \
+   XmtChooser        submit_verify = verify_mode, \
+                     submit_mail = mail_options; \
+   XmPushButton      submit_mail_userPB, submit_pePB, submit_arPB, submit_envPB, \
+                     submit_ctxPB, submit_deadlinePB, submit_ckpt_objPB, submit_jsv_urlPB;
+
+Qmon*submit_detail.layout: \
+   Filled Row { \
+      Filled Shadowed Col { \
+         Row { \
+            Caption tl "@{Parallel Environment}" Centered 30 em submit_pe \
+            <> \
+            Fixed Centered submit_pePB \
+         } \
+         Row { \
+            Caption tl "@{Environment}" Centered 30 em submit_env \
+            <> \
+            Fixed Centered submit_envPB \
+         } \
+         Row { \
+            Caption tl "@{Context}" Centered 30 em submit_ctx \
+            <> \
+            Fixed Centered submit_ctxPB \
+         } \
+         Row { \
+            Caption tl "@{Checkpoint Object}" Centered 30 em submit_ckpt_obj \
+            <> \
+            Fixed Centered submit_ckpt_objPB \
+         } \
+         Row { \
+            Caption tl "@{Account}" Centered 30 em submit_account \
+            <> \
+         } \
+         Row { \
+            Caption tl "@{Advance Reservation}" Centered 30 em submit_ar \
+            <> \
+            Fixed Centered submit_arPB \
+         } \
+         Row { \
+            Caption tl "@{JSV URL}" Centered 30 em submit_jsv_url \
+            <> \
+            Fixed Centered submit_jsv_urlPB \
+         } \
+         Row { \
+            Caption tl "@{Binding}" Centered 30 em submit_binding \
+            <> \
+         } \
+         <> \
+      } \
+      Filled Shadowed Outside Col { \
+         Caption tl "@{Verify Mode}" submit_verify \
+         Caption tl "@{Mail}" submit_mail \
+         Row { \
+            Caption tl "@{Mail To}" Centered 30 em submit_mail_user \
+            <> \
+            Fixed Centered submit_mail_userPB \
+         } \
+         Row { \
+            Caption tl "@{Hard Queue List}" Fixed 30 em submit_hard_queue_list \
+            <> \
+         } \
+         Row { \
+            Caption tl "@{Soft Queue List}" Fixed 30 em submit_soft_queue_list \
+            <> \
+         } \
+         Row { \
+            Caption tl "@{Master Queue List}" Fixed 30 em submit_master_queue_list \
+            <> \
+         } \
+         Row { \
+            Caption tl "@{Job Dependencies}" Fixed 30 em submit_hold_jid \
+            <> \
+         } \
+         Row { \
+            Caption tl "@{Hold Array Dependencies}" Fixed 30 em submit_hold_jid_ad \
+            <> \
+         } \
+         Row submit_deadline_row { \
+            Caption tl "@{Deadline}" Fixed 30 em submit_deadline \
+            <> \
+            Fixed Centered submit_deadlinePB \
+         } \
+         <> \
+      } \
+   }
+
+
+!Qmon*submit_detail*submit_mail_user.editable:   False
+
+!Qmon*submit_restart.alignment:     ALIGNMENT_BEGINNING
+!Qmon*submit_restart.labelString:   @{Restart Job}
+Qmon*submit_notify.alignment:       ALIGNMENT_BEGINNING
+Qmon*submit_notify.labelString:     @{Notify Job}
+Qmon*submit_hold.alignment:         ALIGNMENT_BEGINNING
+Qmon*submit_hold.labelString:       @{Hold Job}
+Qmon*submit_cwd.alignment:          ALIGNMENT_BEGINNING
+Qmon*submit_cwd.labelString:        @{Current Working Directory}
+Qmon*submit_now.alignment:          ALIGNMENT_BEGINNING
+Qmon*submit_now.labelString:        @{Start Job Immediately}
+Qmon*submit_reservation.alignment:     ALIGNMENT_BEGINNING
+Qmon*submit_reservation.labelString:   @{Job Reservation}
+
+Qmon*submit_output_merge.alignment:      ALIGNMENT_BEGINNING
+Qmon*submit_output_merge.labelString:    @{Merge Output}
+
+Qmon*submit_interactive.shadowThickness: 2
+Qmon*submit_interactive.alignment:      ALIGNMENT_BEGINNING
+Qmon*submit_interactive.labelType:      PIXMAP
+Qmon*submit_interactive.labelPixmap:    qsh_off
+Qmon*submit_interactive.selectPixmap:   qsh_on
+Qmon*submit_interactive.labelInsensitivePixmap:  qsh_off_ins
+Qmon*submit_interactive.selectInsensitivePixmap:  qsh_on_ins
+Qmon*submit_interactive.indicatorOn:    False
+
+Qmon*submit_binary.shadowThickness: 2
+Qmon*submit_binary.alignment:      ALIGNMENT_BEGINNING
+Qmon*submit_binary.labelType:      PIXMAP
+Qmon*submit_binary.labelPixmap:    binary_off
+Qmon*submit_binary.selectPixmap:   binary_on
+Qmon*submit_binary.labelInsensitivePixmap:  binary_off_ins
+Qmon*submit_binary.selectInsensitivePixmap:  binary_on_ins
+Qmon*submit_binary.indicatorOn:    False
+
+Qmon*submit_verify.packing: PACK_TIGHT
+Qmon*submit_verify.chooserType: ChooserOption
+Qmon*submit_verify.strings: \
+   "@{Skip}", \
+   "@{Warning}", \
+   "@{Error}", \
+   "@{Just verify}", \
+   "@{Poke}"
+
+Qmon*submit_mail*marginHeight: 1
+Qmon*submit_mail.packing: PACK_TIGHT
+Qmon*submit_mail.chooserType: ChooserCheckBox
+Qmon*submit_mail.strings: \
+   "@{Start of Job}", \
+   "@{End of Job}", \
+   "@{Abort of Job}", \
+   "@{Suspend of Job}"
+
+Qmon*submit_restart.packing: PACK_TIGHT
+Qmon*submit_restart.chooserType: ChooserOption
+Qmon*submit_restart.strings: \
+   "@{Restart depends on Queue}", \
+   "@{Restart}", \
+   "@{No Restart}"
+
+Qmon*submit_done.labelString:      @{Done}
+Qmon*submit_edit.labelString:      @{Edit}
+Qmon*submit_details.labelString:   @{Show Details ...}
+Qmon*submit_details.recomputeSize: False
+Qmon*submit_submit.labelString:    @{Submit}
+Qmon*submit_help.labelString:      @{Help}
+Qmon*submit_clear.labelString:     @{Clear}
+Qmon*submit_reload.labelString:    @{Reload}
+Qmon*submit_save.labelString:      @{Save Settings}
+Qmon*submit_load.labelString:      @{Load Settings}
+!Qmon*submit_load.sensitive:        False
+
+Qmon*submit_scriptPB.labelType:                 PIXMAP
+Qmon*submit_scriptPB.labelPixmap:               script_file
+Qmon*submit_scriptPB.labelInsensitivePixmap:    script_file_ins
+
+Qmon*submit_shellPB.labelType:                  PIXMAP
+Qmon*submit_shellPB.labelPixmap:                shell
+Qmon*submit_shellPB.labelInsensitivePixmap:     shell_ins
+
+Qmon*submit_projectPB.labelType:                  PIXMAP
+Qmon*submit_projectPB.labelPixmap:                project
+Qmon*submit_projectPB.labelInsensitivePixmap:     project_ins
+
+Qmon*submit_stderrorPB.labelType:                 PIXMAP
+Qmon*submit_stderrorPB.labelPixmap:               stderror
+Qmon*submit_stderrorPB.labelInsensitivePixmap:    stderror_ins
+
+Qmon*submit_stdoutputPB.labelType:                PIXMAP
+Qmon*submit_stdoutputPB.labelPixmap:              stdoutput
+Qmon*submit_stdoutputPB.labelInsensitivePixmap:   stdoutput_ins
+
+Qmon*submit_stdinputPB.labelType:                 PIXMAP
+Qmon*submit_stdinputPB.labelPixmap:               stdinput
+Qmon*submit_stdinputPB.labelInsensitivePixmap:    stdinput_ins
+
+Qmon*submit_mail_userPB.labelType:              PIXMAP
+Qmon*submit_mail_userPB.labelPixmap:            mailbox
+Qmon*submit_mail_userPB.labelInsensitivePixmap: mailbox_ins
+
+Qmon*submit_resources.labelType:      PIXMAP
+Qmon*submit_resources.labelPixmap:    resources
+
+!Qmon*submit_cwd.labelType:      PIXMAP
+!Qmon*submit_cwd.labelPixmap:    script_file
+
+Qmon*submit_exec_timePB.labelType:              PIXMAP
+Qmon*submit_exec_timePB.labelPixmap:            21cal
+Qmon*submit_exec_timePB.labelInsensitivePixmap: 21cal_ins
+
+Qmon*submit_deadlinePB.labelType:               PIXMAP
+Qmon*submit_deadlinePB.labelPixmap:             deadline
+Qmon*submit_deadlinePB.labelInsensitivePixmap:  deadline_ins
+
+Qmon*submit_pePB.labelType:                     PIXMAP
+Qmon*submit_pePB.labelPixmap:                   penv
+
+Qmon*submit_jsv_urlPB.labelType:                PIXMAP
+Qmon*submit_jsv_urlPB.labelPixmap:              script_file
+
+Qmon*submit_envPB.labelType:                    PIXMAP
+Qmon*submit_envPB.labelPixmap:                  env
+
+Qmon*submit_ctxPB.labelType:                    PIXMAP
+Qmon*submit_ctxPB.labelPixmap:                  ctx
+
+Qmon*submit_ckpt_objPB.labelType:      PIXMAP
+Qmon*submit_ckpt_objPB.labelPixmap:    ckpt
+
+Qmon*submit_arPB.labelType:            PIXMAP
+Qmon*submit_arPB.labelPixmap:          ar
+
+Qmon*submit_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Job Configuration Dialogs
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*submit_mail_list_shell.mail_list.dialogTitle:   @{Send mail to mail address}
+Qmon*submit_mail_list_shell.mail_list.autoUnmanage:  False
+!! Qmon*submit_mail_list_shell.mail_list.noResize:      True
+!! Qmon*submit_mail_list_shell.mail_list.dialogStyle: DIALOG_FULL_APPLICATION_MODAL
+Qmon*submit_mail_list_shell.allowShellResize: True
+Qmon*submit_mail_list_shell.xmtChildren: unmanaged XmtLayout mail_list;
+Qmon*submit_mail_list_shell.mail_list.xmtChildren: \
+   InputField     mail_list_new; \
+   StringList     mail_list_matrix = mail_list; \
+   XmPushButton   mail_list_cancel, mail_list_okay, mail_list_delete, \
+                  mail_list_reset, mail_list_help;
+
+
+Qmon*submit_mail_list_shell.mail_list.layout: \
+   Row { \
+      Col { \
+         Fixed Caption tl "@{Mail address}" mail_list_new \
+         Fixed 2.5 in % 2.5 in mail_list_matrix \
+      } \
+      Fixed Shadowed Col { \
+         Fixed mail_list_okay \
+         Fixed mail_list_cancel \
+         Fixed mail_list_delete \
+         Fixed mail_list_reset \
+         Fixed mail_list_help \
+         <> \
+      } \
+   }
+
+
+Qmon*mail_list*mail_list_cancel.labelString:  @{Cancel}
+Qmon*mail_list*mail_list_okay.labelString:    @{Ok}
+Qmon*mail_list*mail_list_reset.labelString:   @{Reset}
+Qmon*mail_list*mail_list_delete.labelString:  @{Delete}
+Qmon*mail_list*mail_list_help.labelString:    @{Help}
+
+Qmon*mail_list*scrollBarDisplayPolicy:  AS_NEEDED
+Qmon*mail_list*listSizePolicy:          CONSTANT
+
+Qmon*mail_list*mail_list_matrix.selectionPolicy:         EXTENDED_SELECT
+Qmon*mail_list*mail_list_matrix.visibleItemCount:        10
+
+Qmon*mail_list.mail_list_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*submit_shell_list_shell.shell_list.dialogTitle: @{Shell on host}
+Qmon*submit_shell_list_shell.shell_list.autoUnmanage: False
+Qmon*submit_shell_list_shell.shell_list.dialogStyle: DIALOG_FULL_APPLICATION_MODAL
+Qmon*submit_shell_list_shell.allowShellResize: True
+Qmon*submit_shell_list_shell.xmtChildren: unmanaged XmtLayout shell_list;
+Qmon*submit_shell_list_shell.shell_list.xmtChildren: \
+   Matrix_2xN     shell_list_matrix = shell_list; \
+   XmPushButton   shell_list_cancel, shell_list_okay, \
+                  shell_list_reset, shell_list_help;
+
+Qmon*submit_shell_list_shell.shell_list.layout: \
+   Row { \
+      Col { \
+         shell_list_matrix \
+         <> \
+      } \
+      Shadowed Col { \
+         Fixed shell_list_okay \
+         Fixed shell_list_cancel \
+         Fixed shell_list_reset \
+         Fixed shell_list_help \
+         <> \
+      } \
+   }
+
+Qmon*shell_list*shell_list_cancel.labelString:  @{Cancel}
+Qmon*shell_list*shell_list_okay.labelString:    @{Ok}
+Qmon*shell_list*shell_list_reset.labelString:   @{Reset}
+Qmon*shell_list*shell_list_help.labelString:    @{Help}
+
+Qmon*shell_list_matrix.rows:                5
+Qmon*shell_list_matrix.columns:             2
+Qmon*shell_list_matrix.columnWidths:        10,10
+Qmon*shell_list_matrix.visibleRows:         5
+Qmon*shell_list_matrix.columnMaxLengths:    1000,1000
+Qmon*shell_list_matrix.evenRowBackground:   $matrix_even_bg
+Qmon*shell_list_matrix.oddRowBackground:    $matrix_odd_bg
+Qmon*shell_list_matrix.gridType:            GRID_CELL_SHADOW
+Qmon*shell_list_matrix.cellShadowType:      SHADOW_IN
+Qmon*shell_list_matrix.cellShadowThickness: 1
+Qmon*shell_list_matrix.fontList:            $matrix_font
+Qmon*shell_list_matrix.columnLabels:        @{Shell}, @{Host}
+Qmon*shell_list_matrix.boldLabels:          True
+Qmon*shell_list_matrix.shadowThickness:     1
+Qmon*shell_list_matrix*editable:            True
+
+Qmon*shell_list.shell_list_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*submit_stderror_list_shell.stderror_list.dialogTitle: @{Stderr Path List}
+Qmon*submit_stderror_list_shell.stderror_list.autoUnmanage: False
+Qmon*submit_stderror_list_shell.stderror_list.dialogStyle: DIALOG_FULL_APPLICATION_MODAL
+Qmon*submit_stderror_list_shell.allowShellResize: True
+Qmon*submit_stderror_list_shell.xmtChildren: unmanaged XmtLayout stderror_list;
+Qmon*submit_stderror_list_shell.stderror_list.xmtChildren: \
+   Matrix_2xN     stderror_list_matrix = stderror_path_list; \
+   XmPushButton   stderror_list_cancel, stderror_list_okay, \
+                  stderror_list_reset, stderror_list_help;
+
+Qmon*submit_stderror_list_shell.stderror_list.layout: \
+   Row { \
+      Col { \
+         stderror_list_matrix \
+         <> \
+      } \
+      Shadowed Col { \
+         Fixed stderror_list_okay \
+         Fixed stderror_list_cancel \
+         Fixed stderror_list_reset \
+         Fixed stderror_list_help \
+         <> \
+      } \
+   }
+
+Qmon*stderror_list*stderror_list_cancel.labelString:  @{Cancel}
+Qmon*stderror_list*stderror_list_okay.labelString:    @{Ok}
+Qmon*stderror_list*stderror_list_reset.labelString:   @{Reset}
+Qmon*stderror_list*stderror_list_help.labelString:    @{Help}
+
+Qmon*stderror_list_matrix.rows:                5
+Qmon*stderror_list_matrix.columns:             2
+Qmon*stderror_list_matrix.columnWidths:        10,10
+Qmon*stderror_list_matrix.columnMaxLengths:    1000,1000
+Qmon*stderror_list_matrix.visibleRows:         5
+Qmon*stderror_list_matrix.evenRowBackground:   $matrix_even_bg
+Qmon*stderror_list_matrix.oddRowBackground:    $matrix_odd_bg
+Qmon*stderror_list_matrix.gridType:            GRID_CELL_SHADOW
+Qmon*stderror_list_matrix.cellShadowType:      SHADOW_IN
+Qmon*stderror_list_matrix.cellShadowThickness: 1
+Qmon*stderror_list_matrix.fontList:            $matrix_font
+Qmon*stderror_list_matrix.columnLabels:        @{Path}, @{Host}
+Qmon*stderror_list_matrix.boldLabels:          True
+Qmon*stderror_list_matrix.shadowThickness:     1
+Qmon*stderror_list_matrix*editable:            True
+
+Qmon*stderror_list.stderror_list_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*submit_stdoutput_list_shell.stdoutput_list.dialogTitle: @{Stdout Path List}
+Qmon*submit_stdoutput_list_shell.stdoutput_list.autoUnmanage: False
+Qmon*submit_stdoutput_list_shell.stdoutput_list.dialogStyle: DIALOG_FULL_APPLICATION_MODAL
+Qmon*submit_stdoutput_list_shell.allowShellResize: True
+Qmon*submit_stdoutput_list_shell.xmtChildren: unmanaged XmtLayout stdoutput_list;
+Qmon*submit_stdoutput_list_shell.stdoutput_list.xmtChildren: \
+   Matrix_2xN     stdoutput_list_matrix = stdoutput_path_list; \
+   XmPushButton   stdoutput_list_cancel, stdoutput_list_okay, \
+                  stdoutput_list_reset, stdoutput_list_help;
+
+Qmon*submit_stdoutput_list_shell.stdoutput_list.layout: \
+   Row { \
+      Col { \
+         stdoutput_list_matrix \
+         <> \
+      } \
+      Shadowed Col { \
+         Fixed stdoutput_list_okay \
+         Fixed stdoutput_list_cancel \
+         Fixed stdoutput_list_reset \
+         Fixed stdoutput_list_help \
+         <> \
+      } \
+   }
+
+Qmon*stdoutput_list*stdoutput_list_cancel.labelString:  @{Cancel}
+Qmon*stdoutput_list*stdoutput_list_okay.labelString:    @{Ok}
+Qmon*stdoutput_list*stdoutput_list_reset.labelString:   @{Reset}
+Qmon*stdoutput_list*stdoutput_list_help.labelString:    @{Help}
+
+Qmon*stdoutput_list_matrix.rows:                5
+Qmon*stdoutput_list_matrix.columns:             2
+Qmon*stdoutput_list_matrix.columnWidths:        10,10
+Qmon*stdoutput_list_matrix.columnMaxLengths:    1000,1000
+Qmon*stdoutput_list_matrix.visibleRows:         5
+Qmon*stdoutput_list_matrix.evenRowBackground:   $matrix_even_bg
+Qmon*stdoutput_list_matrix.oddRowBackground:    $matrix_odd_bg
+Qmon*stdoutput_list_matrix.gridType:            GRID_CELL_SHADOW
+Qmon*stdoutput_list_matrix.cellShadowType:      SHADOW_IN
+Qmon*stdoutput_list_matrix.cellShadowThickness: 1
+Qmon*stdoutput_list_matrix.fontList:            $matrix_font
+Qmon*stdoutput_list_matrix.columnLabels:        @{Path}, @{Host}
+Qmon*stdoutput_list_matrix.boldLabels:          True
+Qmon*stdoutput_list_matrix.shadowThickness:     1
+Qmon*stdoutput_list_matrix*editable:            True
+
+Qmon*stdoutput_list.stdoutput_list_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*submit_stdinput_list_shell.stdinput_list.dialogTitle: @{Stdin Path List}
+Qmon*submit_stdinput_list_shell.stdinput_list.autoUnmanage: False
+Qmon*submit_stdinput_list_shell.stdinput_list.dialogStyle: DIALOG_FULL_APPLICATION_MODAL
+Qmon*submit_stdinput_list_shell.allowShellResize: True
+Qmon*submit_stdinput_list_shell.xmtChildren: unmanaged XmtLayout stdinput_list;
+Qmon*submit_stdinput_list_shell.stdinput_list.xmtChildren: \
+   Matrix_2xN     stdinput_list_matrix = stdinput_path_list; \
+   XmPushButton   stdinput_list_cancel, stdinput_list_okay, \
+                  stdinput_list_reset, stdinput_list_help;
+
+Qmon*submit_stdinput_list_shell.stdinput_list.layout: \
+   Row { \
+      Col { \
+         stdinput_list_matrix \
+         <> \
+      } \
+      Shadowed Col { \
+         Fixed stdinput_list_okay \
+         Fixed stdinput_list_cancel \
+         Fixed stdinput_list_reset \
+         Fixed stdinput_list_help \
+         <> \
+      } \
+   }
+
+Qmon*stdinput_list*stdinput_list_cancel.labelString:  @{Cancel}
+Qmon*stdinput_list*stdinput_list_okay.labelString:    @{Ok}
+Qmon*stdinput_list*stdinput_list_reset.labelString:   @{Reset}
+Qmon*stdinput_list*stdinput_list_help.labelString:    @{Help}
+
+Qmon*stdinput_list_matrix.rows:                5
+Qmon*stdinput_list_matrix.columns:             2
+Qmon*stdinput_list_matrix.columnWidths:        10,10
+Qmon*stdinput_list_matrix.columnMaxLengths:    1000,1000
+Qmon*stdinput_list_matrix.visibleRows:         5
+Qmon*stdinput_list_matrix.evenRowBackground:   $matrix_even_bg
+Qmon*stdinput_list_matrix.oddRowBackground:    $matrix_odd_bg
+Qmon*stdinput_list_matrix.gridType:            GRID_CELL_SHADOW
+Qmon*stdinput_list_matrix.cellShadowType:      SHADOW_IN
+Qmon*stdinput_list_matrix.cellShadowThickness: 1
+Qmon*stdinput_list_matrix.fontList:            $matrix_font
+Qmon*stdinput_list_matrix.columnLabels:        @{Path}, @{Host}
+Qmon*stdinput_list_matrix.boldLabels:          True
+Qmon*stdinput_list_matrix.shadowThickness:     1
+Qmon*stdinput_list_matrix*editable:            True
+
+Qmon*stdinput_list.stdinput_list_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*submit_env_list_shell.env_list.dialogTitle:    @{Environment Variable List}
+Qmon*submit_env_list_shell.env_list.autoUnmanage:   False
+Qmon*submit_env_list_shell.env_list.dialogStyle: DIALOG_FULL_APPLICATION_MODAL
+Qmon*submit_env_list_shell.allowShellResize: True
+Qmon*submit_env_list_shell.xmtChildren: unmanaged XmtLayout env_list;
+Qmon*submit_env_list_shell.env_list.xmtChildren: \
+   Matrix_2xN     env_list_matrix = env_list; \
+   XmPushButton   env_list_cancel, env_list_okay, \
+                  env_list_help, env_list_env, \
+                  env_list_rm;
+
+Qmon*submit_env_list_shell.env_list.layout: \
+   Row { \
+      Col { \
+         Caption tl "@{Environment for Job}" env_list_matrix\
+         Even Equal Row { \
+            env_list_rm \
+            env_list_env \
+         } \
+      } \
+      Shadowed Col { \
+         Fixed env_list_okay \
+         Fixed env_list_cancel \
+         Fixed env_list_help \
+         <> \
+      } \
+   }
+
+Qmon*env_list*env_list_cancel.labelString:    @{Cancel}
+Qmon*env_list*env_list_okay.labelString:      @{Ok}
+Qmon*env_list*env_list_help.labelString:      @{Help}
+Qmon*env_list*env_list_env.labelString:       @{Get Environment}
+Qmon*env_list*env_list_rm.labelString:        @{Clear}
+
+Qmon*env_list.env_list_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+Qmon*env_list_matrix.rows:                5
+Qmon*env_list_matrix.columns:             2
+Qmon*env_list_matrix.columnWidths:        20,20
+Qmon*env_list_matrix.columnMaxLengths:    3000,3000
+Qmon*env_list_matrix.visibleRows:         5
+Qmon*env_list_matrix.evenRowBackground:   $matrix_even_bg
+Qmon*env_list_matrix.oddRowBackground:    $matrix_odd_bg
+Qmon*env_list_matrix.gridType:            GRID_CELL_SHADOW
+Qmon*env_list_matrix.cellShadowType:      SHADOW_IN
+Qmon*env_list_matrix.cellShadowThickness: 1
+Qmon*env_list_matrix.fontList:           $matrix_font
+Qmon*env_list_matrix.columnLabels:        @{Variable}, @{Value}
+Qmon*env_list_matrix.boldLabels:          True
+Qmon*env_list_matrix.shadowThickness:     1
+Qmon*env_list_matrix*editable:            True
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*submit_ctx_list_shell.ctx_list.dialogTitle:    @{Context Variable List}
+Qmon*submit_ctx_list_shell.ctx_list.autoUnmanage:   False
+Qmon*submit_ctx_list_shell.ctx_list.dialogStyle: DIALOG_FULL_APPLICATION_MODAL
+
+Qmon*submit_ctx_list_shell.allowShellResize: True
+Qmon*submit_ctx_list_shell.xmtChildren: unmanaged XmtLayout ctx_list;
+Qmon*submit_ctx_list_shell.ctx_list.xmtChildren: \
+   Matrix_2xN     ctx_list_matrix = ctx_list; \
+   XmPushButton   ctx_list_cancel, ctx_list_okay, \
+                  ctx_list_help, \
+                  ctx_list_rm;
+
+Qmon*submit_ctx_list_shell.ctx_list.layout: \
+   Row { \
+      Col { \
+         Caption tl "@{Context for Job}" ctx_list_matrix\
+         Even Equal Row { \
+            ctx_list_rm \
+         } \
+      } \
+      Shadowed Col { \
+         Fixed ctx_list_okay \
+         Fixed ctx_list_cancel \
+         Fixed ctx_list_help \
+         <> \
+      } \
+   }
+
+Qmon*ctx_list*ctx_list_cancel.labelString:    @{Cancel}
+Qmon*ctx_list*ctx_list_okay.labelString:      @{Ok}
+Qmon*ctx_list*ctx_list_help.labelString:      @{Help}
+Qmon*ctx_list*ctx_list_rm.labelString:        @{Clear}
+
+Qmon*ctx_list.ctx_list_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+Qmon*ctx_list_matrix.rows:                5
+Qmon*ctx_list_matrix.columns:             2
+Qmon*ctx_list_matrix.columnWidths:        20,20
+Qmon*ctx_list_matrix.columnMaxLengths:    3000,3000
+Qmon*ctx_list_matrix.visibleRows:         5
+Qmon*ctx_list_matrix.evenRowBackground:   $matrix_even_bg
+Qmon*ctx_list_matrix.oddRowBackground:    $matrix_odd_bg
+Qmon*ctx_list_matrix.gridType:            GRID_CELL_SHADOW
+Qmon*ctx_list_matrix.cellShadowType:      SHADOW_IN
+Qmon*ctx_list_matrix.cellShadowThickness: 1
+Qmon*ctx_list_matrix.fontList:           $matrix_font
+Qmon*ctx_list_matrix.columnLabels:        @{Variable}, @{Value}
+Qmon*ctx_list_matrix.boldLabels:          True
+Qmon*ctx_list_matrix.shadowThickness:     1
+Qmon*ctx_list_matrix*editable:            True

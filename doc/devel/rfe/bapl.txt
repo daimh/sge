@@ -1,0 +1,34 @@
+Bottleneck analysis
+-------------------
+
+Enhancement of qping to make it possible to receive and analyse 
+lock messages.
+
+ToDo:
+
+   - introducing message tags in commlib and qping
+   - enhance the qping to filter the different tags
+   - added new switch -dump_tag <tag>:
+      
+      - <tag>=ALL: output, all messages
+      - <tag>=APP: output, application messages only (useful for bapl)
+      - <tag>=MSG: output, commlib messages only
+  
+   - creating useful messages at useful places in code, which
+     are received by qping. (eg. lock/unlock function, condition variables)
+
+   - fetched information:
+      
+      - threads waiting for lock
+      - thread which holds the lock
+      - time to get the lock
+      - time hold the lock
+      - lock name
+
+The application messages are fully flexible and can be freely created.
+It should be possible to send all system information which will be
+available during creation time. (eg. system time, ...)
+
+The application messages are simple printf's, sent to qping.
+
+

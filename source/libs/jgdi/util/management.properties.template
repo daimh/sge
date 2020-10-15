@@ -1,0 +1,190 @@
+#___INFO__MARK_BEGIN__
+###########################################################################
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+# 
+#  Sun Microsystems Inc., March, 2001
+# 
+# 
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+# 
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+# 
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+# 
+#  Copyright: 2006 by Sun Microsystems, Inc
+# 
+#  All Rights Reserved.
+# 
+###########################################################################
+#___INFO__MARK_END__
+#####################################################################
+#	Default Configuration File for JGDI JMX 
+#####################################################################
+#
+# The Management Configuration file (in java.util.Properties format)
+# will be read if one of the following system properties is set:
+#    -Dcom.sun.grid.jgdi.management.jmxremote.port=<port-number>
+# or -Dcom.sun.grid.jgdi.management.config.file=<this-file>
+#
+# The default Management Configuration file is:
+#
+#       $SGE_ROOT/{$SGE_CELL|default}/common/jmx/management.properties
+#
+# ################ Management Agent Port #########################
+# 
+# For setting the JMX RMI agent port use the following line
+# com.sun.grid.jgdi.management.jmxremote.port=<port-number>
+com.sun.grid.jgdi.management.jmxremote.port=@@SGE_JMX_PORT@@
+
+#####################################################################
+#			RMI Management Properties
+#####################################################################
+#
+# If system property -Dcom.sun.grid.jgdi.management.jmxremote.port=<port-number>
+# is set then
+#     - A MBean server is started 
+#     - JRE Platform MBeans are registered in the MBean server
+#     - RMI connector is published  in a private readonly registry at
+#       specified port using a well known name, "jmxrmi"
+#     - the following properties are read for JMX remote management.
+#
+# The configuration can be specified only at startup time.
+# Later changes to above system property (e.g. via setProperty method),
+# this config file, the password file, or the access file have no effect to the
+# running MBean server, the connector, or the registry. 
+#
+
+#
+# ###################### RMI SSL #############################
+#
+# com.sun.grid.jgdi.management.jmxremote.ssl=true|false
+#      Default for this property is true. (Case for true/false ignored)
+#      If this property is specified as false then SSL is not used.
+# 
+
+#For RMI monitoring without SSL use the following line
+# com.sun.grid.jgdi.management.jmxremote.ssl=false
+com.sun.grid.jgdi.management.jmxremote.ssl=@@SGE_JMX_SSL@@
+
+# com.sun.grid.jgdi.management.jmxremote.ssl.enabled.cipher.suites=<cipher-suites>
+#      The value of this property is a string that is a comma-separated list
+#      of SSL/TLS cipher suites to enable. This property can be specified in
+#      conjunction with the previous property "com.sun.management.jmxremote.ssl"
+#      in order to control which particular SSL/TLS cipher suites are enabled
+#      for use by accepted connections. If this property is not specified then
+#      the SSL RMI Server Socket Factory uses the SSL/TLS cipher suites that
+#      are enabled by default.
+#
+
+# com.sun.grid.jgdi.management.jmxremote.ssl.enabled.protocols=<protocol-versions>
+#      The value of this property is a string that is a comma-separated list
+#      of SSL/TLS protocol versions to enable. This property can be specified in
+#      conjunction with the previous property "com.sun.management.jmxremote.ssl"
+#      in order to control which particular SSL/TLS protocol versions are
+#      enabled for use by accepted connections. If this property is not
+#      specified then the SSL RMI Server Socket Factory uses the SSL/TLS
+#      protocol versions that are enabled by default.
+#
+
+# com.sun.grid.jgdi.management.jmxremote.ssl.need.client.auth=true|false
+#      Default for this property is false. (Case for true/false ignored)
+#      If this property is specified as true in conjunction with the previous
+#      property "com.sun.management.jmxremote.ssl" then the SSL RMI Server
+#      Socket Factory will require client authentication.
+#
+
+#For RMI monitoring with SSL client authentication use the following line
+#com.sun.grid.jgdi.management.jmxremote.ssl.need.client.auth=true
+com.sun.grid.jgdi.management.jmxremote.ssl.need.client.auth=@@SGE_JMX_SSL_CLIENT@@
+
+#
+# ################ RMI User authentication ################
+#
+# com.sun.grid.jgdi.management.jmxremote.authenticate=true|false
+#      Default for this property is true. (Case for true/false ignored)
+#      If this property is specified as false then no authentication is
+#      performed and all users are allowed all access.
+#
+
+# For RMI monitoring without any checking use the following line
+# com.sun.grid.jgdi.management.jmxremote.authenticate=false
+com.sun.grid.jgdi.management.jmxremote.authenticate=true
+
+#
+# ################ RMI Login configuration ###################
+#
+# com.sun.grid.jgdi.management.jmxremote.login.config=<config-name>
+#      Specifies the name of a JAAS login configuration entry to use when 
+#      authenticating users of RMI monitoring. 
+#
+#      Setting this property is optional - the default login configuration
+#      specifies a file-based authentication that uses the password file.
+#
+#      When using this property to override the default login configuration 
+#      then the named configuration entry must be in a file that gets loaded 
+#      by JAAS. In addition, the login module(s) specified in the configuration
+#      should use the name and/or password callbacks to acquire the user's 
+#      credentials. See the NameCallback and PasswordCallback classes in the 
+#      javax.security.auth.callback package for more details.
+#
+#      If the property "com.sun.management.jmxremote.authenticate" is set to 
+#      false, then this property and the password & access files are ignored.
+#
+
+# For a non-default login configuration use the following line
+# com.sun.grid.jgdi.management.jmxremote.login.config=<config-name>
+com.sun.grid.jgdi.management.jmxremote.login.config=GridwareConfig
+
+#
+# ################ RMI Password file location ##################
+#
+# com.sun.grid.jgdi.management.jmxremote.password.file=filepath
+#      Specifies location for password file
+#      This is optional - default location is
+#      $SGE_ROOT/$SGE_CELL/common/jmx/jmxremote.password
+# 
+#      If the property "com.sun.grid.jgdi.management.jmxremote.authenticate" is set to 
+#      false, then this property and the password & access files are ignored.
+#      Otherwise the password file must exist and be in the valid format.
+#      If the password file is empty or non-existent then no access is allowed.
+#
+
+# For a non-default password file location use the following line
+# com.sun.grid.jgdi.management.jmxremote.password.file=filepath
+com.sun.grid.jgdi.management.jmxremote.password.file=@@SGE_ROOT@@/@@SGE_CELL@@/common/jmx/jmxremote.password
+
+#
+# ################ RMI Access file location #####################
+#
+# com.sun.grid.jgdi.management.jmxremote.access.file=filepath
+#      Specifies location for access  file
+#      This is optional - default location is
+#      $SGE_ROOT/$SGE_CELL/common/jmx/jmxremote.access
+# 
+#      If the property "com.sun.management.jmxremote.authenticate" is set to 
+#      false, then this property and the password & access files are ignored.
+#      Otherwise, the access file must exist and be in the valid format.
+#      If the access file is empty or non-existent then no access is allowed.
+#
+
+# For a non-default access file location use the following line
+# com.sun.grid.jgdi.management.jmxremote.access.file=filepath
+com.sun.grid.jgdi.management.jmxremote.access.file=@@SGE_ROOT@@/@@SGE_CELL@@/common/jmx/jmxremote.access
+
+
+# For the JGDI keystore module use this settings for the server keystore and keystore password file
+com.sun.grid.jgdi.management.jmxremote.ssl.serverKeystore=@@SGE_JMX_SSL_KEYSTORE@@
+com.sun.grid.jgdi.management.jmxremote.ssl.serverKeystorePasswordFile=@@SGE_JMX_SSL_KEYSTORE@@.password
+# moved into $CALOCALTOP/private/keystore.password
+# com.sun.grid.jgdi.management.jmxremote.ssl.serverKeystorePassword=<SGE_JMX_SSL_KEYSTORE_PW>

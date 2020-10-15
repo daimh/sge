@@ -1,0 +1,142 @@
+'\"
+.\" Copyright (C), 2011  Dave Love, University of Liverpool
+.\" You may distribute this file under the terms of the GNU Free
+.\" Documentation License.
+.de M		\" SGE man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.de MO		\" other man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH sge_share_mon 1 2011-12-24
+.SH NAME
+sge_share_mon \- print xxQS_NAMExx live share tree
+.SH SYNOPSIS
+.B sge_share_mon
+.RB [ \-c
+.IR count ]
+.RB [ \-d
+.IR delimiter ]
+.RB [ \-f
+.IR field , field ...]
+.RB [ \-h ]
+.RB [ \-i
+.IR interval ]
+.RB [ \-l
+.IR delimiter ]
+.RB [ \-m
+.IR output_mode ]
+.RB [ \-n ]
+.RB [ \-o
+.IR output_file ]
+.RB [ \-r
+.IR delimiter ]
+.RB [ \-s
+.IR string_format ]
+.RB [ \-t ]
+.RB [ \-u ]
+.RB [ \-x ]
+.SH DESCRIPTION
+.I sge_share_mon
+prints the live state of the xxQS_NAMExx share tree (as opposed to
+.M qmon 1 's
+static graphical view).  It does so for a given number (default infinite) of
+intervals; use
+.B \-c 1
+for a snapshot.
+.SH OPTIONS
+.TP
+.BI \-c\  count
+Print
+.I count
+collections (default infinite).
+.TP
+.BI \-d\  delimiter
+Delimit output columns with string
+.I delimiter
+(default a tab).
+.TP
+.BI \-f\  field\fR,...
+Print the given
+.IR field s.
+The available fields in the default order are
+.BR curr_time ,
+.BR usage_time ,
+.BR node_name ,
+.BR user_name ,
+.BR project_name ,
+.BR shares ,
+.BR job_count ,
+.BR level% ,
+.BR total% ,
+.BR long_target_share ,
+.BR short_target_share ,
+.BR actual_share ,
+.BR usage ,
+.BR cpu ,
+.BR mem ,
+.BR io ,
+.BR ltcpu ,
+.BR ltmem ,
+.BR ltio .
+.TP
+.B \-h
+Print a header listing field names.
+.TP
+.BI \-i\  interval
+Collect over
+.I interval
+seconds (default 15)
+.TP
+.BI \-l\  delimiter
+Delimit nodes output with string
+.I delimiter
+(default a carriage return).
+.TP
+.BI \-m\  output_mode
+Open
+.I output_file
+in
+.MO fopen 3
+mode
+.I output_mode
+(default 
+.BR w ).
+The meaningful alternative is
+.B a
+to append to the file.
+.TP
+.B \-n
+Print in the form
+.IR name = value
+.TP
+.BI \-o\  output_file
+Print to file
+.IR output_file
+(default standard output).
+.TP
+.BI \-r\  delimiter
+Delimit collection records with string
+.I delimiter
+(default a carriage return).
+.TP
+.BI \-s\  string_format
+.MO printf 3 -style
+format for strings (default
+.BR %s )
+.TP
+.B \-t
+Show times formatted per
+.MO ctime 3 .
+(Default is seconds since the epoch.)
+.TP
+.B \-u
+Print decayed usage (since timestamp) in nodes.
+.TP
+.B \-x
+Don't print non-leaf nodes.
+.SH "SEE ALSO"
+.MO fopen 3 ,
+.MO printf 3 ,
+.M qmon 1 ,
+.M share_tree 5 .

@@ -1,0 +1,486 @@
+                             Specification of the 
+                      Resource Reservation and Backfilling 
+                      Grid Engine 6.0 scheduler enhancement
+
+                                Andreas Haas
+                              19 February 2004
+
+
+0. Introduction
+
+   Adding "Resource reservation" and "Backfilling" capabilities to 
+   the Grid Engine 6.0 scheduler is a first step towards a looking 
+   ahead scheduler. For the sake of orientation it is helpful to 
+   delimit the terms "resource reservation" and "backfilling" term 
+   from other terms occasionally used to circumscribe looking ahead 
+   scheduler capabilities in a less specific fashion:
+
+   Resource Reservation 
+      A job-specific reservation created by the scheduler for pending 
+      jobs. During the reservation the resources are blocked for lower 
+      priority jobs.
+
+   Backfilling
+      The process of starting jobs of the job priority list despite of 
+      higher priority pending jobs that might own a future reservation 
+      with the same resource. Thus backfilling has a meaning only in the 
+      context of Resource Reservation or Advance Reservation.
+
+   Advance Reservation
+      A reservation (possibly independent of a particular job) that can 
+      be requested by a user or administrator and gets created by the 
+      scheduler. The reservation causes the associated resources be blocked
+      for other jobs.
+
+   Preemption
+      The process of interrupting job executions in order to free resources
+      for particular jobs.
+
+   See under 'Discussion' below for more details on Resource Reservation 
+   and Backfilling as implemented with Grid Engine 6.0.
+
+1. Acknowledgements
+
+   I gratefully acknowledge useful conversations and input in other 
+   forms with Lev Markov, Fritz Ferstl, Martin Berger and others.
+
+2. Discussion
+
+   The 6.0 resource reservation and backfilling capabilities considers 
+   built-in/user defined consumable resources associated with the cluster 
+   (aka global host), a particular host and a particular queue instance. 
+   For considering parallel jobs in a similar fashion the limited slot 
+   amount of parallel environments is also considered with reservation and 
+   backfilling. 
+
+   a) Resource Reservation 
+
+   Resource reservation can be used to guarantee resources are dedicated 
+   to jobs in jobs priority order. A good example which helps to comprehend 
+   the problem solved with resource reservaiton/backfilling is the so-called 
+   "large parallel job starvation problem". In this scenario there is one 
+   high priority pending job (possibly parallel) A that requires a larger quota 
+   of a particular resource and a stream of smaller and lower priority jobs B(i) 
+   requiring a smaller quota of the same resource.
+ 
+   Without resource reservation an assignment for A can not be guaranteed
+   assumed the stream of B(i) jobs does not stop - even if job A actually
+   has higher priority than the B(i) jobs:
+
+        A      
+        |                     
+    +---+----+--------+--------+--------+--------+--------+   +----------+
+    |  B(0)  | B(2)   | B(4)   | B(6)   | B(8)   | B(10)  |   |          |
+    +---+----+---+----+---+----+---+----+---+----+---+----+---+    A     |
+        | B(1)   | B(3)   | B(5)   | B(7)   | B(9)   | B(11)  |          |
+        +--------+--------+--------+--------+--------+--------+----------+-->
+        
+    
+   With resource reservation job A gets a reservation that blocks lower 
+   priority B(i) jobs and thus guarantees resources will be available for
+   A as soon as possible:
+
+        A
+        |                     
+    +---+----+----------+--------+
+    |  B(0)  |          |  B(2)  |   ...
+    +---+----+    A     +--------+--------+
+        |    |          |  B(1)  |  B(3)  |  ...
+        +----+----------+--------+--------+------------------------------->
+       
+   b) Backfilling
+
+   Backfilling can allow utilization of resources that are blocked due to 
+   a reservation by jobs of lower priority. Backfilling can take place only 
+   if there is a runnable job with a prospective runtime small enough to allow 
+   the blocked resource be used without endangering the reservation of a job
+   with high priority. In the example above a low priority job C of very short 
+   duration could be started prior to job A due to backfilling.
+
+        A
+        |                     
+    +---+----+----------+--------+
+    |  B(0)  |          |  B(2)  |   ...
+    +---+---++    A     +--------+--------+
+        | C ||          |  B(1)  |  B(3)  |  ...
+        +---++----------+--------+--------+------------------------------->
+       
+   The benefit of backfilling is an improved resource utilization.
+   
+   c) Tuning considerations
+
+   Since reservation scheduling requires the scheduler to look ahead Grid 
+   Engine scheduler will be more performance consuming in reservation mode 
+   than in non-reservation mode. In smaller clusters the additional effort is 
+   certainly negligible as long as there are only a few pending jobs. With a 
+   growing cluster size however and in particular with a growing number of 
+   pending jobs the additional effort will be sensible. The key with tuning 
+   resource reservation is to delimit the overall number that are made during 
+   a scheduling interval. 
+
+   To accomplish this two means are provided: 
+
+   (1) For limiting the absolute number of reservations made during a 
+       schedule interval the 'max_reservation' parameters in the scheduler 
+       configuration can be used by the Grid Engine administrator. E.g. when 
+       max reservation is set to 20 not more than 20 reservations are made 
+       within a scheduling interval and as a result the additional effort for 
+       reservation scheduling is limited accordingly.
+       
+   (2) The -R y|n submit option allows restriction of reservation scheduling 
+       only to those jobs that actually are critical. In the examples above 
+       there is no need to schedule B(i) job reservations just for the sake of 
+       guaranteeing the job A resource assignment. The only job that needs to 
+       be submitted using -R y is job A. This means all B(i) jobs can be 
+       submitted with the -R n (default) without actually endangering the 
+       reservation for A.
+
+   d) Monitoring 
+
+   The discussion about tuning indicates it can be useful for administrators
+   gain a certain degree of understanding on how schedulers decisions are 
+   actually influenced by resource reservation. For this purpose the scheduler 
+   configuration param setting MONITOR can be used. This causes additional 
+   information be provided in the 'schedule' file kept in the Grid Engines 
+   common directory.
+
+   The following example shortly introduces scheduler monitoring. Assume the
+   following sequence of jobs 
+
+      qsub -N L4_RR -R y -l h_rt=30,license=4 -p 100  $SGE_ROOT/examples/jobs/sleeper.sh 20
+      qsub -N L5_RR -R y -l h_rt=30,license=5         $SGE_ROOT/examples/jobs/sleeper.sh 20
+      qsub -N L1_RR -R y -l h_rt=31,license=1         $SGE_ROOT/examples/jobs/sleeper.sh 20
+
+   be submitted into a cluster with the global 'license' consumable resource be 
+   limited to a number of 5 licenses. Due to the use of default priority settings 
+   in the scheduler configuration
+
+        weight_priority                   1.000000
+        weight_urgency                    0.100000
+        weight_ticket                     0.010000
+
+   it is ensured the -p priority of the L4_RR job overwhelms the license based 
+   urgency finally resulting in a priorization such as 
+
+      job-ID  prior   name 
+      ---------------------
+         3127 1.08000 L4_RR
+         3128 0.10500 L5_RR
+         3129 0.00500 L1_RR
+
+   in this case traces of those jobs can be found in the 'schedule' file for
+   6 schedule intervals
+
+      ::::::::
+      3127:1:STARTING:1077903416:30:G:global:license:4.000000
+      3127:1:STARTING:1077903416:30:Q:all.q@carc:slots:1.000000
+      3128:1:RESERVING:1077903446:30:G:global:license:5.000000
+      3128:1:RESERVING:1077903446:30:Q:all.q@bilbur:slots:1.000000
+      3129:1:RESERVING:1077903476:31:G:global:license:1.000000
+      3129:1:RESERVING:1077903476:31:Q:all.q@es-ergb01-01:slots:1.000000
+      ::::::::
+      3127:1:RUNNING:1077903416:30:G:global:license:4.000000
+      3127:1:RUNNING:1077903416:30:Q:all.q@carc:slots:1.000000
+      3128:1:RESERVING:1077903446:30:G:global:license:5.000000
+      3128:1:RESERVING:1077903446:30:Q:all.q@es-ergb01-01:slots:1.000000
+      3129:1:RESERVING:1077903476:31:G:global:license:1.000000
+      3129:1:RESERVING:1077903476:31:Q:all.q@es-ergb01-01:slots:1.000000
+      ::::::::
+      3128:1:STARTING:1077903448:30:G:global:license:5.000000
+      3128:1:STARTING:1077903448:30:Q:all.q@carc:slots:1.000000
+      3129:1:RESERVING:1077903478:31:G:global:license:1.000000
+      3129:1:RESERVING:1077903478:31:Q:all.q@bilbur:slots:1.000000
+      ::::::::
+      3128:1:RUNNING:1077903448:30:G:global:license:5.000000
+      3128:1:RUNNING:1077903448:30:Q:all.q@carc:slots:1.000000
+      3129:1:RESERVING:1077903478:31:G:global:license:1.000000
+      3129:1:RESERVING:1077903478:31:Q:all.q@es-ergb01-01:slots:1.000000
+      ::::::::
+      3129:1:STARTING:1077903480:31:G:global:license:1.000000
+      3129:1:STARTING:1077903480:31:Q:all.q@carc:slots:1.000000
+      ::::::::
+      3129:1:RUNNING:1077903480:31:G:global:license:1.000000
+      3129:1:RUNNING:1077903480:31:Q:all.q@carc:slots:1.000000
+      ::::::::
+
+   each section shows for a schedule interval all resource utilizations 
+   that were taken into account. The 'RUNNING' entries show utilizations
+   of jobs that already were running at the begin of the interval, 
+   'STARTING' entries denote immediate utilizations that were decided 
+   within the interval and 'RESERVING' entries show utilizations that
+   are planned for the future i.e. reservations. 
+
+   The format of the schedule file is
+
+     <jobid>:         The jobs id.
+     <taskid>:        The array task id or 1 in case of non-array jobs.
+     <state>:         One of RUNNING/SUSPENDED/MIGRATING/STARTING/RESERVING.
+     <start_time>:    Start time in seconds after 1.1.1970.
+     <duration>:      Assumed job duration in seconds.
+     <level_char>:    One of {P,G,H;Q} standing for {PE,Global,Host,Queue}.
+     <object_name>:   The name of the PE/global/host/queue.
+     <resource_name>: The name of the consumable resource.
+     <utilization>    The resource utilization debited for the job.
+
+   A line "::::::::" marks the begin of a new schedule interval. 
+
+   Please note this file is not truncated. Make sure the monitoring
+   is switched off in case you have no automated procedure setup that
+   truncates the 'schedule' file.
+   
+3. Changes with command line interface and configuration file formats
+
+   The change as seen from the end users perspective is a improved 
+   behaviour of the "-pe parallel_environment range" submit option 
+   and a new submit switch "-R y|n" with the commands
+
+   qsub(1)
+   qrsh(1)
+   qsh(1)
+   qlogin(1)
+   qalter(1)
+
+   Old behaviour:
+
+   <     -pe parallel_environment n[-[m]]|[-]m,...
+   <
+   <          You can specify the PE  name   by  using  the  wildcard
+   <          character  "*",  thus the request "pvm*" will match any
+   <          parallel environment with  a  name  starting  with  the
+   <          string "pvm".
+   <          The range specification is a list of range  expressions
+   <          of the form n-m (n as well as m being positive non-zero
+   <          integer numbers), where m is an abbreviation  for  m-m,
+   <          -m  is  a  short form for 1-m and n- is an abbreviation
+   <          for n-infinity. The range specification is processed as
+   <          follows:  The  largest  number  of  queues requested is
+   <          checked first. If enough queues meeting  the  specified
+   <          attribute  list  are  available, all are allocated. The
+   <          next smaller number of queues is checked  next  and  so
+   <          forth.
+
+   New behaviour:
+
+   >     -pe parallel_environment n[-[m]]|[-]m,...
+   >
+   >          You can specify the PE  name   by  using  the  wildcard
+   >          character  "*",  thus the request "pvm*" will match any
+   >          parallel environment with  a  name  starting  with  the
+   >          string "pvm".
+   >          The range specification is a list of range  expressions
+   >          of the form n-m (n as well as m being positive non-zero
+   >          integer numbers), where m is an abbreviation  for  m-m,
+   >          -m  is  a  short form for 1-m and n- is an abbreviation
+   >          for n-infinity. When a range specification covers  mul-
+   >          tiple  slot  numbers all enlisted slot numbers are con-
+   >          sidered valid assignments for the job and largest  pos-
+   >          sible  assignment  is  chosen for the job. Similarly in
+   >          case multiple parallel environments match the specified
+   >          PE  name and the range specification covers more than a
+   >          slot number the largest possible  parallel  environment
+   >          assignment is chosen.
+   >
+
+   New switch:
+
+   >
+   >     -R y|n
+   >          Available for qsub, qrsh, qsh, qlogin and qalter.
+   >
+   >          Indicates whether a reservation for this job should  be
+   >          done. Reservation is never done for immediate jobs sub-
+   >          mitted  using  'yes'  with  -now  option.  Please  note
+   >          irrespective of the reservation request job reservation
+   >          might   be   disabled    using    max_reservation    in
+   >          sched_conf(5)  and  might  be limited only to a certain
+   >          number of high priority jobs.
+   >
+   >          By default jobs are submitted with -R n option.
+   >
+
+   From the administrators point of view two new scheduler configuration
+   parameters were added to sched_conf(5) 
+
+   >  max_reservation
+   >     The  maximum  number  of  reservations  scheduled  within  a
+   >     schedule  interval.  When  a runnable job can not be started
+   >     due  to  a  shortage  of  resources  a  reservation  can  be
+   >     scheduled   instead.  A  reservation  can  cover  consumable
+   >     resources with the global host, any execution host  and  any
+   >     queue.  For  parallel  jobs  reservations  are done also for
+   >     slots resource as specified in sge_pe(5).   As  job  runtime
+   >     the  maximum  of  the  time specified with -l h_rt=... or -l
+   >     s_rt=... is assumed. For jobs that have neither of them  the
+   >     default_duration  is  assumed.  Reservations prevent jobs of
+   >     lower priority as specified in sge_priority(5) from  utiliz-
+   >     ing the reserved resource quota during the while of reserva-
+   >     tion. Jobs of lower priority are allowed  to  utilize  those
+   >     reserved  resources  only  if  their  prospective job end is
+   >     before the start of the reservation (backfilling).  Reserva-
+   >     tion  is  done  only  for  non-immediate jobs (-now no) that
+   >     request reservation (-R y). If max_reservation is set to "0"
+   >     no job reservation is done.
+   >
+   >     Note, that reservation scheduling can be performance consum-
+   >     ing  and  hence  reservation  scheduling  is switched off by
+   >     default. Since reservation scheduling  performance  consump-
+   >     tion is known to grow with the number of pending jobs use of
+   >     -R y option is recommended  only  for  those  jobs  actually
+   >     queuing   for   bottleneck   resources.  Together  with  the
+   >     max_reservation parameter this technique can be used to nar-
+   >     row down performance impacts.
+   >
+   >  default_duration
+   >     When job  reservation  is  enabled  through  max_reservation
+   >     sched_conf(5)  parameter  the default duration is assumed as
+   >     runtime for  jobs  that  have  neiter  -l  h_rt=...  nor  -l
+   >     s_rt=...  specified.  In  contrast to a h_rt/s_rt time limit
+   >     the default_duration is not enforced.
+   >
+ 
+   another parameter was added to scheduler configuration sched_conf(5) 
+   to allow for monitoring resource reservation:
+
+   >   params
+   >      This is foreseen for passing additional  parameters  to  the
+   >      Sun Grid Engine scheduler. The following values are recognized
+   >      currently:
+   > 
+   >      MONITOR
+   >           If set, the  scheduler  records  information  for  each
+   >           scheduling  run  allowing  to  reproduce  job resources
+   >           utilization           in            the            file
+   >           $SGE_ROOT/<cell>/common/schedule.
+   > 
+
+   yet another parameter was added to scheduler configuration 
+   sched_conf(5) to allow for modeling difference between net and gross
+   job runtimes:
+
+   >      DURATION_OFFSET
+   >           If set overrides the default  of  60  seconds  that  is
+   >           assumed  as  offset by N1GE scheduler when plan-
+   >           ning resource utilization  as  delta  between  net  job
+   >           runtimes  and  gross time until resources are available
+   >           again. Jobs net runtime as specified with  -l  h_rt=...
+   >           or  -l  s_rt=... or default_duration always differ from
+   >           jobs gross runtime  due  to  delays  before  and  after
+   >           actual job start. Amongst these delays before job start
+   >           is the time until the end of a  schedule_interval,  the
+   >           time  it takes to deliver a job to sge_execd(8) and the
+   >           delays prolog in  queue_conf(5)  ,  start_proc_args  in
+   >           sge_pe(5)   and  starter_method  in  queue_conf(5)  may
+   >           effectuate.  The  delays  after  a  jobs   actual   run
+   >           comprises  delays  due  to  a  forced  job  termination
+   >           (notify, terminate_method or checkpointing),  procedure
+   >           runs  after  acutal job finished such as stop_proc_args
+   >           in sge_pe(5) or epilog in queue_conf(5) and  the  delay
+   >           until a new schedule_interval.
+   >           If the offset is too  low  resource  reservations  (see
+   >           max_reservation) can be delayed repeatedly due to a too
+   >           optistic job circulation time.
+
+4. Implementation
+
+   For the reservation scheduling major reconstructions in scheduling code
+   were made. The new algorithm consists of parts that can be used both for 
+   sequential and parallel jobs and other parts where handling of sequential
+   and parallel jobs differs. Important steps of the algorithm with all parts
+   are summarized at large:
+
+   a) Common part of the algorithm that is used both for sequential and 
+      parallel jobs
+   
+      * jobs are processed in priority order to find suited assignments
+        (dispatch_jobs()) 
+
+      * if possible we try to make an assignment to start the job immediately
+        otherwise a reservation is made afterwards (select_assign_debit())
+
+      past that stage the algorithm splits for sequential and parallel jobs.
+
+   b) Parts of the algorithm that are used for sequential jobs only 
+   
+      * for sequential job assignments all the earliest job start time
+        is determined with each queue instance and the earliest one gets 
+        chosen. Secondary criterion for queue selection minimizing jobs soft 
+        requests (sge_sequential_assignment())
+
+      * for determining earliest start time per queue at first the earliest 
+        start time due to cluster-wide (=global) resource availability is 
+        determined, then for each queue instance the earliest start time due 
+        to host resource availability and due to queue instance resource 
+        availability is determined (sequential_tag_queues_suitable4job()) 
+
+      * for sequential jobs determining the earliest start time due to resource 
+        availability is done by ensuring various constraints are fulfulled and 
+        then determining earliest start time with resources of a resource 
+        container are fulfilled (sequential_queue_time(), 
+        sequential_global_time(), sequential_host_time())
+
+      * the earliest start time due to resources of a resource container is the 
+        maximum of the earliest start times for all resources comprised by the 
+        resource container that requested by a job (rc_time_by_slots())
+
+      * the earliest start time due to availability of a resource is determined 
+        by ensuring non-consumable resource requests are fulfilled or by finding
+        the earliest time utilization of a consumable resource is below the 
+        threshold required for the request (ri_time_by_slots())
+
+      * the earliest time a utilization is below a threshold is determined by
+        searching backwards in resource utilization diagrams (utilization_below())
+   
+   c) Parts of the algorithzm that are used for parallel jobs only 
+
+      * for parallel job assignments all the earliest job start time
+        of all parallel environments matching the parallel environment request
+        is determined by determining the earliest start time with each eligable
+        parallel environment. The earliest parallel environment is chosen. 
+        Afterwards for the chosen parallel environment assignment the slot amount 
+        is maximized in case of a slot range request 
+        (sge_select_parallel_environment())
+
+      * the earliest job start time for a parallel environment is determined
+        by iterating through all times where resource utilization within the 
+        schedule actually changes concerning the consumable resources requested 
+        by the job and checking whether resources would be sufficient for the 
+        job at that particular time. As an optimization for the time iteration 
+        a queue end time iterator (QETI) is used (parallel_reservation_max_time_slots()) 
+
+      * checking whether resources would be sufficient at a particular time with
+        a parallel environment is done by checking at first whether the 'slot' 
+        resource of the parallel environment is sufficient and then whether remaining
+        job resource requests can be fulfilled (parallel_assignment()) 
+
+      * checking whether remaining resources meet the request of the parallel job 
+        at a particular time is done by checking whether cluster-wide (=global) 
+        resources are sufficient and whether the slots available on all eligable 
+        hosts together(!) are sufficient for the parallel job
+        (parallel_tag_queues_suitable4job())
+
+      * at each host the number of slots available at a particular time for the 
+        parallel job is determined as the minimum of the slots available 
+        due to resource availability on a host at one hand and the slots
+        available on all eligable queues together(!) for the parallel job
+        (parallel_tag_hosts_queues)
+       
+      * the number of slots available for a parallel job at a particular time
+        in a resource container is determined by ensuring various constraints
+        are met and then determining the number of slots available due to 
+        resource requests and resource availability at the particular time
+        (parallel_queue_slots(), parallel_host_slots(), parallel_global_slots(),
+        parallel_available_slots())
+
+      * the number of slots available for a parallel job at a particular time
+        in a resource container is determined as the minimum of the slots 
+        available for all resources requested by the job and limited
+        in the resource container (rc_slots_by_time())
+
+      * the number of slots available with a resource can be zero for static 
+        resources or is determined based on maximum utilization within the 
+        specific time frame, the total amount of the resource and the per
+        task request of the parallel job (ri_slots_by_time())
+      
+      * the maximum utilization within a time frame is determined based
+        on information in resource utilization diagram for the consumable 
+        resource (utilization_max())

@@ -1,0 +1,493 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us"><head><title>SMF Support Specification Document</title>
+ 
+<h1><a name="Functional_Specification_Documen"></a> Functional Specification Document for <strong>SMF support for SGE</strong> </h1>
+<pre>Version 1.0   26/03/2008   Lubomir Petrik</pre> 
+<h2><a name="1_Introduction"></a> 1 Introduction </h2>
+<p>
+This document describes the Sun Grid Engine's SMF support.
+SMF (Service Management Facility) is new feature in Solaris 10. The
+purpose is to speed up boot time, provide permanent services and ease
+up the administration of services and their dependencies.
+</p><p>
+</p><h2><a name="2_Project_Overview"></a> 2 Project Overview </h2>
+<h3><a name="2_1_Project_Aim"></a> 2.1 Project Aim </h3>
+<p>
+After the project is completed SGE should be able to:  </p><ol>
+<li> To be controlled over SMF administrative commands as well as old qconf interfaces (-km, ke) on Solaris 10+. <span style="color: blue;">MANDATORY</span>
+</li> <li> Support all existing commands like: migrate qmaster, etc. <span style="color: blue;">MANDATORY</span>
+</li> <li> Provide option -nosmf to installation scripts not to use SMF. <span style="color: blue;">MANDATORY</span><span style="color: blue;"></span>
+</li> <li> <span style="color: blue;"><span style="color: black;">We might provide an RBAC role solaris.smf.sge.access, </span></span><span style="color: blue;"><span style="color: black;">solaris.smf.sge.modify and appripriate profiles SGE manager/SGE operator,</span></span><span style="color: blue;"><span style="color: black;">
+so that SGE manager and operator can get it during the installation and
+are later allowed to start/stop SGE over SMF / modify the SGE SMF
+service manifest. This also means that the service manifest already
+support and check for these roles. <span style="color: blue;">OPTIONAL</span></span></span>
+</li> <li> <span style="color: blue;"><span style="color: black;"><span style="color: blue;"><span style="color: black;">As an addition to 4. we might want to start each SGE processes with only necessary privileges. For increasing security </span></span></span></span><span style="color: blue;"><span style="color: black;"><span style="color: blue;">OPTIONAL</span></span></span><span style="color: blue;"><span style="color: black;"><span style="color: blue;"><span style="color: black;"></span><br></span></span></span>
+</li></ol> 
+<p>
+</p><h3><a name="2_2_Project_Benefit"></a> 2.2 Project Benefit </h3>
+<p>
+The SMF support can improve bootup time, administration of SGE for administrators used to work with SMF and SGE availability.<br>
+</p><p>
+</p><h3><a name="2_3_Project_Duration"></a> 2.3 Project Duration </h3>
+<p>
+All estimated values are net times which mean working full time on the project without interruption.
+</p><p>
+Core development:
+</p><table style="border-width: 1px;" border="1" cellpadding="0" cellspacing="0"><tbody><tr><th style="text-align: center; vertical-align: top;" maxcols="0" align="center" bgcolor="#6b7f93" valign="top"> <a style="color: rgb(255, 255, 255);" title="Sort by this column">Task</a> </th><th style="text-align: center; vertical-align: top;" maxcols="0" align="center" bgcolor="#6b7f93" valign="top"> <a style="color: rgb(255, 255, 255);" title="Sort by this column">Duration in Man Weeks</a> </th><th style="text-align: center; vertical-align: top;" maxcols="0" align="center" bgcolor="#6b7f93" valign="top"> <a style="color: rgb(255, 255, 255);" title="Sort by this column">possible engineer</a> </th><th style="text-align: center; vertical-align: top;" maxcols="0" align="center" bgcolor="#6b7f93" valign="top"> <a style="color: rgb(255, 255, 255);" title="Sort by this column">state</a> </th></tr>
+<tr><td style="vertical-align: top;" bgcolor="#ffffff" valign="top"> <a>Research</a> </td><td style="vertical-align: top;" bgcolor="#ffffff" valign="top"> 1 </td><td style="vertical-align: top;" bgcolor="#ffffff" valign="top"> LP </td><td style="vertical-align: top;" bgcolor="#ffffff" valign="top"> closed </td></tr>
+<tr><td style="vertical-align: top;" bgcolor="#edf4f9" valign="top"> <a>Prepare</a> </td><td style="vertical-align: top;" bgcolor="#edf4f9" valign="top"> 1 </td><td style="vertical-align: top;" bgcolor="#edf4f9" valign="top"> LP </td><td style="vertical-align: top;" bgcolor="#edf4f9" valign="top"> closed </td></tr>
+<tr><td style="vertical-align: top;" bgcolor="#ffffff" valign="top"> <a>Integrate</a> </td><td style="vertical-align: top;" bgcolor="#ffffff" valign="top"> 1 </td><td style="vertical-align: top;" bgcolor="#ffffff" valign="top"> LP </td><td style="vertical-align: top;" bgcolor="#ffffff" valign="top"> closed </td></tr>
+<tr><td style="vertical-align: top;" bgcolor="#edf4f9" valign="top"> <a>Test</a> </td><td style="vertical-align: top;" bgcolor="#edf4f9" valign="top"> 1 </td><td style="vertical-align: top;" bgcolor="#edf4f9" valign="top"> LP </td><td style="vertical-align: top;" bgcolor="#edf4f9" valign="top"> closed </td></tr>
+</tbody></table>
+<p>
+Additionally:
+</p><table style="border-width: 1px;" border="1" cellpadding="0" cellspacing="0"><tbody><tr><th style="text-align: center; vertical-align: top;" maxcols="0" align="center" bgcolor="#6b7f93" valign="top"> <a rel="nofollow" style="color: rgb(255, 255, 255);" >Task</a> </th><th style="text-align: center; vertical-align: top;" maxcols="0" align="center" bgcolor="#6b7f93" valign="top">  <a rel="nofollow" style="color: rgb(255, 255, 255);">Duration in Man Weeks</a> </th><th style="text-align: center; vertical-align: top;" maxcols="0" align="center" bgcolor="#6b7f93" valign="top">  <a rel="nofollow" style="color: rgb(255, 255, 255);">possible engineer</a> </th><th style="text-align: center; vertical-align: top;" maxcols="0" align="center" bgcolor="#6b7f93" valign="top"> <a rel="nofollow" style="color: rgb(255, 255, 255);" >state</a> </th></tr>
+<tr><td style="vertical-align: top;" bgcolor="#ffffff" valign="top"> Doc support </td><td style="vertical-align: top;" bgcolor="#ffffff" valign="top"> 1/3 </td><td style="vertical-align: top;" bgcolor="#ffffff" valign="top"> LP </td><td style="vertical-align: top;" bgcolor="#ffffff" valign="top"> open </td></tr>
+</tbody></table>
+<p>
+</p><h3><a name="2_4_Project_Dependencies"></a> 2.4 Project Dependencies </h3>
+<p>
+</p><table style="border-width: 1px;" border="1" cellpadding="0" cellspacing="0"><tbody><tr><th style="text-align: center; vertical-align: top;" maxcols="0" align="center" bgcolor="#6b7f93" valign="top"> <a style="color: rgb(255, 255, 255);" title="Sort by this column">Available</a> </th><th style="text-align: center; vertical-align: top;" maxcols="0" align="center" bgcolor="#6b7f93" valign="top"> <a style="color: rgb(255, 255, 255);" title="Sort by this column">Supplier</a> </th><th style="text-align: center; vertical-align: top;" maxcols="0" align="center" bgcolor="#6b7f93" valign="top"> <a style="color: rgb(255, 255, 255);" title="Sort by this column">Product/Project/Interface</a> </th><th style="text-align: center; vertical-align: top;" maxcols="0" align="center" bgcolor="#6b7f93" valign="top"> <a style="color: rgb(255, 255, 255);" title="Sort by this column">Dependency</a> </th></tr>
+<tr><td style="vertical-align: top;" bgcolor="#ffffff" valign="top"> now </td><td style="vertical-align: top;" bgcolor="#ffffff" valign="top"> Sun Microsystems </td><td style="vertical-align: top;" bgcolor="#ffffff" valign="top"> Solaris 10 </td><td style="vertical-align: top;" bgcolor="#ffffff" valign="top"> OS </td></tr>
+</tbody></table>
+<p>
+<a name="MileStones"></a>
+</p><h3><a name="2_5_Milestones"></a> 2.5 Milestones </h3>
+<p> </p><ol>
+<li> <strong>Research the SMF and SGE startup procedures</strong> <ul>
+<li> Study the SMF
+</li> <li> Study qmaster/execd startup scripts<br>
+</li> <li> Test the functionality and behavior with SGE installation
+</li></ul> 
+</li> <li> <strong>Prepare all required information from SGE that SMF needs</strong> <ul>
+<li> The SMF Support Project Definition and Specification Document
+</li> <li> Prepare a prototype to prove that SMF can work with SGE
+</li></ul> 
+</li> <li> <strong>Integrate the SMF support to SGE start/stop/install/uninstall process</strong> <ul>
+<li> Finalize The  SMF Support Project Definition and Specification Document
+</li> <li> Modify install script to get the SMF required information in installation time
+</li> <li> Create a test sge_smf.sh script to support operations like:
+register/unregister [qmaster|shadowd|execd|dbwriter|bdb] | supported
+</li> <li> Modify install, startup scripts to call the SMF support script where needed
+</li> <li> Create custom stop methods for each service<br>
+</li></ul> 
+</li> <li> <strong>Test and document</strong> <ul>
+<li> Test the installation process
+</li> <li> Test the multi cluster scenario
+</li> <li> Create doc page for SMF support in sge
+</li></ul> 
+</li></ol> 
+<h2><a name="3_System_Architecture"></a> 3 System Architecture </h2>
+<p>
+</p><h3><a name="3_1_Enhancement_Functions"></a> 3.1 Enhancement Functions </h3>
+<p> </p><ul>
+<li> The SGE  should integrate with SMF
+</li></ul> 
+<p>
+</p><h3><a name="3_2_Overall_Block_Diagram"></a> 3.2 Overall Block Diagram </h3>
+<p> </p><ul>
+<li> The SMF. <ul>
+<li> SMF service repository
+</li> <li> The svcadm/svccfg/svcprop/svcs command line interfaces
+</li></ul> 
+</li> <li> The Sun Grid Engine <ul>
+<li> bdb<br>
+</li> <li> qmaster
+</li> <li> execd
+</li> <li> shadowd<br>
+</li> <li> dbwriter
+</li></ul> 
+</li></ul> 
+<p>
+</p><h2><a name="4_Functional_Definition"></a> 4 Functional Definition </h2>
+<p>
+</p><h3><a name="4_1_Performance"></a> 4.1 Performance </h3>
+No impact on performance is expected. Booting machine might a bit faster.
+<p>
+</p><h3><a name="4_2_Reliability_Availability_Ser"></a> 4.2 Reliability, Availability, Serviceability (RAS) </h3>
+Administrators will then have a chance to control SGE startup via SMF. 
+<p>
+</p><h3><a name="4_3_Diagnostics"></a> 4.3 Diagnostics </h3>
+<p>The new util /sgeSMF/sge_smf.sh command is added. This command can
+be used for detecting if the SMF is available. We might consider not to
+document it though. Administators should use SMF commands to check if
+SMF SGE services are present on the system.<br>
+</p><p>
+</p><h3><a name="4_4_User_Experience"></a> 4.4 User Experience </h3>
+<p>
+SMF will be automatically used on Solaris 10 hosts unless -nosmf option
+is provided. User will have to additionally name the cluster he/she is
+installing. This cluster name will become part of the service name.
+</p><p>
+</p><h3><a name="4_5_Manufacturing"></a> 4.5 Manufacturing </h3>
+<h3><a name="4_6_Quality_Assurance"></a> 4.6 Quality Assurance </h3>
+<h4><a name="4_6_1_Testsuite_adjustments"></a> 4.6.1 Testsuite adjustments </h4>
+The testsuite must know about a new installation option and should handle it correctly and test the correct behavior.
+<p>
+</p><h4><a name="4_6_2_Testsuite_tests"></a> 4.6.2 Testsuite tests </h4>Testsuite
+tests will verify that a new sge_smf.sh wrapper script works. The new
+tests also include positive and negative tests for all options of this
+new command.
+<p>
+</p><h4><a name="4_6_3_Tested_the_auto_installati"></a> 4.6.3 Tested the auto installation </h4>
+The auto installation should be tested. Install template now contains cluster name.<br>
+<p>
+</p><h4><a name="4_6_4_Backup_the_SMF_files_test"></a><a name="4_6_4_Backup_the_SMF_files_test_"></a> 4.6.4 Backup the SMF files test? </h4>No
+backup needed. We will not support backing up the SMF repository. That
+can be done by the administrator. SMF also supports snapshots of the
+service manifests.
+<p>
+</p><h3><a name="4_7_Security_Privacy"></a> 4.7 Security &amp; Privacy </h3>
+<p>
+</p><h3><a name="4_8_Migration_Path"></a> 4.8 Migration Path </h3>
+<p>After upgrading to 6.2 version, the administrator will not have a
+chance to enable SMF support. The reason is that we need to reinstall
+the hosts in order to register them as SMF services. </p><p>
+<span style="color: blue;">OPTIONAL:</span> We could provide a script
+that would connect to all existing hosts, remove RC scripts (any
+customizations would be lost) and enabled SMF from the new templates
+after the migration has been finished.
+</p><p>
+</p><h3><a name="4_9_Documentation"></a> 4.9 Documentation </h3>
+<p>No new man page will be added, sge_smf.sh command is a helper script
+and as such should not be used by the users. Only
+installation/users/administration guide will explain the SMF support.
+</p><p>
+</p><h3><a name="4_10_Installation"></a> 4.10 Installation </h3>
+Administrator can disable SMF support my adding -nosmf option to the install script.<br>
+<p>
+</p><h3><a name="4_11_Packaging"></a> 4.11 Packaging </h3>
+New files in the distribution will be at $SGE_ROOT/util/sgeSMF:
+<pre>sge_smf.sh - script for import/deleting SGE services to/from the repository
+</pre>
+<pre>sge_smf_support.sh - helper script for sge_smf
+</pre>
+<pre>bdb_template.xml
+</pre>
+<pre>qmaster_template.xml 
+</pre>
+<pre>shadowd_template.xml
+</pre>
+<pre>execd_template.xml 
+</pre>
+<p>
+At $SGE_ROOT/dbwriter/util/sgeSMF:
+</p><pre>dbwriter_template.xml
+</pre>
+<p>
+<a name="LimitationsSet"></a>
+</p><h3><a name="4_12_Issues_Risks_and_Proposed_M"></a> 4.12 Issues/Risks and Proposed Mitigation </h3> <ol>
+<li> SMF needs an unique service name - this mean we need to ask user how to name the cluster
+</li> <li> Upgrade (migration) from RC to SMF will not be done automatically. See 4.8
+</li> <li> Getting the correct service dependencies might be difficult
+</li> <li> TBD<br>
+</li></ol> 
+<p>
+</p><table style="border-width: 1px;" border="1" cellpadding="0" cellspacing="0"><tbody><tr><th style="text-align: center; vertical-align: top;" maxcols="0" align="center" bgcolor="#6b7f93" valign="top"> <a style="color: rgb(255, 255, 255);" title="Sort by this column">Category</a> </th><th style="text-align: center; vertical-align: top;" maxcols="0" align="center" bgcolor="#6b7f93" valign="top"> <a style="color: rgb(255, 255, 255);" title="Sort by this column">Risk</a> </th><th style="text-align: center; vertical-align: top;" maxcols="0" align="center" bgcolor="#6b7f93" valign="top"> <a style="color: rgb(255, 255, 255);" title="Sort by this column">Impact (L/M/H)</a> </th><th style="text-align: center; vertical-align: top;" maxcols="0" align="center" bgcolor="#6b7f93" valign="top"> <a style="color: rgb(255, 255, 255);" title="Sort by this column">Probability (L/M/H)</a> </th><th style="text-align: center; vertical-align: top;" maxcols="0" align="center" bgcolor="#6b7f93" valign="top"> <a style="color: rgb(255, 255, 255);" title="Sort by this column">Mitigation Plan</a> </th><th style="text-align: center; vertical-align: top;" maxcols="0" align="center" bgcolor="#6b7f93" valign="top"> <a style="color: rgb(255, 255, 255);" title="Sort by this column">Owner</a> </th></tr>
+<tr><td colspan="6" style="vertical-align: top;" bgcolor="#ffffff" valign="top">  </td></tr>
+<tr><td colspan="6" style="vertical-align: top;" bgcolor="#edf4f9" valign="top">  </td></tr>
+</tbody></table>
+<p>
+</p><h2><a name="5_Component_Descriptions"></a> 5 Component Descriptions </h2>
+<h3><a name="5_1_Component_Service_Management"></a> 5.1 Component Service Management Facility (SMF) </h3>
+<h4><a name="5_1_1_Overview"></a> 5.1.1 Overview </h4>SMF is new
+feature in Solaris 10 providing unified model for controlling services.
+Replaces RC scripts, handles service dependencies, provides better
+service availability and speeds up boot process.
+<p>
+</p><h4><a name="5_1_2_Functionality"></a> 5.1.2 Functionality </h4>Installation
+of each daemon should import appropriate service manifest to the SMF
+repository. Services will then be controlled by the SMF framework
+instead of RC scripts and startup scripts. Users no longer can use
+startup scripts, if they want to use SMF.
+<p>
+Since SMF can define multiple instances of the same service we do the following:<br>Define
+a unique name for a service and ask the user to provide a cluster name
+during the installation which will become the service instance. </p><p>
+<span style="color: blue;">OPTIONAL:</span> When we release
+incompatible SGE version (increased cull version) we should provide a
+new service name since these services are no longer compatible. This
+needs also be done with there are any changes between the updates that
+break any functionality.<br>
+</p><p>
+Qmaster service name example:<br>First release: <br>application/sge/qmaster:test<br>application/sge/qmaster:production<br>We release incompatible update:<br>application/sge_v62u1/qmaster:test
+</p><p>
+The reason why we should do this is that other service providers can
+depend on our service and they might expect certain version of the
+software/functionality to work. If we provide just
+application/sge/qmaster service any qmaster instance present on the
+system would satisfy such dependency.
+</p><p>After a discussion we decided not to do this as we don't expect
+anyone to depend on our services. Once that happens we still might do
+it, for now we don't add SGE_VERSION to the service name.
+</p><p>
+Service manifests are stored in SMF repository database in XML. Qmaster service manifest template example:<br>
+</p><p>
+</p><pre>&lt;?xml version='1.0'?&gt;
+&lt;!DOCTYPE service_bundle SYSTEM '/usr/share/lib/xml/dtd/service_bundle.dtd.1'&gt;
+&lt;service_bundle type='manifest' name='export'&gt;
+  &lt;service name='application/sge/qmaster' type='service' version='0'&gt;
+    &lt;dependency name='network' grouping='require_all' restart_on='none' type='service'&gt;
+      &lt;service_fmri value='svc:/milestone/network'/&gt;
+    &lt;/dependency&gt;
+    &lt;dependency name='fs-autofs' grouping='optional_all' restart_on='none' type='service'&gt;
+      &lt;service_fmri value='svc:/system/filesystem/autofs'/&gt;
+    &lt;/dependency&gt;
+    &lt;instance name='test' enabled='false'&gt;
+      &lt;exec_method name='start' type='method' exec='/grid/sge/default/common/sgemaster -qmaster %m' timeout_seconds='30'&gt;
+        &lt;method_context&gt;
+          &lt;method_environment&gt;
+            &lt;envvar name='SGE_ROOT' value='/grid/sge'/&gt;
+            &lt;envvar name='SGE_QMASTER_PORT' value='21636'/&gt;
+            &lt;envvar name='SGE_CELL' value='default'/&gt;
+          &lt;/method_environment&gt;
+        &lt;/method_context&gt;
+      &lt;/exec_method&gt;
+      &lt;exec_method name='stop' type='method' exec=':kill' timeout_seconds='60'/&gt;
+      &lt;property_group name='startd' type='framework'&gt;
+        &lt;propval name='ignore_error' type='astring' value='signal'/&gt;
+      &lt;/property_group&gt;
+    &lt;/instance&gt;
+    &lt;stability value='Unstable'/&gt;
+    &lt;template&gt;
+      &lt;common_name&gt;
+        &lt;loctext xml:lang='C'&gt;Sun Grid Engine - QMaster service&lt;/loctext&gt;
+      &lt;/common_name&gt;
+      &lt;documentation&gt;
+        &lt;manpage title='sge_qmaster' section='8M' manpath='/grid/sge/man'/&gt;
+      &lt;/documentation&gt;
+    &lt;/template&gt;
+  &lt;/service&gt;
+&lt;/service_bundle&gt;
+
+</pre>
+<p>NOTE: Service does not depend on bootstrap file due to outstanding
+bugs in SMF. Instead startup script might check it's presence and exit
+with $SMF_EXIT_ERR_CONFIG.
+</p><h4><a name="5_1_3_Interfaces"></a> 5.1.3 Interfaces </h4>
+Command administrator can use to control, query or customize services:<br>
+<pre>svccfg(1M)
+</pre>
+<pre>svcadm(1M)
+</pre>
+<pre>svcs(1)
+</pre>
+<pre>svcprop(1)
+</pre>To import the service manifests during the installation either
+root has to do it or the users has to possess appropriate profile
+(Solaris Management/Operator or just or custom profile see 2.1.4). Some
+for managing the services with svcadm. For SMF to be enabled in SGE
+installation we will require root.<br>
+<p>
+</p><h4><a name="5_1_4_Other_Requirements"></a> 5.1.4 Other Requirements </h4>
+None<br>
+<p>
+</p><h3><a name="5_2_Component_Sun_Grid_Engine"></a> 5.2 Component Sun Grid Engine </h3>
+<h4><a name="5_2_1_Overview"></a> 5.2.1 Overview </h4>
+Sun Grid Engine consists of several daemons that will now be controlled by SMF framework on Solaris 10+.<br>
+<p>
+</p><h4><a name="5_2_2_Functionality"></a> 5.2.2 Functionality </h4>
+The inst_sge script will prompt always for the cluster name and this
+name will be used as an instance name for the service that will be
+imported to the SMF repository. If installation is done on other
+OS/version or -nosmf is provided to the script, SMF will not be used.
+installation will remain the same as in the previous version (except
+for new features questions). Installation will check if such service
+instance already exists and will require a new name.<br>
+<p>
+Inside the installation SMF support function sge_smf.sh is called. This
+command is located in the util/sgeSMF directory. This command wraps SMF
+interfaces and publishes just a simple client interface. </p><p>
+sge_smf.sh register|unregister|supported|help
+</p><p>
+The options of this command is described in this component interface section.
+</p><p>
+The sge_smf.sh command is designed to be callable inside the inst_sge script as well as a standalone command.
+</p><h1><a name=""></a>  </h1>
+<h2><a name="SGE"></a> SGE<br> </h2>
+<h5><a name="The_inst_sge_changes"></a> The inst_sge changes </h5>
+The inst_sge will be extended to include the <em>Enter unique cluster name dialog</em> and will call SMF functions for registering the service, when SMF supported system is detected.<br>
+<p>
+</p><h5><a name="The_new_util_sgeSMF_sge_smf_sh_c"></a> The new util/sgeSMF/sge_smf.sh client interface added </h5>
+The sge_smf command script will be added. Please see the functionality section.
+<p>
+</p><h5><a name="The_new_util_sgeSMF_qmaster_temp"></a> The new util/sgeSMF/qmaster_template.xml file </h5>
+Template for qmaster service manifest.
+<h5><a name="The_new_util_sgeSMF_shadowd_temp"></a> The new util/sgeSMF/shadowd_template.xml file </h5>
+Template for shadowd service manifest.
+<h5><a name="The_new_util_sgeSMF_bdb_template"></a> The new util/sgeSMF/bdb_template.xml file </h5>
+Template for BDB server service manifest.<br>
+<p>
+</p><h5><a name="The_new_util_sgeSMF_execd_templa"></a> The new util/sgeSMF/execd_template.xml file </h5>
+Template for execd service manifest.
+<p>
+In addition auto_install must handle cluster name.
+</p><p>
+</p><h2><a name="QMASTER"></a> QMASTER </h2>
+svc:/application/sgeqmaster:&lt;SGE_CLUSTER_NAME&gt;
+<p>
+Since default HA is ensured by configuring optional shadowd that
+take over its functionality, we should not automatically restart
+QMASTER service. In real HA availability scenarios (deployment in Sun
+Cluster) it's also not desired to do the restarting as
+well, in this case SC is responsible for restarting the service.
+</p><h3><a name="OLD_read_6_1_BEHAVIOUR_with_RC_s"></a> OLD (read 6.1) BEHAVIOUR with RC scripts: </h3>
+<p>
+<strong>sgemaster stop, qconf -km, kill -15</strong>    Correct shutdown,
+service does not start
+</p><p>
+<strong>kill -9</strong>                                                    Incorrect shutdown, service does not start
+</p><p>
+<strong>reboot</strong> Service starts
+</p><h3><a name="SMF_BEHAVIOUR"></a><a name="SMF_BEHAVIOUR_"></a> SMF BEHAVIOUR: </h3>
+NOTE: kill -9 will no longer shutdown qmaster, SMF will restart it.
+<p>
+<strong>svcadm disable -t qmaster:&lt;SGE_CLUSTER_NAME&gt;</strong> The
+correct way in SMF to stop the service, without turning off automatic
+startup after reboot. Service is correctly stopped.
+</p><p>
+Other old interfaces still can be used
+as they simulating the old behaviour:
+</p><p>
+<strong>sgemaster stop, qconf -km, kill -15</strong>                                          Correct shutdown, SMF
+qmaster handles the SIGTERM and temporary disables the service instance
+&#8211; SAME
+</p><p>
+<strong>kill -9</strong> Incorrect shutdown, SMF detects interrupted
+service and restarts the service &#8211; DIFFERENT
+</p><p>
+<strong>reboot</strong> Service starts
+</p><p>
+</p><h2><a name="SHADOWD"></a> SHADOWD </h2>
+svc:/application/sge/shadowd:&lt;SGE_CLUSTER_NAME&gt;
+<p>
+Uses same scripts and functionality as QMASTER, logic is unchanged
+takes over if it detects no qmaster is alive.
+</p><p>
+</p><h2><a name="EXECD"></a> EXECD </h2>
+svc:/application/sge/execd:&lt;SGE_CLUSTER_NAME&gt;
+<h3><a name="OLD_BEHAVIOUR_with_RC_scripts"></a><a name="OLD_BEHAVIOUR_with_RC_scripts_"></a> OLD BEHAVIOUR with RC scripts: </h3>
+<p>
+<strong>sgeexecd stop, qconf -kej</strong>        Correct shutdown, service does
+not start
+</p><p>
+<strong>qconf -ke, kill -15</strong>                    Correct shutdown, service does not
+start
+</p><p>
+<strong>kill -9</strong>                                          Incorrect shutdown, service does not start
+</p><p>
+<strong>reboot</strong> Service starts
+</p><p>
+</p><h3><a name="SMF_BEHAVIOUR"></a><a name="SMF_BEHAVIOUR_"></a> SMF BEHAVIOUR: </h3>
+<p>
+Due to the fact that in 6.1 shepherds are
+part of the execd contract, when execd is killed service remains online
+until last job finished. We need to implement a new behavior (see
+below). To do this we need to use both libcontract to start shepherds
+in new contract on SMF supported systems and libscf to distinguish
+between kill -15 and qconf -ke &lt;host&gt; scenarios. Such behavior is the desired and correct from the SMF point of
+view.
+</p><p>
+NOTE: kill -9 will no longer shutdown execd, SMF will restart it.
+</p><p>
+Once sgeexecd is the only service in the contract we can have this
+desired behavior:
+</p><p>
+<strong>svcadm disable -t execd</strong>    Correct
+shutdown, jobs are NOT terminated
+</p><p>
+<strong>sgeexecd stop</strong> Correct shutdown, detects if using SMF
+and calls svcadm disable -ts, job shepherds are terminated, jobs NOT
+terminated<br>
+</p><p>
+<strong>kill -9</strong>                       Incorrect shutdown, SMF detects
+interrupted service and restarts the service DIFFERENT (NEW behavior)
+</p><p>
+<strong>kill -15, qconf -ke/-kej</strong>                       Correct shutdown, we need to use libscf to directly change the service state
+to temporary disabled
+</p><p>
+<strong>reboot</strong>                                    Service starts
+</p><p>
+</p><h1><a name=""></a>  </h1>
+<h2><a name="DBWriter"></a> DBWriter </h2>
+svc:/application/sge/dbwriter:&lt;SGE_CLUSTER_NAME&gt;
+<p>
+After installation DBWriter will now always be started.  And the java process ReportingDBWriter will be the only process running in the contract after the startup.
+</p><p>
+SMF will now restart the DBWriter if it detects the it does not run
+unless sgedbwriter stop or svcadm disable -t
+dbwriter:&lt;SGE_CLUSTER_NAME&gt; was issued.<br>
+</p><h5><a name="The_inst_dbwriter_changes"></a> The inst_dbwriter changes </h5>
+The inst_dbwriter will be extended to call SMF functions for
+registering the service, when SMF supported system is detected. As
+cluster name will be reused for the SGE installation. User will not
+have a chance to select it, it will be always read from
+$SGE_ROOT/$SGE_CELL/common/cluster_name file<br>
+<p>
+</p><h5><a name="The_new_dbwriter_util_sgeSMF_dbw"></a> The new dbwriter/util/sgeSMF/dbwriter_template.xml file </h5>
+Template for dbwriter service manifest.
+<p>
+</p><h2><a name="Berkeley_RPC_server"></a> Berkeley RPC server </h2>
+svc:/application/sge/bdb:&lt;SGE_CLUSTER_NAME&gt;
+<p>
+After installation BDB will now always be started.
+</p><p>
+SMF will now restart the BDB if it detects the it does not run
+unless sgebdb stop or svcadm disable -t bdb:&lt;SGE_CLUSTER_NAME&gt; was issued.
+</p><h5><a name="The_new_util_sgeSMF_bdb_template"></a> The new util/sgeSMF/bdb_template.xml file </h5>
+Template for bdb service manifest
+<p>
+</p><h4><a name="5_2_3_Interfaces"></a> 5.2.3 Interfaces </h4>
+SMF will be automatically used on Solaris 10+ systems, unless -nosmf is
+provided as an argument to the installation scripts. If SMF is used
+svcadm, svcs, etc. commands should be used to enable/disable/customize
+SGE services.
+<p>
+<strong>DBWriter</strong>
+</p><p>DBwriter startup will be changed, so that only the java process
+remains running. Startup script sgedbwriter will incorporate
+dbwriter.sh options and dbwriter.sh will become just a wrapper to the
+sgedbwriter. Both will now have the same interface:
+</p><pre>usage: sgedbwriter [-debug] [-debug_port &lt;port&gt;] [print &lt;setting&gt;] [-h] [start|stop]
+</pre>
+<pre>    start   start the dbwriter as background process (default)
+</pre>
+<pre>    stop    stop the dbwriter
+</pre>
+<pre></pre>
+<pre>    -debug              start the dbwriter in in debug mode
+</pre>
+<pre>    -debug_port &lt;port&gt;  port for debugging (default 8000)
+</pre>
+<pre></pre>
+<pre>    print   dbwriter setting is printed to stdout.
+</pre>
+<pre>            The following settings are available:
+</pre>
+<pre></pre>
+<pre>               pid_file   print the default pid file
+</pre>
+<pre>               log_file   print the default log file
+</pre>
+<pre>               spool_dir  print the default spool directory
+</pre>
+<pre>    -h      this help text is printed
+</pre>
+<pre></pre>
+<p>
+All other functionality and user experience should be unchanged.
+</p><p>DBWriter starup logic should be further improved, so we can
+check that the service is actually running before running from the SMF
+start method. <br>
+</p><p>
+</p><h5><a name="The_util_sgeSMF_sge_smf_sh_clien"></a> The util/sgeSMF/sge_smf.sh client </h5>
+<p>
+The sge_smf.sh  command <span style="color: blue;">might</span> offer to <strong>enable</strong> / <strong>disable</strong> qmaster|execd|.. services as an alternative to the svcadm enable/disable command. 
+</p><p>
+<span style="color: blue;">Will</span> provide <strong>register</strong> / <strong>unregister</strong> to import/delete service manifest to/from the repository and <strong>supported</strong> to query if the system is capable of using SMF.
+</p><p>
+</p><h4><a name="5_2_4_Other_Requirements"></a> 5.2.4 Other Requirements </h4>
+None<a name="TopicEnd"></a>
+<p>
+<p></p></body></html>

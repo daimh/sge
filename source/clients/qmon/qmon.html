@@ -1,0 +1,546 @@
+<!--___INFO__MARK_BEGIN__
+/*************************************************************************
+ *
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ *
+ *  Sun Microsystems Inc., March, 2001
+ *
+ *
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ *
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ *
+ *  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ *
+ *  Copyright: 2001 by Sun Microsystems, Inc.
+ *
+ *  All Rights Reserved.
+ *
+ ************************************************************************/
+___INFO__MARK_END__-->
+
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76C-CCK-MCD Netscape [en] (X11; U; SunOS 5.8 sun4u) [Netscape]">
+   <meta name="CREATED" content="20010611;10370600">
+   <meta name="CHANGEDBY" content="Andre Alefeld">
+   <meta name="CHANGED" content="20010611;11590200">
+<!-- <TABLE cellSpacing=0 cellPadding=4 border=0
+  <TR
+    <TD height=3<IMG height=3 src="http://__GESERVER__/branding/images/pixel.gif"</TD</TR
+  <TR
+    <TD<A href="http://__GESERVER__/easyinstall/install.html"<IMG 
+      src="http://__GESERVER__/branding/images/dload.gif" border=0</A</TD</TR </TABLE
+
+<TABLE cellSpacing=0 cellPadding=0 width="100%" border=0
+   
+  <TR vAlign=top
+    <TD height=10<SPACER height="10" width="1" type="block"</TD</TR
+  <TR
+    <TD vAlign=top<FONT color=#990000<SPAN class=Header<BGrid Engine 
+      Downloads</B</SPAN</FONT
+</TD</TR 
+</TABLE
+ -->
+<!-- <span class="PlainText"<br<br
+The Grid Engine Download area contains items you can download or view. These items include: 
+
+<UL
+<LIDownload <a href="http://__GESERVER__/demo/index.html"Grid Engine Demo Builds</a -- These builds work and were deemed good enough for demonstration.
+<LI<A href="#Binaries"Binaries and Demos - working builds for Grid Engine Shell and Instant P2P Demo</A
+<LI<A href="#Documentation"Grid Engine Documentation - Grid Engine Specifications, White Papers, and Java documents</A
+<LI<A href="#Source"Source - Grid Engine Source code in ZIP file</A
+</UL
+</span
+ -->
+</head>
+<body>
+
+<h2>
+<b><font color="#990000">Qmon Overview</font></b></h2>
+qmon is the GUI client of Grid Engine. It allows the administration and
+use of the Grid Engine system via a GUI. Its functionality is outlined
+in detail in the <a href="manpage">qmon man page</a> and with screenshots
+and usage examples in the <a href="#Documentation">Grid engine documentation</a>.
+<br>&nbsp;
+<p>It has been built with the help of several 3rdparty X11/Motif based
+widget libraries.
+<br>The libraries can be found under the 3rdparty/qmon directory. For more
+detailed documentation for the
+<br>libraries I refer you to the following links:
+<br>&nbsp;
+<table BORDER COLS=2 WIDTH="100%" NOSAVE >
+<tr>
+<td>XMT - Motif Tools&nbsp; (&lt;source>/3rdparty/qmon/Xmt310)</td>
+
+<td>&nbsp;<a href="http://www.motiftools.org">http://www.motiftools.org</a></td>
+</tr>
+
+<tr>
+<td>Xbae - Table Widget&nbsp; (&lt;source>/3rdparty/qmon/Xbae)</td>
+
+<td>&nbsp;<a href="http://www.lesstif.org/Xbae">http://www.lesstif.org/Xbae</a></td>
+</tr>
+
+<tr>
+<td>ListTree - Tree Widget (&lt;source>/3rdparty/qmon/ltree)</td>
+
+<td>&nbsp;<a href="http://www.akvo.com/robm/software/unsupported">http://www.akvo.com/robm/software/unsupported</a></td>
+</tr>
+
+<tr>
+<td>Spinbox - Widget (&lt;source>/3rdparty/qmon/spinbox)</td>
+
+<td>&nbsp;<a href="http://ftp.x.org/contrib/widgets/motif/spinbox/spinbox.html">http://ftp.x.org/contrib/widgets/motif/spinbox/spinbox.html</a></td>
+</tr>
+
+<tr>
+<td>IconList - Widget (&lt;source>/3rdparty/qmon/iconlist)</td>
+
+<td>Link no longer available</td>
+</tr>
+
+<tr>
+<td>Tab - Folder Widget (&lt;source>/3rdparty/qmon/tab)</td>
+
+<td>&nbsp;<a href="http://ftp.x.org/contrib/widgets/motif/Tab">http://ftp.x.org/contrib/widgets/motif/Tab</a></td>
+</tr>
+</table>
+
+<p>The most important of the libraries is the Xmt library build on top
+of the Motif library providing a rich set of generally useful widgets and
+a
+<br>wealth of convenience and utility routines. The main concept of the
+Xmt library is to 'mockup' GUIs from resource files. The general mechanism
+of X11/Motif to define layout settings and look and feel in resource files
+has been enhanced and simplified in Xmt.
+<br>The other widget libs have been connected to Xmt to allow a unified
+process for building the qmon GUI.
+<p>qmon behaves like any other Grid engine client application (<a href="General Client Implementation">General
+Client Implementation</a>). As an event driven client requests are triggered
+by a socalled callback<br>
+function or a timer that requests information from the master periodically.
+<br>&nbsp;
+<p>Here is a listing of the files in the &lt;source>/clients/qmon directory
+and its related dialogues or functionality respectively.
+<br>&nbsp;
+<table BORDER WIDTH="100%" NOSAVE >
+<tr NOSAVE>
+<td NOSAVE><b>Dialogue</b></td>
+
+<td NOSAVE><b>Files/Functionality</b></td>
+</tr>
+
+<tr NOSAVE>
+<td NOSAVE>Main Dialogue
+<br>showing the menu bar and a toolbar to popup the task dialogues</td>
+
+<td NOSAVE>
+<ul>
+<li>
+qmon_main.c&nbsp;<br>
+process commandline switches, execute general setup, enroll to Grid Engine
+master, enter XEvent main loop and wait for XEvents</li>
+
+<li>
+qmon_main.ad<br>
+global or main dialogue specific resource settings, the application default
+files are processed into a<br>
+string array and fed to qmon's resource database during the startup phase.<br>
+Dialogue layouts are also mainly constructed with the help of application
+default files, so slight<br>
+changes to dialogue layouts are very easy to achieve.</li>
+
+<li>
+qmon_appres.c<br>
+handle application defined resources</li>
+
+<li>
+qmon_menus.c&nbsp;<br>
+create the menu and toolbar main dialogue window and register callback
+functions</li>
+
+<li>
+qmon_init.c<br>
+initialize the Xmt library, register additional widgets like Xbae table,
+Tab widget etc.</li>
+
+<li>
+Q<br>
+this resource file contains two parts; the first part is shipped as the
+application default file that<br>
+can be tuned by the user and resides in the user's home directory. The
+second part includes<br>
+all *.ad files. The Q file is processed by a special script develToCVS
+that produces two stringtables for the fallback resources and the dialog
+descriptions.</li>
+</ul>
+</td>
+</tr>
+
+<tr NOSAVE>
+<td NOSAVE>Job Control Dialogue</td>
+
+<td>
+<ul>
+<li>
+qmon_job.c<br>
+creation of the job control dialogue, definition of job control specific
+task functions and callbacks</li>
+
+<li>
+qmon_job.ad<br>
+layout definition of the dialogue and related subdialogues</li>
+
+<li>
+qmon_jobcustom.c<br>
+creation of job customize dialogue and its specific functionality</li>
+
+<li>
+qmon_jobcustom.ad<br>
+layout definition of the dialogue</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td>Queue Control Dialogue</td>
+
+<td>
+<ul>
+<li>
+qmon_queue.c<br>
+creation of the queue control dialogue, definition of queue related functionality</li>
+
+<li>
+qmon_queue.ad<br>
+layout of the queue control dialogue and related subdialogues</li>
+
+<li>
+qmon_qcustom.c<br>
+functions to filter and customize the queues that shall be displayed</li>
+
+<li>
+qmon_qcustom.ad<br>
+resource file for the dialogue layout</li>
+
+<li>
+qmon_qaction.c<br>
+functions to add/modify queues and their configuration</li>
+
+<li>
+qmon_qaction.ad<br>
+layout of the corresponding dialogue</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td>Submit Dialogue</td>
+
+<td>
+<ul>
+<li>
+qmon_submit.c<br>
+functions to prepare a job for submission to the Grid Engine master</li>
+
+<li>
+qmon_submit.ad<br>
+layout for the submit dialogue and its subdialogues</li>
+
+<li>
+qmon_request.c<br>
+functions to handle resource requests and corresponding dialogue routines</li>
+
+<li>
+qmon_request.ad<br>
+resource file for the resource request subdialogue of the Submit Dialogue</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td>Complex Configuration Dialogue</td>
+
+<td>
+<ul>
+<li>
+qmon_cplx.c<br>
+functions for handling complexes configuration</li>
+
+<li>
+qmon_cplx.ad<br>
+layout resource file for the complex configuration dialogue</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td>Host Configuration Dialogue</td>
+
+<td>
+<ul>
+<li>
+qmon_host.c<br>
+administration/submit/execution host related functionality</li>
+
+<li>
+qmon_host.ad<br>
+layout for the dialogue and its subdialogues</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td>Cluster Configuration Dialogue</td>
+
+<td>
+<ul>
+<li>
+qmon_cluster.c<br>
+functionality concerning the Grid Engine cluster configuration</li>
+
+<li>
+qmon_cluster.ad<br>
+layout of the dialogue and its subdialogues</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td>Scheduler Configuration Dialogue</td>
+
+<td>
+<ul>
+<li>
+qmon_sconf.c<br>
+scheduler behavior related functions</li>
+
+<li>
+qmon_sconf.ad<br>
+layout of the dialogue</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td>Calendar Configuration Dialogue</td>
+
+<td>
+<ul>
+<li>
+qmon_calendar.c<br>
+functions to define calendar objects for Grid Engine</li>
+
+<li>
+qmon_calendar.ad<br>
+layout of the dialogue</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td>User Configuration Dialogue</td>
+
+<td>
+<ul>
+<li>
+qmon_manop.c<br>
+functions to manipulate user related configurations</li>
+
+<li>
+qmon_manop.ad<br>
+layout of the dialogue</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td>Parallel Environment Configuration</td>
+
+<td>
+<ul>
+<li>
+qmon_pe.c<br>
+functions for the parallel environment dialogue</li>
+
+<li>
+qmon_pe.ad<br>
+layout of the dialogue</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td>Checkpoint Configuration</td>
+
+<td>
+<ul>
+<li>
+qmon_ckpt.c<br>
+checkpoint dialogue related functions and callbacks</li>
+
+<li>
+qmon_ckpt.ad<br>
+layout of the dialogue</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td>Ticket Configuration</td>
+
+<td>
+<ul>
+<li>
+qmon_ticket.c</li>
+
+<li>
+qmon_share.c</li>
+
+<li>
+qmon_fticket.c<br>
+functions for changing and configuring the Grid Engine Enterprise Edition
+policy related objects like<br>
+the sharetree, the number of overall tickets, the aging of usage</li>
+
+<li>
+qmon_ticket.ad</li>
+
+<li>
+qmon_fticket.ad</li>
+
+<li>
+qmon_share.ad<br>
+layout descriptions for the corresponding dialogues</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td>Project Configuration</td>
+
+<td>
+<ul>
+<li>
+qmon_project.c<br>
+Grid Engine Enterprise Edition project object manipulation functionality</li>
+
+<li>
+qmon_project.ad<br>
+layout of the dialogue</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td>Browser</td>
+
+<td>
+<ul>
+<li>
+qmon_browser.c<br>
+functions to browse and display the status of jobs, queues, messages</li>
+
+<li>
+qmon_browser.ad<br>
+layout of the dialogue</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td>Helper Dialogues/Functions</td>
+
+<td>
+<ul>
+<li>
+AskForItems.c, AskForItem.ad<br>
+select items from a list of available items</li>
+
+<li>
+AskForTime.c, AskForTime.ad<br>
+enter time or memory values fulfilling special format requirements</li>
+
+<li>
+qmon_matrix.c<br>
+Xbae matrix related Xmt glue functions</li>
+
+<li>
+qmon_load.c<br>
+list choosable load/resource values</li>
+
+<li>
+qmon_widgets.c<br>
+external widget - Xmt glue and helper functions</li>
+
+<li>
+xmlocale.c<br>
+locale test example</li>
+
+<li>
+tree_demo.c<br>
+ListTree widget demo example</li>
+
+<li>
+qmon_preferences.c<br>
+load a .qmon_preferences file for saving/loading qmon session settings</li>
+
+<li>
+qmon_message.c, qmon_message.ad<br>
+dialogue for displaying warning and error messages</li>
+
+<li>
+qmon_about.c, qmon_about.ad<br>
+show qmon version and copyright information</li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td></td>
+
+<td>
+<ul>
+<li>
+qmon_comm.c<br>
+Functions for sending changes and receiving the latest version of Grid
+Engine objects like<br>
+queues, jobs etc.<br>
+qmon keeps its own copy of the corresponding object lists and works on
+this copy.</li>
+
+<li>
+qmon_timer.c<br>
+In order to keep in sync with the master keeping the current version of
+the Grid Engine objects<br>
+qmon synchronizes on a regular basis. The timer is switched on if a dialogue
+is opened. If the<br>
+dialogue is closed the timer is switched off to reduce network traffic.<br>
+<BR></li>
+</ul>
+</td>
+</tr>
+</table>
+
+<br>&nbsp;
+<ul>&nbsp;</ul>
+
+<center>
+<p>Copyright 2001 Sun Microsystems, Inc. All rights reserved.</center>
+</body>
+</html>

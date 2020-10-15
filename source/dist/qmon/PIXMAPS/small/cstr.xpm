@@ -1,0 +1,85 @@
+/* XPM */
+/*___INFO__MARK_BEGIN__*/
+/*************************************************************************
+ * 
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ * 
+ *  Sun Microsystems Inc., March, 2001
+ * 
+ * 
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ * 
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ * 
+ *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ * 
+ *   Copyright: 2001 by Sun Microsystems, Inc.
+ * 
+ *   All Rights Reserved.
+ * 
+ ************************************************************************/
+/*___INFO__MARK_END__*/
+static char *cstr[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 32 1",
+"  c black",
+". c #020202",
+"X c #040404",
+"o c gray5",
+"O c #181818",
+"+ c gray10",
+"@ c gray15",
+"# c #2A2A2A",
+"$ c #2C2C2C",
+"% c #555753",
+"& c gray48",
+"* c #888A85",
+"= c gray55",
+"- c #979797",
+"; c #9F9F9F",
+": c gray64",
+"> c gray65",
+", c gray69",
+"< c #B9B9B9",
+"1 c #BCBCBC",
+"2 c #E4E4E4",
+"3 c #E9E9E9",
+"4 c #ECECEC",
+"5 c #EFEFEF",
+"6 c #F6F6F6",
+"7 c #F8F8F8",
+"8 c gray98",
+"9 c #FBFBFB",
+"0 c gray99",
+"q c #FDFDFD",
+"w c gray100",
+"e s mask c None",
+/* pixels */
+"%**************%",
+"*wwwwwwwwwwwwww*",
+"*w555555555555w*",
+"*w555555555555w*",
+"*w5555555555559*",
+"*w5551# X:55559*",
+"*w555@;5:X55559*",
+"*w5555555 55556*",
+"*w555,#   55556*",
+"*w555+>33 55555*",
+"*w555o<2& 55555*",
+"*w555=oO- 55555*",
+"*w5555555555555*",
+"*w5555555555555*",
+"*ww9w9999996665*",
+"e**************e"
+};

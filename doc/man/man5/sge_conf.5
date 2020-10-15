@@ -1,0 +1,1916 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\" Copyright (C) 2011, 2012, 2013  Dave Love, University of Liverpool
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\"
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\" "
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.de MO		\" other man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.\"
+.de URL
+\\$2 \(laURL: \\$1 \(ra\\$3
+..
+.if \n[.g] .mso www.tmac
+.TH xxQS_NAME_Sxx_CONF 5 2011-11-27 "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+xxqs_name_sxx_conf \- xxQS_NAMExx configuration files
+.\"
+.\"
+.SH DESCRIPTION
+.I xxqs_name_sxx_conf
+defines the global and local xxQS_NAMExx configurations and can be
+shown/modified by
+.M qconf 1
+using the \-sconf/\-mconf options. Only root or the cluster administrator may
+modify
+.I xxqs_name_sxx_conf.
+.PP
+At its initial start-up,
+.M xxqs_name_sxx_qmaster 8
+checks to see if a valid xxQS_NAMExx configuration is available at a
+well known location in the xxQS_NAMExx internal directory hierarchy.
+If so, it loads that configuration information and proceeds.
+If not,
+.M xxqs_name_sxx_qmaster 8
+writes a generic configuration containing default values to that same
+location.
+The xxQS_NAMExx execution daemons
+.M xxqs_name_sxx_execd 8
+upon start-up retrieve their configuration from
+.M xxqs_name_sxx_qmaster 8 .
+.PP
+The actual configuration for both
+.M xxqs_name_sxx_qmaster 8
+and
+.M xxqs_name_sxx_execd 8
+is a superposition of a \fIglobal\fP configuration and
+a \fIlocal\fP configuration pertinent for the host on which
+a master or execution daemon resides.
+If a local configuration is available, its entries overwrite the
+corresponding entries of the global configuration. \fBNote:\fP The local
+configuration does not have to contain all valid configuration entries,
+but only those which need to be modified against the global entries.
+.PP
+Note: xxQS_NAMExx allows backslashes (\\) be used to escape newline
+characters. The backslash and the newline are replaced with a
+space (" ") character before any interpretation.
+.\"
+.\"
+.SH FORMAT
+.\"
+The paragraphs that follow provide brief descriptions of the individual
+parameters that compose the global and local configurations for a
+xxQS_NAMExx cluster:
+.\"
+.\"
+.SS "\fBexecd_spool_dir\fP"
+The execution daemon spool directory path. Again, a feasible spool
+directory requires read/write access permission for root. The entry in
+the global configuration for this parameter can be overwritten by
+execution host local configurations, i.e. each
+.M xxqs_name_sxx_execd 8
+may have a private spool directory with a different path, in which case
+it needs to provide read/write permission for the root account of the
+corresponding execution host only.
+.PP
+Under \fBexecd_spool_dir\fP a directory named corresponding
+to the unqualified hostname of the execution host is opened and
+contains all information spooled to disk. Thus, it is possible for the
+\fBexecd_spool_dir\fPs of all execution hosts to physically reference the
+same directory path
+(the root access restrictions mentioned above need to be met, however).
+.PP
+Changing the global \fBexecd_spool_dir\fP
+parameter set at installation time is not supported
+in a running system. If the change should still be done
+it is required to restart all affected execution daemons.  Please make sure running 
+jobs have finished before doing so,
+otherwise running jobs will be lost. 
+
+.PP
+The default location for the execution daemon spool
+directory is $xxQS_NAME_Sxx_ROOT/$xxQS_NAME_Sxx_CELL/spool.
+.PP
+The global configuration entry for this value
+may be overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBmailer\fP"
+\fBmailer\fP is the absolute pathname to the electronic mail delivery
+agent on your system.  An optional prefix "user@" specifies the user
+under which this procedure is to be started; the default is root.
+The mailer must accept the following syntax:
+.PP
+.RS
+mailer \-s <subject-of-mail-message> <recipient>
+.RE
+.PP
+Each
+.M xxqs_name_sxx_execd 8
+may use a private mail agent. Changing \fBmailer\fP will take
+immediate effect.
+.PP
+The default for \fBmailer\fP depends on the operating system of
+the host on which the xxQS_NAMExx master installation was run. Common
+values are /bin/mail or /usr/bin/Mail.
+Note that since the mail is sent by compute hosts, not the master, it
+may be necessary to take steps to route it appropriately, e.g. by
+using a cluster head node as a "smart host" for the private network.
+.PP
+The global configuration entry for this value
+may be overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBxterm\fP"
+.B xterm
+is the absolute pathname to the X Window System terminal emulator,
+.MO xterm 1 .
+.PP
+Changing \fBxterm\fP will take immediate effect.
+.PP
+The default for \fBxterm\fP is system-dependent.
+.PP
+The global configuration entry for this value
+may be overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBload_sensor\fP"
+A comma-separated list of executable shell script paths or programs
+to be started by
+.M xxqs_name_sxx_execd 8
+and to be used in order to retrieve site-configurable load information
+(e.g. free space on a certain disk partition).
+.PP
+Each
+.M xxqs_name_sxx_execd 8
+may use a set of private 
+.B load_sensor
+programs or scripts. Changing
+.B load_sensor
+will take effect after two load report intervals (see
+\fBload_report_time\fP). A load sensor will be restarted automatically if
+the file modification time of the load sensor executable changes.
+.PP
+The global configuration entry for this value
+may be overwritten by the execution host local configuration.
+.PP
+In addition to the load sensors configured via
+\fBload_sensor\fP,
+.M xxqs_name_sxx_exec 8
+searches for an executable file named
+.I qloadsensor
+in the execution host's xxQS_NAMExx binary directory path.
+If such a file is found, it is treated like the configurable load sensors
+defined in \fBload_sensor\fP. This facility is intended for pre-installing
+a default load sensor.  See
+.M sge_execd 8
+for information on writing load sensors.
+.\"
+.\"
+.SS "\fBprolog\fP"
+The path of an executable, with optional arguments, that is started before execution
+of xxQS_NAMExx jobs with the same environment setting as that for the
+xxQS_NAMExx
+jobs to be started afterwards (see
+.M qsub 1 ).
+The prolog command is started directly, not in a shell.
+An optional prefix "user@" specifies the user under which this procedure
+is to be started.  In that case see the SECURITY section below
+concerning security issues running as a privileged user.
+The procedure's standard
+output and the error output stream are written to the same file as used for
+the standard output and error output of each job.
+.PP
+This procedure is intended as a means
+for the xxQS_NAMExx administrator to automate the execution of general
+site-specific tasks, like the preparation of temporary file systems, with a
+need for the same context information as the job.
+For a parallel job, only a single instance of the prolog is run, on the
+master node.
+Each
+.M xxqs_name_sxx_execd 8
+may use a private prolog.
+Correspondingly, the global or execution host local 
+configuration can be overwritten by the queue configuration (see
+.M queue_conf 5 ).
+Changing \fBprolog\fP will take
+immediate effect.
+.PP
+The default for \fBprolog\fP is the special value NONE, which prevents
+execution of a prolog.
+.PP
+The following special
+variables, expanded at runtime, can be used (besides any other
+strings which have to be interpreted by the procedure) to compose
+a command line:
+.IP "\fI$host\fP"
+The name of the host on which the prolog or epilog procedures are
+started.
+.IP "\fI$ja_task_id\fP"
+The array job task index (0 if not an array job).
+.IP "\fI$job_owner\fP"
+The user name of the job owner.
+.IP "\fI$job_id\fP"
+xxQS_NAMExx's unique job identification number.
+.IP "\fI$job_name\fP"
+The name of the job.
+.IP "\fI$processors\fP"
+The \fBprocessors\fP string as contained in the queue configuration
+(see
+.M queue_conf 5 )
+of the master queue (the queue in which the prolog and epilog procedures
+are started).
+.IP "\fI$queue\fP"
+The cluster queue name of the master queue instance, i.e. the cluster 
+queue in which the prolog and epilog procedures are started.
+.IP "\fI$stdin_path\fP"
+The pathname of the stdin file. This is always /dev/null for prolog, 
+pe_start, pe_stop and epilog. It is the pathname of the
+stdin file for the job in the job script. When delegated file staging is enabled, 
+this path is set
+to $fs_stdin_tmp_path. When delegated file staging is not enabled, it is the stdin
+pathname given via DRMAA or qsub.
+.IP "\fI$stdout_path\fP"
+.IP "\fI$stderr_path\fP"
+The pathname of the stdout/stderr file. This always points to the
+output/error file. When delegated file staging is enabled, this path is set to
+$fs_stdout_tmp_path/$fs_stderr_tmp_path. When delegated file staging is not
+enabled, it is the stdout/stderr pathname given via DRMAA or qsub.
+.IP "\fI$merge_stderr\fP"
+If this flag is 1, stdout and stderr are merged in one file, the stdout file.
+Otherwise (the default), no merging is done.
+Merging of stderr and stdout can be requested via the DRMAA job template attribute 'drmaa_join_files' (see
+.M drmaa_attributes 3 )
+or the qsub parameter '\-j y' (see
+.M qsub 1 ).
+.IP "\fI$fs_stdin_host\fP"
+When delegated file staging is requested for the stdin file, this is the name of
+the host where the stdin file has to be copied from before the job is started.
+.IP "\fI$fs_stdout_host\fP"
+.IP "\fI$fs_stderr_host\fP"
+When delegated file staging is requested for the stdout/stderr file, this is the
+name of the host where the stdout/stderr file has to be copied to after the job has run.
+.IP "\fI$fs_stdin_path\fP"
+When delegated file staging is requested for the stdin file, this is the pathname
+of the stdin file on the host $fs_stdin_host.
+.IP "\fI$fs_stdout_path\fP"
+.IP "\fI$fs_stderr_path\fP"
+When delegated file staging is requested for the stdout/stderr file, this is the
+pathname of the stdout/stderr file on the host $fs_stdout_host/$fs_stderr_host.
+.IP "\fI$fs_stdin_tmp_path\fP"
+When delegated file staging is requested for the stdin file, this is the destination
+pathname of the stdin file on the execution host. The prolog must copy the
+stdin file from $fs_stdin_host:$fs_stdin_path to localhost:$fs_stdin_tmp_path to
+establish delegated file staging of the stdin file.
+.IP "\fI$fs_stdout_tmp_path\fP"
+.IP "\fI$fs_stderr_tmp_path\fP"
+When delegated file staging is requested for the stdout/stderr file, this is the 
+source pathname of the stdout/stderr file on the execution host. The epilog 
+must copy the stdout file from localhost:$fs_stdout_tmp_path to 
+$fs_stdout_host:$fs_stdout_path (the stderr file from localhost:$fs_stderr_tmp_path 
+to $fs_stderr_host:$fs_stderr_path) to establish delegated file staging of the 
+stdout/stderr file.
+.IP "\fI$fs_stdin_file_staging\fP"
+.IP "\fI$fs_stdout_file_staging\fP"
+.IP "\fI$fs_stderr_file_staging\fP"
+When delegated file staging is requested for the stdin/stdout/stderr file, the flag
+is set to "1", otherwise it is set to "0" (see in \fBdelegated_file_staging\fP how 
+to enable delegated file staging).
+These three flags correspond to the DRMAA job template attribute 'drmaa_transfer_files' (see 
+.M drmaa_attributes 3 ).
+.PP
+If the prolog is written in shell script, the usual care must be
+exercised, e.g. when expanding such values from the command line or
+the environment which are user-supplied.  In particular, note that the
+job name could be of the form "; evil doings;".  Also, use absolute
+path names for commands if inheriting the user's environment.
+.PP
+The global configuration entry for this value
+may be overwritten by the execution host local configuration.
+.PP
+See
+.M xxqs_name_sxx_shepherd 8
+for the significance of exit codes returned by the prolog.
+.\"
+.\"
+.SS "\fBepilog\fP"
+The path of an executable, with optional argument, that is started after execution
+of xxQS_NAMExx jobs with the same environment setting as that for the
+xxQS_NAMExx
+job that has just completed (see
+.M qsub 1 ),
+with the addition of the variable named
+.B SGE_JOBEXIT_STAT
+which holds the exit status of the job.
+The epilog command is started directly, not in a shell.
+An optional prefix "user@" specifies the 
+user under which this procedure is to be started.  In that case see
+the SECURITY section below concerning security issues running as a
+privileged user.
+The procedure's standard
+output and the error output stream are written to the same file used for
+the standard output and error output of each job.
+.PP
+The same special variables can be used to compose a command line as
+for the prolog.
+.PP
+This procedure is intended as a means
+for the xxQS_NAMExx administrator to automate the execution of general
+site-specific tasks, like the cleaning up of temporary file systems with the
+need for the same context information as the job.
+For a parallel job, only a single instance of the epilog is run, on the
+master node.
+Each
+.M xxqs_name_sxx_execd 8
+may use a private epilog.
+Correspondingly, the global or execution host local
+configurations can be overwritten by the queue configuration (see
+.M queue_conf 5 ).
+Changing \fBepilog\fP will take
+immediate effect.
+.PP
+The default for \fBepilog\fP is the special value NONE, which prevents
+execution of an epilog.
+The same special variables as for \fBprolog\fP can be
+used to constitute a command line.
+.PP
+The same considerations (above) apply as for a prolog when an epilog
+is written in shell script.
+.PP
+See
+.M xxqs_name_sxx_shepherd 8
+for the significance of exit codes returned by the epilog.
+.\"
+.\"
+.SS "\fBshell_start_mode\fP"
+.B Note:
+Deprecated, may be removed in future release.
+.br
+This parameter defines the mechanisms which are used to actually
+invoke the job scripts on the execution hosts. The following
+values are recognized:
+.IP \fIunix_behavior\fP
+If a user starts a job shell script under UNIX interactively by
+invoking it just with the script name the operating system's executable
+loader uses the information provided in a comment such as `#!/bin/csh' in
+the first line of the script to detect which command interpreter to
+start to interpret the script. This mechanism is used by xxQS_NAMExx when
+starting jobs if \fIunix_behavior\fP is defined as \fBshell_start_mode\fP.
+.\"
+.IP \fIposix_compliant\fP
+POSIX does not consider first script line comments such a `#!/bin/csh'
+as significant. The POSIX standard for batch queueing systems
+(P1003.2d) therefore requires a compliant queueing system to ignore
+such lines, but to use user-specified or configured default command
+interpreters instead. Thus, if \fBshell_start_mode\fP is set to
+\fIposix_compliant\fP xxQS_NAMExx will either use the command interpreter
+indicated by the \fB\-S\fP option of the
+.M qsub 1
+command or the \fBshell\fP parameter of the queue to be used (see
+.M queue_conf 5
+for details).
+.\"
+.IP \fIscript_from_stdin\fP
+Setting the \fBshell_start_mode\fP parameter either to \fIposix_compliant\fP
+or \fIunix_behavior\fP requires you to set the umask in use for
+.M xxqs_name_sxx_execd 8
+such that every user has read access to the active_jobs directory in the
+spool directory of the corresponding execution daemon. In case you have
+\fBprolog\fP and \fBepilog\fP scripts configured, they also need to be
+readable by any user who may execute jobs.
+.br
+If this violates your
+site's security policies you may want to set \fBshell_start_mode\fP
+to \fIscript_from_stdin\fP. This will force xxQS_NAMExx to open the
+job script as well as the epilog and prolog scripts for reading into
+STDIN as root (if
+.M xxqs_name_sxx_execd 8
+was started as root) before changing to the job owner's user account.
+The script is then fed into the STDIN stream of the command interpreter
+indicated by the \fB\-S\fP option of the
+.M qsub 1
+command or the \fBshell\fP parameter of the queue to be used (see
+.M queue_conf 5
+for details).
+.br
+Thus setting \fBshell_start_mode\fP to \fIscript_from_stdin\fP also
+implies \fIposix_compliant\fP behavior. \fBNote\fP, however, that
+feeding scripts into the STDIN stream of a command interpreter may
+cause trouble if commands like
+.MO rsh 1
+are invoked inside a job script as they also process the STDIN
+stream of the command interpreter. These problems can usually be
+resolved by redirecting the STDIN channel of those commands to come
+from /dev/null (e.g. rsh host date < /dev/null). \fBNote also\fP, that any
+command-line options associated with the job are passed to the executing
+shell. The shell will only forward them to the job if they are not
+recognized as valid shell options.
+.PP
+Changes to \fBshell_start_mode\fP will take immediate effect.
+The default for \fBshell_start_mode\fP is \fIposix_compliant\fP.
+.PP
+This value is a global configuration parameter only. It cannot be
+overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBlogin_shells\fP"
+UNIX command interpreters like the Bourne-Shell (see
+.MO sh 1 )
+or the C-Shell (see
+.MO csh 1 )
+can be used by xxQS_NAMExx to start job scripts. The command interpreters
+can either be started as login-shells (i.e. all system and user default
+resource files like .login or .profile will be executed when the
+command interpreter is started, and the environment for the job will be
+set up as if the user has just logged in) or just for command execution
+(i.e. only shell-specific resource files like .cshrc will be executed
+and a minimal default environment is set up by xxQS_NAMExx \- see
+.M qsub 1 ).
+The parameter \fBlogin_shells\fP contains a comma-separated list of the
+executable names of the command interpreters to be started as login shells.
+Shells in this list are only started as login shells if the parameter
+\fBshell_start_mode\fP (see above) is set to \fIposix_compliant\fP.
+.PP
+Changes to \fBlogin_shells\fP will take immediate effect.
+The default for \fBlogin_shells\fP is sh,bash,csh,tcsh,ksh.
+.PP
+This value is a global configuration parameter only. It cannot be
+overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBmin_uid\fP"
+\fBmin_uid\fP places a lower bound on user IDs that may use the cluster. Users
+whose user ID (as returned by
+.MO getpwnam 3 )
+is less than \fBmin_uid\fP will not be allowed to run jobs on the cluster.
+.PP
+Changes to \fBmin_uid\fP will take immediate effect.  The default is 0
+but, if CSP or MUNGE security is not in use, the installation script sets it to
+100 to prevent unauthorized access by root or system accounts.
+.PP
+This value is a global configuration parameter only. It cannot be
+overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBmin_gid\fP"
+This parameter sets the lower bound on group IDs that may use the cluster.
+Users whose default group ID (as returned by
+.MO getpwnam 3 )
+is less than \fBmin_gid\fP will not be allowed to run jobs on the cluster.
+.PP
+Changes to \fBmin_gid\fP will take immediate effect.  The default is 0
+but, if CSP security is not in use, the installation script sets it to
+100 to prevent unauthorized access by root or system accounts.
+.PP
+This value is a global configuration parameter only. It cannot be
+overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBuser_lists \fP"
+The \fBuser_lists\fP parameter contains a comma-separated list of
+user access lists as described in
+.M access_list 5 .
+Each user contained in at least one of the access lists has
+access to the cluster. If the \fBuser_lists\fP parameter is set to
+NONE (the default) any user has access if not explicitly excluded
+via the \fBxuser_lists\fP parameter described below.
+If a user is contained both in an access list \fBxuser_lists\fP
+and \fBuser_lists\fP, the user is denied access to the cluster.
+.PP
+Changes to \fBuser_lists\fP will take immediate effect.
+.PP
+This value is a global configuration parameter insofar as it restricts
+access to the whole cluster, but the execution host local
+configuration may define a value to restrict access to that host further.
+.\"
+.\"
+.SS "\fBxuser_lists \fP"
+The \fBxuser_lists\fP parameter contains a comma-separated list of
+user access lists as described in
+.M access_list 5 .
+Each user contained in at least one of the access lists is denied
+access to the cluster. If the \fBxuser_lists\fP parameter is set to
+NONE (the default) any user has access.
+If a user is contained both in an access list in \fBxuser_lists\fP
+and \fBuser_lists\fP (see above) the user is denied access to the cluster.
+.PP
+Changes to \fBxuser_lists\fP will take immediate effect.
+.PP
+This value is a global configuration parameter insofar as it restricts
+access to the whole cluster, but the execution host local
+configuration may define a value to restrict access to that host further.
+.\"
+.\"
+.SS "\fBadministrator_mail\fP"
+\fBadministrator_mail\fP specifies a comma-separated list of the
+electronic mail address(es) of the cluster administrator(s) to whom
+internally-generated problem reports are sent. The mail address format
+depends on your electronic mail system and how it is configured;
+consult your system's configuration guide for more information.
+.PP
+Changing \fBadministrator_mail\fP takes immediate effect.
+The default for \fBadministrator_mail\fP is an empty mail list.
+.PP
+This value is a global configuration parameter only. It cannot be
+overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBprojects\fP"
+.PP
+The \fBprojects\fP list contains all projects which are granted access
+to xxQS_NAMExx. Users not belonging to one of these projects cannot
+submit jobs. If
+users belong to projects in the \fBprojects\fP list and the
+\fBxprojects\fP list (see below), they also cannot submit jobs.
+.PP
+Changing \fBprojects\fP takes immediate effect.
+The default for \fBprojects\fP is none.
+.PP
+While globally-configured projects affect job submission, projects
+configured for queues or hosts affect job execution in the appropriate
+context.
+.\"
+.\"
+.SS "\fBxprojects\fP"
+The \fBxprojects\fP list contains all projects that are denied access 
+to xxQS_NAMExx. Users belonging to one of these projects cannot use xxQS_NAMExx. If
+users belong to projects in the \fBprojects\fP list (see above) and the
+\fBxprojects\fP list, they also cannot use the system.
+.PP
+Changing \fBxprojects\fP takes immediate effect.
+The default for \fBxprojects\fP is none.
+.PP
+This value is a global configuration parameter only. It cannot be
+overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBload_report_time\fP"
+System load is reported periodically by the execution daemons to
+.M xxqs_name_sxx_qmaster 8 .
+The parameter \fBload_report_time\fP defines the time interval between load
+reports.
+.PP
+Each
+.M xxqs_name_sxx_execd 8
+may use a different load report time. Changing \fBload_report_time\fP will
+take immediate effect.
+.PP
+\fBNote:\fP Be careful
+when modifying \fBload_report_time\fP. Reporting load too frequently
+might block
+.M xxqs_name_sxx_qmaster 8
+especially if the number of execution hosts is large. Moreover, since the
+system load typically increases and decreases smoothly, frequent load
+reports hardly offer any benefit.
+.PP
+The default for \fBload_report_time\fP is 40 seconds.
+.PP
+The global configuration entry for this value
+may be overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBreschedule_unknown\fP"
+Determines whether jobs on hosts in an unknown state
+are rescheduled, and thus sent to other hosts. Hosts
+are registered as unknown if
+.M xxqs_name_sxx_master 8
+cannot establish contact to the
+.M xxqs_name_sxx_execd 8
+on those hosts (see
+.BR max_unheard ).
+Likely reasons are a breakdown of
+the host or a breakdown of the network connection in between, but also
+.M xxqs_name_sxx_execd 8
+may not be executing on such hosts.
+.PP
+In any case, xxQS_NAMExx can reschedule jobs running on such hosts to
+another system.
+.B reschedule_unknown
+controls the time which
+xxQS_NAMExx will wait before jobs are rescheduled after a host became
+unknown. The time format specification is hh:mm:ss. If the special
+value 00:00:00 is set, then jobs will not be rescheduled from this host.
+.PP
+Rescheduling is only initiated for jobs which have activated the rerun flag
+(see the
+.B \-r y
+option of
+.M qsub 1
+and the
+.B rerun
+option of
+.M queue_conf 5 ).
+Parallel jobs are only rescheduled if the host on which their
+master task executes is in unknown state. The behavior of
+.B reschedule_unknown
+for parallel jobs and for jobs without the rerun flag set can be
+adjusted using the \fBqmaster_params\fP settings
+.B ENABLE_RESCHEDULE_KILL
+and
+.B ENABLE_RESCHEDULE_SLAVE.
+.PP
+Checkpointing jobs will only be
+rescheduled when the
+.B when
+option of the corresponding checkpointing environment contains an
+appropriate flag. (see
+.M checkpoint 5 ).
+Interactive jobs (see
+.M qsh 1 ,
+.M qrsh 1 ,
+.M qtcsh 1 )
+are not rescheduled.
+.PP
+The default for
+.B reschedule_unknown
+is 00:00:00
+.PP
+The global configuration entry for this value may be overwritten by
+the execution host local configuration.
+.\"
+.\"  
+.SS "\fBmax_unheard\fP"
+If
+.M xxqs_name_sxx_qmaster 8
+could not contact, or was not contacted by, the execution daemon of a host
+for \fBmax_unheard\fP seconds, all queues residing on that particular host
+are set to status unknown.
+.M xxqs_name_sxx_qmaster 8 ,
+at least,
+should be contacted by the execution daemons in order to get the load
+reports. Thus, \fBmax_unheard\fP should be greater than the
+\fBload_report_time\fP (see above).
+.PP
+Changing \fBmax_unheard\fP takes immediate effect.
+The default for \fBmax_unheard\fP is 5 minutes.
+.PP
+This value is a global configuration parameter only. It cannot be
+overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBloglevel\fP"
+This parameter specifies the level of detail that xxQS_NAMExx components such
+as
+.M xxqs_name_sxx_qmaster 8
+or
+.M xxqs_name_sxx_execd 8
+use to produce informative, warning or error messages which are logged
+to the \fImessages\fP files in the master and execution daemon
+spool directories (see the description of the 
+\fBexecd_spool_dir\fP parameter above). The following message
+levels are available:
+.\"
+.IP "\fIlog_err\fP"
+All error events recognized are logged.
+.\"
+.IP "\fIlog_warning\fP"
+All error events recognized, and all detected signs of
+potentially erroneous behavior, are logged.
+.\"
+.IP "\fIlog_info\fP"
+All error events recognized, all detected signs of
+potentially erroneous behavior, and a variety of informative
+messages are logged.
+.PP
+Changing \fBloglevel\fP will take immediate effect.
+.PP
+The default for \fBloglevel\fP is \fIlog_warning\fP.
+.PP
+This value is a global configuration parameter only. It cannot be
+overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBmax_aj_instances\fP"
+This parameter defines the maximum number of array tasks to be scheduled to
+run simultaneously per array job.  An instance of an array task will be
+created within the master daemon when it gets a start order from the
+scheduler. The instance will be destroyed when the array task finishes.
+Thus the parameter provides control mainly over the memory consumption of
+array jobs in the master daemon. It is most useful for very
+large clusters and very large array jobs.  The default for this parameter
+is 2000. The value 0 will deactivate this limit and will allow the
+scheduler to start as many array job tasks as suitable resources are
+available in the cluster.
+.PP
+Changing \fBmax_aj_instances\fP will take immediate effect.
+.PP
+This value is a global configuration parameter only. It cannot be
+overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBmax_aj_tasks\fP"
+This parameter defines the maximum number of array job tasks within an array
+job.
+.M xxqs_name_sxx_qmaster 8
+will reject all array job submissions which request
+more than
+.B max_aj_tasks
+array job tasks. The default for this parameter is 75000. The value 0
+will deactivate this limit.
+.PP
+Changing \fBmax_aj_tasks\fP will take immediate effect.
+.PP
+This value is a global configuration parameter only. It cannot be
+overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBmax_u_jobs\fP"
+The number of active (not finished) jobs which each xxQS_NAMExx user can
+have in the system simultaneously is controlled by this parameter. A value
+greater than 0 defines the limit. The default value 0 means "unlimited". If
+the
+.B max_u_jobs
+limit is exceeded by a job submission then the submission command exits
+with exit status 25 and an appropriate error message.
+.PP
+Changing \fBmax_u_jobs\fP will take immediate effect.
+.PP
+This value is a global configuration parameter only. It cannot be
+overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBmax_jobs\fP"
+The number of active (not finished) jobs simultaneously allowed in xxQS_NAMExx
+is controlled by this parameter. A value greater than 0 defines the limit. 
+The default value 0 means "unlimited". If the
+.B max_jobs
+limit is exceeded by a job submission then the submission command exits
+with exit status 25 and an appropriate error message.
+.PP
+Changing \fBmax_jobs\fP will take immediate effect.
+.PP
+This value is a global configuration parameter only. It cannot be
+overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBmax_advance_reservations\fP"
+The number of active (not finished) Advance Reservations simultaneously
+allowed in xxQS_NAMExx is controlled by this parameter. A value greater
+than 0 defines the limit. The default value 0 means "unlimited". If the
+.B max_advance_reservations
+limit is exceeded by an Advance Reservation request then the submission
+command exits with exit status 25 and an appropriate error message.
+.PP
+Changing \fBmax_advance_reservations\fP will take immediate effect.
+.PP
+This value is a global configuration parameter only. It cannot be
+overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBenforce_project\fP"
+If set to \fItrue\fP, users are required to request a project whenever
+submitting a job. See the \fB\-P\fP option to
+.M qsub 1
+for details.
+.PP
+Changing \fBenforce_project\fP will take immediate effect.
+The default for \fBenforce_project\fP is \fIfalse\fP.
+.PP
+.PP
+This value is a global configuration parameter only. It cannot be
+overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBenforce_user\fP"
+If set to \fItrue\fP, a
+.M user 5
+must exist to allow for job submission. Jobs are rejected if no corresponding user 
+exists. 
+.PP
+If set to \fIauto\fP, a
+.M user 5
+object for the submitting user will automatically be created during
+job submission, if one does not already exist. The \fBauto_user_oticket\fP,
+\fBauto_user_fshare\fP, \fBauto_user_default_project\fP, and
+\fBauto_user_delete_time\fP configuration parameters will be used as
+default attributes of the new
+.M user 5
+object.
+.PP
+Changing \fBenforce_user\fP will take immediate effect.
+The default for \fBenforce_user\fP is \fIauto\fP.
+.PP
+This value is a global configuration parameter only. It cannot be
+overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBauto_user_oticket\fP"
+The number of override tickets to assign to automatically created
+.M user 5
+objects. User objects are created automatically if the
+.B enforce_user
+attribute is set to \fIauto\fP.
+.
+.PP
+Changing
+.B auto_user_oticket
+will affect any newly created user objects, but will not change user
+objects created in the past.
+.PP
+This value is a global configuration parameter only. It cannot be
+overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBauto_user_fshare\fP"
+The number of functional shares to assign to automatically created
+.M user 5
+objects. User objects are created automatically if the
+.B enforce_user
+attribute is set to \fIauto\fP.
+.
+.PP
+Changing
+.B auto_user_fshare
+will affect any newly created user objects, but will not change user
+objects created in the past.
+.PP
+This value is a global configuration parameter only. It cannot be
+overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBauto_user_default_project\fP"
+The default project to assign to automatically created
+.M user 5
+objects. User objects are created automatically if the
+.B enforce_user
+attribute is set to \fIauto\fP.
+.PP
+Changing
+.B auto_user_default_project
+will affect any newly created user objects, but will not change user
+objects created in the past.
+.PP
+This value is a global configuration parameter only. It cannot be
+overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBauto_user_delete_time\fP"
+The number of seconds of inactivity after which automatically created
+.M user 5
+objects will be deleted. User objects are created automatically if the
+.B enforce_user
+attribute is set to \fIauto\fP. If the user has no active or pending
+jobs for the specified amount of time, the
+object will automatically be deleted.  A value of 0 can be used to
+indicate that the automatically created user object is permanent and
+should not be automatically deleted.
+.PP
+Changing
+.B auto_user_delete_time
+will affect the deletion time for all users with active jobs.
+.PP
+This value is a global configuration parameter only. It cannot be
+overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBset_token_cmd\fP"
+\fBNB.  If the qmaster spool area is world-readable for non-admin
+users, you must take steps to encrypt the credentials, since they are
+stored there after job submission.\fP
+.br
+\fBSet_token_cmd\fP points to a command which sets and extends AFS
+tokens for xxQS_NAMExx jobs.  It is run by
+.M xxqs_name_sxx_coshepherd 8 .
+It expects two command line parameters:
+.PP
+.RS
+.nf
+<set_token_cmd> <user> <token_extend_after_seconds>
+.fi
+.RE
+It reads the token from STDIN, extends its
+expiration time, and re-sets the token.
+As a shell script this command will call the programs:
+.PP
+.RS
+.nf
+- SetToken
+- forge
+.fi
+.RE
+.PP
+which are provided by your distributor as source code. The script looks as
+follows:
+.PP
+.RS
+.nf
+--------------------------------
+#!/bin/sh
+# set_token_cmd
+forge \-u $1 \-t $2 | SetToken
+--------------------------------
+.fi
+.RE
+.PP
+Since it is necessary for \fIforge\fP to read the secret AFS server
+key, a site might wish to replace the \fBset_token_cmd\fP script by a
+command, which connects to a custom daemon at the AFS server. The
+token must be forged at the AFS server and returned to the local
+machine, where \fISetToken\fP is executed.
+.PP
+Changing \fBset_token_cmd\fP will take immediate effect.
+The default for \fBset_token_cmd\fP is none.
+.PP
+The global configuration entry for this value
+may be overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBpag_cmd\fP"
+The path to your \fIpagsh\fP is specified via this parameter.
+The
+.M xxqs_name_sxx_shepherd 8
+process and the job run in a \fIpagsh\fP. Please ask your AFS administrator
+for details.
+.PP
+Changing \fBpag_cmd\fP will take immediate effect.
+The default for \fBpag_cmd\fP is none.
+.PP
+The global configuration entry for this value
+may be overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBtoken_extend_time\fP"
+The \fBtoken_extend_time\fP is the time period for which AFS tokens are periodically 
+extended. xxQS_NAMExx
+will call the token extension 30 minutes before the tokens expire until
+jobs have finished and the corresponding tokens are no longer required.
+.PP
+Changing \fBtoken_extend_time\fP will take immediate effect.
+The default for \fBtoken_extend_time\fP is 24:0:0, i.e. 24 hours.
+.PP
+The global configuration entry for this value
+may be overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBshepherd_cmd\fP"
+.br
+Alternative path to the \fBshepherd_cmd\fP binary. Typically used to call
+the shepherd binary by a wrapper script or command.  If used in
+production, this must take care to handle signals the way the shepherd
+would or, for instance, jobs will not be killed correctly.
+.PP
+Changing \fBshepherd_cmd\fP will take immediate effect. The default
+for \fBshepherd_cmd\fP is none.
+.PP
+The global configuration entry for this value
+may be overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBgid_range\fP"
+The \fBgid_range\fP
+is a comma-separated list of range expressions of the form
+\fIm\fP\fB\-\fP\fIn\fP, where
+.I m
+and
+.I n
+are integer numbers greater than 99, and
+.I m
+is an abbreviation for
+\fIm\fP\fB\-\fP\fIm\fP.
+These numbers are used in
+.M xxqs_name_sxx_execd 8
+to identify processes belonging to the same job.
+.PP
+Each
+.M xxqs_name_sxx_execd 8
+may use a separate set of group ids for this purpose.
+All numbers in the group id range have to be unused
+supplementary group ids on the system, where the
+.M xxqs_name_sxx_execd 8
+is started.
+.PP
+Changing \fBgid_range\fP will take immediate effect.
+There is no default for \fBgid_range\fP. The administrator will have to
+assign a value for \fBgid_range\fP during installation of xxQS_NAMExx.
+.PP
+The global configuration entry for this value
+may be overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBqmaster_params\fP"
+A list of additional parameters can be passed to the 
+xxQS_NAMExx qmaster. The following values are recognized:
+.IP "\fIENABLE_ENFORCE_MASTER_LIMIT\fP"
+If this parameter is set then the \fBs_rt\fP, \fBh_rt\fP limits of a running job 
+are tested and acted on by the
+.M xxqs_name_sxx_qmaster 8
+when the 
+.M xxqs_name_sxx_execd 8
+where the job was run is in an unknown state.
+.sp 1
+After the \fBs_rt\fP or \fBh_rt\fP limit of a job is expired, the master daemon will 
+wait additional time defined by \fBDURATION_OFFSET\fP (see 
+.M sched_conf 5 ). 
+If the execution daemon still cannot be contacted when this 
+additional time is elapsed, then the master daemon will force 
+the deletion of the job (see \fB-f\fP of 
+.M qdel 1 ).
+.sp 1
+For jobs which will be deleted that way, an accounting record will be created.
+For usage, the record will contain the last reported online value when the 
+execution daemon could contact qmaster. The \fBfailed\fP state in the record 
+will be set to 37 to indicate that the job was terminated by a limit
+enforced by the master daemon.
+.sp 1
+After the restart of 
+.M xxqs_name_sxx_qmaster 8
+the limit enforcement will be triggered after twice the
+biggest \fBload_report_interval\fP interval defined in 
+.M xxqs_name_sxx_conf 5
+has elapsed. This will give the execution daemons enough time to 
+re-register with the master daemon. 
+.\"
+.IP "\fIENABLE_FORCED_QDEL_IF_UNKNOWN\fP"
+If this parameter is set then a deletion request for a job is automatically interpreted 
+as a forced deletion request (see \fB\-f\fP of 
+.M qdel 1 ) 
+if the host where the job is running is in an unknown state.
+.\"
+.IP "\fIENABLE_FORCED_QDEL\fP"
+If this parameter is set, non-administrative users can force deletion of
+their own jobs via the \fI\-f\fP option of
+.M qdel 1 .
+Without this parameter, forced deletion of jobs is only allowed by the
+xxQS_NAMExx manager or operator.
+.sp 1
+\fBNote:\fP Forced deletion for jobs is executed differently, depending
+on whether users are xxQS_NAMExx administrators or not. In the case of
+administrative users, the jobs are removed from the internal database of
+xxQS_NAMExx immediately. For regular users, the equivalent of a normal
+.M qdel 1
+is executed first, and deletion is forced only if the normal cancellation
+was unsuccessful.
+.\"
+.IP "\fIFORBID_RESCHEDULE\fP"
+If this parameter is set, re-queueing of jobs cannot
+be initiated by the job script which is under control
+of the user. Without this parameter, jobs returning the
+value 99 are rescheduled. This can be used to cause the
+job to be restarted on a different machine, for instance if there
+are not enough resources on the current one.
+.PP
+.IP "\fIFORBID_APPERROR\fP"
+If this parameter is set, the application cannot set itself to the error state.
+Without this parameter jobs returning the value 100 are set to the error state 
+(and therefore can be manually rescheduled by clearing the error state).
+This can be used to set the job to the error state when a starting condition
+of the application is not fulfilled before the application itself has been 
+started, or when a clean up procedure (e.g. in the epilog) decides that it is
+necessary to run the job again.  To do so, return 100 in the prolog, pe_start, 
+job script, pe_stop or epilog script.
+.PP
+.IP "\fIDISABLE_AUTO_RESCHEDULING\fP"
+.B Note:
+Deprecated, may be removed in future release.
+.br
+If set to "true" or "1", the \fIreschedule_unknown\fP parameter
+is not taken into account.
+.PP
+.IP "\fIENABLE_RESCHEDULE_KILL\fP"
+If set to "true" or "1", the \fIreschedule_unknown\fP parameter
+affects also jobs which have the rerun flag not activated
+(see the
+.B \-r y
+option of
+.M qsub 1
+and the
+.B rerun
+option of
+.M queue_conf 5 ), 
+but they are just finished as they can't be rescheduled.
+.PP
+.IP "\fIENABLE_RESCHEDULE_SLAVE\fP"
+If set to "true" or "1" xxQS_NAMExx triggers job rescheduling also when 
+the host where the slave tasks of a parallel job executes is in unknown state, 
+if the \fIreschedule_unknown\fP parameter is activated.
+.PP
+.IP "\fIMAX_DYN_EC\fP"
+Sets the max number of dynamic event clients (as used by
+.B qsub \-sync y
+and by xxQS_NAMExx DRMAA API library sessions). The default is 1000.
+The number of dynamic event clients should not be bigger than half of 
+the number of file descriptors the system has. The number of file 
+descriptors are shared among the connections to all exec hosts, all 
+event clients, and file handles that the qmaster needs.
+.PP
+.IP "\fIMONITOR_TIME\fP"
+Specifies the time interval when the monitoring information should be printed. The
+monitoring is disabled by default and can be enabled by specifying an interval.
+The monitoring is per-thread and is written to the messages file or displayed by
+.M qping 1
+with option
+.BR \-f .
+Example: MONITOR_TIME=0:0:10 generates and
+prints the monitoring information approximately every 10 seconds. The specified
+time is a guideline only and not a fixed interval. The interval that is actually
+used is printed.  In this example, the interval could be anything between 9
+seconds and 20 seconds.
+.PP
+.IP "\fILOG_MONITOR_MESSAGE\fP"
+Monitoring information is logged into the messages files by default. This
+information can be accessed via by
+.M qping 1 .
+If monitoring is always enabled, the messages files can become quite large.
+This switch disables logging into the messages files, making
+.I qping \-f
+the only source of monitoring data.
+.PP
+Profiling provides the user with the possibility to get system measurements.
+This can be useful for debugging or optimization of the system. The profiling 
+output will be done within the messages file.
+.IP "\fIPROF_SIGNAL\fP"
+Enables profiling for the qmaster signal thread
+(e.g. PROF_SIGNAL=true).
+.PP
+.IP "\fIPROF_WORKER\fP"
+Enables profiling for the qmaster worker threads
+(e.g. PROF_WORKER=true).
+.PP
+.IP "\fIPROF_LISTENER\fP"
+Enables profiling for the qmaster listener threads
+(e.g. PROF_LISTENER=true).
+.PP
+.IP "\fIPROF_DELIVER\fP"
+Enables profiling for the qmaster event deliver thread
+(e.g. PROF_DELIVER=true).
+.PP
+.IP "\fIPROF_TEVENT\fP"
+Enables the profiling for the qmaster timed event thread
+(e.g. PROF_TEVENT=true).
+.IP \fIPROF_SCHEDULER\fP
+Enables profiling for the qmaster scheduler thread
+(e.g. PROF_SCHEDULER=true).
+.PP
+Please note that the CPU utime and stime values contained in the profiling output
+are not per-thread CPU times.
+These CPU usage statistics are per-process statistics.
+So the printed profiling values for CPU mean "CPU time consumed by sge_qmaster (all threads) while the reported profiling level was active".
+.IP "\fISTREE_SPOOL_INTERVAL\fP"
+Sets the time interval for spooling the sharetree usage. The
+default is set to 00:04:00. The setting accepts colon-separated
+string or seconds. There is no setting to turn the sharetree spooling
+off. 
+(e.g. STREE_SPOOL_INTERVAL=00:02:00)
+.PP
+.IP "\fIMAX_JOB_DELETION_TIME\fP"
+Sets the value of how long the qmaster will spend deleting jobs. After this time,
+the qmaster will continue with other tasks and schedule the deletion of remaining
+jobs at a later time. The default value is 3 seconds, and will be used if no value
+is entered. The range of valid values is > 0 and <= 5.
+(e.g. MAX_JOB_DELETION_TIME=1)
+.PP
+.IP "\fIgdi_timeout\fP"
+Sets how long the communication will wait for GDI send/receive operations.
+(GDI is the Grid Engine Database Interface for interacting with
+objects managed by the qmaster.)
+The default value is set to 60 seconds. After this time, the communication library will
+retry, if "gdi_retries" is configured, receiving the GDI request. If not configured the communication will return with a "gdi receive failure"
+(e.g. gdi_timeout=120 will set the timeout time to 120 sec).
+Configuring no gdi_timeout value, the value defaults to 60 sec.
+.PP
+.IP "\fIgdi_retries\fP"
+Sets how often the GDI receive call will be repeated until the GDI receive
+error appears. The default is set to 0. In this case the call will be done 1 time with no retry.
+Setting the value to -1 the call will be done permanently. In
+combination with the gdi_timeout parameter
+it is possible to configure a system with, e.g. slow NFS, to make sure that all jobs will be submitted.
+(E.g. gdi_retries=4.)
+.PP
+.IP "\fIcl_ping\fP"
+Turns on/off a communication library ping. This parameter will create additional debug output. 
+This output shows information about the error messages which are returned by communication
+and it will give information about the application status of the qmaster.
+For example, if it's unclear what's the
+reason for gdi timeouts, this may show you some useful messages. The default value is false (off) 
+(i.e. cl_ping=false).
+.PP
+.IP "\fISCHEDULER_TIMEOUT\fP"
+Setting this parameter allows the scheduler GDI event acknowledge timeout to be manually configured to a
+specific value. Currently the default value is 10 minutes with the default scheduler configuration and limited
+between 600 and 1200 seconds.
+.\" Fixme: what does this mean?
+Value is limited only in case of default value.
+The default value depends
+on the current scheduler configuration. The \fISCHEDULER_TIMEOUT\fP value is specified in seconds.
+.PP
+.IP "\fIjsv_timeout\fP"
+This parameter measures the response time of the server JSV. In the event that the response time of the JSV 
+is longer than the timeout value specified, this will cause the JSV to be re-started. The default value for the
+timeout is 10 seconds and if modified, must be greater than 0. If the timeout is reached, the JSV will only
+try to re-start once; if the timeout is reached again, an error will occur.
+.PP
+.IP "\fIjsv_threshold\fP"
+The threshold of a JSV is measured as the time it takes to perform a server job verification. If this value is 
+greater than the user-defined value, it will cause logging to appear in the qmaster messages file at the INFO
+level. By setting this value to 0, all jobs will be logged in the qmaster messages file. This value is specified
+in milliseconds and has a default value of 5000.
+.IP "\fIOLD_RESCHEDULE_BEHAVIOR\fP"
+Beginning with version 8.0.0 of xxQS_NAMExx the scheduling behavior changed
+for jobs that are rescheduled by users. Rescheduled jobs will not be put at the
+beginning of the pending job list anymore. The submit time of those jobs is set
+to the end time of the previous run. Due to that, those rescheduled jobs will be
+appended to the pending job list as if a new job had been 
+submitted. To achieve the old behaviour, set the parameter \fIOLD_RESCHEDULE_BEHAVIOR\fP. Please note that this parameter is deprecated,
+so it might be removed with the next minor release.
+.IP "\fIOLD_RESCHEDULE_BEHAVIOR_ARRAY_JOB\fP"
+Beginning with version 8.0.0 of xxQS_NAMExx the scheduling behavior changed
+for array job tasks that are rescheduled by users. As soon as an array job task 
+gets rescheduled, all remaining pending tasks of that job will be put at the end of 
+the pending job list. To achieve the old scheduling behaviour set the parameter 
+\fIOLD_RESCHEDULE_BEHAVIOR_ARRAY_JOB\fP. Please note that this 
+parameter is deprecated, so it might be removed with the next minor release.
+.IP \fISIMULATE_EXECDS\fP
+Bypass execd communication in qmaster for (e.g. for throughput tests
+with fake hosts).  "Unknown" queue states are suppressed, but
+.B load_thresholds=none
+must be used to avoid queues going into an alarm state since load values
+are not simulated.  Submitted
+jobs are dispatched, and act as if they are run for a time determined
+by the job's first argument, after 3s spent in the "transferring"
+state.  I.e. there is a simulated 10s runtime for a command such as
+.nf
+   qsub \-b y sleep 10
+.fi
+In this condition, job deletion works, but at least interactive jobs,
+tightly-integrated parallel ones, and job suspension don't.  The
+execution hosts configured need not exist, but must have resolvable
+network names.
+.IP \fINO_AUTHENTICATION\fP
+Don't do authentication when GSSAPI security is enabled.  This, and
+the following parameter, determine the GSS global configuration, which
+can be overridden with the execd_params of the global or host-specific
+configuration.
+.IP \fINO_SECURITY\fP
+Don't store and forward credentials if GSSAPI security is enabled.
+.IP \fIENABLE_MTRACE\fP
+If GNU malloc is in use (rather then jemalloc, which is usually used
+on GNU/Linux) enable the facility for recording all
+memory allocation/deallocation.  Requires
+.I MALLOC_TRACE
+to be set in the environment (see
+.M mtrace 3 ).
+.IP \fI__TEST_SLEEP_AFTER_REQUEST\fP
+Used by the test suite to block the worker thread for five seconds
+after handling a request to ensure another worker thread will handle a
+subsequent request.
+.IP \fIprint_malloc_info\fB
+Allow monitoring
+.M malloc 3
+statistics if xxQS_NAMExx is built to use the
+.M jemalloc (3)
+allocator.
+The information is usually obtained with the
+.B \-info
+option of
+.M qping 1 ,
+but is generated by the daemons and can't be controlled by the client.
+The default is false since the output is verbose and might confuse
+programs parsing the traditional format.  The parameter can also be
+set in
+.B execd_params
+and affects both qmaster and execd daemons.
+.PP
+Changing \fBqmaster_params\fP will take immediate effect, except that
+gdi_timeout, gdi_retries, and cl_ping
+will take effect only for new connections.
+The default for \fBqmaster_params\fP is none.
+.PP
+This value is a global configuration parameter only. It cannot be
+overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBexecd_params\fP"
+This is used for passing additional parameters 
+to the xxQS_NAMExx execution daemon. The following values are recognized:
+.\"
+.IP "\fIACCT_RESERVED_USAGE\fP"
+If this parameter is set to true, the usage of "reserved" (allocated)
+resources is reported in the accounting entries \fBcpu\fP, \fBmem\fP,
+and \fBmaxvmem\fP instead of the measured usage.  The live usage values
+reported by
+.M qstat 1
+are affected similarly.  This means that the
+"wall clock" time (end\-start) is reported instead of CPU time, memory
+usage is memory allocation times wall clock time (which is only computable if
+the job requests h_vmem or s_vmem), and maxvmem is the requested
+h_vmem or s_vmem; the same scaling by slots is done as without this option.
+.br
+Note that both the wall clock and CPU times are normally available (see
+.M accounting 5 ),
+so this option loses information, and "reserved" here has nothing to
+do with advance/resource reservation.  See also
+.I SHARETREE_RESERVED_USAGE
+below.
+.PP
+.IP "\fIENABLE_WINDOMACC\fP"
+If this parameter is set to true, Windows Domain accounts (WinDomAcc)
+are used on Windows hosts. These accounts require the use of
+.M sgepasswd 1 .
+(See also
+.M sgepasswd 5 .)
+If this parameter is set to false, or is not set, local Windows accounts are used.
+On non-Windows hosts, this parameter is ignored.
+.PP
+.IP "\fIIGNORE_NGROUPS_MAX_LIMIT\fP"
+.\" fixme: -1 looks wrong
+If a user is assigned to NGROUPS_MAX\-1 supplementary groups,
+so that xxQS_NAMExx is not able to add one for job tracking,
+then the job will go into an error state when it is started.
+(NGROUPS_MAX is the system limit on supplementary groups; see
+.M limits.h 7 .)
+Administrators that want to prevent the system doing so can set this parameter.
+In this case the NGROUPS_MAX limit is ignored and the additional group (see 
+\fIgid_range\fP) is not set. As a result for those jobs no online usage will be 
+available. Also the parameter \fIENABLE_ADDGRP_KILL\fP will have no effect.
+Please note that it is not recommended to use this parameter. Instead the group
+membership of the submit user should be reduced.
+.PP
+.IP "\fIKEEP_ACTIVE\fP"
+This value should only be set for debugging purposes. If set to true, the
+execution daemon will not remove the spool directory maintained by
+.M xxqs_name_sxx_shepherd 8
+for a job, or cgroup directories if cgroups are in use under Linux.
+.PP
+.IP "\fIPTF_MIN_PRIORITY\fP, \fIPTF_MAX_PRIORITY\fP"
+The maximum/minimum priority which xxQS_NAMExx will assign to a job.
+Typically this is a negative/positive value in the range of \-20
+(maximum) to 19 (minimum) for systems which allow setting of priorities
+with the
+.MO nice 2
+system call. Other systems may provide different ranges.
+.br
+The default priority range (which varies from system to system) is installed
+either by removing the parameters, or by setting a value of \-999.
+.br
+See the "messages" file of the execution daemon for the predefined
+default value on your hosts. The values are logged during the startup of
+the execution daemon.
+.PP
+.IP "\fIPROF_EXECD\fP"
+Enables the profiling for the execution daemon
+(e.g. PROF_EXECD=true).
+.PP
+.IP "\fINOTIFY_KILL\fP"
+This parameter allows you to change the notification signal for
+the signal SIGKILL (see the \fI\-notify\fP option of
+.M qsub 1 ).
+The parameter either accepts signal names (use the \fI\-l\fP option of
+.MO kill 1 )
+or the special value \fInone\fP. If set to \fInone\fP,
+no notification signal will be sent. If it is set to \fITERM\fP, for
+instance, or another
+signal name, then this signal will be sent as the notification signal.
+.PP
+.IP "\fINOTIFY_SUSP\fP"
+With this parameter it is possible to modify the notification signal
+for the signal SIGSTOP (see the \fI\-notify\fP parameter of
+.M qsub 1 ).
+The parameter either accepts signal names (use the \fI\-l\fP option of
+.MO kill 1 )
+or the special value \fInone\fP. If set to \fInone\fP,
+no notification signal will be sent. If it is set to \fITSTP\fP, for
+instance, or another
+signal name, then this signal will be sent as notification signal.
+.PP
+.IP "\fISHARETREE_RESERVED_USAGE\fP"
+If this parameter is set to true, the usage of "reserved" resources is
+taken for the xxQS_NAMExx share tree consumption instead of measured
+usage.  See the description of
+.I ACCT_RESERVED_USAGE
+above for details.
+.br
+.B Note:
+When running tightly integrated jobs with \fISHARETREE_RESERVED_USAGE\fP set,
+and with \fIaccounting_summary\fP enabled in the parallel environment,
+reserved usage will only be reported by the master task of the parallel job.
+No per-parallel task usage records will be sent from execd to qmaster, which
+can significantly reduce load on qmaster when running large tightly integrated parallel jobs.
+.PP
+.IP "\fIUSE_QSUB_GID\fP"
+If this parameter is set to true, the primary group id  active when a
+job was submitted will be set to become the primary group id for job
+execution. If the parameter is not set, the primary group id as defined for
+the job owner in the execution host passwd database is used.
+.br
+The feature is only available for jobs submitted via
+.M qsub 1 ,
+.M qrsh 1 ,
+.M qmake 1
+and 
+.M qtcsh 1 .
+Also, it only works for
+.M qrsh 1
+jobs (and thus also for
+.M qtcsh 1
+and
+.M qmake 1 )
+if builtin communication is used, or the rsh and rshd components which
+are provided with xxQS_NAMExx (see
+.M remote_startup 5 ).
+.PP
+.IP "\fIS_DESCRIPTORS\fP, \fIH_DESCRIPTORS\fP, \fIS_MAXPROC\fP, \fIH_MAXPROC\fP, \fIS_MEMORYLOCKED\fP, \fIH_MEMORYLOCKED\fP, \fIS_LOCKS\fP, \fIH_LOCKS\fP"
+Specifies soft and hard resource limits as implemented by the
+.MO setrlimit 2
+system call. See that manual page on your system for more information. These
+parameters complete the list of limits set by the RESOURCE LIMITS parameter
+of the queue configuration as described in
+.M queue_conf 5 .
+Unlike the resource limits in the queue
+configuration, these resource limits are set for every job on this execution
+host. If a value is not specified, the resource limit is inherited from the
+execution daemon process. Because this would lead to unpredictable results
+if only one limit of a resource is set (soft or hard), the
+corresponding other limit is set to the same value.
+.br
+\fIS_DESCRIPTORS\fP and \fIH_DESCRIPTORS\fP specify a value one greater than the maximum
+file descriptor number that can be opened by any process of a job.
+.br
+\fIS_MAXPROC\fP and \fIH_MAXPROC\fP specify the maximum number of processes that can be
+created by the job user on this execution host.
+.br
+\fIS_MEMORYLOCKED\fP and \fIH_MEMORYLOCKED\fP specify the maximum number of bytes of
+virtual memory that may be locked into RAM.
+This typically needs to be set to "unlimited" for use with openib
+Infiniband, and possibly similar transports.
+.br
+\fIS_LOCKS\fP and \fIH_LOCKS\fP specify the maximum number of file locks any process
+of a job may establish.
+.br
+All of these values can be specified using the multiplier letters k, K, m, M, g and G; see
+.M xxqs_name_sxx_types 1
+for details.  Limits can be specified as "infinity" to remove limits
+(if possible), per
+.MO setrlimit 2 .
+.\"
+.\"
+.IP "\fIINHERIT_ENV\fP"
+This parameter indicates whether the shepherd should allow the environment
+inherited by the execution daemon from the shell that started it to be inherited
+by the job it's starting.  When true, any environment variable that is set in
+the shell which starts the execution daemon at the time the execution daemon is
+started will be set in the environment of any jobs run by that execution daemon,
+unless the environment variable is explicitly overridden, such as PATH or
+LOGNAME.  If set to false, each job starts with only the environment variables
+that are explicitly passed on by the execution daemon, such as PATH and LOGNAME.
+The default value is true.
+.PP
+.IP "\fISET_LIB_PATH\fP"
+This parameter tells the execution daemon whether to add the xxQS_NAMExx shared
+library directory to the library path of executed jobs.  If set to true, and
+INHERIT_ENV is also set to true, the xxQS_NAMExx shared library directory will
+be prepended to the library path which is inherited from the shell which started
+the execution daemon.  If INHERIT_ENV is set to false, the library path will
+contain only the xxQS_NAMExx shared library directory.  If set to false, and
+INHERIT_ENV is set to true, the library path exported to the job will be the one
+inherited from the shell which started the execution daemon.  If INHERIT_ENV is
+also set to false, the library path will be empty.  After the execution daemon
+has set the library path, it may be further altered by the shell in which the
+job is executed, or by the job script itself.  The default value for
+SET_LIB_PATH is false.
+.PP
+.IP "\fIENABLE_ADDGRP_KILL\fP"
+If this parameter is set then xxQS_NAMExx uses the supplementary group ids
+(see \fIgid_range\fP) to identify all processes which are to be terminated
+when a job is deleted, or when
+.M xxqs_name_sxx_shepherd 8
+cleans up after job termination.
+This currently only works under GNU/Linux, Solaris, Tru64, FreeBSD,
+and Darwin.
+The default value is on.
+Irrelevant with cpuset support (see USE_CGROUPS below).
+.PP
+.IP "\fIPDC_INTERVAL\fP"
+This parameter defines the interval (default 1s) between runs of the PDC (Portable
+Data Collector) by the execution daemon. The PDC is responsible for enforcing
+the resource limits s_cpu, h_cpu, s_vmem and h_vmem (see
+.M queue_conf 5 )
+and job usage collection.
+The parameter can be set
+to a time_specifier (see
+.M xxqs_name_sxx_types 5 ),
+to \fBPER_LOAD_REPORT\fP or to \fBNEVER\fP.
+.br
+If this parameter is set to \fBPER_LOAD_REPORT\fP the PDC is triggered in the
+same interval as \fBload_report_time\fP (see above). If this parameter is set
+to \fBNEVER\fP the PDC run is never triggered. The default is 1 second.
+.br
+\fBNote:\fP A PDC run is quite compute intensive, and may degrade the
+performance of the running jobs.  However, if the PDC runs less often, or never, the
+online usage can be incomplete or totally missing (for example online usage of very short
+running jobs might be missing) and the resource limit enforcement is
+less accurate or would not happen if PDC is turned off completely.
+.PP
+.IP "\fIENABLE_BINDING\fP"
+If this parameter is set, then xxQS_NAMExx enables the core binding module
+within the execution daemon to apply binding parameters that are specified
+at submission time of a job. This parameter is set by default if
+xxQS_NAMExx was compiled with support for core binding.
+Find more information for job to core binding in the section \fI\-binding\fP of
+.M qsub 1 .
+.IP \fISIMULATE_JOBS\fP
+Allow the simulation of jobs.  (Job spooling and execution on the
+execd side is disabled.)
+.IP \fINO_AUTHENTICATION\fP
+Turn off authentication for the relevant host(s) when the
+authentication GSSAPI security feature is enabled globally.
+.IP \fIDO_AUTHENTICATION\fP
+Turn on authentication for the relevant host(s) when the
+authentication GSSAPI security feature is enabled globally.
+.IP \fINO_SECURITY\fP
+Turn off storing and forwarding of credentials when the GSSAPI
+security feature is enabled globally.
+.IP \fIUSE_SYSLOG\fP
+Write messages to the system logger (see
+.MO syslog 3 )
+rather than into the spool directory.
+.IP \fIUSE_QIDLE\fP
+Automatically start any executable named
+.I qidle
+present in the architecture-dependent binary directory as a load
+sensor, similarly to
+.I qloadsensor
+(which is run unconditionally).  It is intended to determine whether a
+workstation is "idle" or not, i.e. whether it has an interactive load.
+See e.g. the
+.URL http://arc.liv.ac.uk/SGE/howto/idle.html "idle time HOWTO"
+or
+.I sources/experimental/qidle
+in the source repository, but it may be better to check the
+the screensaver state.
+.IP \fIUSE_CGROUPS\fP
+[Linux only.]  Use cgroups/cpusets for resource management if the
+system supports them and the necessary directories exist in the
+relevant filesystems (possibly created by
+.IR util/resources/scripts/setup-cgroups-etc ).
+Makes ENABLE_ADDGRP_KILL irrelevant.
+This option is experimental, and at least the default is likely to
+change in future.  Default is no.
+.IP \fIUSE_SMAPS\fP
+[Linux only.]  Read processes'
+.I smaps
+file in the
+.MO proc 5
+filesystem to obtain PSS usage for most accurate memory accounting, or
+to obtain the swap usage on older systems which don't report PSS.
+That can be slow when processes have very many maps (observed with an
+FEM code), significantly increasing the load from execd, so the
+default is no.  Without
+.IR smaps ,
+usage is reported as RSS+swap, instead of PSS+swap, or simply as the
+VMsize if the swap value isn't available.
+.PP
+.IP \fIprint_malloc_info\fP
+See
+.B qmaster_params
+above.
+.IP \fBDEMAND_LS\fP
+If true, generate load sensor reports just before sending them, making
+the data fresher.  The default is true.  The switch is provided in
+case slow sensors are found to have a bad effect on the execd.
+.PP
+Changing \fBexecd_params\fP will take effect after it is propagated to the
+execution daemons. The propagation is done in one load report interval.
+The default for \fBexecd_params\fP is none.
+.PP
+The global configuration entry for this value
+may be overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBreporting_params\fP"
+Used to define the behavior of reporting modules in the xxQS_NAMExx 
+qmaster. Changes to the \fBreporting_params\fP take immediate effect.
+The following values are recognized:
+.\"
+.IP "\fIaccounting\fP"
+If this parameter is set to true, the accounting file is written.
+The accounting file is a prerequisite for
+.M qacct 1 .
+.PP
+.IP "\fIreporting\fP"
+If this parameter is set to true, the reporting file is written.
+The reporting file contains data that can be used for monitoring and analysis,
+like job accounting, job log, host load and consumables, queue status and 
+consumables, and sharetree configuration and usage.
+Attention: Depending on the size and load of the cluster, the reporting file can
+become quite large. Only activate the reporting file if you have a process running that will consume the reporting file!
+See 
+.M reporting 5
+for further information about the format and contents of the reporting file.
+.PP
+.IP "\fIflush_time\fP"
+The contents of the reporting file are buffered in the
+xxQS_NAMExx qmaster and flushed at a fixed interval.
+This interval can be configured with the \fIflush_time\fP parameter.
+It is specified as a time value in the format HH:MM:SS or a number of seconds.
+Sensible values range from a few seconds to a minute. Setting it too low may
+slow down the qmaster. Setting it too high will make the qmaster consume large
+amounts of memory for buffering data.
+The reporting file is opened and closed for each flush.  Default 15s.
+.PP
+.IP "\fIaccounting_flush_time\fP"
+The contents of the accounting file are buffered in the
+xxQS_NAMExx qmaster and flushed at a fixed interval.
+This interval can be configured with the \fIaccounting_flush_time\fP parameter.
+It is specified as a time value in the format HH:MM:SS.
+Sensible values range from a few seconds to one minute. Setting it too low may
+slow down the qmaster. Setting it too high will make the qmaster consume large
+amounts of memory for buffering data.  Setting it to 0 disables
+buffering; as soon as a record is generated, it will be written to
+the accounting file.  If this parameter is not set, the accounting data flush
+interval will default to the value of the \fIflush_time\fP parameter.
+The accounting file is opened and closed for each flush.
+.PP
+.IP "\fIjoblog\fP"
+If this parameter is set to true, the reporting file will contain job logging 
+information. See
+.M reporting 5 
+for more information about job logging.
+.PP
+.IP "\fIsharelog\fP"
+The xxQS_NAMExx qmaster can dump information about sharetree configuration and use to the reporting file.
+The parameter \fIsharelog\fP sets an interval in which sharetree information will be dumped.
+It is set in the format HH:MM:SS or a number of seconds. A value of 0
+(default) configures qmaster not to
+dump sharetree information. Intervals of several minutes up to hours are sensible values for this parameter.
+See 
+.M reporting 5 
+for further information about sharelog.
+.PP
+.IP "\fIlog_consumables\fP"
+This parameter controls writing of consumable resources to the reporting file.
+When set to \fBlog_consumables=true\fP
+information about all consumable resources (their current usage and their capacity)
+will be written
+to the reporting file, whenever a consumable resource changes either in definition,
+or in capacity,
+or when the usage of an arbitrary consumable resource changes.
+When \fBlog_consumables\fP is set to \fBfalse\fP (default), only those variables will be written to the
+reporting file that are configured in the \fBreport_variables\fP in the exec host configuration
+and whose definition or value actually changed.
+This parameter is deprecated and will get removed in the next major release.
+See
+.M host_conf 5
+for further information about \fBreport_variables\fP.
+.PP
+.\"
+.\"
+.SS "\fBfinished_jobs\fP"
+.B Note:
+Deprecated, may be removed in a future release.
+.br
+xxQS_NAMExx stores a certain number of \fIjust finished\fP jobs to provide
+post mortem status information via
+.IR "qstat \-s z" .
+The \fBfinished_jobs\fP parameter defines the
+number of finished ("zombie") jobs stored. If this maximum number is reached, the
+eldest finished job will be discarded for every new job added to the
+finished job list.  (The zombie list is not spooled, and so will be
+lost by a qmaster re-start.)
+.PP
+Changing \fBfinished_jobs\fP will take immediate effect.
+The default for \fBfinished_jobs\fP is 100.
+.PP
+This value is a global configuration parameter only. It cannot be
+overwritten by the execution host local configuration.
+.\"
+.\"
+.SS "\fBqlogin_daemon\fP"
+.SS "\fBqlogin_command\fP"
+.SS "\fBrlogin_daemon\fP"
+.SS "\fBrlogin_command\fP"
+.SS "\fBrsh_daemon\fP"
+.SS "\fBrsh_command\fP"
+These three pairs of entries are responsible for defining a remote startup method for either
+interactive jobs by 
+.M qlogin 1
+or
+.M qrsh 1
+\fBwithout\fR a command,
+or an interactive
+.M qrsh 1
+request
+\fBwith\fR a command. The last startup method is also used to startup tasks on a slave exechost of
+a tightly integrated parallel job.
+Each pair for one startup method must contain matching communication methods. All
+entries can contain the value \fBbuiltin\fR (which is the default) or a full path to
+a binary which should be used, and additional arguments to this command if necessary.
+.sp 1
+The entries for the three \fB..._command\fR definitions can, in
+addition, contain the value \fBNONE\fP
+in case a particular startup method should be disabled.
+.sp 1
+Changing any of these entries will take immediate effect.
+.sp 1
+The global configuration entries for these values may be overwritten by a
+execution host local configuration.
+.sp 1
+See
+.M remote_startup 5
+for a detailed explanation of these settings.
+.\"
+.\"
+.SS "\fBdelegated_file_staging\fP"
+This flag must be set to "true" when the prolog and epilog are ready for
+delegated file staging, so that the DRMAA attribute 'drmaa_transfer_files'
+is supported. To establish delegated file staging, use the variables 
+beginning with "$fs_..." in prolog and epilog to move the input, output 
+and error files from one host to the other.
+When this flag is set to "false", no file staging is available 
+for the DRMAA interface. File staging is currently implemented only via
+the DRMAA interface.
+When an error occurs while moving the input, output and error files, return 
+error code 100 so that the error handling mechanism can handle the error
+correctly. (See also FORBID_APPERROR.)
+.\"
+.\"
+.SS "\fBreprioritize\fP"
+.B Note:
+Deprecated, may be removed in future release.
+.br
+This flag enables or disables the reprioritization of jobs based on their
+ticket amount. The \fBreprioritize_interval\fP in 
+.M sched_conf 5
+takes effect only if \fBreprioritize\fP is set to true. To turn off 
+job reprioritization, the \fBreprioritize\fP flag must be set to false 
+and the \fBreprioritize_interval\fP to 0, which is the default.
+.sp 1
+This value is a global configuration parameter only. It cannot be
+overridden by the execution host local configuration.
+.\"
+.\"
+.SS "\fBjsv_url\fP"
+This setting defines a server JSV instance which will be started and
+triggered by the
+.M xxqs_name_sxx_qmaster 8
+process. This JSV instance will be used to verify job specifications of
+jobs before they are accepted and stored in the internal master database. 
+The global configuration entry for this value cannot be overwritten by 
+execution host local configurations.
+.sp 1
+Find more details concerning JSV in 
+.M jsv 1
+and 
+.M xxqs_name_sxx_request 1 .
+.sp 1
+The syntax of the \fBjsv_url\fP is specified in 
+.M xxqs_name_sxx_types 1 .
+.\"
+.\"
+.SS "\fBjsv_allowed_mod\fP"
+If there is a server JSV script defined with the \fBjsv_url\fP parameter, then
+all 
+.M qalter 1
+or
+.M qmon 1
+modification requests for jobs are rejected by qmaster. With the \fBjsv_allowed_mod\fP
+parameter an administrator has the possibility to allow a set of switches which can then
+be used with clients to modify certain job attributes. The value for this parameter has to be a
+comma-separated list of JSV job parameter names as documented in
+.M qsub 1 ,
+or the value \fBnone\fP to indicate that no modification should be allowed. 
+Please note that even if \fBnone\fP is specified, the switches \fB\-w\fP and \fB\-t\fP are
+allowed for qalter.
+.\"
+.\"
+.SS "\fBlibjvm_path\fP"
+\fBlibjvm_path\fP is usually set during qmaster installation and points to the absolute path of libjvm.so
+(or the corresponding library depending on your architecture \- e.g. /usr/java/jre/lib/i386/server/libjvm.so). The referenced libjvm version must be at least 1.5.
+It is needed by the JVM qmaster thread only. If the Java VM needs additional starting parameters they can be set in \fBadditional_jvm_args\fP. Whether the JVM thread is started at all can be defined in the 
+.M bootstrap 5
+file. If libjvm_path is empty, or an incorrect path, the JVM thread fails to start.
+.sp 1
+.\" fixme:  does this make sense, unless it means for failover qmasters?
+The global configuration entry for this value may be overwritten by the
+execution host local configuration.
+.\"
+.\"
+.SS "\fBadditional_jvm_args\fP"
+\fBadditional_jvm_args\fP is usually set during qmaster installation.
+Details about possible values \fBadditional_jvm_args\fP can be found in the help output of the accompanying Java command. This setting is normally not needed.
+.sp 1
+The global configuration entry for this value may be overwritten by the
+execution host local configuration.
+.\"
+.SH SECURITY
+If
+.B prolog
+or
+.B epilog
+is specified with a
+.IB user @
+prefix, security considerations apply.  The methods are run in a
+user-supplied environment (via
+.B \-V
+or
+.BR \-v )
+which provides a mechanism to run arbitrary code as
+.I user
+(which might well be root) by setting variables such as
+.B LD_LIBRARY_PATH
+and
+.B LD_PRELOAD
+to affect the running of the dynamically linked programs, such as
+shells, which are used to implement the methods.
+.PP
+To combat this, known problematic variables are removed from the
+environment before starting the methods other than as the job owner,
+but this may not be foolproof on arbitrary systems with obscure
+variables.  The environment can be safely controlled by running the
+methods under a statically-linked version of
+.MO env 1 ,
+such as typically available using
+.MO busybox 1 ,
+for example.  Use
+.IP
+.BR "/bin/busybox env \-u " ...
+.PP
+to unset sensitive variables, or
+.IP
+.BR "/bin/busybox env \-i name=value" ...
+.PP
+to set only specific variables.  On some systems, such as recent
+Solaris, it is essentially impossible to build static binaries.  In
+that case it is typically possible to use a setuid wrapper, relying on
+the dynamic linker to do the right thing.  An example is the
+.I safe_exec
+wrapper which is available from
+.URL http://arc.liv.ac.uk/downloads/SGE/support/
+at the time of writing.  When using a non-shell scripting language
+wrapper for the method daemon, try to use options which avoid
+interpreter-specific environmental damage, such as Perl's
+.B \-T
+and Python's
+.BR \-E .
+Privileged shell script wrappers should be avoided if possible, and
+should be written carefully if they are used \- e.g. invoke programs
+with full file names \- but if
+.M bash 1
+is used, it should be run with the
+.B \-p
+option.
+.PP
+It is not currently possible to specify the variables unset, e.g. as a
+host-dependent execd parameter, but certain system-dependent ones are
+selected.  The list of sensitive variables is taken mostly from GNU
+libc and
+.M sudo 1 .
+It includes known system-dependent dynamic linker ones, sensitive
+locale ones and others, like TMPDIR, but does not attempt to deal
+interpreter-specific variables such as PYTHONPATH.  The locale
+specification is also sanitized.  See the source file
+.I source/libs/uti2/sge_execvlp.c
+for details.  Note that TMPDIR is one of the variables affected, and
+may need to be recreated (as
+.BR /tmp/$JOB_ID.$TASK_ID.$QUEUE ).
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.MO csh 1 ,
+.M qconf 1 ,
+.M qsub 1 ,
+.M jsv 1 ,
+.MO rsh 1 ,
+.MO sh 1 ,
+.MO getpwnam 3 ,
+.M drmaa_attributes 3 ,
+.M queue_conf 5 ,
+.M sched_conf 5 ,
+.M xxqs_name_sxx_types 1 ,
+.M xxqs_name_sxx_execd 8 ,
+.M xxqs_name_sxx_qmaster 8 ,
+.M xxqs_name_sxx_shepherd 8 ,
+.MO cron 8 ,
+.M remote_startup 5
+.\" .M remote_startup 5 ,
+.\" .I xxQS_NAMExx Installation and Administration Guide.
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

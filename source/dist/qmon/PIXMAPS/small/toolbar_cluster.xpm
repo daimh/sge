@@ -1,0 +1,176 @@
+/* XPM */
+/*___INFO__MARK_BEGIN__*/
+/*************************************************************************
+ * 
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ * 
+ *  Sun Microsystems Inc., March, 2001
+ * 
+ * 
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ * 
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ * 
+ *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ * 
+ *   Copyright: 2001 by Sun Microsystems, Inc.
+ * 
+ *   All Rights Reserved.
+ * 
+ ************************************************************************/
+/*___INFO__MARK_END__*/
+static char *toolbar_cluster[] = {
+/* columns rows colors chars-per-pixel */
+"32 32 107 2",
+"   c black",
+".  c #555753",
+"X  c gray35",
+"o  c #5B5B5B",
+"O  c #5D5D5C",
+"+  c gray37",
+"@  c #606060",
+"#  c #636362",
+"$  c #656565",
+"%  c gray40",
+"&  c #696968",
+"*  c #6F6F6E",
+"=  c #737372",
+"-  c gray46",
+";  c #7B7B7B",
+":  c #7C7C7C",
+">  c #7D7D7C",
+",  c #7E7E7E",
+"<  c #7F7F7E",
+"1  c #5382B9",
+"2  c #748DB1",
+"3  c #80807F",
+"4  c #818180",
+"5  c #838383",
+"6  c gray52",
+"7  c #888888",
+"8  c gray54",
+"9  c #9D9D9C",
+"0  c #A4A4A3",
+"q  c #A5A5A5",
+"w  c #AAAAA9",
+"e  c #AAAAAA",
+"r  c gray67",
+"t  c #ADADAC",
+"y  c #AFAFAF",
+"u  c #B1B1B1",
+"i  c #B2B2B2",
+"p  c gray70",
+"a  c #B4B4B3",
+"s  c #B4B4B4",
+"d  c gray71",
+"f  c #B6B6B6",
+"g  c gray72",
+"h  c #B9B9B9",
+"j  c gray73",
+"k  c #BCBCBC",
+"l  c gray74",
+"z  c #B3B1C1",
+"x  c #B5B3C1",
+"c  c #B6B4C3",
+"v  c #B7B4C3",
+"b  c #B7B5C3",
+"n  c #B7B5C4",
+"m  c #C1C1C1",
+"M  c #C3C3C3",
+"N  c #C0C0C5",
+"B  c #C6C6C6",
+"V  c #C8C8C7",
+"C  c gray79",
+"Z  c #CBCBCB",
+"A  c #CDCDCC",
+"S  c #CDCDCD",
+"D  c #C4CBD8",
+"F  c #D2D2D2",
+"G  c LightGray",
+"H  c gray83",
+"J  c #D5D5D5",
+"K  c gray84",
+"L  c #D7D7D7",
+"P  c #D8D8D8",
+"I  c gray85",
+"U  c #DADADA",
+"Y  c gray86",
+"T  c gainsboro",
+"R  c gray87",
+"E  c #DFDFDF",
+"W  c #D6DAE1",
+"Q  c #E2E2E2",
+"!  c gray89",
+"~  c #E4E4E4",
+"^  c gray90",
+"/  c gray91",
+"(  c #EAEAEA",
+")  c #EAEAEB",
+"_  c gray92",
+"`  c #ECECEC",
+"'  c gray93",
+"]  c #EEEEEE",
+"[  c #EFEFEF",
+"{  c gray94",
+"}  c #F1F1F1",
+"|  c gray95",
+" . c #F3F3F3",
+".. c #F3F3F4",
+"X. c #F4F4F4",
+"o. c gray96",
+"O. c #F5F5F6",
+"+. c #F6F6F6",
+"@. c gray97",
+"#. c #F8F8F8",
+"$. c #F9F9F9",
+"%. c gray98",
+"&. c #FBFBFB",
+"*. c gray99",
+"=. c #FDFDFD",
+"-. c #FEFEFE",
+";. s mask c None",
+/* pixels */
+";.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.",
+";.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.",
+";.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.",
+";.;.;.;.;.;.;.;.;.;.;.;.;.;.;.+ + + + + + + + + + + ;.;.;.;.;.;.",
+";.;.;.;.;.;.;.;.;.;.;.;.;.;.+ w [ [ [ ` [ ` [ _ [ w + ;.;.;.;.;.",
+";.;.;.;.;.;.;.;.;.;.;.;.;.;.+ [ L ; : : ; ; ; ; i ~ + ;.;.;.;.;.",
+";.;.;.;.;.;.;.;.;.;.;.;.;.;.+ } ; @.n B @.b M @.; } + ;.;.;.;.;.",
+";.;.;.@ @ @ @ @ @ @ ;.;.;.;.+ [ ; b n n x @.+.2 ; } + ;.;.;.;.;.",
+";.;.@ ~ =.=.=.$.$.B + ;.;.;.+ [ : c c z z ) U 1 ; [ + ;.;.;.;.;.",
+";.@ $.=.=.=.$.$.@.@.[ @ ;.;.+ [ ; 1 1 1 1 D D 1 ; [ + ;.;.;.;.;.",
+";.@ $.l l l l l l l =.@ ;.;.o [ ; 1 1 1 1 1 1 1 ; [ o ;.;.;.;.;.",
+";.@ $.p Y L L L F i @.@ ;.;.+ @.L ; : - $ + + + + + + + + + + ;.",
+";.@ $.i p f p f i i } @ ;.;.+ f ' ' ' 6 w ` [ ` [ [ [ ] [ [ w + ",
+";.@ $.l l l l l l l @.@ ;.;.+ + $ = 5 + [ T ; ; ; ; ; ; ; i ~ + ",
+";.@ $.p Y Y L L F i } @ ;.;.+ @.{ ~ ' + ..; @.M b @.b M } ; [ + ",
+";.@ $.i p f p p p i } @ ;.;.+ Y I L T + { : x b b b @.@.2 ; } + ",
+";.@ &./ ~ ~ ! ~ L E  .@ ;.;.o @ + + + + ] ; h v z v ) W 1 ; ] + ",
+";.@ =.q 8 t l f f g *.@ ;.;.: d * ;.;.+ ] ; 1 1 1 1 D D 1 ; ] + ",
+";.@ =.7 p ; M T Y g =.@ ;.;.; V 2 ;.;.+ ] > 1 1 1 1 1 1 1 ; ' + ",
+";.@ =.w : y l l l l =.@ ;.;.3 V - ;.;.+ { L ; ; ; ; ; ; ; C ' + ",
+";.@ =.J H G H G J G *.@ ;.;.3 H > ;.;.@ j ] ] ] ' ' ' ' ' ' M + ",
+";.@ =.Z J Z J Z J Z *.@ ;.;.3 3 4 ;.;.O O % = 5 5 5 5 = & O + + ",
+";.@ =.M J M J M J M *.@ ; 3 L J 0 4 < O X.{ ! ] ' ' p m S T ) + ",
+";.@ =.l L l L l L l *.@ p 3 J [ g 4 a O R I I Y R R T I Q ! S + ",
+";.@ =.p L f L f L p =.@ 3 3 y p 9 3 3 @ + + + + + + @ @ @ + + o ",
+";.@ =.y L i L i L y =.@ ;.;.3 ; 3 ;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.",
+";.@ =.=.$.=.=.=.=.=.=.@ ;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.",
+";.. @ @ @ @ @ @ @ @ @ . ;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.",
+";.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.",
+";.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.",
+";.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.",
+";.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;.;."
+};

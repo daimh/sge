@@ -1,0 +1,13 @@
+
+JQueueListEvent.class : JQueueListEvent.java
+	$(JAVAC) $(JAVAC_FLAGS) $<
+
+# WARNING: [JQueueListEvent.java, 10] Cannot resolve dependency for possible type EventObject.class, so none created
+# WARNING: [JQueueListEvent.java, 11] Cannot resolve dependency for possible type Object.class, so none created
+
+JQueueListListener.class : JQueueListListener.java JQueueListEvent.class
+	$(JAVAC) $(JAVAC_FLAGS) $<
+
+# WARNING: [JQueueListListener.java, 5] Cannot resolve dependency for possible type EventListener.class, so none created
+
+TGTS = JQueueListEvent.class JQueueListListener.class 

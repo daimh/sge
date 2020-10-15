@@ -1,0 +1,214 @@
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Complex Configuration
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_cplx.xmtChildren:  unmanaged XmtLayout cplx_layout;
+
+Qmon*qmon_cplx.cplx_layout.autoUnmanage:  False
+Qmon*qmon_cplx.cplx_layout.dialogTitle:  @{QMON +++ Complex Configuration}
+
+Qmon*qmon_cplx.cplx_layout.xmtChildren: \
+   XmPushButton   cplx_main_link; \
+   CX_TypeMatrix  attr_mx; \
+   InputField     attr_aname, \
+                  attr_ashort, \
+                  attr_aurgency, \
+                  attr_adefault; \
+   XmtChooser     attr_atype, \
+                  attr_arel, \
+                  attr_aconsumable, \
+                  attr_areq; \
+   XmPushButton   attr_add, attr_mod, attr_del, attr_load, attr_save, \
+                  cplx_commit, cplx_reset, cplx_help;
+
+Qmon*qmon_cplx.cplx_layout.layout: \
+   Fixed Shadowed Out 4 2 LREvenSpaced Row cplxconfig_title { \
+      Fixed Centered cplx_main_link \
+      Centered Color "$title_fg" "@{@fBComplex Configuration}" \
+   } \
+   # \
+   Row { \
+      Col { \
+         Etched Through Caption tc "@{@fBAttributes} " Col { \
+            Fixed Row { \
+               FlushTop Caption tl "@{Name}" 7 em attr_aname \
+               FlushTop Caption tl "@{Shortcut}" 7 em attr_ashort \
+               Centered Caption tl "@{Type}" 9 em attr_atype \
+               Centered Caption tl "@{Relation}" 7 em attr_arel \
+               Centered Caption tl "@{Requestable}" 7 em attr_areq \
+               Centered Caption tl "@{Consumable}" 7 em attr_aconsumable \
+               FlushTop Caption tl "@{Default}" 7 em attr_adefault \
+               FlushTop Caption tl "@{Urgency}" 7 em attr_aurgency \
+            } \
+            # \
+            Etched Top Centered Row { \
+               attr_mx \
+               Fixed Even Equal Col { \
+                  <> \
+                  attr_add \
+                  <> \
+                  attr_mod \
+                  <> \
+                  attr_del \
+                  <> \
+                  attr_load \
+                  <> \
+                  attr_save \
+                  <> \
+               } \
+            } \
+         } \
+      } \
+      Fixed Shadowed Col { \
+         Fixed cplx_commit \
+         Fixed cplx_reset \
+         Fixed cplx_help \
+      } \
+   } 
+
+Qmon*cplx_layout*cplx_main_link.labelType:          PIXMAP
+Qmon*cplx_layout*cplx_main_link.labelPixmap:        logo
+Qmon*cplx_layout*cplx_main_link.shadowThickness:    1
+Qmon*cplx_layout*cplx_main_link.highlightThickness: 0
+Qmon*cplx_layout*cplx_main_link.marginHeight:       0
+Qmon*cplx_layout*cplx_main_link.marginWidth:        0
+
+Qmon*qmon_cplx.cplx_layout.cplx_commit.labelString:     @{Commit}
+Qmon*qmon_cplx.cplx_layout.cplx_reset.labelString:       @{Cancel}
+Qmon*qmon_cplx.cplx_layout.cplx_help.labelString:       @{Help}
+
+Qmon*qmon_cplx.cplx_layout.cplx_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*cplx_shell.cplx_layout*fontList:     $dialog_font
+Qmon*cplx_layout*columns: 14
+
+Qmon*cplx_layout.attr_aname.navigationType:        TAB_GROUP
+Qmon*cplx_layout.attr_ashort.navigationType:       TAB_GROUP
+Qmon*cplx_layout.attr_atype.navigationType:        TAB_GROUP
+Qmon*cplx_layout.attr_arel.navigationType:         TAB_GROUP
+Qmon*cplx_layout.attr_areq.navigationType:         TAB_GROUP
+Qmon*cplx_layout.attr_aconsumable.navigationType:  TAB_GROUP
+Qmon*cplx_layout.attr_adefault.navigationType:     TAB_GROUP
+
+Qmon*cplx_layout.attr_add.navigationType:          TAB_GROUP
+Qmon*cplx_layout.attr_del.navigationType:          TAB_GROUP
+Qmon*cplx_layout.attr_load.navigationType:         TAB_GROUP
+Qmon*cplx_layout.attr_save.navigationType:         TAB_GROUP
+
+Qmon*cplx_layout.attr_add.labelString:    @{Add}
+Qmon*cplx_layout.attr_mod.labelString:    @{Modify}
+Qmon*cplx_layout.attr_del.labelString:    @{Delete}
+Qmon*cplx_layout.attr_load.labelString:   @{cplx.Load}
+Qmon*cplx_layout.attr_save.labelString:   @{Save}
+
+Qmon*cplx_layout.attr_add.activateCallback: ComplexAttributeAdd(*attr_mx, False);
+Qmon*cplx_layout.attr_mod.activateCallback: ComplexAttributeModify(*attr_mx, True);
+Qmon*cplx_layout.attr_del.activateCallback: ComplexAttributeDelete(*attr_mx); 
+Qmon*cplx_layout.attr_load.activateCallback: ComplexAttributeLoad(*attr_mx);
+Qmon*cplx_layout.attr_save.activateCallback: ComplexAttributesSave(*attr_mx);
+
+
+Qmon*cplx_layout*attr_mx.xmtChildren: unmanaged XmtPopupMenu attr_menu;
+Qmon*cplx_layout*attr_mx*attr_menu.menuPost: <Btn3Down>
+
+Qmon*cplx_layout*attr_mx*attr_menu.items: \
+   Title "@{@fBOperations}"; \
+   ------;\
+   "@{_Delete}" [Ctrl-D] ComplexAttributeDelete(*attr_mx);
+
+
+Qmon*cplx_layout*attr_mx.rows:         15
+Qmon*cplx_layout*attr_mx.visibleRows:  15
+Qmon*cplx_layout*attr_mx.columns:      8
+Qmon*cplx_layout*attr_mx.columnWidths: 10,8,12,8,10,11,10,8
+Qmon*cplx_layout*attr_mx.maxLengths:   100,100,100,10,10,10,100,100
+Qmon*cplx_layout*attr_mx.columnLabels: @{Name}, @{Shortcut}, @{Type}, @{Relation}, @{Requestable}, @{Consumable}, @{Default}, @{Urgency}
+Qmon*cplx_layout*attr_mx.boldLabels:          True
+Qmon*cplx_layout*attr_mx.columnButtonLabels:  True,True,True,True,True,True,True,True
+!Qmon*cplx_layout*attr_mx.evenRowBackground:   $matrix_even_bg
+!Qmon*cplx_layout*attr_mx.oddRowBackground:    $matrix_odd_bg
+Qmon*cplx_layout*attr_mx.gridType:            GRID_CELL_SHADOW
+Qmon*cplx_layout*attr_mx.cellShadowType:      SHADOW_IN
+Qmon*cplx_layout*attr_mx.cellShadowThickness:   1
+
+Qmon*cplx_layout*attr_mx.translations:   #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:  SelectCell(toggle)\n\
+         <Btn1Down>:   SelectCell(begin)\n\
+         Ctrl<Btn2Down>: ResizeColumns()
+Qmon*cplx_layout*attr_mx.clip.translations: #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:  SelectCell(toggle)\n\
+         <Btn1Down>:   SelectCell(begin)\n\
+         Ctrl<Btn2Down>: ResizeColumns()
+
+Qmon*cplx_layout.attr_atype.ChooserType:        ChooserOption
+Qmon*cplx_layout.attr_atype.alignment:         ALIGNMENT_CENTER
+Qmon*cplx_layout.attr_atype.strings:  \
+   "@{INT}", \
+   "@{STRING}", \
+   "@{TIME}", \
+   "@{MEMORY}", \
+   "@{BOOL}", \
+   "@{CSTRING}",\
+   "@{HOST}", \
+   "@{DOUBLE}", \
+   "@{RESTRING}"
+
+Qmon*cplx_layout.attr_areq.ChooserType:        ChooserOption
+Qmon*cplx_layout.attr_areq.alignment:         ALIGNMENT_CENTER
+Qmon*cplx_layout.attr_areq.strings:  \
+   "@{NO}", \
+   "@{YES}", \
+   "@{FORCED}"
+
+Qmon*cplx_layout.attr_aconsumable.ChooserType:        ChooserOption
+Qmon*cplx_layout.attr_aconsumable.alignment:         ALIGNMENT_CENTER
+Qmon*cplx_layout.attr_aconsumable.strings:  \
+   "@{NO}", \
+   "@{YES}", \
+   "@{JOB}"
+
+
+Qmon*cplx_layout.attr_arel.ChooserType:        ChooserOption
+Qmon*cplx_layout.attr_arel.alignment:         ALIGNMENT_CENTER
+Qmon*cplx_layout.attr_arel.strings:  \
+   "==", \
+   ">=", \
+   ">", \
+   "<", \
+   "<=", \
+   "!=", \
+   "EXCL"

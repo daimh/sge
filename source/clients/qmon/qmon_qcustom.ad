@@ -1,0 +1,173 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! QueueCustom Dialog
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qcu_shell.allowShellResize:      True
+Qmon*qcu_shell.resizePolicy:          RESIZE_ANY
+Qmon*qcu_shell.xmtChildren:  unmanaged XmtLayout qcu;
+
+Qmon*qcu.autoUnmanage:    False
+Qmon*qcu.dialogTitle:    @{Q U E U E   C U S T O M I Z E}
+
+Qmon*qcu.xmtChildren: \
+      XmPushButton      qcu_ok, qcu_cancel, qcu_save; \
+      Folder            qcu_folder;
+
+Qmon*qcu.layout: \
+   Shadowed Out 4 2 Centered qcu_folder \
+   Equal Even Shadowed Out 4 2 Fixed Row { \
+      Fixed qcu_save \
+      Fixed qcu_cancel \
+      Fixed qcu_ok \
+   } \
+
+Qmon*qcu.qcu_ok.labelString:              @{Ok}
+Qmon*qcu.qcu_cancel.labelString:          @{Cancel}
+Qmon*qcu.qcu_save.labelString:            @{Save}
+
+Qmon*qcu.qcu_folder.xmtChildren: \
+   XmtLayout   r_filter, \
+               pe_filter, \
+               misc_filter;
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Dialog to select queues with -l 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*r_filter.tabLabel:  @{@fBResource Filter}
+Qmon*r_filter.xmtChildren:  \
+   Iconlist          r_filter_ar, r_filter_sr; \
+   XmPushButton      r_filter_clear;
+
+Qmon*r_filter.layout: \
+   Row { \
+      Col { \
+         Caption tl "@{@fBFilter Resources}" 30 em r_filter_sr \
+         Fixed Centered r_filter_clear \
+      } \
+      # \
+      Caption tl "@{@fBAvailable Resources}" 30 em r_filter_ar \
+   }
+
+Qmon*r_filter_clear.labelString:            @{Clear}
+
+Qmon*r_filter_ar*iconWidth:         16
+Qmon*r_filter_ar*iconHeight:        16
+Qmon*r_filter_ar*highlightOnEnter:  False
+
+Qmon*r_filter_sr*iconWidth:         16
+Qmon*r_filter_sr*iconHeight:        16
+Qmon*r_filter_sr*highlightOnEnter:  False
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Dialog to select queues with -pe 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*pe_filter.tabLabel:  @{@fBPE Filter}
+Qmon*pe_filter.xmtChildren:  \
+   StringList        pe_filter_ap, pe_filter_sp; \
+   XmPushButton      pe_add, pe_remove;
+
+Qmon*pe_filter.layout: \
+   Row { \
+      Caption tl "@{@fBAvailable PEs}" 30 em pe_filter_ap \
+      Fixed Col { \
+         <> \
+         Fixed Centered pe_add \
+         Fixed Centered pe_remove \
+         <> \
+      } \
+      Caption tl "@{@fBSelected PEs}" 30 em pe_filter_sp \
+   }
+
+
+Qmon*pe_filter.pe_add.labelType:          PIXMAP
+Qmon*pe_filter.pe_add.labelPixmap:        rightarrow
+Qmon*pe_filter.pe_remove.labelType:       PIXMAP
+Qmon*pe_filter.pe_remove.labelPixmap:     leftarrow
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Dialog to select queues with wildcards, user access, queue state 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*misc_filter.tabLabel:  @{@fBMisc Filters}
+Qmon*misc_filter.xmtChildren:  \
+   XmtInputField     misc_filter_user, \
+                     misc_filter_q; \
+   StringList        misc_filter_user_sp, \
+                     misc_filter_q_sp; \
+   XmtChooser        misc_filter_state; \
+   XmPushButton      misc_filter_user_del, \
+                     misc_filter_q_del;
+
+Qmon*misc_filter.layout: \
+   Col { \
+      Caption tl "@{@fBFilter by User}" Col { \
+         Fixed misc_filter_user \
+         Row { misc_filter_user_sp Fixed Centered misc_filter_user_del } \
+      } \
+      Caption tl "@{@fBFilter by Queue Pattern}" Col { \
+         Fixed misc_filter_q \
+         Row { misc_filter_q_sp Fixed Centered misc_filter_q_del }\
+      } \
+      Caption tl "@{@fBFilter by Queue State}" misc_filter_state \
+   }
+
+
+Qmon*misc_filter.misc_filter_state.chooserType:   CheckBox
+Qmon*misc_filter.misc_filter_state.orientation:   HORIZONTAL
+Qmon*misc_filter.misc_filter_state.strings: \
+   "@{a}", \
+   "@{c}", \
+   "@{d}", \
+   "@{o}", \
+   "@{s}", \
+   "@{u}", \
+   "@{A}", \
+   "@{C}", \
+   "@{D}", \
+   "@{E}", \
+   "@{S}"
+
+
+Qmon*misc_filter*misc_filter_user_sp*scrollBarDisplayPolicy:       AS_NEEDED
+Qmon*misc_filter*misc_filter_user_sp*selectionPolicy:              EXTENDED_SELECT
+Qmon*misc_filter*misc_filter_user_sp*visibleItemCount:             5
+
+Qmon*misc_filter.misc_filter_user_del.labelType:   PIXMAP
+Qmon*misc_filter.misc_filter_user_del.labelPixmap: trashcan
+
+Qmon*misc_filter*misc_filter_q_sp*scrollBarDisplayPolicy:       AS_NEEDED
+Qmon*misc_filter*misc_filter_q_sp*selectionPolicy:              EXTENDED_SELECT
+Qmon*misc_filter*misc_filter_q_sp*visibleItemCount:             5
+
+Qmon*misc_filter.misc_filter_q_del.labelType:   PIXMAP
+Qmon*misc_filter.misc_filter_q_del.labelPixmap: trashcan
+

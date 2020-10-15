@@ -1,0 +1,21 @@
+#!/usr/bin/perl
+
+# Copyright (C) 2007,  Andreas Haupt
+# Licence:  GNU GPL, version 3 or later.
+
+# See pam_sge-qrsh-setup(8)
+
+# check for orphaned setting files
+foreach my $file ( </var/run/sge-qrsh-setup.*> ) {
+	$file =~ /\.(\d+)$/;
+	unlink $file unless kill(-0, $1);
+}
+
+my $settings_file = "/var/run/sge-qrsh-setup.$$";
+open SETTINGS, ">$settings_file" or die "Couldn't create $settings_file";
+print SETTINGS "$ENV{'SGE_JOB_SPOOL_DIR'}\n";
+close SETTINGS;
+
+system '/usr/sbin/sshd', '-i';
+
+unlink $settings_file;

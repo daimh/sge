@@ -1,0 +1,388 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="christian reissmann">
+   <meta name="GENERATOR" content="Mozilla/4.76C-CCK-MCD  [en] (X11; U; SunOS 5.8 sun4u) [Netscape]">
+</head>
+<body>
+
+<h3>
+<b><font size=+2>Standard Compatibility Test</font></b></h3>
+&nbsp;
+<p>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<p>Compatibility is an important aspect of the <a href="/project/gridengine/license.html">License</a>
+under which Grid Engine source code is made available. In this context,
+cross compatibility may have to be certified between a version of the Grid
+Engine software which you have enhanced and a version declared as one of
+Grid Engine's <font color="#990000">Reference Builds</font> from which
+your modification deviates. Note, that over time there can be multiple
+Reference Builds representing different stable software release levels.
+You might intend to test compatibility with one or with multiple of those
+Reference Builds. A list of the currently available Reference Builds with
+all pertinent information can be found <a href="/project/gridengine/standards.html">here</a>.
+<p>The following describes how to test compatibility between two builds.
+You will need to create a <a href="../source/dist/dist.html">binary distribution
+package</a>&nbsp; for both builds before you start with the compatibility
+checking process. You will also have to make all preparations to be able
+to run the Grid Engine <a href="../testsuite/testsuite.html">Testsuite</a>.
+You will have to use the Testsuite level as defined in the <a href="/project/gridengine/standards.html">Reference
+Build definition</a>.
+<p>The compatibility test consist of a preparation step, a validation run
+of the Standard Version and multiple compatibility checks. Your changed
+version has to pass all tests without error and has to deliver the same
+results as the validation run to be considered compatible.
+<p>
+<hr WIDTH="100%">
+<br>Release Notes:
+<p>&nbsp;<a href="#notes_5_3">Version 5.3</a>
+<p>
+<hr WIDTH="100%">
+<h3>
+Preparation:</h3>
+
+<ul>
+<li>
+Set up a testsuite cluster with more than one host</li>
+</ul>
+
+<blockquote>The <a href="../testsuite/testsuite.html">Testsuite</a> documentation
+is describing how this can be done. Use the <b><i>Reference Build</i></b>
+to which you want to test compatibility and run:</blockquote>
+
+<blockquote>
+<blockquote><tt>expect check.exp install</tt></blockquote>
+The testsuite will generate a default setup file "defaults.sav" in the
+testsuite directory. After that the testsuite will start the vi command
+in order that the user can edit the testsuite settings. You will be asked
+on which hosts you want to install a testsuite cluster and you will have
+to use at least 2 for the purpose of the compatibility test. Please enable
+the error mails by providing your e-mail address when setting up the testsuite.
+The testsuite will report errors by e-mail.</blockquote>
+
+<h3>
+Validation:</h3>
+
+<ul>
+<li>
+Run testsuite on Reference Build</li>
+
+<br>&nbsp;
+<p>&nbsp;
+<p>Run the testsuite with following command (<a href="#testsuite start output">Testsuite
+start output</a>):
+<br>&nbsp;
+<ul><tt>expect check.exp all 2 category COMPATIBILITY</tt></ul>
+
+<p><br>Do not remove the test results of the validation run. Every testsuite
+run will manipulate the results directory, so copy your validation results
+before running another test. You will need to compare your validation run
+results with the subsequent compatibility runs. No errors must occur during
+the validation run. If you encounter errors then this might be due to network
+setup problems in your cluster or similar issues. Fix those first before
+you proceed. Report your problem if it persists. You cannot test compatibility
+with a validation run with errors.</ul>
+
+<h3>
+Check 1: Qmaster compatibility</h3>
+
+<ul>(If you are absolutely sure that your modification did not change sge_qmaster
+you may skip this step, but be aware that changes in some libraries, like
+for instance the scheduler library, may also modify sge_qmaster. Carry
+out the test if you are not 100% sure.)
+<br>&nbsp;
+<li>
+Shutdown the system</li>
+
+<br>&nbsp;
+<p>&nbsp;
+<p>Use the testsuite to shutdown the cluster:
+<br>&nbsp;
+<ul><tt>expect check.exp kill</tt></ul>
+</ul>
+
+<ul>
+<li>
+Exchange the sge_qmaster binary with the one from your modified build</li>
+</ul>
+
+<ul>
+<li>
+Run the testsuite again:</li>
+
+<br>&nbsp;
+<ul><tt>expect check.exp all 2 category COMPATIBILITY</tt></ul>
+
+<li>
+Compare results with validation run</li>
+
+<br>&nbsp;
+<ul>&nbsp;Stop if the results are not equal.</ul>
+
+<li>
+Shutdown the system</li>
+
+<br>&nbsp;
+<p>&nbsp;
+<p>Use the testsuite to shutdown the cluster:
+<br>&nbsp;
+<ul><tt>expect check.exp kill</tt></ul>
+
+<li>
+Re-Exchange the sge_qmaster binary with the one from the Reference Build</li>
+</ul>
+
+<h3>
+Check 2: Scheduler compatibility</h3>
+
+<ul>(If you are absolutely sure that your modification did not change sge_schedd
+you may skip this step, but be aware that changes in some libraries, like
+for instance the GDI library, may also modify sge_schedd. Carry out the
+test if you are not 100% sure.)</ul>
+
+<ul>
+<li>
+Exchange the sge_schedd binary with the one from your modified build</li>
+</ul>
+
+<ul>
+<li>
+Run the testsuite again:</li>
+
+<br>&nbsp;
+<ul><tt>expect check.exp all 2 category COMPATIBILITY</tt></ul>
+
+<li>
+Compare results with validation run</li>
+
+<br>&nbsp;
+<ul>Stop if the results are not equal.</ul>
+
+<li>
+Shutdown the system</li>
+
+<br>&nbsp;
+<p>&nbsp;
+<p>Use the testsuite to shutdown the cluster:
+<br>&nbsp;
+<ul><tt>expect check.exp kill</tt></ul>
+
+<li>
+Re-Exchange the sge_schedd binary with the one from the Reference Build</li>
+</ul>
+
+<h3>
+Check 3: Commd compatibility</h3>
+
+<blockquote>(If you are absolutely sure that your modification did not
+change sge_commd you may skip this step, but be aware that changes in some
+libraries, like for instance the zlib, may also modify the sge_commd. Carry
+out the test if you are not 100% sure.)</blockquote>
+
+<ul>
+<li>
+Exchange all sge_commd binaries with the ones from your modified build</li>
+</ul>
+
+<ul>
+<li>
+Run the testsuite again:</li>
+
+<br>&nbsp;
+<p>&nbsp;
+<br>&nbsp;
+<br>&nbsp;
+<ul><tt>expect check.exp all 2 category COMPATIBILITY</tt></ul>
+
+<li>
+Compare results with validation run</li>
+
+<ul>&nbsp;
+<br>Stop if the results are not equal.</ul>
+
+<li>
+Shutdown the system</li>
+
+<br>&nbsp;
+<p>&nbsp;
+<p>Use the testsuite to shutdown the cluster:
+<br>&nbsp;
+<ul><tt>expect check.exp kill</tt></ul>
+
+<li>
+Re-Exchange the sge_commd binaries with the ones from the Reference Build</li>
+</ul>
+
+<h3>
+Check 4: Client compatibility</h3>
+
+<blockquote>(If you are absolutely sure that your modification did not
+change any Grid Engine client binary you may skip this step, but be aware
+that changes in some libraries, like the GDI library,&nbsp; may also modify
+the client binaries. Carry out the test if you are not 100% sure.)</blockquote>
+
+<ul>
+<li>
+Exchange all client binaries with the new ones</li>
+</ul>
+
+<ul>
+<li>
+Run the testsuite again:</li>
+
+<br>&nbsp;
+<ul><tt>expect check.exp all 2 category COMPATIBILITY</tt></ul>
+
+<li>
+Compare results with validation run</li>
+
+<ul>&nbsp;
+<br>Stop if the results are not equal.</ul>
+</ul>
+
+<h3>
+Check 5: General compatibility</h3>
+
+<ul>
+<li>
+Shutdown the system</li>
+
+<br>&nbsp;
+<p>&nbsp;
+<p>Use the testsuite to shutdown the cluster:
+<br>&nbsp;
+<ul><tt>expect check.exp kill</tt></ul>
+
+<li>
+Set up a testsuite cluster with more than one host using the modified build</li>
+
+<br>&nbsp;
+<p>&nbsp;
+<p>The <a href="../testsuite/testsuite.html">Testsuite</a> documentation
+is describing how this can be done. Use the <b><i>modified build</i></b>.
+<br>&nbsp;
+<ul>&nbsp;expect check.exp install</ul>
+
+<p><br>The testsuite will generate a default setup file "defaults.sav"
+in the testsuite directory. After that the testsuite will start the vi
+command in order that the user can edit the testsuite settings. You will
+be asked on which hosts you want to install a testsuite cluster and you
+will have to use at least 2 for the purpose of the compatibility test.
+<p>Run the testsuite with following command on your modified build:
+<br>&nbsp;
+<ul>
+<li>
+<tt>expect check.exp all 2 category COMPATIBILITY</tt></li>
+</ul>
+
+<li>
+Compare results with validation run</li>
+
+<ul>&nbsp;</ul>
+Stop if the results are not equal.
+<p><br>
+<BR></ul>
+
+<h3>
+<a NAME="testsuite start output"></a>Testsuite start output</h3>
+&nbsp;
+<blockquote>After starting the testsuite with the command
+<blockquote><tt>expect check.exp all 2 category COMPATIBILITY</tt></blockquote>
+the testsuite should produce the following output:</blockquote>
+
+<center><table BORDER COLS=1 WIDTH="80%" NOSAVE >
+<tr>
+<td><tt>===============================================================================</tt>
+<br><tt>&nbsp;system version&nbsp;&nbsp;&nbsp;&nbsp; :&nbsp; SGE 5.3 (1)
+/ feature: none</tt>
+<br><tt>&nbsp;current dir&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :&nbsp;
+[testsuite_root_directory]/checktree</tt>
+<br><tt>&nbsp;max. runlevel&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :&nbsp; day long
+medium short week</tt>
+<br><tt>&nbsp;selected runlevels :&nbsp; long medium short</tt>
+<br><tt>&nbsp;categories&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+:&nbsp; COMPATIBILITY PERFORMANCE SYSTEM&nbsp;</tt>
+<br><tt>&nbsp;selected categories:&nbsp; COMPATIBILITY&nbsp;</tt>
+<br><tt>&nbsp;est. run time&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :&nbsp; 6 h 40
+m</tt>
+<br><tt>===============================================================================</tt>
+<br><tt>&nbsp; 2 test(s) available in subdir: functional</tt>
+<br><tt>&nbsp; 1 test(s) available in subdir: install_core_system</tt>
+<br><tt>&nbsp; 0 test(s) available in subdir: performance</tt>
+<br><tt>&nbsp;19 test(s) available in subdir: system_tests</tt>
+<br><tt>===============================================================================</tt>
+<br><tt>run all tests ...</tt>
+<br><tt>you have no ssh access and no root password</tt>
+<br><tt>test in directory [testsuite_root_directory]/checktree/functional/access_lists&nbsp;</tt>
+<br><tt>needs root access ...</tt>
+<br><tt>root access needed, please enter root password:&nbsp;</tt>
+<br><tt></tt>&nbsp;
+<br>&nbsp;</td>
+</tr>
+</table></center>
+
+<blockquote>After entering the root password the testsuite will start with
+the compatibility tests.</blockquote>
+<br>
+<BR>
+<h3>
+<a NAME="notes_5_3"></a>Notes for Grid Engine release 5.3</h3>
+&nbsp;
+<blockquote>Following tests may cause trouble. If one of the check functions
+will report an error described in this table, the
+<br>error can be ignored:
+<br>&nbsp;
+<br>&nbsp;
+<center><table BORDER COLS=3 WIDTH="95%" NOSAVE >
+<tr NOSAVE>
+<td NOSAVE><b>Check name</b></td>
+
+<td><b>Check function</b></td>
+
+<td><b>Remarks</b></td>
+</tr>
+
+<tr>
+<td><font size=-1>submit_del</font></td>
+
+<td><font size=-1>submit_del_test</font></td>
+
+<td><font size=-1>A job deleted immediately after submit, may stay in delete
+state. A second qdel call will delete the job. This is a known problem.
+The testsuite provokes this behaviour and reports errors.&nbsp;</font><font size=-1></font>
+<p><font size=-1>The error message is "timeout waiting for end of all jobs"</font></td>
+</tr>
+
+<tr>
+<td><font size=-1>qdel</font></td>
+
+<td><font size=-1>qdel_submit_delete_when_transfered</font></td>
+
+<td><font size=-1>See remarks for submit_del.&nbsp;</font><font size=-1></font>
+<p><font size=-1>Error message is `timeout waiting for job "X" "leeper""`</font></td>
+</tr>
+
+<tr>
+<td><font size=-1>qrsh</font></td>
+
+<td><font size=-1>qrsh_trap</font></td>
+
+<td><font size=-1>This test notifies the user with "test not completely
+implemented" this is only a warning.&nbsp;</font><font size=-1></font>
+<p><font size=-1>The result is listet as "unsupported tests". Any other
+error should not pop up.</font></td>
+</tr>
+</table></center>
+<font size=-1></font>
+<br>&nbsp;</blockquote>
+
+<ul>
+<ul>&nbsp;</ul>
+</ul>
+
+<center>Copyright &copy; 2001 Sun Microsystems Inc. All rights reserved.</center>
+
+</body>
+</html>

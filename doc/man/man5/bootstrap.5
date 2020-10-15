@@ -1,0 +1,280 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\" Copyright (C) 2012 Dave Love, University of Liverpool
+.\"
+.\"___INFO__MARK_END__
+.\" $RCSfile: bootstrap.5,v $     Last Update: $Date: 2011-05-14 14:50:22 $     Revision: $Revision: 1.10 $
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\"
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\" "
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.de MO		\" other man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.de URL
+\\$2 \(laURL: \\$1 \(ra\\$3
+..
+.if \n[.g] .mso www.tmac
+.\"
+.TH BOOTSTRAP 5 2012-04-26 "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+bootstrap \- xxQS_NAMExx bootstrap file
+.\"
+.\"
+.SH DESCRIPTION
+.I bootstrap
+contains parameters that are needed for the startup of xxQS_NAMExx components.
+It is created during the xxqs_name_sxx_qmaster installation.
+Modifying
+.I bootstrap
+in a running system is not supported.
+.PP
+.\"
+.SH FORMAT
+.\"
+The paragraphs that follow provide brief descriptions of the individual
+parameters that comprise the bootstrap configuration for a
+xxQS_NAMExx cluster:
+.\"
+.SS "\fBadmin_user\fP"
+Administrative user account used by xxQS_NAMExx for all internal file
+handling (status spooling, message logging, etc.). Can be used in cases
+where the root account does not have the corresponding file access
+permissions (e.g. on a shared file system without global root read/write
+access).
+.PP
+As a parameter set at installation time, changing \fBadmin_user\fP in
+a running system is not supported. Changing it manually on a shut-down cluster
+is possible, but if access to the xxQS_NAMExx spooling area is interrupted, 
+this will result in unpredictable behavior.
+
+The \fBadmin_user\fP parameter has no default value, but instead it is
+defined during the master installation procedure.
+.\"
+.\"
+.SS "\fBdefault_domain\fP"
+Only needed if your xxQS_NAMExx cluster covers hosts belonging to more than
+a single DNS domain. In this case it can be used if your hostname resolving 
+yields both qualified and unqualified hostnames for the hosts in one of the 
+DNS domains. 
+The value of
+.B default_domain
+is appended to the unqualified hostname to define a fully qualified hostname.
+The 
+.B default_domain
+parameter will have no effect if 
+.B ignore_fqdn
+is set to "true".
+.sp 1
+As a parameter set at installation time, changing
+.B default_domain
+in a running system is not supported. The default for
+.B default_domain
+is "none", in which case it will not be used.
+.\"
+.\"
+.SS "\fBignore_fqdn\fP"
+Ignore fully qualified domain name component of hostnames. Should be set 
+if all hosts belonging to a xxQS_NAMExx cluster are part of a single DNS 
+domain. It is switched on if set to either "true" or "1". Switching it 
+on may solve problems with load reports due to different hostname 
+resolutions across the cluster.
+.sp 1
+As a parameter set at installation time, changing
+.B ignore_fqdn
+in a running system is not supported. The default for
+.B ignore_fqdn
+is "true".
+.\"
+.\"
+.SS "\fBspooling_method\fP"
+Defines how 
+.M xxqs_name_sxx_qmaster 8
+writes its configuration and the status information of a running cluster.
+.PP
+The available spooling methods are \fIberkeleydb\fP and \fIclassic\fP.
+.\"
+.\"
+.SS "\fBspooling_lib\fP"
+The name of a shared library containing the \fBspooling_method\fP to be loaded 
+at 
+.M xxqs_name_sxx_qmaster 8
+initialization time.
+The extension characterizing a shared library (.so, .sl, .dylib etc.) is not contained in \fBspooling_lib\fP.
+.PP
+If \fBspooling_method\fP was set to \fIberkeleydb\fP during
+installation, \fBspooling_lib\fP is set to \fIlibspoolb\fP, and if
+\fIclassic\fP was chosen as \fBspooling_method\fP, \fBspooling_lib\fP
+is set to \fIlibspoolc\fP.
+.PP
+Not all operating systems allow the dynamic loading of libraries. On these
+platforms a certain spooling method (default: berkeleydb) is compiled into the binaries and the 
+parameter \fBspooling_lib\fP will be ignored.
+.PP
+.\"
+.\"
+.SS "\fBspooling_params\fP"
+Defines parameters of the chosen spooling method that are needed to
+initialize the spooling framework, e.g. to open database files.
+.PP
+The spooling parameters value for spooling method \fIberkeleydb\fP is
+.br
+  [\fIrpc_server\fP\fB:\fP]\fIdatabase directory\fP[\fB;\fP<options>]
+.br
+e.g. "/opt/sge/default/spool/qmaster/spooldb" for spooling to a local
+filesystem, or "myhost:sge" for spooling over a Berkeley DB RPC server.
+.PP
+\fIrpc_server\fP is obsolete since recent BDB versions don't support
+RPC and support has been removed from xxQS_NAMExx; it must be replaced
+if it occurs in an old configuration before an upgrade.
+\fIdatabase directory\fP is the directory containing the
+spool files, and \fIoptions\fP is a list of options for the database.
+Currently the only valid value for \fIoptions\fP is \fBprivate\fP,
+which means to open the database with the DB_PRIVATE flag to specify
+that it is only accessed by a single process.  This allows the
+\fIdatabase directory\fP to be on an NFSv3 filesystem (as opposed to
+an NFSv4 one, which is otherwise necessary), but it is unsafe to
+access it with any other program.  In particular, this means that the
+backup script (inst_sge \-bup), similar scripts using the DB
+utilities, 
+.I spooledit
+etc., must not be used while qmaster is running with berkeleydb
+spooling.
+.PP
+For spooling method \fIclassic\fP the spooling parameters take the form
+<common_dir>;<qmaster spool dir>, e.g.
+/sge/default/common;/sge/default/spool/qmaster
+.\"
+.\"
+.SS "\fBbinary_path\fP"
+The directory path where the xxQS_NAMExx binaries reside. It is used within
+xxQS_NAMExx components to locate and startup other xxQS_NAMExx programs.
+.PP
+The path name given here is searched for binaries as well as any directory
+below with a directory name equal to the current operating system
+architecture. Therefore, /usr/xxQS_NAME_Sxx/bin will work for all architectures,
+if the corresponding binaries are located in subdirectories named aix51,
+lx-amd64, lx-x86, hp11, hp11-64, sol-amd64, sol-sparc etc.
+.PP
+The default location for the binary path is
+<xxqs_name_sxx_root>/bin
+.PP
+.\"
+.\"
+.SS "\fBqmaster_spool_dir\fP"
+The location where the master spool directory resides. Only the
+.M xxqs_name_sxx_qmaster 8
+and 
+.M xxqs_name_sxx_shadowd 8
+need to have access to this directory. 
+The master spool directory \- in particular the job_scripts
+directory and the messages
+log file \- may become quite large, depending on the size of the
+cluster and the number of jobs. Be sure to allocate enough disk space
+and regularly clean off the log files, e.g. via a
+.MO cron 8
+job.
+.PP
+As a parameter set at installation time, changing \fBqmaster_spool_dir\fP
+in a running system is not supported.
+.PP
+The default location for the
+master spool directory is <xxqs_name_sxx_root>/<cell>/spool/qmaster.
+.PP
+.\"
+.\"
+.SS "\fBsecurity_mode\fP"
+The security mode defines the set of security features the installed
+cluster is using, as a comma-separated list.
+.PP
+Possible security mode settings are "none", "afs", "dce", "kerberos",
+"csp", "munge" (no additional security, AFS, DCE/GSSAPI, Kerberos/GSSAPI,
+X.509 certificate-based security, and
+.URL http://munge.googlecode.com/ "MUNGE authentication" ).
+Their availability depends on how xxQS_NAMExx was built/installed.
+.PP
+The "dce" and "kerberos" methods
+are nearly equivalent, calling the GSSAPI security modules in the same way,
+whether they were built for Kerberos/GSSAPI or DCE/GSSAPI, except
+that "dce" runs the program
+.I $SGE_ROOT/utilbin/$ARCH/starter_cred
+as a wrapper for the shepherd unless
+.B NO_SECURITY
+is specified in
+.B execd_params
+in
+.M sge_conf 5 .
+.PP
+Only the CSP and MUNGE methods are currently properly functional and
+safe (from the point of view of not exposing credentials generally).
+Both provide user authentication, preventing impersonation of other users.
+CSP requires certificates to be generated for each user and available
+on each host which the user can access; it is appropriate for a
+loosely coupled system, e.g. including desktop systems, particularly
+as it protects the communication stream as well as providing
+authentication.  MUNGE is appropriate in the security domain of a
+tightly coupled system, such as a normal cluster, and allows operation
+with
+.B enforce_user=auto
+(see
+.M sge_conf 5);
+it requires the
+.I munged
+daemon to be running on each host, with a shared secret and doesn't
+encrypt the communication.
+.PP
+.B NB.
+Do not use AFS security without some means of user
+authentication, otherwise it is possible to submit jobs as another
+user and steal their credential from a job running on the same node.
+.\"
+.\"
+.SS "\fBlistener_threads\fP"
+The number of listener threads (defaults set by installation).
+Increasing this and/or \fBworker_threads\fP (below) to use additional
+cores/hardware threads on the master host may improve performance in
+demanding cases.
+.\"
+.\"
+.SS "\fBworker_threads\fP"
+The number of qmaster worker threads (defaults set by installation).
+.\"
+.\"
+.SS "\fBscheduler_threads\fP"
+The number of qmaster scheduler threads (allowed: 0\-1, default set by
+installation: 1, off: 0; see
+.M qconf 1
+\-kt/\-at option).
+.\"
+.\"
+.SS "\fBjvm_threads\fP"
+The number of JVM threads (allowed: 0\-1, default set by installation, off: 0).
+.\"
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

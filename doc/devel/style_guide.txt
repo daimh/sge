@@ -1,0 +1,676 @@
+DRAFT of a Coding Styleguide
+============================
+
+
+1 Introduction
+==============
+
+   1.1 Target group
+   ----------------
+
+      Each developer providing code for SGE followes the rules of this 
+      styleguide.
+
+   1.2 Conventions
+   ---------------
+
+      Each rule in this style guide is part of one of the following categories:
+
+      Category    Description
+      ----------- -----------
+
+      A           ABSOLUTE MUST
+
+                  It is abolutely not allowed to break one of the rules being
+                  part of this category. 
+                  Only those rules are part of the A category which have
+                  a direct impact on stability or security of a software
+                  component.
+
+      M           MUST
+
+                  Each developer has to stick to such rules. A violation
+                  against one of these rules has to be discussed on
+                  'dev@gridengineorg.
+
+      S           SHOULD
+
+                  Rules of this group should only be violated with an
+                  important reason.
+
+      R           RECOMMENTATION
+
+                  Rules part of this category are recomendations.
+
+   1.3 Usage
+   ---------
+      (M)   All Grid Engine developers respect the rules defined in
+            this styleguide. All new code developed conformes to this 
+            styleguide.
+
+      (R)   The Grid Engine source code base contains a high amount of code
+            not yet conforming to the style guide.
+            Whenever existing code pieces are changed, they are made
+            conformant to the style guide.
+
+      (M)   This styleguide will be maintained by all developers of SGE. Each
+            developer can suggest the addition/modification/removal of
+            rules in this styleguide. All modifications of this guide are
+            discussed on 'dev@gridengine.org'.
+
+   1.4 Version
+   -----------
+      
+      Version  Date        Developer      Changes
+      -------- ----------- -------------- ------------------------------------
+      
+      0.1      ?           E. Bablick     Initial version
+                           J. Gabler
+      0.2      11/13/2002  J. Gabler      Review. Added a cull programming rule 
+                                          suggested by A. Haas.
+                                          
+
+2 C language
+============
+
+   2.1 Security
+   ------------
+
+      Buffer Overflow
+
+         (A)   No more additional static buffers are added to the source code to
+               store strings, exchange error messages, concatenate collected
+               information, etc.
+               Instead dynamic strings and the provided access functions are 
+               used (dstring, libs/uti/sge_dstring.h).
+
+      Memory Leaks
+
+         (S)   If functions return strings, make the caller pass a
+               dstring as parameter and use this string as buffer.
+               The alternative - writing to a local buffer and returning a 
+               duplicate (strdup) - often leads to memory leaks.
+               As a side effect this method can show better performance, as the
+               buffer can be reused for multiple calls of a function requiring 
+               a buffer.
+               
+         (M)   If memory is allocated for use in an automatic pointer variable,
+               this is done on demand (as late as possible).
+               No memory is allocated for the initialization of the variable.
+               Initializing with NULL in most cases is the better choice.
+               Thereby memory leaks can be avoided, esp. when the function
+               has multiple exit points, e.g. in error handling.
+               
+
+#if TODO
+      Untrusted data
+
+         ...
+#endif
+      
+
+   2.2 Programming style
+   ---------------------
+      
+      2.2.1 Naming Conventions
+      - - - - - - - - - - - - - 
+
+         General
+
+         (M)   All names are build up with english words.
+         
+         (M)   Names are built up of letters, digits and the underscore 
+               sign ('_').
+
+         (M)   If a name consists of more than a word, all words are separated
+               by an underscore sign ('_').
+
+         (S)   The maximum length for name is 35 characters.
+
+         (M)   All names (of datatypes, constants, functions ...) which have
+               global character and which may not be associated to an object or
+               a whole module begin with with the prefix "sge_" or a 
+               module specific prefix.
+               Examples: 
+                  - cull_pack_descr() 
+                  - sge_peopen()
+
+         (M)   All names (of datatypes, constants, functions ...) that can be
+               associated to an object begin with the objects name.
+               Examples:
+                  - job_search_task()
+                  - range_parse_from_string()
+                  - range_is_empty()
+                  - queue_initial_state())
+
+         (M)   Names that can be associated to lists of objects contain the 
+               phrase "_list_" in between the object name and the end part of 
+               the name.
+               Examples:
+                  - range_list_calculate_union_set()
+                  - job_list_add_job()
+
+         Object names
+
+         (M)   Object names contain only letters and the underscore sign ('_').
+
+         (S)   They are short.
+
+         (M)   Following list shows some of the objects and their corresponding
+               names within SGE.
+
+               Prefix         Object
+               -----------    ---------------------------
+               answer         Answer object
+               cal            Calendar object
+               ckpt           Checkpointing object
+               cmplx          Complex object
+               cmplx_attr     Complex Attribute object
+               ja_task        Job array task object 
+               job            Job object
+               pe             Parallel Environment object
+               pe_task        PE task object
+               queue          Queue object
+               range          Id range object
+               schedd_conf    Scheduler Configuration object
+               var            Variable object
+
+         Preprocessor Definitions
+         
+         (M)   Names interpreted by the prepocessor contain only capital letters
+               and the underscore sign ('_'). 
+
+         (M)   Names preventing the preprocessor from including header files
+               twice or multiple times begin with "__" and  end with "_H".
+               Example:
+                  #ifndef __SGE_RANGE_H
+                  #define __SGE_RANGE_H
+                  ...
+                  #endif /* __SGE_RANGE_H */
+
+         Datatypes
+
+         (M)   Type definitions contain only lower case letters and the 
+               underscore sign ('_'). 
+
+         (S)   They end with "_t".
+
+         Constants/Enums
+
+         (M)   Names of constants or enum values contain only capital letters 
+               and the underscore sign ('_').
+
+         Variables
+
+         (M)   Names of variables contain only letters and the underscore sign 
+               ('_').
+
+         (S)   Global variables begin with the prefix "GLOBAL_"
+
+         (S)   Names of global variables are expressive.
+
+         (R)   Names of local variables are short.
+
+#if TODO
+         Functions
+
+         ...
+#endif
+
+         Functions which might be interpreted as 'methods'
+
+         (M)   Function pairs which primarily read or write an attribute
+               of an object begin with "get_" or "set_" in its
+               main name.
+               Examples:
+                  - var_list_get_string()
+                  - var_list_set_string()
+
+         (M)   Functions which primarily check a certain state and upon
+               the state return true or false contain the phrase
+               "is_" or "has_" in their name.
+               Examples:
+                  - job_is_array()
+                  - job_has_tasks()
+      
+         Modules
+
+         (M)   Filenames of modules and their corresponding headerfiles
+               are be build up of lower case letters and the underscore sign 
+               ('_').
+
+         (S)   All sourcefiles have the prefix "sge_".
+
+         (M)   The basename of a source file and its corresponding header file
+               are equivalent.
+               Examples:
+                  - sge_job.h, sge_job.c
+                  - sge_queue.h, sge_queue.c
+
+         (M)   The extension of C source and header files is ".c" and ".h"
+
+      2.2.2 Module Design
+      - - - - - - - - - -
+
+         (M)   Functions, global variables are declared in a header file 
+               whereas the implementation part is put into a source file. 
+               There are following exceptions:
+                  a) Test applications can be put completely into a sourcefile.
+                  b) The main() function does not need a declaration. 
+                  c) Functions that will only be called locally in a module are
+                     declared locally in the sourcefile.
+
+         (S)   Structure of header files:
+
+                  1) #ifdef - to prevent multiple interpretation of declararion
+                  2) Copyright Comment
+                  3) Inludes
+                  4) an ADOC header that gives an introduction
+                     to the modules purpose and contents
+                  5) Preprocessor definitions with ADOC comments
+                  6) Enum and type definitions with ADOC comments
+                  7) Declaration of global variables
+                  8) Declaration of functions
+                  9) #endif (see 1)
+
+         (S)   Structure of source files:
+
+                  1) Copyright Comment
+                  2) Inludes
+                     a) System includes
+                     b) includes of Grid Engine library modules
+                     c) includes local to the component (directory)
+                     d) include of message catalog headers
+                     e) include of headerfile for this source file
+                  3) Global ADOC comments
+                  4) Private preprocessor definitions with ADOC comments
+                  5) Private type definitions with ADOC comments
+                  6) Private enum definitions with ADOC comments 
+                  8) Definition of global variables with ADOC comment
+                  7) Static (module global) variables with ADOC comment
+                  8) Declaration of static functions with ADOC comment
+                  9) Definition of functions, each function has an individual
+                     ADOC comment
+               
+         Copyright Comment
+      
+         (M)   Each file (sourcefile, headerfile, makefile) begins
+               with a copyright comment. (find an example of a copyright 
+               comment in "source/libs/gdi/version.c")
+
+         (M)   Each "Sun Microsystems" copyright comment is
+               introduced by the comment "/*___INFO__MARK_BEGIN__*/" and 
+               finished with following comment "/*___INFO__MARK_END__*/".
+
+         Includes
+
+         (S)   Headerfiles are included in the following order:
+
+               1) System inludes
+               2) 3rd party includes
+               3) SGE includes (Grid Engine libraries)
+               4) includes local to the component (directory)
+               5) Includes of the own module
+
+               For technical reasons the order might be different but then
+               the reason has to be explained explicitely with a
+               "special comment"
+
+      2.2.3 Programming Techniques
+      - - - - - - - - - - - - - - -
+
+         Constants
+
+         (S)   enums are used instead of defines where possible.
+
+         (S)   typedefs are used where possible, e.g. for enums.
+               This allows the compiler to do type checks, many errors
+               can already be found at compile time.
+
+         CULL objects
+
+         (M)   CULL lists are created "on demand" (as late as possible, 
+               see also the section about Memory Leaks).
+               There is a set of functions that faciliates this policy:
+               lSetElemStr, lSetSubStr, lSetElemUlong, ...
+         
+         (S)   CULL object types are defined in separate header files.
+               These header fieles are named "sge_<type>L.h".
+               Object type specific enums, typedefs and access functions are 
+               declared in a module "sge_<type>.h", the corresponding function 
+               definitions are in a source module "sge_<type>.c".
+               Examples:
+                  - sge_jobL.h, sge_job.h, sge_job.c
+                  - sge_queueL.h, sge_queue.h, sge_queue.c
+
+         Data types
+
+         (R)   Data types are strictly distinguished.
+               NULL is explicitly tested.
+               Conditions have the type boolean.
+               Examples:
+                  /* "traditional" C */   |  /* preferred style */
+                                          |
+                  lListElem queue;        |  lListElem *queue;
+                  queue = ...             |  queue = ...
+                  if(!queue) {            |  if(queue == NULL) {
+                     ...                  |     ...
+                  }                       |  }
+                                          |
+                  if(!strcmp(a, b) {      |  if(strcmp(a, b) == 0) {
+                     ...                  |     ...
+                  }                       |  }
+                                          |
+               Reasons:
+                  - This policy makes transitions of code to other programming 
+                    languages much easier. 
+                    Example: According to the c++ standard, NULL is not 
+                    necessarily defined to have the value 0.
+                  - Modern programming languages like Java explicitly require
+                    this coding style.
+                  - It makes code more readable.
+
+         Error handling
+
+         (M)   Library functions do not do any error output to stderr (using 
+               macros like ERROR or WARNING).
+               
+               Functions in libuti can have a dstring as parameter that will be 
+               used to return error messages. The dstring is the first parameter
+               of a function.
+
+               Functions in all libs depending on gdilib (and gdilib itself) 
+               take an answer list as parameter that can be populated by the 
+               function as errors or warnings occur, or to return informational 
+               messages.
+               For object specific functions (having a "this-pointer" as first 
+               parameter, the answer list is the second parameter, else the 
+               first one).
+               In libs/gdi/sge_answer.h functions are declared that allow for an
+               easy creation of answers.
+
+         I18N
+
+         (M)   All messages that can be output by Grid Engine (except debug 
+               messages, DPRINTF), are defined in special header files.
+               Each component (directory) has its own messages file, its name is
+               built as "msg_<component>.h", e.g. "msg_utilib.h" or 
+               "msg_qmaster.h".
+
+         (S)   There is one global messages file ("common/msg_common.h"), that 
+               contains general error messages like "out of memory", "cannot 
+               write to file" etc., that would otherwise be duplicated for each 
+               component.
+
+         (S)   Each module only includes the common messages file and the one of
+               its component (directory).
+
+         System calls and standard C library functions
+         
+         (S)   For a high number of system calls and C library functions there 
+               exist Grid Engine equivalents in libuti, that do additional error
+               checking and hide operating system specific behaviour. 
+               These functions are always prefered over the original functions.
+
+#if TODO
+         - Tabelle der bisherigen answer return werte
+
+         Initialisation
+
+         ? operator
+
+         Zusammengesetze Befehle
+   
+         Debug Output
+         - DENTER/DEXIT/Varaibleninitialisierung
+
+
+         Static Buffers
+
+         Thread safety
+         - global variables
+         - static variables 
+
+         Environment Variables 
+
+         Comments
+         - auskommentierung von code
+
+#endif
+
+   2.3 Format
+   ----------
+      General
+      
+         (M)   Tabs are not used within source and header files.
+
+         (M)   3 spaces are used to indent source code.
+
+         (M)   Lines have to be wrapped after the 79th character.
+
+         (R)   The script "gridengine/source/scripts/format.sh" is used to 
+               format the C source code automatically. 
+               Automated sourcecode reformating can be disabled for short code 
+               pieces with the comment "/* *INDENT-OFF* */".  
+               "/* *INDENT-ON* */" reenables the format mechanism.
+
+      Preprocessor elements
+        
+         Here are some examples:
+ 
+            #if SOLARIS64
+            #  include <sys/some_special_header.h>
+            #endif
+
+            #define SGE_MIN_USAGE 1.0
+      
+            #define REF_SET_TYPE(ref, cull_attr, ref_attr, value, function) \
+            { \
+               if ((ref)->ja_task) { \
+                  (function)((ref)->ja_task, cull_attr, (value)); \
+               } else { \
+                  (ref_attr) = (value); \
+               } \
+            } 
+
+         (M)   "#" of a preprocessor tag is put in column 0 (ANSI C).
+               The keyword of the tag is indented.
+
+         (M)   Constant names and their value are put into one line.
+
+         (M)   Macro definitions are formatted similar to function definitions.  
+
+      Functions
+
+         Functions have following format:
+
+            static int 
+            queue_weakclean(lListElem *qep, lList **answer, 
+                            u_long32 force, char *user,
+                            char *host, int isoperator, 
+                            int isowner) 
+            { 
+               ...
+            }
+
+         (M)   Functions start with qualifier and return type. 
+
+         (M)   There is no space between the function name and the 
+               open paraentheses.
+
+         (M)   If the arguments do not fit into one line, the arguments are 
+               continued in a new line under the first argument of the previous 
+               line.
+
+         (M)   Functions which do not accept parameters contain the keyword 
+               "void" in its declatation and definition.
+
+         (M)   The brace in the function definition, is in column zero again. 
+               Statements inside the function body are idented like statements 
+               inside a compound statement. 
+
+      Statements
+   
+         Statements have following format:
+
+            for (i = 0; i < MAX; i++) {
+               while (1) {
+                  do {
+                     if (i == 1) {
+                        switch (i) {
+                        case 1, 2:
+                           ...
+                           break;
+                        case 3:
+                           ...
+                           break;
+                        default:
+                           ...
+                        }
+                     } else if (i == -5) {
+                        ...
+                     } else {
+                        only_one_function_call();
+                     }
+                  } while (!found);
+               }
+            }
+
+         (M)   In contrast to functions, the opening left brace of a
+               compound statement is at the end of the line beginning
+               the compound statement and the closing right brace stands
+               alone on a line.
+
+         (M)   There is one space between the keyword and the open
+               parentheses. 
+
+         (M)   Braces are in the same line as the keywords.
+
+         (S)   All blocks are enclosed in braces, even if the block only 
+               consists of a single line.
+
+         (M)   Function calls do not contain spaces between the function 
+               name and the parentheses. 
+
+         (S)   The format of a function prototype is equivalent with
+               the function definition.
+ 
+      Declarations
+
+         Declarartions have following format:
+
+            static int sge_set_ls_fds(lListElem *this_ls, fd_set *fds)
+            {
+               int i, k, l;
+               int ret = -1;                               /* return value */
+               int name[3] = { LS_out, LS_in, LS_err };
+               FILE *file = NULL;                          /* load sensor fd */
+   
+               first_statement();
+               ...
+
+         (M)   Multiple variables of same type are declared in one line. 
+
+         (M)   Each pre-initialized variable has its own line. 
+
+         (M)   The asterik of a pointer declaration is part of the 
+               variable name. 
+
+         (M)   One space is put in between the type name and the asterisk of
+               a pointer declaration.
+
+         (M)   Function parameters are commented in the functions ADOC comment.
+
+         (R)   Local variable declarations are commented at the end of the 
+               declaration. 
+           
+         (R)   Variable declarations are done as local as possible.
+               Example:
+                  lListElem *queue;                      /* local in function */
+
+                  for_each(queue, Master_Queue_List) {
+                     const char *queue_name;             /* local in block */
+
+                     queue_name = lGetString(QU_qname);
+                     ...
+                  }   
+
+      Comments
+
+         (M)   Comments are inserted in front of the code block which they 
+               describe or behind the code but starting in the same line.
+               Example:
+                  /* 
+                   * comment for the following compound element
+                   */
+                  {
+                     int name;      /* description of name */
+                     char *pattern; /*
+                                     * more detailed description of 
+                                     * the variable pattern.
+                                     */
+                  }
+         
+         (M)   Line comments like this: /* line comment */
+
+         (M)   Block comments look like this:
+
+               /*
+                * block comment block comment block comment
+                * block comment block comment block comment
+                */
+
+         Special Comments
+            
+            (M)   Special comments are used within the sourcecode
+                  to mark certain code sections. 
+
+                  SpecialComment := "/*" Initials ":" Keyword 
+                                    [ " (" IssueNumber ")" ] ":"
+                                    Text "*/" .
+
+                  Initials := '2 character initials, same as in Changelog' .
+         
+                  Keyword := "TODO" | "DEBUG" .
+
+                  IssueNumber := 'Issuezilla id'
+
+                  Text := 'Descriptional text'.
+
+                  Examples:
+                     - during the development phase of a certain feature, 
+                       one might want to mark tasks still to be finished:
+                           /* JG: TODO: improve error handling */
+                     - during development a code section is detected, that can
+                       cause problems or can be improved, but the change has 
+                       nothing to do with the current development and the change
+                       and esp. testing is non trivial: 
+                           /* JG: TODO: args should be dynamically allocated */
+                     - a bug or enhancement request is filed in issuezilla and
+                       the corresponding code section shall be marked for later 
+                       use:
+                           /* JG: TODO (254): use function creating path */
+   
+         ADOC Comments 
+
+            (M)   ADOC comments are used to describe language elements.
+                  These type of comments are extracted from the sourcecode
+                  using the adoc tool to generate pdf/html/GNU Info ...
+                  documentation.
+                  "doc/devel/adoc.html" describes more details about ADOC tool
+                  and the format of ADOC comments to be used. 
+
+3 Software Development
+======================
+
+   3.1 Process
+   -----------
+
+#if TODO
+      IssueZilla
+      Review
+      Quality Assurance
+      Test suite
+      use dbx and/or insure
+      ...
+#endif

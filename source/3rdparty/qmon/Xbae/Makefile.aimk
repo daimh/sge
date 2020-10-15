@@ -1,0 +1,109 @@
+# Changes by AA 20.7.95
+# A changed version of the Xmt Makefile.simple for
+# use with aimk 
+# The objects are build in the corresponding arch directory
+# The CFLAGS,XCFLAGS and the SDIR variable are delivered by aimk
+
+XBAE_SDIR = ../Xbae
+XBAE_DEFINES = -DALLOW_COLUMN_RESIZE -DDRAW_RESIZE_SHADOW -I../Xmt310
+
+XBAE_SRCS = \
+	$(XBAE_SDIR)/Actions.c \
+	$(XBAE_SDIR)/Caption.c \
+	$(XBAE_SDIR)/Cell.c \
+	$(XBAE_SDIR)/Clip.c \
+	$(XBAE_SDIR)/Converters.c \
+	$(XBAE_SDIR)/MCreate.c \
+	$(XBAE_SDIR)/Draw.c \
+	$(XBAE_SDIR)/Matrix.c \
+	$(XBAE_SDIR)/Methods.c \
+	$(XBAE_SDIR)/Public.c \
+	$(XBAE_SDIR)/ScrollMgr.c \
+	$(XBAE_SDIR)/Shadow.c \
+	$(XBAE_SDIR)/Utils.c \
+	$(XBAE_SDIR)/Input.c 
+
+XBAE_OBJS =  \
+	Actions.o \
+	Caption.o \
+	Cell.o \
+	Clip.o \
+	Converters.o \
+   MCreate.o \
+   Draw.o \
+	Matrix.o \
+	Methods.o \
+	Public.o \
+	ScrollMgr.o \
+   Shadow.o \
+	Utils.o \
+   Input.o
+
+XBAE_HEADERS = \
+	$(XBAE_SDIR)/Actions.h \
+	$(XBAE_SDIR)/Caption.h \
+	$(XBAE_SDIR)/CaptionP.h \
+	$(XBAE_SDIR)/Cell.h \
+	$(XBAE_SDIR)/CellP.h \
+	$(XBAE_SDIR)/Clip.h \
+	$(XBAE_SDIR)/ClipP.h \
+	$(XBAE_SDIR)/Converters.h \
+	$(XBAE_SDIR)/MCreate.h \
+	$(XBAE_SDIR)/Macros.h \
+	$(XBAE_SDIR)/Matrix.h \
+	$(XBAE_SDIR)/MatrixP.h \
+	$(XBAE_SDIR)/Methods.h \
+	$(XBAE_SDIR)/ScrollMgr.h \
+	$(XBAE_SDIR)/Utils.h \
+	$(XBAE_SDIR)/Shadow.h \
+	$(XBAE_SDIR)/Draw.h \
+	$(XBAE_SDIR)/InputP.h \
+	$(XBAE_SDIR)/Input.h \
+	$(XBAE_SDIR)/patchlevel.h
+
+XBAELIB     = libXbae$(LIBEXT)
+
+all: $(XBAELIB)
+
+libXbae.a: $(XBAE_OBJS) 
+	$(AR) $(ARFLAGS) libXbae.a $(XBAE_OBJS) 
+	$(RANLIB) libXbae.a
+
+libXbae$(SHAREDEXT): $(XBAE_OBJS) $(XMTLIB)
+	$(SHAREDLD) $(XLFLAGS) $(SHARED_LFLAGS) -L. -o libXbae$(SHAREDEXT) $(XBAE_OBJS) -lXmt $(XLIBS)
+
+Xbae_clean: 
+	$(RM) $(XBAE_OBJS) libXbae.a libXbae$(SHAREDEXT)
+
+#.c.o: $(SRCS) $(HEADERS)
+#	$(CC) -c $(CFLAGS) $*.c 
+
+
+Actions.o:		      $(XBAE_SDIR)/Actions.c $(XBAE_HEADERS)
+	$(CC) -c $(XBAE_DEFINES) $(CFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XBAE_SDIR)/Actions.c 
+Caption.o:		   $(XBAE_SDIR)/Caption.c $(XBAE_HEADERS)
+	$(CC) -c $(XBAE_DEFINES) $(CFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XBAE_SDIR)/Caption.c 
+Cell.o:     $(XBAE_SDIR)/Cell.c $(XBAE_HEADERS)
+	$(CC) -c $(XBAE_DEFINES) $(CFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XBAE_SDIR)/Cell.c 
+Clip.o:		$(XBAE_SDIR)/Clip.c $(XBAE_HEADERS)
+	$(CC) -c $(XBAE_DEFINES) $(CFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XBAE_SDIR)/Clip.c 
+Converters.o:		$(XBAE_SDIR)/Converters.c $(XBAE_HEADERS)
+	$(CC) -c $(XBAE_DEFINES) $(CFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XBAE_SDIR)/Converters.c 
+MCreate.o:		$(XBAE_SDIR)/MCreate.c $(XBAE_HEADERS)
+	$(CC) -c $(XBAE_DEFINES) $(CFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XBAE_SDIR)/MCreate.c 
+Draw.o:		      $(XBAE_SDIR)/Draw.c $(XBAE_HEADERS)
+	$(CC) -c $(XBAE_DEFINES) $(CFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XBAE_SDIR)/Draw.c 
+Matrix.o:	$(XBAE_SDIR)/Matrix.c $(XBAE_HEADERS)
+	$(CC) -c $(XBAE_DEFINES) $(CFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XBAE_SDIR)/Matrix.c 
+Methods.o:		$(XBAE_SDIR)/Methods.c $(XBAE_HEADERS)
+	$(CC) -c $(XBAE_DEFINES) $(CFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XBAE_SDIR)/Methods.c 
+Public.o:		   $(XBAE_SDIR)/Public.c $(XBAE_HEADERS)
+	$(CC) -c $(XBAE_DEFINES) $(CFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XBAE_SDIR)/Public.c 
+ScrollMgr.o:		$(XBAE_SDIR)/ScrollMgr.c $(XBAE_HEADERS)
+	$(CC) -c $(XBAE_DEFINES) $(CFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XBAE_SDIR)/ScrollMgr.c 
+Shadow.o:		      $(XBAE_SDIR)/Shadow.c $(XBAE_HEADERS)
+	$(CC) -c $(XBAE_DEFINES) $(CFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XBAE_SDIR)/Shadow.c 
+Utils.o:		      $(XBAE_SDIR)/Utils.c $(XBAE_HEADERS)
+	$(CC) -c $(XBAE_DEFINES) $(CFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XBAE_SDIR)/Utils.c 
+Input.o:		      $(XBAE_SDIR)/Input.c $(XBAE_HEADERS)
+	$(CC) -c $(XBAE_DEFINES) $(CFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(XBAE_SDIR)/Input.c 

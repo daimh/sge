@@ -1,0 +1,251 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Scheduler Configuration 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*sconf_shell.allowShellResize:      True
+Qmon*sconf_shell.resizePolicy:          RESIZE_ANY
+Qmon*sconf_shell.xmtChildren:  unmanaged XmtLayout sconf;
+
+Qmon*sconf.autoUnmanage:    False
+Qmon*sconf.dialogTitle:  @{QMON +++ Scheduler Configuration}
+
+Qmon*sconf.xmtChildren: \
+      XmPushButton      sconf_ok, sconf_cancel, sconf_help, sconf_main_link; \
+      Folder            sconf_folder;
+
+Qmon*sconf.layout: \
+   Fixed Shadowed Out 4 2 LREvenSpaced Row sconfcontrol_title { \
+      Fixed Centered sconf_main_link \
+      Centered Color "$title_fg" "@{@fBScheduler Configuration}" \
+   } \
+   # \
+   Row { \
+      sconf_folder \
+      Fixed Shadowed Col { \
+         Fixed sconf_ok \
+         Fixed sconf_cancel \
+         Fixed sconf_help \
+      } \
+   }
+
+Qmon*sconf.sconf_ok.labelString:            @{Ok}
+Qmon*sconf.sconf_cancel.labelString:        @{Cancel}
+Qmon*sconf.sconf_help.labelString:          @{Help}
+
+Qmon*sconf*sconf_main_link.labelType:          PIXMAP
+Qmon*sconf*sconf_main_link.labelPixmap:        logo
+Qmon*sconf*sconf_main_link.shadowThickness:    1
+Qmon*sconf*sconf_main_link.highlightThickness: 0
+Qmon*sconf*sconf_main_link.marginHeight:       0
+Qmon*sconf*sconf_main_link.marginWidth:        0
+
+Qmon*sconf.sconf_folder.xmtChildren: \
+   XmtLayout   sconf_general, \
+               sconf_special;
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! General Parameters 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*sconf_general.tabLabel:  @{@fBGeneral Parameters}
+Qmon*XmtInputField.marginWidth:      2
+Qmon*XmtInputField.marginHeight:     2
+
+Qmon*sconf_general.xmtChildren: \
+   InputField     sconf_algorithm = algorithm, \
+                  sconf_schedule_interval = schedule_interval, \
+                  sconf_sc_params = sc_params, \
+                  sconf_reprioritize_interval = reprioritize_interval, \
+                  sconf_default_duration = default_duration, \
+                  sconf_maxujobs = maxujobs, \
+                  sconf_job_range, \
+                  sconf_load_formula = load_formula; \
+   XmtChooser     sconf_queue_sort_method = queue_sort_method; \
+   XmtChooser     sconf_job_info; \
+   Spinbox        sconf_flush_submit_secs = flush_submit_secs, \
+                  sconf_flush_finish_secs = flush_finish_secs, \
+                  sconf_max_reservation = max_reservation; \
+   XmPushButton   sconf_schedule_intervalPB, sconf_reprioritize_intervalPB, \
+                  sconf_default_durationPB;
+
+
+Qmon*sconf_general.layout: \
+   Row { \
+      Col { \
+         Fixed Caption tl "@{@fBAlgorithm}" sconf_algorithm \
+         Row { \
+            Fixed Centered Caption tl "@{@fBSchedule Interval}" \
+                  12 em sconf_schedule_interval \
+            Fixed FlushBottom sconf_schedule_intervalPB \
+            <> \
+         } \
+         Row { \
+            Fixed Centered Caption tl "@{@fBReprioritize Interval}" \
+                  12 em sconf_reprioritize_interval \
+            Fixed FlushBottom sconf_reprioritize_intervalPB \
+            <> \
+         } \
+         Row { \
+            Fixed Centered Caption tl "@{@fBDefault Duration}" \
+                  12 em sconf_default_duration \
+            Fixed FlushBottom sconf_default_durationPB \
+            <> \
+         } \
+         Equal LCREven Row { \
+            Fixed Centered Caption tl "@{@fBMax Jobs/User}" sconf_maxujobs \
+            <> \
+         } \
+         Equal LCREven Row { \
+            Fixed Centered sconf_queue_sort_method \
+            <> \
+         } \
+         Caption tl "@{@fBJob Scheduling Information}" Row { \
+            Fixed Centered sconf_job_info \
+            Centered sconf_job_range \
+         } \
+         Fixed Caption tl "@{@fBLoad Formula}" sconf_load_formula \
+         Fixed Caption tl "@{@fBFlush Submit Seconds}" sconf_flush_submit_secs \
+         Fixed Caption tl "@{@fBFlush Finish Seconds}" sconf_flush_finish_secs \
+         Fixed Caption tl "@{@fBMaximum Reservation}" sconf_max_reservation \
+         Fixed Caption tl "@{@fBParams}" sconf_sc_params \
+      } \
+   }
+
+!Qmon*sconf_general*sconf_schedule_interval.columns:           25
+!Qmon*sconf_general*sconf_reprioritize_interval.columns:       25
+!Qmon*sconf_general*sconf_load_formula.columns:                25
+!Qmon*sconf_general*sconf_algorithm.columns:                   25
+
+Qmon*sconf_general*sconf_schedule_intervalPB.labelType:        PIXMAP
+Qmon*sconf_general*sconf_schedule_intervalPB.labelPixmap:      time
+Qmon*sconf_general*sconf_reprioritize_intervalPB.labelType:    PIXMAP
+Qmon*sconf_general*sconf_reprioritize_intervalPB.labelPixmap:  time
+Qmon*sconf_general*sconf_default_durationPB.labelType:         PIXMAP
+Qmon*sconf_general*sconf_default_durationPB.labelPixmap:       time
+
+
+Qmon*sconf_general*sconf_flush_submit_secs.minimum: 0
+Qmon*sconf_general*sconf_flush_submit_secs.spinboxStyle: SPINBOX_STACKED_RIGHT
+Qmon*sconf_general*sconf_flush_submit_secs.buttonSizeFixed: True
+Qmon*sconf_general*sconf_flush_submit_secs.columns: 5
+Qmon*sconf_general*sconf_flush_submit_secs.spinboxUseClosestValue: True
+Qmon*sconf_general*sconf_flush_submit_secs.value: 0
+Qmon*sconf_general*sconf_flush_submit_secs.incrementLarge: 10
+
+Qmon*sconf_general*sconf_flush_finish_secs.minimum: 0
+Qmon*sconf_general*sconf_flush_finish_secs.spinboxStyle: SPINBOX_STACKED_RIGHT
+Qmon*sconf_general*sconf_flush_finish_secs.buttonSizeFixed: True
+Qmon*sconf_general*sconf_flush_finish_secs.columns: 5
+Qmon*sconf_general*sconf_flush_finish_secs.spinboxUseClosestValue: True
+Qmon*sconf_general*sconf_flush_finish_secs.value: 0
+Qmon*sconf_general*sconf_flush_finish_secs.incrementLarge: 10
+
+Qmon*sconf_general*sconf_max_reservation.minimum: 0
+Qmon*sconf_general*sconf_max_reservation.spinboxStyle: SPINBOX_STACKED_RIGHT
+Qmon*sconf_general*sconf_max_reservation.buttonSizeFixed: True
+Qmon*sconf_general*sconf_max_reservation.columns: 5
+Qmon*sconf_general*sconf_max_reservation.spinboxUseClosestValue: True
+Qmon*sconf_general*sconf_max_reservation.value: 0
+Qmon*sconf_general*sconf_max_reservation.incrementLarge: 10
+
+Qmon*sconf_general*sconf_queue_sort_method.chooserType: ChooserOption
+Qmon*sconf_general*sconf_queue_sort_method.strings: \
+   "@{Sort by load}", \
+   "@{Sort by sequence number}"
+
+Qmon*sconf_general*sconf_job_info.chooserType: ChooserOption
+Qmon*sconf_general*sconf_job_info.strings: \
+   "@{False}", \
+   "@{True}", \
+   "@{Job Range}"
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Special Parameters 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*sconf_special.tabLabel:  @{@fBLoad Adjustment}
+Qmon*sconf_special.xmtChildren: \
+   Matrix_2xN     sconf_load_adjustments = job_load_adjustments; \
+   InputField     sconf_lad_time = load_adjustment_decay_time; \
+   XmPushButton   sconf_lad_timePB;
+
+Qmon*sconf_special.layout: \
+   Fixed Caption tl "@{@fBDecay Time}" Row { \
+      Fixed Centered 12 em sconf_lad_time \
+      FlushBottom sconf_lad_timePB \
+      <> \
+   } \
+   <> \
+   sconf_load_adjustments \
+   <>
+
+Qmon*sconf_special*sconf_lad_timePB.labelType:          PIXMAP
+Qmon*sconf_special*sconf_lad_timePB.labelPixmap:        time
+Qmon*sconf_special*sconf_load_namePB.labelType:         PIXMAP
+Qmon*sconf_special*sconf_load_namePB.labelPixmap:       qask
+
+
+Qmon*sconf_special*sconf_load_adjustments.buttonLabels: True
+Qmon*sconf_special*sconf_load_adjustments.rows: 20
+Qmon*sconf_special*sconf_load_adjustments.visibleRows: 20
+Qmon*sconf_special*sconf_load_adjustments.columns: 2
+Qmon*sconf_special*sconf_load_adjustments.columnWidths: 15, 15
+Qmon*sconf_special*sconf_load_adjustments.columnMaxLengths: 100, 100
+Qmon*sconf_special*sconf_load_adjustments.columnLabels:       @{Load}, @{Value}
+Qmon*sconf_special*sconf_load_adjustments.gridType:          GRID_CELL_SHADOW
+Qmon*sconf_special*sconf_load_adjustments.cellShadowType:     SHADOW_IN
+Qmon*sconf_special*sconf_load_adjustments.cellShadowThickness: 1
+Qmon*sconf_special*sconf_load_adjustments.translations: #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:  SelectCell(toggle)\n\
+         <Btn1Down>:   SelectCell(begin)\n\
+         Ctrl<Btn2Down>: ResizeColumns()\n\
+         <Btn1Up>(2):      SelectCell(edit)
+Qmon*sconf_special*sconf_load_adjustments.clip.translations: #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:  SelectCell(toggle)\n\
+         <Btn1Down>:   SelectCell(begin)\n\
+         Ctrl<Btn2Down>: ResizeColumns()\n\
+         <Btn1Up>(2):      SelectCell(edit)
+
+Qmon*sconf_special*sconf_load_adjustments.xmtChildren: unmanaged XmtPopupMenu sconf_menu;
+Qmon*sconf_special*sconf_load_adjustments*sconf_menu.menuPost: <Btn3Down>
+
+Qmon*sconf_special*sconf_load_adjustments*sconf_menu.items: \
+   Title "@{@fBOperations}"; \
+   ------;\
+   "@{_Delete}" [Ctrl-D] DeleteLines(*sconf_load_adjustments);
+
+Qmon*sconf_special*sconf_load_adjustments.enterCellCallback: \
+      ColumnZeroNoEdit();
+
+Qmon*sconf_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+

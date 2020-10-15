@@ -1,0 +1,213 @@
+#!/bin/sh
+#
+# run command remotely by using "rsh" or "ssh"
+#
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+PATH=/bin:/usr/bin:/usr/local/bin
+
+# "$SGE_ROOT" and $SGE_CELL (if other than "default") must be set in current
+# environment.
+#
+
+if [ "$SGE_ROOT" = "" ]; then
+   echo environment variable \"\$SGE_ROOT\" not set. Exit.
+   exit 1
+fi
+
+if [ "$SGE_ROOT" = "/" ]; then
+   echo environment variable \"\$SGE_ROOT\" cannot be set to \"/\". Exit.
+   exit 1
+fi
+
+if [ ! -f "$SGE_ROOT/util/arch" ]; then
+   echo
+   echo ERROR: The shell script \"$SGE_ROOT/util/arch\" does not exist.
+   echo Please verify your distribution and restart this script. Exit.
+   echo
+   exit 1
+fi
+ 
+if [ ! -f $SGE_ROOT/util/arch_variables ]; then
+   echo
+   echo ERROR: Missing shell script \"$SGE_ROOT/util/arch_variables\".
+   echo Please verify your distribution and restart this script. Exit.
+   echo
+   exit 1
+fi
+
+. $SGE_ROOT/util/arch_variables
+
+get_all_hosts()
+{
+   # have to run on the master host, as we might have 
+   # local spool directories, or BDB spooling
+   master_host=`cat $SGE_ROOT/$SGE_CELL/common/act_qmaster`
+   if [ "$HOST" = "" ]; then
+      HOST=`hostname`
+   fi
+   
+   if [ "$master_host" != "$HOST" ]; then
+      echo "ERROR: sgeremoterun -all has to be called on the master host. Exit." >&2
+      echo >&2
+      exit 1
+   fi
+
+   spooling=`grep spooling_method $SGE_ROOT/$SGE_CELL/common/bootstrap | awk '{ print $2 }'`
+   if [ "$spooling" = "classic" ]; then
+      qma_spool_dir=`grep qmaster_spool_dir $SGE_ROOT/$SGE_CELL/common/bootstrap | awk '{ print $2 }'`
+      hosts=`ls $qma_spool_dir/exec_hosts | egrep -v "template|global"`
+   else
+      hosts=`$SGE_ROOT/utilbin/$ARCH/spooledit list | grep "EXECHOST" | cut -d : -f 2 | egrep -v "template|global"`
+   fi
+}
+
+
+
+if [ $# -lt 2 -o "$1" = "-h" -o "$1" = "-help" ]; then
+   echo 
+   echo "Remotely execute commands via \"rsh\" or \"ssh\"."
+   echo
+   echo "usage: $0 [-noexec] [-ssh] [-all] [-noqmaster] [host1]... -- command"
+   echo "   -noexec    do nothing, just print what would be done"
+   echo "   -ssh       uses \"ssh\" instad of \"rsh\""
+   echo "   -sshpath   path where ssh is installed of not in $PATH"
+   echo "   -all       run command on all execution hosts found in qmaster spool dir."
+   echo "   -noqmaster do not run command on current qmaster host"
+   echo
+   exit 1
+fi
+
+if [ "$SGE_CELL" = "" ]; then
+   SGE_CELL=default
+   export SGE_CELL
+fi
+
+noexec=false
+cmd=rsh
+qmaster=true
+CMD=""
+hosts=""
+done=false
+
+
+whoseargs="args"
+while [ "$1" != "" -a $done = false ]; do
+   case "$1" in
+   --)
+      whoseargs="cmd" 
+      ;;
+   *)
+      if [ "$whoseargs" = "args" ]; then
+         case "$1" in
+         -noexec)
+            noexec=true
+            ;;
+         -ssh)
+            cmd=ssh
+            ;;
+         -sshpath)
+            PATH=$PATH:$2
+            shift
+            ;;
+         -all)
+            get_all_hosts
+            ;;
+         -noqmaster)
+            qmaster=false
+            ;;
+         -*)
+            echo "unknown option: $1"
+            exit 1
+            ;;
+         *)
+            hosts="$hosts $1"
+            ;;
+         esac
+      else
+         CMD=$*
+         done=true
+      fi
+      ;;
+   esac
+   shift
+done
+     
+if [ "$CMD" = "" ]; then
+   echo No command to execute. Exit.
+   exit 1
+fi
+
+if [ "$hosts" = "" ]; then
+   echo No hosts given. Exit.
+   exit 1
+fi
+
+
+act_qmaster=none
+if [ $qmaster = false ]; then
+   if [ -f $SGE_ROOT/$SGE_CELL/common/act_qmaster ]; then
+      act_qmaster=`cat $SGE_ROOT/$SGE_CELL/common/act_qmaster`
+   else
+     echo "File $SGE_ROOT/$SGE_CELL/common/act_qmaster does not exist. Exit."
+     exit 1
+   fi
+fi
+
+if [ $noexec = true ]; then
+   echo
+   echo The command:
+   echo
+   echo "  % echo \". $SGE_ROOT/$SGE_CELL/common/settings.sh; cd $SGE_ROOT && $CMD\" | $cmd $h /bin/sh"
+   echo 
+   echo would be executed on the following hosts:
+   echo
+   echo "   $hosts"
+   echo
+   if [ $qmaster = false ]; then
+      echo The command would not be executed on host
+      echo
+      echo "   $act_qmaster"
+      echo
+   fi
+   exit 0
+fi
+
+for h in $hosts; do
+   if [ $qmaster = false -a $h = "$act_qmaster" ]; then
+      echo not executing command on qmaster host \"$act_qmaster\"
+   else  
+      echo ". $SGE_ROOT/$SGE_CELL/common/settings.sh; cd $SGE_ROOT && $CMD" | $cmd $h /bin/sh
+   fi
+   echo ==============================================================================
+done

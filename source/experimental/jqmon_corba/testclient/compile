@@ -1,0 +1,2 @@
+javac -classpath .:${JDKHOME}/lib/classes.zip:${JDKHOME}/:/cod_home/hartmut/C4/jqmon_corba/corba/include/:/cod_home/hartmut/JOB-3.1.2/lib/:/cod_home/hartmut/JOB-3.1.2/ob/lib/:/cod_home/hartmut/JOB-3.1.2/naming/lib/:/cod_home/hartmut/JOB-3.1.2/property/lib:/cod_home/hartmut/JOB-3.1.2/event/lib/ QueueClientEx.java
+

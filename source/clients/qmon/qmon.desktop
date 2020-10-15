@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Qmon
+GenericName=Qmon SGE graphical interface
+Comment=Monitor and control gridengine
+Exec=qmon
+Terminal=false
+Type=Application
+Categories=System;

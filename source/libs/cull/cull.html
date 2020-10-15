@@ -1,0 +1,208 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.76C-CCK-MCD Netscape [en] (X11; U; SunOS 5.8 sun4u) [Netscape]">
+   <meta name="AUTHOR" content="Ernst Bablick">
+   <meta name="CREATED" content="20010608;9201000">
+   <meta name="CHANGEDBY" content="Ernst Bablick">
+   <meta name="CHANGED" content="20010703;14194400">
+<style>
+	<!--
+		@page { margin-left: 1.25in; margin-right: 1.25in; margin-top: 1in; margin-bottom: 1in }
+		P.sdfootnote { margin-left: 0.2in; text-indent: -0.2in; margin-bottom: 0in; font-size: 10pt }
+		A.sdfootnoteanc { font-size: 57% }
+	-->
+	</style>
+</head>
+<body>
+
+<h1 STYLE="margin-top: 0.17in; page-break-after: avoid">
+<b><font face="Times New Roman, serif">Common Usable List Library<a NAME="sdfootnote1anc" CLASS="sdfootnoteanc" HREF="#sdfootnote1sym"></a><a NAME="sdfootnote1anc" href="#sdfootnote1sym" CLASS="sdfootnoteanc"></a><sup><a href="#sdfootnote1sym" CLASS="sdfootnoteanc" NAME="sdfootnote1anc">1</a></sup></font></b></h1>
+
+<h2>
+Capabilities of the Common Usable List Library (CULL)</h2>
+The CULL allows to create and maintain so called CULL lists, which are
+the central Grid Engine data structure in which almost all Grid Engine
+data, such as jobs, queues, hosts, etc., are stored. The CULL has the following
+features:
+<ul>
+<ul>applicability for every client/server in Grid Engine.
+
+<p STYLE="margin-bottom: 0in">reusability of list management code.
+<p>no need for recompilation of client code in case of uncritical data
+structure changes.
+<p>interface duality - either list oriented or SQL inspired.
+<p>fast search functions using hash tables</ul>
+</ul>
+The CULL is the building block for the Grid Engine Database Interface (GDI
+- see&nbsp; <a href="../gdi/gdi.html">here</a>).
+<br>&nbsp;
+<h2>
+Internal data structures</h2>
+See below for a schematic overview of the CULL internal list data structure:
+<br>&nbsp;
+<br>&nbsp;
+<br>
+<br>
+<br>
+<center>
+<p><img SRC="list_struct.jpg" NAME="Grafik1" BORDER=0 height=530 width=524 align=BOTTOM></center>
+
+<p><br>
+<br>
+<h3>
+lList</h3>
+This is the structure for the list header. The meaning of the different
+fields is stated in the comments of the structure definition below. The
+position and type information for all list elements is maintained in the
+lDescr array. The element data itself can be referenced via the first and
+last pointers.
+<pre>typedef struct {
+int nelem; /* number of elements in the list */
+char *listname; /* name of the list */
+lDescr *descr; /* pointer to the descriptor array */
+lListElem *first; /* pointer to the first element of the list */
+lListElem *last; /* pointer to the last element of the list */
+} lList;</pre>
+
+<h3>
+lListElem</h3>
+The following structure defines a list element being used to store data
+in CULL lists. The data storage occurs in arrays of lMultiType unions (see
+below). The access to the data is performed by getting the array index
+and the field type through the lDescr struct array. The field descr is
+used for type checking.
+<pre>typedef struct {
+lListElem *next; /* next lList element */
+lListElem *prev; /* previous lList element */
+lUlong status; /* status: element in list/ element free */
+lDescr *descr; /* pointer to the descriptor array */
+lMultiType *cont; /* pointer to the lMultiType array */
+} lListElem;</pre>
+
+<h3>
+lDescr</h3>
+The descriptor struct contains two integer fields. One is representing
+the name of the field and the other one the associated type. The names
+are represented by unique numbers, which can be mapped to enum definitions
+or #define statements (the steps to define a list are shown below.)
+<pre>typedef struct {
+int nm;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /* unique number that stands for a name */
+int mt;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /* multitype information */
+lHash *hash;&nbsp;/*&nbsp;hashing information */
+} lDescr;</pre>
+
+<h3>
+lHash</h3>
+The lHash structure stores information about hash tables to be used for
+certain data fields.
+<br>For each data field that shall be accessed by a hash table, the corresponding
+descriptor (lDesc) contains a reference to an lHash object. The lHash object
+defines the type of hash table (unique or non unique keys) and a pointer
+to a HashTable object.
+<pre>typedef struct {
+int unique;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; /*&nbsp;0 =&nbsp;non unique keys, 1 = unique keys */
+HashTable table;&nbsp;/* pointer to HashTable from libs/uti/sge_hash.* */
+} lHash;</pre>
+
+<h3>
+lMultiType</h3>
+The lMultiType union consists of various basic types. Which union member
+has to be accessed is determined by the type field ("mt") in the lDescr
+struct. An array of lMultiType unions contains the data.
+<pre>typedef union {
+lFloat fl; /* float */
+lDouble db; /* double */
+lUlong ul; /* unsigned long */
+lLong l; /* long */
+lChar c; /* char */
+lInt i; /* int */
+lString str; /* char* */
+lList *glp<b>;</b> /* sublist */
+lRef ref; /* pointer */
+lCondition *cp<b>;</b> /* lCondition pointer */
+} lMultiType;</pre>
+
+<h2>
+Usage of the Generic List</h2>
+In the directory source/lib/cull you can find one example which demonstrates
+how to use CULL lists. To build it use the aimk script: "aimk example1"
+<h3>
+List definition</h3>
+Each CULL list definition consists of following parts:
+
+<p STYLE="margin-left: 0.79in">Definition of some constants which identify
+the attributes of a CULL element.
+
+<p STYLE="margin-left: 0.79in">A Section which defines the type of the
+attributes of a CULL element.
+
+<p STYLE="margin-left: 0.79in">A List of names used when a attribute name
+should be written in readable form.
+<p>You can find a definition for a CULL list <a href="hostL.h">here</a>.
+Lists used in Grid Engine are part of the GDI library. Concerning source
+code can be found in source/libs/gdi. Each file whose filename ends with
+an capital L before the .h suffix contains CULL list definitions.
+<h3>
+Definition of Name Space</h3>
+Suppose you intend to write a piece of Grid Engine code based on a new
+CULL list. One thing you should do is to define the names to be used for
+the CULL list elements and you have to make sure that none of your names
+conflicts with already existing names. For this purpose you have to select
+one or several of the predefined name spaces, which are defined in the
+header boundaries.h (see <a href="boundaries.h">here</a>). By using one
+or multiple name spaces, you can create your own list structure as shown
+below.
+<p>The file source/libs/gdi/sge_boundaries.h contains the name space definition
+for Grid Engine.
+<h3>
+Application Specific Header File</h3>
+
+<div STYLE="margin-bottom: 0in">Each attribute within a CULL object is
+uniquely identified by a constant value which will be used to get or modify
+its value. For output and debug purpose it is extremely valuable to use
+strings instead of enum values. Therefore all the list structures that
+shall be used, should be included in an application specific header file.
+Here an array of type lNameSpace has to be defined. This table will be
+used to convert field names to field numbers and vice versa within the
+CULL library.</div>
+
+<div STYLE="margin-bottom: 0in">The example1.h file can be found <a href="example1.h">here</a>.
+The file source/libs/gdi/sge_all_listsL.h contains the array used in Grid
+Engine.</div>
+
+<h3>
+List Usage Example</h3>
+
+<div STYLE="margin-bottom: 0in">In the the C file <a href="example1.c">example1.c</a>
+the usage of the various CULL list library functions is explained. Run
+the corresponding application without any arguments to get a list of scenarios
+demonstrated by the example.</div>
+
+<h3>
+<br>
+Functional Overview</h3>
+
+<div STYLE="margin-bottom: 0in">The most important functions of the CULL
+are explained in the man page <a href="http://arc.liv.ac.uk/SGE/htmlman/htmlman3/list_intro.html">list_intro</a>(3).
+In addition, more high level composite functions exist, which combine the
+use of several basic functions for standard tasks. Using these composite
+functions may reduce the size of the code dramatically. There are no man
+pages available for the composite functions currently but they are documented
+in the source code. Here their names are listed:</div>
+
+<div STYLE="margin-bottom: 0in">lGetElemCaseStr(), lGetElemDescr(), lGetElemHost(),
+lGetElemIndex(), lGetElemStr(), lGetElemStrLike(), lGetElemUlong(), lGetSubCaseStr(),
+lGetSubHost(), lGetSubStr(), lGetSubUlong(), lAddElemUlong(), lAddElemStr(),
+lAddSubStr(), lAddSubUlong(), lDelElemCaseStr(), lDelElemHost(), lDelElemStr(),
+lDelElemUlong(), lDelSubCaseStr(), lDelSubStr(), lDelSubUlong()</div>
+
+<div ID="sdfootnote1">
+<center><a NAME="sdfootnote1sym" CLASS="sdfootnotesym" HREF="#sdfootnote1anc"></a><a NAME="sdfootnote1sym" href="#sdfootnote1anc" CLASS="sdfootnotesym"></a><a href="#sdfootnote1anc" CLASS="sdfootnotesym" NAME="sdfootnote1sym">1</a>Copyright
+2001 Sun Microsystems, Inc. All rights reserved.</center>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,57 @@
+#!/bin/sh
+
+BASEDIR=`dirname $0`
+BASEDIR=`cd $BASEDIR; pwd`
+
+. $BASEDIR/run_util.sh
+
+PRE_ARGS=""
+POST_ARGS=""
+CSP=0
+
+while [ $# -gt 0 ]; do
+  case $1 in
+    -v) PRE_ARGS="$PRE_ARGS -v";;
+    -d) PRE_ARGS="$PRE_ARGS -d";;
+    -j) PRE_ARGS="$PRE_ARGS -j";;
+    -csp) CSP=1; POST_ARGS="$POST_ARGS -csp";;
+    *)  echo "Unkonwn option $1"; exit 1;;
+  esac
+  shift
+done
+
+if [ $CSP -eq 1 ]; then
+   PRE_ARGS="$PRE_ARGS -Djava.security.policy=util/jgdi.policy"
+   PRE_ARGS="$PRE_ARGS -Djava.security.auth.login.config==util/jaas.config"
+   PRE_ARGS="$PRE_ARGS -Djava.security.manager"
+fi
+
+
+PRE_ARGS="$PRE_ARGS -Djava.util.logging.config.file=util/shell_logging.properties"
+
+#if [ "$SGE_ROOT" != "" ]; then
+#   CP=$SGE_ROOT/lib/jgdi.jar
+#else
+   CP=build/classes
+#fi
+
+if [ "$READLINE_JAVA_JAR" != "" ]; then
+   CP="$CP:$READLINE_JAVA_JAR"
+fi
+
+if [ "$READLINE_LIB_PATH" ]; then
+   if [ "$LD_LIBRARY_PATH" = "" ]; then
+        LD_LIBRARY_PATH=$READLINE_LIB_PATH 
+   else
+        LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$READLINE_LIB_PATH"
+   fi
+fi
+
+POST_ARGS="$POST_ARGS bootstrap://${SGE_ROOT}@${SGE_CELL}:${SGE_QMASTER_PORT}"
+
+run $PRE_ARGS -cp $CP -- com.sun.grid.jgdi.event.QEvent $POST_ARGS
+
+
+
+
+

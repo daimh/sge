@@ -1,0 +1,113 @@
+#!/bin/sh
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+files=" \
+       clients/common/common_dependencies \
+       clients/qacct/qacct_dependencies  \
+       clients/qalter/qalter_dependencies  \
+       clients/qconf/qconf_dependencies  \
+       clients/qdel/qdel_dependencies  \
+       clients/qhost/qhost_dependencies  \
+       clients/qquota/qquota_dependencies  \
+       clients/qmod/qmod_dependencies  \
+       clients/qmon/qmon_dependencies  \
+       clients/qsh/qsh_dependencies  \
+       clients/qrsh/qrsh_dependencies  \
+       clients/qstat/qstat_dependencies  \
+       clients/qsub/qsub_dependencies  \
+       clients/qevent/qevent_dependencies  \
+       clients/qrsub/qrsub_dependencies  \
+       clients/qrdel/qrdel_dependencies  \
+       clients/qrstat/qrstat_dependencies  \
+       clients/showq/showq_dependencies  \
+       common/common_dependencies  \
+       daemons/common/common_dependencies  \
+       daemons/execd/execd_dependencies  \
+       daemons/qmaster/qmaster_dependencies  \
+       daemons/shadowd/shadowd_dependencies  \
+       daemons/shepherd/shepherd_dependencies  \
+       libs/japi/japi_dependencies \
+       libs/sgeobj/sgeobj_dependencies  \
+       libs/gdi/gdi_dependencies  \
+       libs/ijs/ijs_dependencies  \
+       libs/evc/evc_dependencies  \
+       libs/evm/evm_dependencies  \
+       libs/mir/mir_dependencies  \
+       libs/spool/spool_dependencies  \
+       libs/spool/loader/spoolloader_dependencies  \
+       libs/spool/berkeleydb/spoolb_dependencies  \
+       libs/spool/classic/spoolc_old_dependencies  \
+       libs/spool/dynamic/spoold_dependencies  \
+       libs/spool/flatfile/spoolc_dependencies  \
+       libs/cull/cull_dependencies  \
+       libs/sched/sched_dependencies  \
+       libs/uti/uti_dependencies  \
+       libs/juti/juti_dependencies  \
+       libs/comm/commlib_dependencies  \
+       libs/comm/lists/commlistslib_dependencies \
+       libs/comm/examples/commexamples_dependencies \
+       libs/juti/juti_dependencies  \
+       libs/uti2/uti2_dependencies  \
+       utilbin/utilbin_dependencies \
+       security/coshepherd/coshepherd_dependencies \
+       security/krb/krb_dependencies \
+       security/gss/gss_dependencies \
+       3rdparty/tacc_pam_sge/tacc_dependencies
+"
+echo deleting and truncating: $files
+
+rm -f $files
+touch $files
+
+if [ -d libs/wingrid ]; then
+   rm -f libs/wingrid/wingrid_dependencies
+   touch libs/wingrid/wingrid_dependencies
+fi
+
+if [ -d experimental/wingrid ]; then
+   rm -f experimental/wingrid/qloadsensor/exp_wingrid_dependencies
+   touch experimental/wingrid/qloadsensor/exp_wingrid_dependencies
+fi
+
+if [ -d experimental/culltrans ]; then
+   rm -f experimental/culltrans/culltrans_dependencies
+   touch experimental/culltrans/culltrans_dependencies
+fi
+
+if [ -d utilbin/windows ]; then
+   rm -f utilbin/windows/qloadsensor/qloadsensor_dependencies
+   touch utilbin/windows/qloadsensor/qloadsensor_dependencies
+   
+   rm -f utilbin/windows/worker/worker_dependencies
+   touch utilbin/windows/worker/worker_dependencies
+fi

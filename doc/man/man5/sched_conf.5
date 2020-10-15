@@ -1,0 +1,605 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\" Copyright 2012, 2013  Dave Love, University of Liverpool
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\"
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\" "
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH SCHED_CONF 5 "2011-05-17" "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+sched_conf \- xxQS_NAMExx default scheduler configuration file
+.\"
+.\"
+.SH DESCRIPTION
+.I sched_conf
+defines the configuration file format for xxQS_NAMExx's  scheduler. 
+In order to modify the configuration, 
+use the graphical user's interface
+.M qmon 1
+or the
+.I \-msconf
+option of the 
+.M qconf 1
+command. A default configuration is provided with the
+xxQS_NAMExx distribution package.
+.PP
+Note, xxQS_NAMExx allows backslashes (\\) be used to escape newline
+characters. The backslash and the newline are replaced with a
+space character before any interpretation.
+.\"
+.\"
+.SH FORMAT
+The following parameters are recognized by the xxQS_NAMExx scheduler if
+present in \fIsched_conf\fP:
+.SS "\fBalgorithm\fP"
+.B Note:
+Deprecated, may be removed in future release.
+.br
+Allows for the selection of alternative scheduling algorithms.
+.PP
+Currently
+.B default
+is the only allowed setting.
+.\"
+.SS "\fBload_formula\fP"
+A simple algebraic expression used to derive a single weighted
+load value from all or part of the load parameters reported by
+.M xxqs_name_sxx_execd 8
+for each host and from all or part of the consumable resources (see
+.M complex 5 )
+being maintained for each host.
+The load formula expression syntax is that of
+a sum of weighted load values, that is:
+.sp 1
+.nf
+.RS
+.RI { w1 | load_val1 [* w1 ]}[{\fB+\fP|\fB\-\fP}{ w2 | load_val2 [\fB*\fP w2 ]}[{\fB+\fP|\fB\-\fP}...]]
+.RE
+.fi
+.sp 1
+\fBNote\fP, no blanks are allowed in the load formula.
+.br
+The load values and consumable resources (load_val1, ...)
+are specified by the name defined in the complex (see
+.M complex 5 ).
+.br
+.B Note:
+Administrator-defined load values (see the
+.B load_sensor
+parameter in
+.M xxqs_name_sxx_conf 5
+for details)
+and consumable resources available for all hosts (see
+.M complex 5 )
+may be used as well as xxQS_NAMExx default load parameters.
+.br
+The weighting factors (\fIw1\fP, ...) are positive integers. After the expression
+is evaluated for each host the results are assigned to the hosts and
+are used to sort the hosts corresponding to the weighted load. The sorted
+host list is used to sort queues subsequently.
+.br
+The default load formula is
+.BR np_load_avg .
+.SS "\fBjob_load_adjustments\fP"
+The load which is imposed by the xxQS_NAMExx jobs
+running on a system varies in time, and often, e.g. for the CPU load, 
+requires some amount of time to be reported in the appropriate 
+quantity by the operating system. Consequently, if a job was started 
+very recently, the reported load may not provide a sufficient 
+representation of the load which is already imposed on that host by 
+the job. The reported load will adapt to the real load over time, but 
+the period of time in which the reported load is too low may
+already lead to an oversubscription of that host. xxQS_NAMExx allows 
+the administrator to specify \fBjob_load_adjustments\fP which are used 
+in the xxQS_NAMExx scheduler to compensate for this problem.
+.br
+The \fBjob_load_adjustments\fP are specified as a comma-separated list
+of arbitrary load parameters or consumable resources and (separated by an
+equal sign) an
+associated load correction value. Whenever a job is dispatched to a
+host by the scheduler,
+the load parameter and consumable value set of that host
+is increased by the values
+provided in the \fBjob_load_adjustments\fP list. These correction
+values are decayed linearly over time until after 
+\fBload_adjustment_decay_time\fP from the start the corrections
+reach the value 0.
+If the \fBjob_load_adjustments\fP
+list is assigned the special denominator NONE, no load corrections are
+performed.
+.br
+The adjusted load and consumable values are used to compute the
+combined and weighted
+load of the hosts with the \fBload_formula\fP (see above) and to compare
+the load and consumable values against the load threshold lists
+defined in the queue configurations (see
+.M queue_conf 5 ).
+If the \fBload_formula\fP consists simply of the default CPU load average 
+parameter \fInp_load_avg\fP, and if the jobs are very compute intensive, one might
+want to set the \fBjob_load_adjustments\fP list to \fBnp_load_avg=1.00\fP,
+which means that every new job dispatched to a host will require
+100% CPU time, and thus the machine's load is instantly increased by 1.00.
+.SS "\fBload_adjustment_decay_time\fP"
+The load corrections in the "\fBjob_load_adjustments\fP" list above
+are decayed linearly over time from the point of the job start, where
+the corresponding load or consumable parameter is
+raised by the full correction value,
+until after a time period of "\fBload_adjustment_decay_time\fP" the
+correction becomes 0. Proper values for "\fBload_adjustment_decay_time\fP"
+greatly depend upon the load or consumable parameters used and the
+specific operating
+system(s). Therefore, they can only be determined on-site and experimentally.
+For the default \fInp_load_avg\fP load parameter a
+"\fBload_adjustment_decay_time\fP" of 7 minutes has proven to yield reasonable
+results.
+.SS "\fBmaxujobs\fP"
+The maximum number of jobs any user may have running in a xxQS_NAMExx
+cluster at the same time. If set to 0 (default) the users may run an arbitrary
+number of jobs. 
+.SS "\fBschedule_interval\fP"
+At the time the scheduler thread initially registers with the event master thread in the
+.M xxqs_name_sxx_qmaster 8
+process \fBschedule_interval\fP is used to set the time interval in which
+the event master thread 
+sends scheduling event updates to the scheduler thread.
+A scheduling event is a status change that has occurred within
+.M xxqs_name_sxx_qmaster 8
+which may trigger or affect scheduler decisions (e.g. a job has
+finished and thus the allocated resources are available again).
+.br
+In the xxQS_NAMExx default scheduler the arrival of
+a scheduling event report triggers a scheduler run. The scheduler
+waits for event reports otherwise.
+.br
+\fBSchedule_interval\fP is a time value (see
+.M sge_types 5
+for a definition of the syntax of time values).  Setting it to 0
+disables scheduling.
+.SS "\fBqueue_sort_method\fP"
+This parameter determines in which order several criteria are taken into
+account to produce a sorted queue instance list which determines the
+preferred order for scheduling tasks to them (typically determining
+the order in which hosts are used).
+Currently, two settings are valid:
+\fBseqno\fP and \fBload\fP. However in both cases, xxQS_NAMExx attempts to
+maximize the number of soft requests (see
+.M qsub 1 
+\fB\-s\fP option) being fulfilled by the queues for a particular job as the
+primary criterion.
+.br
+Then, if the \fBqueue_sort_method\fP parameter is set to \fBseqno\fP,
+xxQS_NAMExx will use the
+.B seq_no
+parameter as configured in the current queue configurations (see
+.M queue_conf 5 )
+as the next criterion to sort the queue list. The 
+.B load_formula
+(see above) is only used as the next criterion if two queues have equal
+sequence numbers.
+If 
+.B queue_sort_method
+is set to \fBload\fP the load according the 
+.B load_formula
+is the criterion after maximizing a job's soft requests, and the sequence
+number is only used if two hosts have the same load.
+The sequence number sorting is most 
+useful if you want to define a fixed order in which queues are to be filled
+(e.g. the cheapest resource first).
+.PP
+The default for this parameter is \fBload\fP.
+.\"
+.SS "\fBhalftime\fP"
+When executing under a share based policy, the scheduler "ages" (i.e. decreases)
+usage to implement a sliding window for achieving the share entitlements
+as defined by the share tree. The \fBhalftime\fP defines
+the time interval in which accumulated usage will have been decayed
+to half its value at the start of the interval.  (This is a
+radioactive-type exponential decay, where the parameter is usually
+called "half-life".)  Valid values are specified in hours,
+default 168.
+.br
+If the value is set to 0, the usage is not decayed.
+.\"
+.SS "\fBusage_weight_list\fP"
+xxQS_NAMExx accounts for the consumption of the resources CPU-time, memory and IO
+to determine the usage which is imposed on a system by a job. A single
+usage value is computed from these three input parameters by multiplying
+the individual values by weights and adding them up. The weights are
+defined in the \fBusage_weight_list\fP. The format of the list is
+.sp 1
+.nf
+.RS
+.BI cpu= wcpu ,mem= wmem ,io= wio
+.RE
+.fi
+.sp 1
+where \fIwcpu\fP, \fIwmem\fP and \fIwio\fP are the configurable weights. The weights are real
+numbers. The sum of all three weights should be 1.  The default is
+.BR cpu=1,mem=0,io=0 .
+.\"
+.SS "\fBcompensation_factor\fP"
+Determines how fast xxQS_NAMExx should compensate for past usage below or above
+the share entitlement defined in the share tree. Recommended values are
+between 2 and 10, where 10 means faster compensation.  The default is 5.
+.\"
+.SS "\fBweight_user\fP"
+The relative importance of the user shares in the functional policy.
+Values are of type real.
+.\"
+.SS "\fBweight_project\fP"
+The relative importance of the project shares in the functional policy.
+Values are of type real.
+.\"
+.SS "\fBweight_department\fP"
+The relative importance of the department shares in the
+functional policy. Values are of type real.
+.\"
+.SS "\fBweight_job\fP"
+The relative importance of the job shares in the
+functional policy. Values are of type real.
+.\"
+.SS "\fBweight_tickets_functional\fP"
+The maximum number of functional tickets available for distribution
+by xxQS_NAMExx. Determines the relative importance of the functional policy. 
+See under 
+.M sge_priority 5 
+for an overview on job priorities.
+.\"
+.SS "\fBweight_tickets_share\fP"
+The maximum number of share based tickets available for distribution
+by xxQS_NAMExx. Determines the relative importance of the share tree policy. See under 
+.M sge_priority 5 
+for an overview on job priorities.
+.\"
+.SS "\fBweight_deadline\fP"
+The weight applied on the remaining time until a job's latest start time. Determines
+the relative importance of the deadline. See under 
+.M sge_priority 5 
+for an overview on job priorities.
+.\"
+.SS "\fBweight_waiting_time\fP"
+The weight applied on the job's waiting time since submission. Determines
+the relative importance of the waiting time.
+See under 
+.M sge_priority 5 
+for an overview on job priorities.
+.\"
+.SS "\fBweight_urgency\fP"
+The weight applied on jobs' normalized urgency when determining the priority finally used.
+Determines the relative importance of urgency.
+See under 
+.M sge_priority 5 
+for an overview on job priorities.
+.\"
+.SS "\fBweight_priority\fP"
+The weight applied on jobs' normalized POSIX priority when determining the priority
+finally used. Determines the relative importance of POSIX priority.
+See under
+.M sge_priority 5
+for an overview on job priorities.
+.\"
+.SS "\fBweight_ticket\fP"
+The weight applied on the normalized ticket amount when determining the priority finally used.
+Determines the relative importance of the ticket policies. See under 
+.M sge_priority 5 
+for an overview on job priorities.
+.\"
+.SS "\fBflush_finish_sec\fP"
+This parameter is provided for tuning the system's scheduling behavior.
+By default, a scheduler run is triggered in the scheduler interval. When
+this parameter is set to 1 or larger, the scheduler will be triggered
+that number of seconds
+after a job has finished. Setting this parameter to 0 disables the flush after 
+a job has finished.
+.\"
+.SS "\fBflush_submit_sec\fP"
+This parameter is provided for tuning the system's scheduling behavior.
+By default, a scheduler run is triggered in the scheduler interval.  When
+this parameter is set to 1 or larger, the scheduler will be triggered
+that number of seconds
+after a job was submitted to the system. Setting this parameter 
+to 0 disables the flush after a job was submitted.
+.\"
+.SS "\fBschedd_job_info\fP"
+The default scheduler can keep track of why jobs could not be scheduled during
+the last scheduler run. This parameter enables or disables the observation.
+The value \fBtrue\fP enables the monitoring \fBfalse\fP turns it off.
+.PP
+It is also possible to activate the observation only for certain jobs. This
+will be done if the parameter is set to \fBjob_list\fP followed by a
+comma-separated list of job ids.
+.PP
+The user can obtain the collected information with the command
+.IR "qstat \-j" .
+.\"
+.SS "\fBparams\fP"
+This is for passing additional parameters to the xxQS_NAMExx
+scheduler. The following values are recognized:
+.\"
+.IP "\fIDURATION_OFFSET\fP"
+If set, overrides the default of value 60 seconds.  This parameter is used by 
+the xxQS_NAMExx scheduler when planning resource utilization as the delta
+between net job runtimes and total time until resources become available 
+again. Net job runtime as specified with
+.BR "\-l h_rt=" ... 
+or
+.BR "\-l s_rt=" ...
+or
+\fBdefault_duration\fP always differs from total job runtime due to delays before
+and after actual job start and finish. Among the delays before job start is the time 
+until the end of a \fBschedule_interval\fP, the time it takes to deliver a job to 
+.M sge_execd 8 ,
+and the delays caused by \fBprolog\fP in
+.M queue_conf 5 ,
+\fBstart_proc_args\fP in
+.M sge_pe 5
+and \fBstarter_method\fP in
+.M queue_conf 5 .
+The delays after job finish include those due to a forced job termination
+(\fBnotify\fP, \fBterminate_method\fP or \fBcheckpointing\fP), procedures run 
+after actual job 
+finish, such as \fBstop_proc_args\fP in
+.M sge_pe 5 
+or \fBepilog\fP in
+.M queue_conf 5 ,
+and the delay until a new \fBschedule_interval\fP.
+.br
+If the offset is too low, resource reservations (see \fBmax_reservation\fP)  
+can be delayed repeatedly due to an overly optimistic job circulation time.
+.\"
+.IP "\fIJC_FILTER\fP"
+.B Note:
+Deprecated, may be removed in future release.
+.br
+If set to true, the scheduler limits the number of jobs it looks at during
+a scheduling run. At the beginning of the scheduling run it assigns each
+job a specific category, which is based on the job's requests, priority
+settings, and the job owner. All scheduling policies will assign the same
+importance to each job in one category. Therefore the number of jobs per
+category has a FIFO order and can be limited to the number of free slots
+in the system.
+.RS
+.P
+An exception is jobs which request a resource reservation. They are included
+regardless of the number of jobs in a category. 
+.P
+This setting is turned off by default, because in very rare cases, the scheduler
+can make a wrong decision. It is also advised to turn
+.B report_pjob_tickets
+off.  Otherwise
+.I qstat \-ext
+can report outdated ticket amounts. The information shown
+with a
+.I qstat \-j
+for a job that was excluded in a scheduling run is very limited.
+.RE
+.\"
+.IP "\fIPROFILE\fP"
+If set equal to 1, the scheduler logs profiling information summarizing
+each scheduling run.
+.\"
+.IP "\fIMONITOR\fP"
+If set equal to 1, the scheduler records information for each
+scheduling run, enabling reproduction of
+job resource utilization in the file \fI<xxqs_name_sxx_root>/<cell>/common/schedule\fP.
+.\"
+.IP "\fIPE_RANGE_ALG\fP"
+This parameter sets the algorithm for the PE range computation. The default is automatic, which
+means that the scheduler will select the best one, and it should not be necessary to 
+change it to a different setting in normal operation. If a custom setting is needed, the 
+following values are available:
+.br
+.BR auto :
+the scheduler selects the best algorithm
+.br
+.BR least :
+starts the resource matching with the lowest slot amount first
+.br
+.BR bin :
+starts the resource matching in the middle of the pe slot range
+.br
+.BR highest :
+starts the resource matching with the highest slot amount first.
+.\"
+.PP
+Changing \fBparams\fP will take immediate effect.
+The default for \fBparams\fP is none.
+.\"
+.SS \fBreprioritize_interval\fP
+Interval (\fIHH\fP\fB:\fP\fIMM\fP\fB:\fP\fISS\fP) to reprioritize jobs on the execution hosts based on the
+current ticket amount for the running jobs. If the interval is set to 
+00:00:00 the reprioritization is turned off. The default value is 00:00:00.
+The reprioritization tickets are calculated by the scheduler and update events
+for running jobs are only sent after the scheduler calculated new values. How often
+the scheduler should calculate the tickets is defined by the reprioritize_interval.
+Because the scheduler is only triggered in a specific interval (scheduler_interval)
+this means the reprioritize_interval only has a meaning if set greater than the scheduler_interval.
+For example, if the scheduler_interval is 2 minutes and reprioritize_interval is set
+to 10 seconds, this means the jobs get re-prioritized every 2 minutes.
+.\"
+.SS "\fBreport_pjob_tickets\fP"
+This parameter allows tuning the system's scheduling run time. It is used
+to enable/disable the reporting of pending job tickets to the qmaster.
+It does not influence the tickets calculation. The sort order of jobs in qstat
+and qmon is only based on the submit time when the reporting is turned off.
+.br
+The reporting should be turned off in a system with a very large amount of jobs
+by setting this parameter to "false".
+.\"
+.SS "\fBhalflife_decay_list\fP"
+The halflife_decay_list allows configuring different decay rates for the
+finished_jobs usage types, which is used in the pending job ticket calculation
+to account for jobs which have just ended. This allows the user the pending jobs
+algorithm to count finished jobs against a user or project for a configurable decayed 
+time period. This feature is turned off by default, and the halftime is used instead.
+.br
+The halflife_decay_list also allows one to configure different decay rates for each usage 
+type being tracked (cpu, io, and mem). The list is specified in the following format:
+.sp 1
+.nf
+.RS
+\fIusage_type\fP\fB=\fP\fItime\fP[\fB:\fP\fIusage_type\fP\fB=\fP\fItime\fP[\fB:\fP\fIusage_type\fP\fB=\fP\fItime\fP]]
+.RE
+.fi
+.sp 1
+.br
+\fIusage_type\fP can be one of
+.BR cpu ,
+.BR io ,
+or
+.BR mem .
+\fItime\fP can be \-1, 0 or a timespan specified in minutes. If \fItime\fP is \-1, only the usage
+of currently running jobs is used. 0 means that the usage is not decayed.
+.\"
+.SS "\fBpolicy_hierarchy\fP"
+This parameter sets up a dependency chain of ticket-based
+policies. Each ticket-based policy in the dependency chain is influenced by the
+previous policies and influences the following policies. A typical
+scenario is to assign precedence for the override policy over the
+share-based policy. The override policy determines in such a case how
+share-based tickets are assigned among jobs of the same user or project.
+Note that all policies contribute to the ticket amount assigned to a
+particular job regardless of the policy hierarchy definition. Yet the
+tickets calculated in each of the policies can be different, depending on
+"\fIPOLICY_HIERARCHY\fP".
+.sp 1
+The "\fIPOLICY_HIERARCHY\fP" parameter can be an up to 3 letter
+combination of the first letters of the 3 ticket based policies S(hare-based),
+F(unctional) and O(verride). So a value "OFS" means that the
+override policy takes precedence over the functional policy, which
+finally influences the share-based policy.
+Less than 3 letters means that some of the policies do not influence
+other policies and also are not influenced by other policies. So a value of
+"FS" means that the functional policy influences the share-based policy and
+that there is no interference with the other policies.
+.sp 1
+The special value "NONE" switches off policy hierarchies.
+.\"
+.SS "\fBshare_override_tickets\fP"
+If set to "true" or "1", override tickets of any override object instance  
+are shared equally among all running jobs associated with the object. The pending
+jobs will get as many override tickets, as they would have, when they were
+running. If set to "false" or "0", each job gets the full value of the override tickets       
+associated with the object. The default value is "true".                   
+.\"
+.SS "\fBshare_functional_shares\fP"
+If set to "true" or "1", functional shares of any functional object instance
+are shared among all the jobs associated with the object. If set to "false"
+or "0", each job associated with a functional object, gets the full        
+functional shares of that object. The default value is "true".            
+.\"
+.SS "\fBmax_functional_jobs_to_schedule\fP"
+The maximum number of pending jobs to schedule in the functional policy.   
+The default value is 200.                                                  
+.\"
+.SS "\fBmax_pending_tasks_per_job\fP"
+The maximum number of subtasks per pending array job to schedule. This     
+parameter exists in order to reduce scheduling overhead. The default value 
+is 50.
+.\"
+.SS "\fBmax_reservation\fP"
+The maximum number of reservations scheduled within a schedule interval.
+.PP
+When a runnable job can not be started due to a shortage of resources a 
+reservation can be scheduled instead. A reservation can cover consumable 
+resources with the global host, any execution host, and any queue. For
+parallel jobs reservations are done also for the slots resource as specified in
+.M sge_pe 5 .
+The top
+.B max_reservation
+jobs (in priority order) are considered, not individual resources.
+The job runtime assumed is the maximum of the time specified with
+.BR "\-l h_rt=" ...
+or
+.BR "\-l s_rt=" ...
+For jobs that have neither of them, the
+.B default_duration
+(see below) is assumed.
+.PP
+Reservations prevent jobs of lower priority as specified in
+.M sge_priority 5
+from utilizing the reserved resource quota during the time of reservation.
+Jobs of lower priority are allowed to utilize those reserved resources only 
+if their prospective job end is before the start of the reservation ("backfilling").
+Reservation is done only for non-immediate jobs (\fB\-now no\fP) that request reservation
+(\fB\-R y\fP). If \fBmax_reservation\fP is set to "0" no job reservation is done.
+.PP
+.B max_reservation
+actually has a more general effect on scheduler look-ahead, and it is
+necessary to turn it on for correct backfilling into
+calendar windows (see
+.M calendar_conf 5 ).
+.PP
+Note that reservation scheduling can be performance consuming and hence reservation 
+scheduling is switched off by default. Since reservation scheduling performance 
+consumption is known to grow with the number of pending jobs, the use
+of the \fB\-R y\fP option
+is recommended only for those jobs actually queuing for bottleneck resources. 
+Together with the \fBmax_reservation\fP parameter, this technique can be used to narrow
+down performance impacts.  A JSV can be used to add reservation
+requests for particular resources, such as large parallel jobs.
+.\"
+.SS "\fBdefault_duration\fP"
+When job reservation is enabled through the max_reservation
+.M sched_conf 5
+parameter, the default_duration is assumed as runtime for jobs that have
+neither
+.BR "\-l h_rt=" ...
+nor
+.BR "\-l s_rt=" ...
+specified. In contrast to an
+.BR h_rt / s_rt
+time limit, the default_duration is not enforced.  The default value is
+INFINITY, and reservation is not effective for jobs which get that
+value, i.e. the value must be finite, or jobs must specify a run time.
+.\"
+.\"
+.SH FILES
+.nf
+.ta \w'<xxqs_name_sxx_root>/'u
+\fI<xxqs_name_sxx_root>/<cell>/common/sched_configuration\fP
+	scheduler thread configuration
+.fi
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M qalter 1 ,
+.M qconf 1 ,
+.M qstat 1 ,
+.M qsub 1 ,
+.M complex 5 ,
+.M queue_conf 5 ,
+.M xxqs_name_sxx_execd 8 ,
+.M xxqs_name_sxx_qmaster 8
+.\" .M xxqs_name_sxx_qmaster 8 ,
+.\" .I xxQS_NAMExx Installation and Administration Guide
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

@@ -1,0 +1,1652 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Queue List Dialog
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*cq_dialog_shell.allowShellResize:      True
+Qmon*cq_dialog_shell.resizePolicy:          RESIZE_ANY
+Qmon*cq_dialog_shell.xmtChildren:  unmanaged XmtLayout cq_dialog;
+
+Qmon*cq_dialog.autoUnmanage:    False
+Qmon*cq_dialog.dialogTitle: @{QMON +++ Queue Configuration}
+Qmon*cq_dialog*fontList:        $dialog_font
+
+Qmon*cq_dialog.xmtChildren: \
+      XmPushButton      cq_main_link; \
+      XmtLayoutString   cq_title; \
+      InputField        cq_name = cq_name; \
+      InputField        cq_href_input; \
+      InputField        cq_host_input; \
+      StringList        cq_hostlist = cq_hostlist; \
+      StringList        cq_href_select_list; \
+      XmPushButton      cq_apply, cq_cancel, cq_update, \
+                        cq_help, cq_host_add, cq_host_delete, \
+                        cq_href_add, cq_href_delete;\
+      Folder            cq_folder;
+
+Qmon*cq_dialog.layout: \
+   Col { \
+      Fixed Shadowed Out 4 2 LREvenSpaced Row cq_title_area { \
+         Fixed Centered cq_main_link \
+         Centered Color "$title_fg" cq_title \
+         ####### \
+      } \
+      Col { \
+         Fixed Row { \
+            Shadowed Out 4 2 Col { \
+               Caption l "@{Queue Name}" cq_name \
+               ## \
+               Row { \
+                  Fixed Caption tl "@{Hostlist}" 2 in Wide cq_hostlist \
+                  Col { \
+                     <> \
+                     Row { \
+                        Fixed Centered cq_host_add \
+                        ## \
+                        Caption tl "@{New Host/Hostgroup}" cq_host_input \
+                     } \
+                     <> \
+                     FlushLeft Fixed cq_host_delete \
+                     <> \
+                  } \
+               } \
+            } \
+            Shadowed Out 4 2 Fixed Col { \
+               Fixed cq_apply \
+               Fixed cq_cancel \
+               ## \
+               Fixed cq_update \
+               ## \
+               Fixed cq_help \
+               <> \
+            } \
+         } \
+         Row { \
+            Caption tl "@{Attributes\nfor Host/Hostgroup}" Col { \
+               2 in % 4 in cq_href_select_list \
+               ## \
+               Caption tl "@{New Host/Hostgroup}" Row { \
+                  Fixed Centered cq_href_add \
+                  Fixed Centered 20 em cq_href_input \
+               } \
+               Row { \
+                  <> \
+                  Fixed Centered cq_href_delete \
+                  <> \
+               } \
+               <> \
+            } \
+            Shadowed Out 4 2 Centered cq_folder \
+         } \
+      } \
+   }
+
+
+Qmon*cq_dialog.cq_main_link.labelType:   PIXMAP
+Qmon*cq_dialog.cq_main_link.labelPixmap: logo
+Qmon*cq_dialog.cq_main_link.shadowThickness:    1
+Qmon*cq_dialog.cq_main_link.highlightThickness: 0
+Qmon*cq_dialog.cq_main_link.marginHeight:       0
+Qmon*cq_dialog.cq_main_link.marginWidth:        0
+
+Qmon*cq_dialog*cq_hostlist*scrollBarDisplayPolicy:       AS_NEEDED
+Qmon*cq_dialog*cq_hostlist.selectionPolicy:              EXTENDED_SELECT
+Qmon*cq_dialog*cq_hostlist.visibleItemCount:             10
+
+
+Qmon*cq_dialog.cq_name.highlightOnError:        True
+Qmon*cq_dialog.cq_name.navigationType:          TAB_GROUP
+Qmon*cq_dialog.cq_hostlist.navigationType:      TAB_GROUP
+Qmon*cq_dialog.cq_apply.navigationType:          TAB_GROUP
+Qmon*cq_dialog.cq_cancel.navigationType:         TAB_GROUP
+Qmon*cq_dialog.cq_update.navigationType:         TAB_GROUP
+Qmon*cq_dialog.cq_help.navigationType:           TAB_GROUP
+
+Qmon*cq_dialog.cq_apply.recomputeSize:            False
+Qmon*cq_dialog.cq_apply.labelString:              @{Ok}
+Qmon*cq_dialog.cq_cancel.labelString:             @{Cancel}
+Qmon*cq_dialog.cq_update.labelString:             @{Refresh}
+Qmon*cq_dialog.cq_help.labelString:               @{Help}
+Qmon*cq_dialog.cq_href_add.labelType:             PIXMAP
+Qmon*cq_dialog.cq_href_add.labelPixmap:           uparrow
+Qmon*cq_dialog.cq_href_delete.labelType:          PIXMAP
+Qmon*cq_dialog.cq_href_delete.labelPixmap:        trashcan
+Qmon*cq_dialog.cq_host_add.labelType:             PIXMAP
+Qmon*cq_dialog.cq_host_add.labelPixmap:           leftarrow
+Qmon*cq_dialog.cq_host_delete.labelType:          PIXMAP
+Qmon*cq_dialog.cq_host_delete.labelPixmap:        trashcan
+
+Qmon*cq_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+Qmon*cq_folder.layoutAllowResize:  false
+Qmon*cq_folder.tabsPerRow:  4
+Qmon*cq_folder.resizeChildren:  True
+Qmon*cq_folder.xmtChildren: \
+   XmtLayout   general_config, \
+               method_config, \
+               checkpoint_config, \
+               pe_config, \
+               load_threshold_config, \
+               limit_config, \
+               complexes_config, \
+               subordinates_config, \
+               access_config, \
+               project_config, \
+               owner_config;
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! General Queue Info Dialog
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*general_config.tabLabel: @{@fBGeneral Configuration}
+Qmon*general_config.xmtChildren: \
+      InputField        tmpdir = tmpdir, \
+                        shell = shell, \
+                        notify = notify, \
+                        processors = processors, \
+                        calendar = calendar, \
+                        seq_no = seq_no; \
+      XmtChooser        qtype = qtype, \
+                        shell_start_mode = shell_start_mode, \
+                        initial_state = initial_state; \
+      Spinbox           job_slots = job_slots, \
+                        priority = priority; \
+      XmToggleButton    rerun = rerun; \
+      XmToggleButton    tmpdir_tw = tmpdir_tw, \
+                        shell_tw = shell_tw, \
+                        notify_tw = notify_tw, \
+                        processors_tw = processors_tw, \
+                        calendar_tw = calendar_tw, \
+                        seq_no_tw = seq_no_tw, \
+                        qtype_tw = qtype_tw, \
+                        shell_start_mode_tw = shell_start_mode_tw, \
+                        initial_state_tw = initial_state_tw, \
+                        priority_tw = priority_tw, \
+                        job_slots_tw = job_slots_tw, \
+                        rerun_tw = rerun_tw; \
+      XmLabel           tmpdir_label, \
+                        shell_label, \
+                        notify_label, \
+                        processors_label, \
+                        calendar_label, \
+                        seq_no_label, \
+                        qtype_label, \
+                        shell_start_mode_label, \
+                        initial_state_label, \
+                        priority_label, \
+                        job_slots_label, \
+                        rerun_label; \
+      XmPushButton      notifyPB, calendarPB;
+
+Qmon*general_config.layout: \
+   Row general_row { \
+      Col { \
+         Row { \
+            Col { \
+               Row { seq_no_tw seq_no_label <> Fixed Centered 20 em seq_no } \
+               Row { processors_tw processors_label <> Fixed Centered 20 em processors } \
+               Row { tmpdir_tw tmpdir_label <> Fixed Centered 20 em tmpdir } \
+               Row { shell_tw shell_label <> Fixed Centered 20 em shell } \
+               Row { shell_start_mode_tw shell_start_mode_label <> Fixed Centered shell_start_mode } \
+               Row { initial_state_tw initial_state_label <> Fixed Centered initial_state } \
+               Row { rerun_tw rerun_label <> Fixed rerun } \
+            } \
+            Col { \
+               Row { calendar_tw calendar_label <> \
+                  Margin 0 Row { calendar Fixed Centered calendarPB } \
+               } \
+               Row { notify_tw notify_label <> \
+                  Margin 0 Row { notify Fixed Centered notifyPB } \
+               } \
+               Row { FlushBottom priority_tw priority_label <> 15 em priority } \
+               Row { FlushBottom job_slots_tw job_slots_label <> 15 em job_slots } \
+               ##### \
+               Etched Through 6 4 Col { \
+                  FlushLeft Row { qtype_tw qtype_label } \
+                  qtype \
+               } \
+               <> \
+            } \
+         } \
+      } \
+   }
+
+
+Qmon*general_config*scrollBarDisplayPolicy:       AS_NEEDED
+Qmon*general_config*cq_hostlist.selectionPolicy:  BROWSE_SELECT
+Qmon*general_config*cq_hostlist.visibleItemCount: 5
+
+!!Qmon*general_config*tmpdir.columns: 20
+!!Qmon*general_config*shell.columns: 20
+!!Qmon*general_config*seq_no.columns: 20
+!!Qmon*general_config*processors.columns: 20
+Qmon*general_config*calendar.columns: 15
+Qmon*general_config*notify.columns: 15
+!!Qmon*general_config*job_slots*columns: 10
+
+!Qmon*general_config*seq_no.pattern: dddddddddddd
+!Qmon*general_config*seq_no.matchAll: False
+
+Qmon*general_config.seq_no_tw.indicatorOn:         False
+Qmon*general_config.seq_no_tw.shadowThickness:     0
+Qmon*general_config.seq_no_tw.highlightThickness:  0
+Qmon*general_config.seq_no_tw.labelType:           PIXMAP
+Qmon*general_config.seq_no_tw.labelPixmap:         lock
+Qmon*general_config.seq_no_tw.selectPixmap:        open_lock
+Qmon*general_config.seq_no_tw.selectInsensitivePixmap: open_lock_insensitive
+
+Qmon*general_config.processors_tw.indicatorOn:         False
+Qmon*general_config.processors_tw.shadowThickness:     0
+Qmon*general_config.processors_tw.highlightThickness:  0
+Qmon*general_config.processors_tw.labelType:           PIXMAP
+Qmon*general_config.processors_tw.labelPixmap:         lock
+Qmon*general_config.processors_tw.selectPixmap:        open_lock
+Qmon*general_config.processors_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*general_config.tmpdir_tw.indicatorOn:         False
+Qmon*general_config.tmpdir_tw.shadowThickness:     0
+Qmon*general_config.tmpdir_tw.highlightThickness:  0
+Qmon*general_config.tmpdir_tw.labelType:           PIXMAP
+Qmon*general_config.tmpdir_tw.labelPixmap:         lock
+Qmon*general_config.tmpdir_tw.selectPixmap:        open_lock
+Qmon*general_config.tmpdir_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*general_config.shell_tw.indicatorOn:         False
+Qmon*general_config.shell_tw.shadowThickness:     0
+Qmon*general_config.shell_tw.highlightThickness:  0
+Qmon*general_config.shell_tw.labelType:           PIXMAP
+Qmon*general_config.shell_tw.labelPixmap:         lock
+Qmon*general_config.shell_tw.selectPixmap:        open_lock
+Qmon*general_config.shell_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*general_config.calendar_tw.indicatorOn:         False
+Qmon*general_config.calendar_tw.shadowThickness:     0
+Qmon*general_config.calendar_tw.highlightThickness:  0
+Qmon*general_config.calendar_tw.labelType:           PIXMAP
+Qmon*general_config.calendar_tw.labelPixmap:         lock
+Qmon*general_config.calendar_tw.selectPixmap:        open_lock
+Qmon*general_config.calendar_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*general_config.notify_tw.indicatorOn:         False
+Qmon*general_config.notify_tw.shadowThickness:     0
+Qmon*general_config.notify_tw.highlightThickness:  0
+Qmon*general_config.notify_tw.labelType:           PIXMAP
+Qmon*general_config.notify_tw.labelPixmap:         lock
+Qmon*general_config.notify_tw.selectPixmap:        open_lock
+Qmon*general_config.notify_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*general_config.priority_tw.indicatorOn:         False
+Qmon*general_config.priority_tw.shadowThickness:     0
+Qmon*general_config.priority_tw.highlightThickness:  0
+Qmon*general_config.priority_tw.labelType:           PIXMAP
+Qmon*general_config.priority_tw.labelPixmap:         lock
+Qmon*general_config.priority_tw.selectPixmap:        open_lock
+Qmon*general_config.priority_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*general_config.job_slots_tw.indicatorOn:         False
+Qmon*general_config.job_slots_tw.shadowThickness:     0
+Qmon*general_config.job_slots_tw.highlightThickness:  0
+Qmon*general_config.job_slots_tw.labelType:           PIXMAP
+Qmon*general_config.job_slots_tw.labelPixmap:         lock
+Qmon*general_config.job_slots_tw.selectPixmap:        open_lock
+Qmon*general_config.job_slots_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*general_config.shell_start_mode_tw.indicatorOn:         False
+Qmon*general_config.shell_start_mode_tw.shadowThickness:     0
+Qmon*general_config.shell_start_mode_tw.highlightThickness:  0
+Qmon*general_config.shell_start_mode_tw.labelType:           PIXMAP
+Qmon*general_config.shell_start_mode_tw.labelPixmap:         lock
+Qmon*general_config.shell_start_mode_tw.selectPixmap:        open_lock
+Qmon*general_config.shell_start_mode_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*general_config.initial_state_tw.indicatorOn:         False
+Qmon*general_config.initial_state_tw.shadowThickness:     0
+Qmon*general_config.initial_state_tw.highlightThickness:  0
+Qmon*general_config.initial_state_tw.labelType:           PIXMAP
+Qmon*general_config.initial_state_tw.labelPixmap:         lock
+Qmon*general_config.initial_state_tw.selectPixmap:        open_lock
+Qmon*general_config.initial_state_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*general_config.shell_start_mode_tw.indicatorOn:         False
+Qmon*general_config.shell_start_mode_tw.shadowThickness:     0
+Qmon*general_config.shell_start_mode_tw.highlightThickness:  0
+Qmon*general_config.shell_start_mode_tw.labelType:           PIXMAP
+Qmon*general_config.shell_start_mode_tw.labelPixmap:         lock
+Qmon*general_config.shell_start_mode_tw.selectPixmap:        open_lock
+Qmon*general_config.shell_start_mode_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*general_config.rerun_tw.indicatorOn:         False
+Qmon*general_config.rerun_tw.shadowThickness:     0
+Qmon*general_config.rerun_tw.highlightThickness:  0
+Qmon*general_config.rerun_tw.labelType:           PIXMAP
+Qmon*general_config.rerun_tw.labelPixmap:         lock
+Qmon*general_config.rerun_tw.selectPixmap:        open_lock
+Qmon*general_config.rerun_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*general_config.qtype_tw.indicatorOn:         False
+Qmon*general_config.qtype_tw.shadowThickness:     0
+Qmon*general_config.qtype_tw.highlightThickness:  0
+Qmon*general_config.qtype_tw.labelType:           PIXMAP
+Qmon*general_config.qtype_tw.labelPixmap:         lock
+Qmon*general_config.qtype_tw.selectPixmap:        open_lock
+Qmon*general_config.qtype_tw.selectInsensitivePixmap:        open_lock_insensitive
+Qmon*general_config.qtype_tw.alignment:           ALIGNMENT_BEGINNING
+
+
+Qmon*general_config.seq_no_label.labelString:            @{@fBSequence Nr}
+Qmon*general_config.processors_label.labelString:        @{@fBProcessors}
+Qmon*general_config.tmpdir_label.labelString:            @{@fBtmp Directory}
+Qmon*general_config.shell_label.labelString:             @{@fBShell}
+Qmon*general_config.calendar_label.labelString:          @{@fBCalendar}
+Qmon*general_config.notify_label.labelString:            @{@fBNotify Time}
+Qmon*general_config.priority_label.labelString:          @{@fBJob's Nice}
+Qmon*general_config.job_slots_label.labelString:         @{@fBSlots}
+Qmon*general_config.shell_start_mode_label.labelString:  @{@fBShell Start Mode}
+Qmon*general_config.initial_state_label.labelString:     @{@fBInitial State}
+Qmon*general_config.rerun_label.labelString:             @{@fBRerun Jobs}
+Qmon*general_config.qtype_label.labelString:             @{@fBType}
+
+Qmon*general_config.seq_no_tw.valueChangedCallback:   ToggleSensitive(self);
+Qmon*general_config.processors_tw.valueChangedCallback:   ToggleSensitive(self);
+Qmon*general_config.tmpdir_tw.valueChangedCallback:   ToggleSensitive(self);
+Qmon*general_config.shell_tw.valueChangedCallback:   ToggleSensitive(self);
+Qmon*general_config.calendar_tw.valueChangedCallback:   ToggleSensitive(self);
+Qmon*general_config.notify_tw.valueChangedCallback:   ToggleSensitive(self);
+Qmon*general_config.priority_tw.valueChangedCallback:   ToggleSensitive(self);
+Qmon*general_config.job_slots_tw.valueChangedCallback:   ToggleSensitive(self);
+Qmon*general_config.shell_start_mode_tw.valueChangedCallback:   ToggleSensitive(self);
+Qmon*general_config.initial_state_tw.valueChangedCallback:   ToggleSensitive(self);
+Qmon*general_config.rerun_tw.valueChangedCallback:   ToggleSensitive(self);
+Qmon*general_config.qtype_tw.valueChangedCallback:   ToggleSensitive(self);
+
+!Qmon*general_config.seq_no_tw.labelString:
+!Qmon*general_config.seq_no_tw.selectColor:            seagreen
+!Qmon*general_config.seq_no_tw.valueChangedCallback:   ToggleSensitive(self);
+!Qmon*general_config.processors_tw.labelString:
+!Qmon*general_config.processors_tw.selectColor:        seagreen
+!Qmon*general_config.processors_tw.valueChangedCallback:   ToggleSensitive(self);
+!Qmon*general_config.tmpdir_tw.labelString:
+!Qmon*general_config.tmpdir_tw.selectColor:            seagreen
+!Qmon*general_config.tmpdir_tw.valueChangedCallback:   ToggleSensitive(self);
+!Qmon*general_config.shell_tw.labelString:
+!Qmon*general_config.shell_tw.selectColor:             seagreen
+!Qmon*general_config.shell_tw.valueChangedCallback:   ToggleSensitive(self);
+!Qmon*general_config.calendar_tw.labelString:
+!Qmon*general_config.calendar_tw.selectColor:          seagreen
+!Qmon*general_config.calendar_tw.valueChangedCallback:   ToggleSensitive(self);
+!Qmon*general_config.notify_tw.labelString:
+!Qmon*general_config.notify_tw.selectColor:            seagreen
+!Qmon*general_config.notify_tw.valueChangedCallback:   ToggleSensitive(self);
+!Qmon*general_config.priority_tw.labelString:
+!Qmon*general_config.priority_tw.selectColor:          seagreen
+!Qmon*general_config.priority_tw.valueChangedCallback:   ToggleSensitive(self);
+!Qmon*general_config.job_slots_tw.labelString:
+!Qmon*general_config.job_slots_tw.selectColor:         seagreen
+!Qmon*general_config.job_slots_tw.valueChangedCallback:   ToggleSensitive(self);
+!Qmon*general_config.shell_start_mode_tw.labelString:
+!Qmon*general_config.shell_start_mode_tw.selectColor:  seagreen
+!Qmon*general_config.shell_start_mode_tw.valueChangedCallback:   ToggleSensitive(self);
+!Qmon*general_config.initial_state_tw.labelString:
+!Qmon*general_config.initial_state_tw.selectColor:     seagreen
+!Qmon*general_config.initial_state_tw.valueChangedCallback:   ToggleSensitive(self);
+!Qmon*general_config.rerun_tw.labelString:
+!Qmon*general_config.rerun_tw.selectColor:             seagreen
+!Qmon*general_config.rerun_tw.valueChangedCallback:   ToggleSensitive(self);
+!Qmon*general_config.qtype_tw.labelString:
+!Qmon*general_config.qtype_tw.selectColor:             seagreen
+!Qmon*general_config.qtype_tw.valueChangedCallback:   ToggleSensitive(self);
+
+Qmon*general_config*seq_no.navigationType: TAB_GROUP
+Qmon*general_config*processors.navigationType: TAB_GROUP
+Qmon*general_config*tmpdir.navigationType: TAB_GROUP
+Qmon*general_config*shell.navigationType: TAB_GROUP
+Qmon*general_config*qtype.navigationType: TAB_GROUP
+Qmon*general_config*priority.navigationType: TAB_GROUP
+Qmon*general_config*job_slots.navigationType: TAB_GROUP
+Qmon*general_config*notify.navigationType: TAB_GROUP
+Qmon*general_config*rerun.navigationType: TAB_GROUP
+Qmon*general_config*calendar.navigationType: TAB_GROUP
+
+!! the order of the strings is important (->sge_queueL.h)
+Qmon*qtype.chooserType: CheckBox
+Qmon*qtype.strings: \
+   "@{Batch}", "@{Interactive}"
+
+Qmon*shell_start_mode.chooserType: ChooserOption
+Qmon*shell_start_mode.strings: \
+   "@{NONE}", "@{posix_compliant}", "@{script_from_stdin}", "@{unix_behavior}"
+
+Qmon*initial_state.chooserType: ChooserOption
+Qmon*initial_state.strings: \
+   "@{default}", "@{enabled}", "@{disabled}"
+
+Qmon*general_config.priority.buttonSizeFixed:   True
+Qmon*general_config.priority.minimum:           -20
+Qmon*general_config.priority.maximum:           20
+
+Qmon*general_config.job_slots.buttonSizeFixed:   True
+Qmon*general_config.job_slots.minimum:           0
+Qmon*general_config.job_slots.maximum:           100000000
+
+Qmon*general_config.notifyPB.labelType:     PIXMAP
+Qmon*general_config.notifyPB.labelPixmap:   time
+
+Qmon*general_config.calendarPB.labelType:     PIXMAP
+Qmon*general_config.calendarPB.labelPixmap:   qask
+
+!Qmon*general_config.rerun.layoutShrinkability:   10
+!Qmon*general_config.rerun.labelString:           @{@fBRerun\nJobs}
+Qmon*general_config.rerun.indicatorSize:          20
+Qmon*general_config.rerun.labelString:
+Qmon*general_config.rerun.highlightThickness:     0
+
+Qmon*general_row.navigationType:  TAB_GROUP
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Method Queue Info Dialog
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*method_config.tabLabel: @{@fBExecution Method}
+Qmon*method_config.xmtChildren: \
+      InputField        prolog = prolog, \
+                        epilog = epilog, \
+                        starter_method = starter_method, \
+                        suspend_method = suspend_method, \
+                        resume_method = resume_method, \
+                        terminate_method = terminate_method; \
+      XmToggleButton    prolog_tw = prolog_tw, \
+                        epilog_tw = epilog_tw, \
+                        starter_method_tw = starter_method_tw, \
+                        suspend_method_tw = suspend_method_tw, \
+                        resume_method_tw = resume_method_tw, \
+                        terminate_method_tw = terminate_method_tw; \
+      XmLabel           prolog_label, \
+                        epilog_label, \
+                        starter_method_label, \
+                        suspend_method_label, \
+                        resume_method_label, \
+                        terminate_method_label;
+
+Qmon*method_config.layout: \
+   Even Equal Col { \
+      Row { prolog_tw prolog_label <> prolog } \
+      Row { epilog_tw epilog_label <> epilog } \
+      Row { starter_method_tw starter_method_label <> starter_method } \
+      Row { suspend_method_tw suspend_method_label <> suspend_method } \
+      Row { resume_method_tw resume_method_label <> resume_method } \
+      Row { terminate_method_tw terminate_method_label <> terminate_method } \
+      <> \
+   }
+
+Qmon*method_config.prolog_label.labelString:             @{@fBProlog}
+Qmon*method_config.epilog_label.labelString:             @{@fBEpilog}
+Qmon*method_config.starter_method_label.labelString:     @{@fBStarter Method}
+Qmon*method_config.suspend_method_label.labelString:     @{@fBSuspend Method}
+Qmon*method_config.resume_method_label.labelString:      @{@fBResume Method}
+Qmon*method_config.terminate_method_label.labelString:   @{@fBTerminate Method}
+
+Qmon*method_config.prolog_tw.valueChangedCallback:    ToggleSensitive(self);
+Qmon*method_config.epilog_tw.valueChangedCallback:    ToggleSensitive(self);
+Qmon*method_config.starter_method_tw.valueChangedCallback:    ToggleSensitive(self);
+Qmon*method_config.suspend_method_tw.valueChangedCallback:    ToggleSensitive(self);
+Qmon*method_config.resume_method_tw.valueChangedCallback:    ToggleSensitive(self);
+Qmon*method_config.terminate_method_tw.valueChangedCallback:    ToggleSensitive(self);
+
+Qmon*method_config.prolog_tw.indicatorOn:         False
+Qmon*method_config.prolog_tw.shadowThickness:     0
+Qmon*method_config.prolog_tw.highlightThickness:  0
+Qmon*method_config.prolog_tw.labelType:           PIXMAP
+Qmon*method_config.prolog_tw.labelPixmap:         lock
+Qmon*method_config.prolog_tw.selectPixmap:        open_lock
+Qmon*method_config.prolog_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*method_config.epilog_tw.indicatorOn:         False
+Qmon*method_config.epilog_tw.shadowThickness:     0
+Qmon*method_config.epilog_tw.highlightThickness:  0
+Qmon*method_config.epilog_tw.labelType:           PIXMAP
+Qmon*method_config.epilog_tw.labelPixmap:         lock
+Qmon*method_config.epilog_tw.selectPixmap:        open_lock
+Qmon*method_config.epilog_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*method_config.starter_method_tw.indicatorOn:         False
+Qmon*method_config.starter_method_tw.shadowThickness:     0
+Qmon*method_config.starter_method_tw.highlightThickness:  0
+Qmon*method_config.starter_method_tw.labelType:           PIXMAP
+Qmon*method_config.starter_method_tw.labelPixmap:         lock
+Qmon*method_config.starter_method_tw.selectPixmap:        open_lock
+Qmon*method_config.starter_method_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*method_config.suspend_method_tw.indicatorOn:         False
+Qmon*method_config.suspend_method_tw.shadowThickness:     0
+Qmon*method_config.suspend_method_tw.highlightThickness:  0
+Qmon*method_config.suspend_method_tw.labelType:           PIXMAP
+Qmon*method_config.suspend_method_tw.labelPixmap:         lock
+Qmon*method_config.suspend_method_tw.selectPixmap:        open_lock
+Qmon*method_config.suspend_method_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*method_config.resume_method_tw.indicatorOn:         False
+Qmon*method_config.resume_method_tw.shadowThickness:     0
+Qmon*method_config.resume_method_tw.highlightThickness:  0
+Qmon*method_config.resume_method_tw.labelType:           PIXMAP
+Qmon*method_config.resume_method_tw.labelPixmap:         lock
+Qmon*method_config.resume_method_tw.selectPixmap:        open_lock
+Qmon*method_config.resume_method_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*method_config.terminate_method_tw.indicatorOn:         False
+Qmon*method_config.terminate_method_tw.shadowThickness:     0
+Qmon*method_config.terminate_method_tw.highlightThickness:  0
+Qmon*method_config.terminate_method_tw.labelType:           PIXMAP
+Qmon*method_config.terminate_method_tw.labelPixmap:         lock
+Qmon*method_config.terminate_method_tw.selectPixmap:        open_lock
+Qmon*method_config.terminate_method_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+!Qmon*method_config.prolog_tw.labelString:
+!Qmon*method_config.prolog_tw.selectColor:             seagreen
+!Qmon*method_config.prolog_tw.valueChangedCallback:    ToggleSensitive(self);
+!Qmon*method_config.epilog_tw.labelString:
+!Qmon*method_config.epilog_tw.selectColor:             seagreen
+!Qmon*method_config.epilog_tw.valueChangedCallback:    ToggleSensitive(self);
+!Qmon*method_config.starter_method_tw.labelString:
+!Qmon*method_config.starter_method_tw.selectColor:     seagreen
+!Qmon*method_config.starter_method_tw.valueChangedCallback:    ToggleSensitive(self);
+!Qmon*method_config.suspend_method_tw.labelString:
+!Qmon*method_config.suspend_method_tw.selectColor:     seagreen
+!Qmon*method_config.suspend_method_tw.valueChangedCallback:    ToggleSensitive(self);
+!Qmon*method_config.resume_method_tw.labelString:
+!Qmon*method_config.resume_method_tw.selectColor:      seagreen
+!Qmon*method_config.resume_method_tw.valueChangedCallback:    ToggleSensitive(self);
+!Qmon*method_config.terminate_method_tw.labelString:
+!Qmon*method_config.terminate_method_tw.selectColor:   seagreen
+!Qmon*method_config.terminate_method_tw.valueChangedCallback:    ToggleSensitive(self);
+
+Qmon*method_config*prolog.columns: 80
+Qmon*method_config*epilog.columns: 80
+Qmon*method_config*starter_method.columns: 80
+Qmon*method_config*suspend_method.columns: 80
+Qmon*method_config*resume_method.columns: 80
+Qmon*method_config*terminate_method.columns: 80
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! checkpointing dialog
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*checkpoint_config.tabLabel: @{@fBCheckpointing}
+Qmon*checkpoint_config.xmtChildren: \
+   StringList     ckpt_list, \
+                  ckpt_reference_list = ckpt_list; \
+   InputField     min_cpu_interval = min_cpu_interval; \
+   XmPushButton   ckpt_add, ckpt_remove, ckpt_dialog, min_cpu_intervalPB; \
+   XmLabel        min_cpu_interval_label, ckpt_reference_list_label; \
+   XmToggleButton min_cpu_interval_tw = min_cpu_interval_tw, \
+                  ckpt_reference_list_tw = ckpt_list_tw;
+
+Qmon*checkpoint_config.layout: \
+      Col { \
+         Row { min_cpu_interval_tw min_cpu_interval_label <> } \
+         Row { \
+            Centered min_cpu_interval \
+            Fixed Centered min_cpu_intervalPB \
+            <>\
+         } \
+         ## \
+         Col { \
+            Row { ckpt_reference_list_tw ckpt_reference_list_label <> } \
+            Row { \
+               Stretchable 3 in Caption tl "@{Available Checkpoint Objects}" ckpt_list \
+               Fixed Col { \
+                  <> \
+                  Fixed Centered ckpt_add \
+                  Fixed Centered ckpt_remove \
+                  ### \
+                  Fixed Centered ckpt_dialog \
+                  <> \
+               } \
+               Stretchable 3 in Caption tl "@{Referenced Checkpoint Objects}" ckpt_reference_list \
+            } \
+         } \
+      }
+
+Qmon*checkpoint_config*scrollBarDisplayPolicy:               AS_NEEDED
+Qmon*checkpoint_config*ckpt_reference_list.selectionPolicy:  BROWSE_SELECT
+Qmon*checkpoint_config*ckpt_reference_list.visibleItemCount: 10
+
+Qmon*checkpoint_config*ckpt_list.fontList:         $fixed_font
+Qmon*checkpoint_config*ckpt_list.selectionPolicy:  BROWSE_SELECT
+Qmon*checkpoint_config*ckpt_list.visibleItemCount: 10
+
+Qmon*checkpoint_config.ckpt_reference_list_label.labelString:  @{Referenced Ckpt Objects}
+Qmon*checkpoint_config.min_cpu_interval_label.labelString:     @{MinCpuTime}
+
+Qmon*checkpoint_config.ckpt_reference_list_tw.valueChangedCallback:  ToggleSensitive(self);
+Qmon*checkpoint_config.min_cpu_interval_tw.valueChangedCallback:  ToggleSensitive(self);
+
+
+Qmon*checkpoint_config.ckpt_reference_list_tw.indicatorOn:         False
+Qmon*checkpoint_config.ckpt_reference_list_tw.shadowThickness:     0
+Qmon*checkpoint_config.ckpt_reference_list_tw.highlightThickness:  0
+Qmon*checkpoint_config.ckpt_reference_list_tw.labelType:           PIXMAP
+Qmon*checkpoint_config.ckpt_reference_list_tw.labelPixmap:         lock
+Qmon*checkpoint_config.ckpt_reference_list_tw.selectPixmap:        open_lock
+Qmon*checkpoint_config.ckpt_reference_list_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*checkpoint_config.min_cpu_interval_tw.indicatorOn:         False
+Qmon*checkpoint_config.min_cpu_interval_tw.shadowThickness:     0
+Qmon*checkpoint_config.min_cpu_interval_tw.highlightThickness:  0
+Qmon*checkpoint_config.min_cpu_interval_tw.labelType:           PIXMAP
+Qmon*checkpoint_config.min_cpu_interval_tw.labelPixmap:         lock
+Qmon*checkpoint_config.min_cpu_interval_tw.selectPixmap:        open_lock
+Qmon*checkpoint_config.min_cpu_interval_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+!Qmon*checkpoint_config.ckpt_reference_list_tw.labelString:
+!Qmon*checkpoint_config.ckpt_reference_list_tw.selectColor:  seagreen
+!Qmon*checkpoint_config.min_cpu_interval_tw.labelString:
+!Qmon*checkpoint_config.min_cpu_interval_tw.selectColor:     seagreen
+
+Qmon*checkpoint_config.ckpt_dialog.labelType:       PIXMAP
+Qmon*checkpoint_config.ckpt_dialog.labelPixmap:     toolbar_ckpt
+
+Qmon*checkpoint_config.ckpt_add.labelType:          PIXMAP
+Qmon*checkpoint_config.ckpt_add.labelPixmap:        rightarrow
+Qmon*checkpoint_config.ckpt_remove.labelType:       PIXMAP
+Qmon*checkpoint_config.ckpt_remove.labelPixmap:     leftarrow
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! pe dialog
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*pe_config.tabLabel: @{@fBParallel Environment}
+Qmon*pe_config.xmtChildren: \
+   StringList     pe_list, \
+                  pe_reference_list = pe_list; \
+   XmPushButton   pe_add, pe_remove, pe_dialog; \
+   XmLabel        pe_reference_list_label; \
+   XmToggleButton pe_reference_list_tw = pe_list_tw;
+   
+
+Qmon*pe_config.layout: \
+      Col { \
+         Row { pe_reference_list_tw pe_reference_list_label <> } \
+         Row { \
+            Stretchable 3 in Caption tl "@{Available PEs}" pe_list \
+            Fixed Col { \
+               <> \
+               Fixed Centered pe_add \
+               Fixed Centered pe_remove \
+               ### \
+               Fixed Centered pe_dialog \
+               <> \
+            } \
+            Stretchable 3 in Caption tl "@{Referenced PEs}" pe_reference_list \
+         } \
+      }
+
+Qmon*pe_config*pe_reference_list.fontList:         $fixed_font
+Qmon*pe_config*pe_reference_list.selectionPolicy:  BROWSE_SELECT
+Qmon*pe_config*pe_reference_list.visibleItemCount: 10
+
+Qmon*pe_config*pe_list.fontList:         $fixed_font
+Qmon*pe_config*pe_list.selectionPolicy:  BROWSE_SELECT
+Qmon*pe_config*pe_list.visibleItemCount: 10
+
+
+Qmon*pe_config*scrollBarDisplayPolicy:     AS_NEEDED
+Qmon*pe_config*listSizePolicy:             CONSTANT
+
+Qmon*pe_config.pe_reference_list_label.labelString:  @{Referenced PE}
+
+Qmon*pe_config.pe_reference_list_tw.valueChangedCallback:  ToggleSensitive(self);
+
+Qmon*pe_config.pe_reference_list_tw.indicatorOn:         False
+Qmon*pe_config.pe_reference_list_tw.shadowThickness:     0
+Qmon*pe_config.pe_reference_list_tw.highlightThickness:  0
+Qmon*pe_config.pe_reference_list_tw.labelType:           PIXMAP
+Qmon*pe_config.pe_reference_list_tw.labelPixmap:         lock
+Qmon*pe_config.pe_reference_list_tw.selectPixmap:        open_lock
+Qmon*pe_config.pe_reference_list_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+!Qmon*pe_config.pe_reference_list_tw.labelString:
+!Qmon*pe_config.pe_reference_list_tw.selectColor:  seagreen
+
+Qmon*pe_config.pe_dialog.labelType:       PIXMAP
+Qmon*pe_config.pe_dialog.labelPixmap:     toolbar_pe
+
+Qmon*pe_config.pe_add.labelType:          PIXMAP
+Qmon*pe_config.pe_add.labelPixmap:        rightarrow
+Qmon*pe_config.pe_remove.labelType:       PIXMAP
+Qmon*pe_config.pe_remove.labelPixmap:     leftarrow
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Qmon*cq_dialog.cq_folder*XbaeMatrix*buttonLabels: True
+Qmon*cq_dialog.cq_folder*XbaeMatrix*rows: 7
+Qmon*cq_dialog.cq_folder*XbaeMatrix*visibleRows: 7
+Qmon*cq_dialog.cq_folder*XbaeMatrix*columns: 2
+Qmon*cq_dialog.cq_folder*XbaeMatrix*columnWidths: 10, 10
+Qmon*cq_dialog.cq_folder*XbaeMatrix*columnMaxLengths: 100, 100
+Qmon*cq_dialog.cq_folder*XbaeMatrix*columnLabels:       @{Load}, @{Value}
+Qmon*cq_dialog.cq_folder*XbaeMatrix*gridType:          GRID_CELL_SHADOW
+Qmon*cq_dialog.cq_folder*XbaeMatrix*cellShadowType:     SHADOW_IN
+Qmon*cq_dialog.cq_folder*XbaeMatrix*cellShadowThickness: 1
+Qmon*cq_dialog.cq_folder*XbaeMatrix.translations: #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:       SelectCell(begin)\n\
+         Ctrl<Btn2Down>:   ResizeColumns()\n\
+         <Btn1Up>(2):      SelectCell(edit)
+Qmon*cq_dialog.cq_folder*XbaeMatrix.clip.translations: #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:       SelectCell(begin)\n\
+         Ctrl<Btn2Down>:   ResizeColumns()\n\
+         <Btn1Up>(2):      SelectCell(edit)
+
+Qmon*cq_dialog.cq_folder*XbaeMatrix.textTranslations: #override\n\
+         <Key>osfActivate: CommitEdit(True)\n\
+         ~Shift ~Meta ~Alt <Key>Return: CommitEdit(True)\n\
+         <Key>osfCancel: CommitEdit(True)
+
+Qmon*checkpoint_config.min_cpu_intervalPB.labelType:    PIXMAP
+Qmon*checkpoint_config.min_cpu_intervalPB.labelPixmap:  time
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! load_threshold + suspend_threshold dialog
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*load_threshold_config.tabLabel: @{@fBLoad/Suspend Thresholds}
+Qmon*load_threshold_config.xmtChildren: \
+   Matrix_2xN     load_thresholds = load_thresholds; \
+   Matrix_2xN     suspend_thresholds = suspend_thresholds; \
+   Spinbox        suspend_nsuspend = nsuspend; \
+   InputField     suspend_interval = suspend_interval; \
+   XmPushButton   suspend_intervalPB, load_thresholds_remove, \
+						suspend_thresholds_remove; \
+   XmLabel        load_thresholds_label, suspend_thresholds_label, \
+                  suspend_nsuspend_label, suspend_interval_label; \
+   XmToggleButton load_thresholds_tw = load_thresholds_tw, \
+                  suspend_thresholds_tw = suspend_thresholds_tw, \
+                  suspend_nsuspend_tw = nsuspend_tw, \
+                  suspend_interval_tw = suspend_interval_tw;
+
+Qmon*load_threshold_config.layout: \
+   Row { \
+      Etched Through Col { \
+         Row { load_thresholds_tw load_thresholds_label <> } \
+         Row { \
+            Margin 10 Centered load_thresholds \
+		    ## \
+      	    Fixed Centered load_thresholds_remove \
+		    <> \
+	     } \
+      } \
+      ## \
+      Etched Through Col { \
+         Col { \
+            Row { suspend_thresholds_tw suspend_thresholds_label <> } \
+				Row { \
+					Margin 10 Centered suspend_thresholds \
+				 ## \
+					 Fixed Centered suspend_thresholds_remove \
+				 <> \
+			  } \
+         } \
+         # \
+         Col { \
+            Row { \
+               Centered suspend_interval_tw \
+               Centered suspend_interval_label \
+               <> \
+               Centered suspend_interval \
+               Centered Fixed suspend_intervalPB \
+            } \
+            Row {suspend_nsuspend_tw suspend_nsuspend_label <> suspend_nsuspend }\
+            <> \
+         } \
+      } \
+   }
+
+Qmon*load_threshold_config*load_thresholds_label.labelString: @{@fBLoad Thresholds}
+Qmon*load_threshold_config*suspend_thresholds_label.labelString: @{@fBSuspend Thresholds}
+Qmon*load_threshold_config*suspend_interval_label.labelString: @{@fBSuspend Interval}
+Qmon*load_threshold_config*suspend_nsuspend_label.labelString: @{@fIJobs suspended per interval}
+
+Qmon*load_threshold_config*load_thresholds_tw.valueChangedCallback:  ToggleSensitive(self);
+Qmon*load_threshold_config*suspend_thresholds_tw.valueChangedCallback:  ToggleSensitive(self);
+Qmon*load_threshold_config*suspend_interval_tw.valueChangedCallback:  ToggleSensitive(self);
+Qmon*load_threshold_config*suspend_nsuspend_tw.valueChangedCallback:  ToggleSensitive(self);
+
+Qmon*cq_dialog*load_threshold_config*load_thresholds_remove.labelType: PIXMAP
+Qmon*cq_dialog*load_threshold_config*load_thresholds_remove.labelPixmap: trashcan
+Qmon*cq_dialog*load_threshold_config*load_thresholds_remove.activateCallback: DeleteLines(*load_thresholds);
+
+Qmon*cq_dialog*load_threshold_config*suspend_thresholds_remove.labelType: PIXMAP
+Qmon*cq_dialog*load_threshold_config*suspend_thresholds_remove.labelPixmap: trashcan
+Qmon*cq_dialog*load_threshold_config*suspend_thresholds_remove.activateCallback: DeleteLines(*suspend_thresholds);
+
+Qmon*load_threshold_config*load_thresholds_tw.indicatorOn:         False
+Qmon*load_threshold_config*load_thresholds_tw.shadowThickness:     0
+Qmon*load_threshold_config*load_thresholds_tw.highlightThickness:  0
+Qmon*load_threshold_config*load_thresholds_tw.labelType:           PIXMAP
+Qmon*load_threshold_config*load_thresholds_tw.labelPixmap:         lock
+Qmon*load_threshold_config*load_thresholds_tw.selectPixmap:        open_lock
+Qmon*load_threshold_config*load_thresholds_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*load_threshold_config*suspend_thresholds_tw.indicatorOn:         False
+Qmon*load_threshold_config*suspend_thresholds_tw.shadowThickness:     0
+Qmon*load_threshold_config*suspend_thresholds_tw.highlightThickness:  0
+Qmon*load_threshold_config*suspend_thresholds_tw.labelType:           PIXMAP
+Qmon*load_threshold_config*suspend_thresholds_tw.labelPixmap:         lock
+Qmon*load_threshold_config*suspend_thresholds_tw.selectPixmap:        open_lock
+Qmon*load_threshold_config*suspend_thresholds_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*load_threshold_config*suspend_interval_tw.indicatorOn:         False
+Qmon*load_threshold_config*suspend_interval_tw.shadowThickness:     0
+Qmon*load_threshold_config*suspend_interval_tw.highlightThickness:  0
+Qmon*load_threshold_config*suspend_interval_tw.labelType:           PIXMAP
+Qmon*load_threshold_config*suspend_interval_tw.labelPixmap:         lock
+Qmon*load_threshold_config*suspend_interval_tw.selectPixmap:        open_lock
+Qmon*load_threshold_config*suspend_interval_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*load_threshold_config*suspend_nsuspend_tw.indicatorOn:         False
+Qmon*load_threshold_config*suspend_nsuspend_tw.shadowThickness:     0
+Qmon*load_threshold_config*suspend_nsuspend_tw.highlightThickness:  0
+Qmon*load_threshold_config*suspend_nsuspend_tw.labelType:           PIXMAP
+Qmon*load_threshold_config*suspend_nsuspend_tw.labelPixmap:         lock
+Qmon*load_threshold_config*suspend_nsuspend_tw.selectPixmap:        open_lock
+Qmon*load_threshold_config*suspend_nsuspend_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+
+!Qmon*load_threshold_config*load_thresholds_tw.labelString: @{@fBLoad Thresholds}
+!Qmon*load_threshold_config*load_thresholds_tw.selectColor: seagreen
+!Qmon*load_threshold_config*load_thresholds_tw.alignment:   ALIGNMENT_BEGINNING
+!Qmon*load_threshold_config*load_thresholds_tw.valueChangedCallback:  ToggleSensitive(self);
+!
+!Qmon*load_threshold_config*suspend_thresholds_tw.labelString: @{@fBSuspend Thresholds}
+!Qmon*load_threshold_config*suspend_thresholds_tw.selectColor: seagreen
+!Qmon*load_threshold_config*suspend_thresholds_tw.alignment:   ALIGNMENT_BEGINNING
+!Qmon*load_threshold_config*suspend_thresholds_tw.valueChangedCallback:  ToggleSensitive(self);
+!
+!Qmon*load_threshold_config*suspend_interval_tw.labelString: @{@fBSuspend Interval}
+!Qmon*load_threshold_config*suspend_interval_tw.selectColor: seagreen
+!Qmon*load_threshold_config*suspend_interval_tw.alignment:   ALIGNMENT_BEGINNING
+!Qmon*load_threshold_config*suspend_interval_tw.valueChangedCallback:  ToggleSensitive(self);
+!
+!Qmon*load_threshold_config*suspend_nsuspend_tw.labelString: @{@fIJobs suspended per interval}
+!Qmon*load_threshold_config*suspend_nsuspend_tw.selectColor: seagreen
+!Qmon*load_threshold_config*suspend_nsuspend_tw.alignment: ALIGNMENT_BEGINNING
+!Qmon*load_threshold_config*suspend_nsuspend_tw.valueChangedCallback:  ToggleSensitive(self);
+!
+Qmon*load_threshold_config*suspend_nsuspend.buttonSizeFixed:   True
+Qmon*load_threshold_config*suspend_nsuspend.minimum:           0
+Qmon*load_threshold_config*suspend_nsuspend.maximum:           100000000
+
+Qmon*cq_dialog*load_thresholds.xmtChildren: unmanaged XmtPopupMenu cq_menu;
+Qmon*cq_dialog*load_thresholds*menuPost: <Btn3Down>
+
+Qmon*cq_dialog*load_thresholds*cq_menu.items: \
+   Title "@{@fBOperations}"; \
+   ------;\
+   "@{_Delete}" [Ctrl-D] DeleteLines(*load_thresholds);
+
+Qmon*cq_dialog*load_thresholds.enterCellCallback: \
+      ColumnZeroNoEdit();
+
+Qmon*cq_dialog*suspend_thresholds.xmtChildren: unmanaged XmtPopupMenu cq_menu;
+Qmon*cq_dialog*suspend_thresholds*menuPost: <Btn3Down>
+
+Qmon*cq_dialog*suspend_thresholds*cq_menu.items: \
+   Title "@{@fBOperations}"; \
+   ------;\
+   "@{_Delete}" [Ctrl-D] DeleteLines(*suspend_thresholds);
+
+Qmon*cq_dialog*suspend_thresholds.enterCellCallback: \
+      ColumnZeroNoEdit();
+
+Qmon*suspend_intervalPB.labelType:    PIXMAP
+Qmon*suspend_intervalPB.labelPixmap:  time
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! queue limit dialog
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*cq_dialog.cq_folder*limit_config.tabLabel: @{@fBLimits}
+Qmon*cq_dialog.cq_folder*limit_config.xmtChildren: \
+   InputField        s_fsize = s_fsize, \
+                     s_data = s_data, \
+                     s_stack = s_stack, \
+                     s_core = s_core, \
+                     s_rss = s_rss, \
+                     s_vmem = s_vmem, \
+                     s_rt = s_rt, \
+                     s_cpu = s_cpu, \
+                     h_fsize = h_fsize, \
+                     h_data = h_data, \
+                     h_stack = h_stack, \
+                     h_core = h_core, \
+                     h_rss = h_rss, \
+                     h_vmem = h_vmem, \
+                     h_rt = h_rt, \
+                     h_cpu = h_cpu; \
+   XmLabel           s_fsize_label, \
+                     s_data_label, \
+                     s_stack_label, \
+                     s_core_label, \
+                     s_rss_label, \
+                     s_vmem_label, \
+                     s_rt_label, \
+                     s_cpu_label, \
+                     h_fsize_label, \
+                     h_data_label, \
+                     h_stack_label, \
+                     h_core_label, \
+                     h_rss_label, \
+                     h_vmem_label, \
+                     h_rt_label, \
+                     h_cpu_label; \
+   XmToggleButton    s_fsize_tw = s_fsize_tw, \
+                     s_data_tw = s_data_tw, \
+                     s_stack_tw = s_stack_tw, \
+                     s_core_tw = s_core_tw, \
+                     s_rss_tw = s_rss_tw, \
+                     s_vmem_tw = s_vmem_tw, \
+                     s_rt_tw = s_rt_tw, \
+                     s_cpu_tw = s_cpu_tw, \
+                     h_fsize_tw = h_fsize_tw, \
+                     h_data_tw = h_data_tw, \
+                     h_stack_tw = h_stack_tw, \
+                     h_core_tw = h_core_tw, \
+                     h_rss_tw = h_rss_tw, \
+                     h_vmem_tw = h_vmem_tw, \
+                     h_rt_tw = h_rt_tw, \
+                     h_cpu_tw = h_cpu_tw; \
+   XmPushButton      s_fsizePB, \
+                     s_dataPB, \
+                     s_stackPB, \
+                     s_corePB, \
+                     s_rssPB, \
+                     s_vmemPB, \
+                     s_rtPB, \
+                     s_cpuPB, \
+                     h_fsizePB, \
+                     h_dataPB, \
+                     h_stackPB, \
+                     h_corePB, \
+                     h_rssPB, \
+                     h_vmemPB, \
+                     h_rtPB, \
+                     h_cpuPB;
+
+Qmon*cq_dialog.cq_folder*limit_config.layout: \
+   Equal Even Row { \
+      Etched Through Caption tl "@{Hard Limits}" Col { \
+         Row { h_rt_tw h_rt_label <> Fixed Centered 20 em h_rt Fixed Centered h_rtPB } \
+         Row { h_cpu_tw h_cpu_label <> Fixed Centered 20 em h_cpu Fixed Centered h_cpuPB } \
+         Row { h_fsize_tw h_fsize_label <> Fixed Centered 20 em h_fsize Fixed Centered h_fsizePB } \
+         Row { h_data_tw h_data_label <> Fixed Centered 20 em h_data Fixed Centered h_dataPB } \
+         Row { h_stack_tw h_stack_label <> Fixed Centered 20 em h_stack Fixed Centered h_stackPB } \
+         Row { h_core_tw h_core_label <> Fixed Centered 20 em h_core Fixed Centered h_corePB } \
+         Row { h_rss_tw h_rss_label <> Fixed Centered 20 em h_rss Fixed Centered h_rssPB } \
+         Row { h_vmem_tw h_vmem_label <> Fixed Centered 20 em h_vmem Fixed Centered h_vmemPB } \
+      } \
+      Etched Through Caption tl "@{Soft Limits}" Col { \
+         Row { s_rt_tw s_rt_label <> Fixed Centered 20 em s_rt Fixed Centered s_rtPB } \
+         Row { s_cpu_tw s_cpu_label <> Fixed Centered 20 em s_cpu Fixed Centered s_cpuPB } \
+         Row { s_fsize_tw s_fsize_label <> Fixed Centered 20 em s_fsize Fixed Centered s_fsizePB } \
+         Row { s_data_tw s_data_label <> Fixed Centered 20 em s_data Fixed Centered s_dataPB } \
+         Row { s_stack_tw s_stack_label <> Fixed Centered 20 em s_stack Fixed Centered s_stackPB } \
+         Row { s_core_tw s_core_label <> Fixed Centered 20 em s_core Fixed Centered s_corePB } \
+         Row { s_rss_tw s_rss_label <> Fixed Centered 20 em s_rss Fixed Centered s_rssPB } \
+         Row { s_vmem_tw s_vmem_label <> Fixed Centered 20 em s_vmem Fixed Centered s_vmemPB } \
+      } \
+   }
+
+Qmon*limit_config.h_rtPB.labelType:    PIXMAP
+Qmon*limit_config.h_rtPB.labelPixmap:  time
+Qmon*limit_config.h_cpuPB.labelType: PIXMAP
+Qmon*limit_config.h_cpuPB.labelPixmap: time
+Qmon*limit_config.h_fsizePB.labelType: PIXMAP
+Qmon*limit_config.h_fsizePB.labelPixmap: mem
+Qmon*limit_config.h_dataPB.labelType: PIXMAP
+Qmon*limit_config.h_dataPB.labelPixmap: mem
+Qmon*limit_config.h_stackPB.labelType: PIXMAP
+Qmon*limit_config.h_stackPB.labelPixmap: mem
+Qmon*limit_config.h_corePB.labelType: PIXMAP
+Qmon*limit_config.h_corePB.labelPixmap: mem
+Qmon*limit_config.h_rssPB.labelType: PIXMAP
+Qmon*limit_config.h_rssPB.labelPixmap: mem
+Qmon*limit_config.h_vmemPB.labelType: PIXMAP
+Qmon*limit_config.h_vmemPB.labelPixmap: mem
+
+Qmon*limit_config.s_rtPB.labelType:    PIXMAP
+Qmon*limit_config.s_rtPB.labelPixmap:  time
+Qmon*limit_config.s_cpuPB.labelType: PIXMAP
+Qmon*limit_config.s_cpuPB.labelPixmap: time
+Qmon*limit_config.s_fsizePB.labelType: PIXMAP
+Qmon*limit_config.s_fsizePB.labelPixmap: mem
+Qmon*limit_config.s_dataPB.labelType: PIXMAP
+Qmon*limit_config.s_dataPB.labelPixmap: mem
+Qmon*limit_config.s_stackPB.labelType: PIXMAP
+Qmon*limit_config.s_stackPB.labelPixmap: mem
+Qmon*limit_config.s_corePB.labelType: PIXMAP
+Qmon*limit_config.s_corePB.labelPixmap: mem
+Qmon*limit_config.s_rssPB.labelType: PIXMAP
+Qmon*limit_config.s_rssPB.labelPixmap: mem
+Qmon*limit_config.s_vmemPB.labelType: PIXMAP
+Qmon*limit_config.s_vmemPB.labelPixmap: mem
+
+
+Qmon*limit_config.h_rt_label.labelString: @{Wallclock Time (sec)}
+Qmon*limit_config.h_cpu_label.labelString: @{CPU Time (sec)}
+Qmon*limit_config.h_fsize_label.labelString: @{File Size (Byte)}
+Qmon*limit_config.h_data_label.labelString: @{Data Size (Byte)}
+Qmon*limit_config.h_stack_label.labelString: @{Stack Size (Byte)}
+Qmon*limit_config.h_core_label.labelString: @{Corefile Size (Byte)}
+Qmon*limit_config.h_rss_label.labelString: @{Resident Set Size (Byte)}
+Qmon*limit_config.h_vmem_label.labelString: @{Virtual Memory (Byte)}
+
+Qmon*limit_config.h_rt_tw.valueChangedCallback: ToggleSensitive(self);
+Qmon*limit_config.h_cpu_tw.valueChangedCallback: ToggleSensitive(self);
+Qmon*limit_config.h_fsize_tw.valueChangedCallback: ToggleSensitive(self);
+Qmon*limit_config.h_data_tw.valueChangedCallback: ToggleSensitive(self);
+Qmon*limit_config.h_stack_tw.valueChangedCallback: ToggleSensitive(self);
+Qmon*limit_config.h_core_tw.valueChangedCallback: ToggleSensitive(self);
+Qmon*limit_config.h_rss_tw.valueChangedCallback: ToggleSensitive(self);
+Qmon*limit_config.h_vmem_tw.valueChangedCallback: ToggleSensitive(self);
+
+Qmon*limit_config.h_rt_tw.indicatorOn:         False
+Qmon*limit_config.h_rt_tw.shadowThickness:     0
+Qmon*limit_config.h_rt_tw.highlightThickness:  0
+Qmon*limit_config.h_rt_tw.labelType:           PIXMAP
+Qmon*limit_config.h_rt_tw.labelPixmap:         lock
+Qmon*limit_config.h_rt_tw.selectPixmap:        open_lock
+Qmon*limit_config.h_rt_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*limit_config.h_cpu_tw.indicatorOn:         False
+Qmon*limit_config.h_cpu_tw.shadowThickness:     0
+Qmon*limit_config.h_cpu_tw.highlightThickness:  0
+Qmon*limit_config.h_cpu_tw.labelType:           PIXMAP
+Qmon*limit_config.h_cpu_tw.labelPixmap:         lock
+Qmon*limit_config.h_cpu_tw.selectPixmap:        open_lock
+Qmon*limit_config.h_cpu_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*limit_config.h_fsize_tw.indicatorOn:         False
+Qmon*limit_config.h_fsize_tw.shadowThickness:     0
+Qmon*limit_config.h_fsize_tw.highlightThickness:  0
+Qmon*limit_config.h_fsize_tw.labelType:           PIXMAP
+Qmon*limit_config.h_fsize_tw.labelPixmap:         lock
+Qmon*limit_config.h_fsize_tw.selectPixmap:        open_lock
+Qmon*limit_config.h_fsize_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*limit_config.h_data_tw.indicatorOn:         False
+Qmon*limit_config.h_data_tw.shadowThickness:     0
+Qmon*limit_config.h_data_tw.highlightThickness:  0
+Qmon*limit_config.h_data_tw.labelType:           PIXMAP
+Qmon*limit_config.h_data_tw.labelPixmap:         lock
+Qmon*limit_config.h_data_tw.selectPixmap:        open_lock
+Qmon*limit_config.h_data_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*limit_config.h_stack_tw.indicatorOn:         False
+Qmon*limit_config.h_stack_tw.shadowThickness:     0
+Qmon*limit_config.h_stack_tw.highlightThickness:  0
+Qmon*limit_config.h_stack_tw.labelType:           PIXMAP
+Qmon*limit_config.h_stack_tw.labelPixmap:         lock
+Qmon*limit_config.h_stack_tw.selectPixmap:        open_lock
+Qmon*limit_config.h_stack_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*limit_config.h_core_tw.indicatorOn:         False
+Qmon*limit_config.h_core_tw.shadowThickness:     0
+Qmon*limit_config.h_core_tw.highlightThickness:  0
+Qmon*limit_config.h_core_tw.labelType:           PIXMAP
+Qmon*limit_config.h_core_tw.labelPixmap:         lock
+Qmon*limit_config.h_core_tw.selectPixmap:        open_lock
+Qmon*limit_config.h_core_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*limit_config.h_rss_tw.indicatorOn:         False
+Qmon*limit_config.h_rss_tw.shadowThickness:     0
+Qmon*limit_config.h_rss_tw.highlightThickness:  0
+Qmon*limit_config.h_rss_tw.labelType:           PIXMAP
+Qmon*limit_config.h_rss_tw.labelPixmap:         lock
+Qmon*limit_config.h_rss_tw.selectPixmap:        open_lock
+Qmon*limit_config.h_rss_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*limit_config.h_vmem_tw.indicatorOn:         False
+Qmon*limit_config.h_vmem_tw.shadowThickness:     0
+Qmon*limit_config.h_vmem_tw.highlightThickness:  0
+Qmon*limit_config.h_vmem_tw.labelType:           PIXMAP
+Qmon*limit_config.h_vmem_tw.labelPixmap:         lock
+Qmon*limit_config.h_vmem_tw.selectPixmap:        open_lock
+Qmon*limit_config.h_vmem_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*limit_config.s_rt_label.labelString: @{Wallclock Time (sec)}
+Qmon*limit_config.s_cpu_label.labelString: @{CPU Time (sec)}
+Qmon*limit_config.s_fsize_label.labelString: @{File Size (Byte)}
+Qmon*limit_config.s_data_label.labelString: @{Data Size (Byte)}
+Qmon*limit_config.s_stack_label.labelString: @{Stack Size (Byte)}
+Qmon*limit_config.s_core_label.labelString: @{Corefile Size (Byte)}
+Qmon*limit_config.s_rss_label.labelString: @{Resident Set Size (Byte)}
+Qmon*limit_config.s_vmem_label.labelString: @{Virtual Memory (Byte)}
+
+Qmon*limit_config.s_rt_tw.valueChangedCallback: ToggleSensitive(self);
+Qmon*limit_config.s_cpu_tw.valueChangedCallback: ToggleSensitive(self);
+Qmon*limit_config.s_fsize_tw.valueChangedCallback: ToggleSensitive(self);
+Qmon*limit_config.s_data_tw.valueChangedCallback: ToggleSensitive(self);
+Qmon*limit_config.s_stack_tw.valueChangedCallback: ToggleSensitive(self);
+Qmon*limit_config.s_core_tw.valueChangedCallback: ToggleSensitive(self);
+Qmon*limit_config.s_rss_tw.valueChangedCallback: ToggleSensitive(self);
+Qmon*limit_config.s_vmem_tw.valueChangedCallback: ToggleSensitive(self);
+
+Qmon*limit_config.s_rt_tw.indicatorOn:         False
+Qmon*limit_config.s_rt_tw.shadowThickness:     0
+Qmon*limit_config.s_rt_tw.highlightThickness:  0
+Qmon*limit_config.s_rt_tw.labelType:           PIXMAP
+Qmon*limit_config.s_rt_tw.labelPixmap:         lock
+Qmon*limit_config.s_rt_tw.selectPixmap:        open_lock
+Qmon*limit_config.s_rt_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*limit_config.s_cpu_tw.indicatorOn:         False
+Qmon*limit_config.s_cpu_tw.shadowThickness:     0
+Qmon*limit_config.s_cpu_tw.highlightThickness:  0
+Qmon*limit_config.s_cpu_tw.labelType:           PIXMAP
+Qmon*limit_config.s_cpu_tw.labelPixmap:         lock
+Qmon*limit_config.s_cpu_tw.selectPixmap:        open_lock
+Qmon*limit_config.s_cpu_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*limit_config.s_fsize_tw.indicatorOn:         False
+Qmon*limit_config.s_fsize_tw.shadowThickness:     0
+Qmon*limit_config.s_fsize_tw.highlightThickness:  0
+Qmon*limit_config.s_fsize_tw.labelType:           PIXMAP
+Qmon*limit_config.s_fsize_tw.labelPixmap:         lock
+Qmon*limit_config.s_fsize_tw.selectPixmap:        open_lock
+Qmon*limit_config.s_fsize_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*limit_config.s_data_tw.indicatorOn:         False
+Qmon*limit_config.s_data_tw.shadowThickness:     0
+Qmon*limit_config.s_data_tw.highlightThickness:  0
+Qmon*limit_config.s_data_tw.labelType:           PIXMAP
+Qmon*limit_config.s_data_tw.labelPixmap:         lock
+Qmon*limit_config.s_data_tw.selectPixmap:        open_lock
+Qmon*limit_config.s_data_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*limit_config.s_stack_tw.indicatorOn:         False
+Qmon*limit_config.s_stack_tw.shadowThickness:     0
+Qmon*limit_config.s_stack_tw.highlightThickness:  0
+Qmon*limit_config.s_stack_tw.labelType:           PIXMAP
+Qmon*limit_config.s_stack_tw.labelPixmap:         lock
+Qmon*limit_config.s_stack_tw.selectPixmap:        open_lock
+Qmon*limit_config.s_stack_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*limit_config.s_core_tw.indicatorOn:         False
+Qmon*limit_config.s_core_tw.shadowThickness:     0
+Qmon*limit_config.s_core_tw.highlightThickness:  0
+Qmon*limit_config.s_core_tw.labelType:           PIXMAP
+Qmon*limit_config.s_core_tw.labelPixmap:         lock
+Qmon*limit_config.s_core_tw.selectPixmap:        open_lock
+Qmon*limit_config.s_core_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*limit_config.s_rss_tw.indicatorOn:         False
+Qmon*limit_config.s_rss_tw.shadowThickness:     0
+Qmon*limit_config.s_rss_tw.highlightThickness:  0
+Qmon*limit_config.s_rss_tw.labelType:           PIXMAP
+Qmon*limit_config.s_rss_tw.labelPixmap:         lock
+Qmon*limit_config.s_rss_tw.selectPixmap:        open_lock
+Qmon*limit_config.s_rss_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+Qmon*limit_config.s_vmem_tw.indicatorOn:         False
+Qmon*limit_config.s_vmem_tw.shadowThickness:     0
+Qmon*limit_config.s_vmem_tw.highlightThickness:  0
+Qmon*limit_config.s_vmem_tw.labelType:           PIXMAP
+Qmon*limit_config.s_vmem_tw.labelPixmap:         lock
+Qmon*limit_config.s_vmem_tw.selectPixmap:        open_lock
+Qmon*limit_config.s_vmem_tw.selectInsensitivePixmap:        open_lock_insensitive
+
+!Qmon*limit_config.h_rt_tw.labelString:
+!Qmon*limit_config.h_rt_tw.selectColor: seagreen
+!Qmon*limit_config.h_cpu_tw.labelString:
+!Qmon*limit_config.h_cpu_tw.selectColor: seagreen
+!Qmon*limit_config.h_fsize_tw.labelString:
+!Qmon*limit_config.h_fsize_tw.selectColor: seagreen
+!Qmon*limit_config.h_data_tw.labelString:
+!Qmon*limit_config.h_data_tw.selectColor: seagreen
+!Qmon*limit_config.h_stack_tw.labelString:
+!Qmon*limit_config.h_stack_tw.selectColor: seagreen
+!Qmon*limit_config.h_core_tw.labelString:
+!Qmon*limit_config.h_core_tw.selectColor: seagreen
+!Qmon*limit_config.h_rss_tw.labelString:
+!Qmon*limit_config.h_rss_tw.selectColor: seagreen
+!Qmon*limit_config.h_vmem_tw.labelString:
+!Qmon*limit_config.h_vmem_tw.selectColor: seagreen
+
+!Qmon*limit_config.s_rt_tw.labelString: @{Wallclock Time (sec)}
+!Qmon*limit_config.s_rt_tw.selectColor: seagreen
+!Qmon*limit_config.s_cpu_tw.labelString: @{CPU Time (sec)}
+!Qmon*limit_config.s_cpu_tw.selectColor: seagreen
+!Qmon*limit_config.s_fsize_tw.labelString: @{File Size (Byte)}
+!Qmon*limit_config.s_fsize_tw.selectColor: seagreen
+!Qmon*limit_config.s_data_tw.labelString: @{Data Size (Byte)}
+!Qmon*limit_config.s_data_tw.selectColor: seagreen
+!Qmon*limit_config.s_stack_tw.labelString: @{Stack Size (Byte)}
+!Qmon*limit_config.s_stack_tw.selectColor: seagreen
+!Qmon*limit_config.s_core_tw.labelString: @{Corefile Size (Byte)}
+!Qmon*limit_config.s_core_tw.selectColor: seagreen
+!Qmon*limit_config.s_rss_tw.labelString: @{Resident Set Size (Byte)}
+!Qmon*limit_config.s_rss_tw.selectColor: seagreen
+!Qmon*limit_config.s_vmem_tw.labelString: @{Virtual Memory (Byte)}
+!Qmon*limit_config.s_vmem_tw.selectColor: seagreen
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! complex list 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*complexes_config.tabLabel: @{@fBComplexes}
+Qmon*complexes_config.xmtChildren: \
+   Matrix_2xN     complexes_ccl = consumable_config_list; \
+   XmLabel        consumable_config_list_label; \
+   XmToggleButton consumable_config_list_tw = consumable_config_list_tw; \
+   XmPushButton   complexes_ccl_remove;
+
+Qmon*complexes_config.layout: \
+   Etched Through Col { \
+      Row { consumable_config_list_tw consumable_config_list_label <> }\
+      Row { \
+		complexes_ccl \
+		## \
+      	Fixed Centered complexes_ccl_remove \
+		<> \
+	  } \
+   }
+
+Qmon*cq_dialog*complexes_config*complexes_ccl_remove.labelType: PIXMAP
+Qmon*cq_dialog*complexes_config*complexes_ccl_remove.labelPixmap: trashcan
+Qmon*cq_dialog*complexes_config*complexes_ccl_remove.activateCallback: DeleteLines(*complexes_ccl);
+
+
+Qmon*cq_dialog*consumable_config_list_label.labelString: @{@fBConsumables/Fixed Attributes}
+
+Qmon*cq_dialog*consumable_config_list_tw.valueChangedCallback: ToggleSensitive(self);
+
+Qmon*cq_dialog*consumable_config_list_tw.indicatorOn:         False
+Qmon*cq_dialog*consumable_config_list_tw.shadowThickness:     0
+Qmon*cq_dialog*consumable_config_list_tw.highlightThickness:  0
+Qmon*cq_dialog*consumable_config_list_tw.labelType:           PIXMAP
+Qmon*cq_dialog*consumable_config_list_tw.labelPixmap:         lock
+Qmon*cq_dialog*consumable_config_list_tw.selectPixmap:        open_lock
+Qmon*cq_dialog*consumable_config_list_tw.selectInsensitivePixmap: open_lock_insensitive
+
+!Qmon*cq_dialog*consumable_config_list_tw.labelString:
+!Qmon*cq_dialog*consumable_config_list_tw.selectColor: seagreen
+
+Qmon*cq_dialog*complexes_ccl.xmtChildren: unmanaged XmtPopupMenu cq_menu;
+Qmon*cq_dialog*complexes_ccl*menuPost: <Btn3Down>
+
+Qmon*cq_dialog*complexes_ccl*cq_menu.items: \
+   Title "@{@fBOperations}"; \
+   ------;\
+   "@{_Delete}" [Ctrl-D] DeleteLines(*complexes_ccl);
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! subordinate list 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*cq_dialog.cq_folder.subordinates_config.tabLabel: @{@fBSubordinates}
+Qmon*cq_dialog.cq_folder.subordinates_config.xmtChildren: \
+   Matrix_2xN      subordinates_attached = subordinate_list; \
+   XmLabel         subordinate_list_label; \
+   XmToggleButton  subordinate_list_tw = subordinate_list_tw; \
+   XmPushButton    subordinates_attached_remove;
+
+Qmon*cq_dialog.cq_folder.subordinates_config.layout: \
+   Row { subordinate_list_tw subordinate_list_label <> }\
+   Row { \
+      subordinates_attached \
+      ## \
+      Fixed Centered subordinates_attached_remove \
+      ##### \
+      "@{qaction.max_slots.If 'Max Slots' are filled in the current queue,\nthe queues in column one are suspended.}" \
+      <> \
+   }
+
+Qmon*cq_dialog*subordinate_list_label.labelString: @{@fBSubordinate Queues}
+Qmon*cq_dialog*subordinate_list_tw.valueChangedCallback: ToggleSensitive(self);
+
+Qmon*cq_dialog*subordinate_list_tw.indicatorOn:         False
+Qmon*cq_dialog*subordinate_list_tw.shadowThickness:     0
+Qmon*cq_dialog*subordinate_list_tw.highlightThickness:  0
+Qmon*cq_dialog*subordinate_list_tw.labelType:           PIXMAP
+Qmon*cq_dialog*subordinate_list_tw.labelPixmap:         lock
+Qmon*cq_dialog*subordinate_list_tw.selectPixmap:        open_lock
+Qmon*cq_dialog*subordinate_list_tw.selectInsensitivePixmap: open_lock_insensitive
+
+
+!Qmon*cq_dialog*subordinate_list_tw.labelString:
+!Qmon*cq_dialog*subordinate_list_tw.selectColor: seagreen
+!Qmon*cq_dialog*subordinate_list_tw.alignment:   ALIGNMENT_BEGINNING
+
+Qmon*cq_dialog.cq_folder.subordinates_config.subordinates_remove.labelString: @{Remove Lines}
+
+Qmon*cq_dialog.cq_folder.subordinates_config*subordinates_attached.rows: 7
+Qmon*cq_dialog.cq_folder.subordinates_config*subordinates_attached.visibleRows: 7
+Qmon*cq_dialog.cq_folder.subordinates_config*subordinates_attached.columns: 2
+Qmon*cq_dialog.cq_folder.subordinates_config*subordinates_attached.columnWidths: 20, 10
+Qmon*cq_dialog.cq_folder.subordinates_config*subordinates_attached.columnMaxLengths: 200, 100
+Qmon*cq_dialog.cq_folder.subordinates_config*subordinates_attached.columnLabels: @{Queue},@{Max Slots}
+Qmon*cq_dialog.cq_folder.subordinates_config*subordinates_attached.gridType:     GRID_CELL_SHADOW
+Qmon*cq_dialog.cq_folder.subordinates_config*subordinates_attached.cellShadowType: SHADOW_IN
+Qmon*cq_dialog.cq_folder.subordinates_config*subordinates_attached.cellShadowThickness: 1
+Qmon*cq_dialog.cq_folder.subordinates_config*subordinates_attached.translations: #override\n\
+         Shift<Btn1Down>: SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:       SelectCell(begin)\n\
+         Ctrl<Btn2Down>:   ResizeColumns()\n\
+         <Btn1Up>(2):      SelectCell(editall)
+Qmon*cq_dialog.cq_folder.subordinates_config*subordinates_attached.clip.translations: #override\n\
+         Shift<Btn1Down>:  SelectCell(end)\n\
+         Ctrl<Btn1Down>:   SelectCell(toggle)\n\
+         <Btn1Down>:       SelectCell(begin)\n\
+         Ctrl<Btn2Down>:   ResizeColumns()\n\
+         <Btn1Up>(2):      SelectCell(editall)
+
+Qmon*cq_dialog*subordinates_attached.xmtChildren: \
+   unmanaged XmtPopupMenu cq_menu;
+Qmon*cq_dialog*subordinates_attached*menuPost: <Btn3Down>
+
+Qmon*cq_dialog*subordinates_attached*cq_menu.items: \
+   Title "@{@fBOperations}"; \
+   ------;\
+   "@{_Delete}" [Ctrl-D] DeleteLines(*subordinates_attached);
+
+Qmon*cq_dialog*subordinates_config*subordinates_attached_remove.labelType: PIXMAP
+Qmon*cq_dialog*subordinates_config*subordinates_attached_remove.labelPixmap: trashcan
+Qmon*cq_dialog*subordinates_config*subordinates_attached_remove.activateCallback: DeleteLines(*subordinates_attached);
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! (x)access list 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*access_config.tabLabel: @{@fBUser Access}
+Qmon*access_config.xmtChildren: \
+   StringList     access_list, \
+                  access_allow = acl, \
+                  access_deny = xacl; \
+   XmtChooser     access_toggle; \
+   XmPushButton   access_add, access_remove, access_dialog; \
+   XmLabel        access_allow_label, access_deny_label; \
+   XmToggleButton  access_allow_tw = acl_tw, \
+                   access_deny_tw = xacl_tw;
+
+Qmon*access_config.layout: \
+   Row { \
+      1 in Wide Caption tl "@{@fBAvailable Access Lists}" access_list \
+      Fixed Col { \
+         <> \
+         Etched Through access_toggle \
+         Fixed Centered access_add \
+         Fixed Centered access_remove \
+         ### \
+         Fixed Centered access_dialog \
+         <> \
+      } \
+      1 in Wide Col { \
+         Col { \
+            Row { access_allow_tw access_allow_label <> } \
+            access_allow \
+         } \
+         ## \
+         Col { \
+            Row { access_deny_tw access_deny_label <> } \
+            access_deny \
+         } \
+      } \
+   }
+
+
+Qmon*access_config.access_allow_label.labelString: @{@fBAllow Access to}
+Qmon*access_config.access_deny_label.labelString:  @{@fBDeny Access to}
+
+Qmon*access_config.access_allow_tw.valueChangedCallback: ToggleSensitive(self);
+Qmon*access_config.access_deny_tw.valueChangedCallback: ToggleSensitive(self);
+
+Qmon*access_config.access_allow_tw.indicatorOn:         False
+Qmon*access_config.access_allow_tw.shadowThickness:     0
+Qmon*access_config.access_allow_tw.highlightThickness:  0
+Qmon*access_config.access_allow_tw.labelType:           PIXMAP
+Qmon*access_config.access_allow_tw.labelPixmap:         lock
+Qmon*access_config.access_allow_tw.selectPixmap:        open_lock
+Qmon*access_config.access_allow_tw.selectInsensitivePixmap: open_lock_insensitive
+
+Qmon*access_config.access_deny_tw.indicatorOn:         False
+Qmon*access_config.access_deny_tw.shadowThickness:     0
+Qmon*access_config.access_deny_tw.highlightThickness:  0
+Qmon*access_config.access_deny_tw.labelType:           PIXMAP
+Qmon*access_config.access_deny_tw.labelPixmap:         lock
+Qmon*access_config.access_deny_tw.selectPixmap:        open_lock
+Qmon*access_config.access_deny_tw.selectInsensitivePixmap: open_lock_insensitive
+
+
+!Qmon*access_config.access_allow_tw.labelString:
+!Qmon*access_config.access_allow_tw.selectColor: seagreen
+!Qmon*access_config.access_deny_tw.labelString:
+!Qmon*access_config.access_deny_tw.selectColor: seagreen
+
+Qmon*access_config.access_dialog.labelType:       PIXMAP
+Qmon*access_config.access_dialog.labelPixmap:     toolbar_user
+
+Qmon*access_config.access_add.labelType:          PIXMAP
+Qmon*access_config.access_add.labelPixmap:        rightarrow
+Qmon*access_config.access_remove.labelType:       PIXMAP
+Qmon*access_config.access_remove.labelPixmap:     leftarrow
+
+Qmon*access_config.access_toggle.chooserType:    ChooserRadioBox
+Qmon*access_config.access_toggle.strings: \
+   "@{Allow Access}", "@{Deny Access}"
+
+Qmon*access_config*scrollBarDisplayPolicy:  AS_NEEDED
+Qmon*access_config*listSizePolicy:          CONSTANT
+
+Qmon*access_config*access_list.fontList:          $fixed_font
+Qmon*access_config*access_list.selectionPolicy:   EXTENDED_SELECT
+Qmon*access_config*access_list.scrollingPolicy:   AUTOMATIC
+Qmon*access_config*access_list.visualPolicy:      CONSTANT
+Qmon*access_config*access_list.visibleItemCount:  10
+
+Qmon*access_config*access_allow.fontList:         $fixed_font
+Qmon*access_config*access_allow.selectionPolicy:  EXTENDED_SELECT
+Qmon*access_config*access_allow.scrollingPolicy:  AUTOMATIC
+Qmon*access_config*access_allow.visualPolicy:     CONSTANT
+Qmon*access_config*access_allow.visibleItemCount: 4
+
+Qmon*access_config*access_deny.fontList:          $fixed_font
+Qmon*access_config*access_deny.selectionPolicy:   EXTENDED_SELECT
+Qmon*access_config*access_deny.scrollingPolicy:   AUTOMATIC
+Qmon*access_config*access_deny.visualPolicy:      CONSTANT
+Qmon*access_config*access_deny.visibleItemCount:  4
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! (x)projects
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*project_config.tabLabel: @{@fBProject Access}
+Qmon*project_config.xmtChildren: \
+   StringList     project_list, \
+                  project_allow = prj, \
+                  project_deny = xprj; \
+   XmtChooser     project_toggle; \
+   XmPushButton   project_add, project_remove, project_dialog; \
+   XmLabel        project_allow_label, project_deny_label; \
+   XmToggleButton project_allow_tw = prj_tw, \
+                  project_deny_tw = xprj_tw;
+
+Qmon*project_config.layout: \
+   Row { \
+      1 in Wide Caption tl "@{@fBAvailable Projects}" project_list \
+      Fixed Col { \
+         <> \
+         Etched Through project_toggle \
+         Fixed Centered project_add \
+         Fixed Centered project_remove \
+         ### \
+         Fixed Centered project_dialog \
+         <> \
+      } \
+      1 in Wide Col { \
+         Col { \
+            Row { project_allow_tw  project_allow_label <> } \
+            project_allow \
+         } \
+         ## \
+         Col { \
+            Row { project_deny_tw project_deny_label <> } \
+            project_deny \
+         } \
+      } \
+   }
+
+Qmon*project_config.project_allow_label.labelString: @{@fBAllow Project Access to}
+Qmon*project_config.project_deny_label.labelString:  @{@fBDeny Project Access to}
+
+Qmon*project_config.project_allow_tw.valueChangedCallback: ToggleSensitive(self);
+Qmon*project_config.project_deny_tw.valueChangedCallback: ToggleSensitive(self);
+
+Qmon*project_config.project_allow_tw.indicatorOn:         False
+Qmon*project_config.project_allow_tw.shadowThickness:     0
+Qmon*project_config.project_allow_tw.highlightThickness:  0
+Qmon*project_config.project_allow_tw.labelType:           PIXMAP
+Qmon*project_config.project_allow_tw.labelPixmap:         lock
+Qmon*project_config.project_allow_tw.selectPixmap:        open_lock
+Qmon*project_config.project_allow_tw.selectInsensitivePixmap: open_lock_insensitive
+
+Qmon*project_config.project_deny_tw.indicatorOn:         False
+Qmon*project_config.project_deny_tw.shadowThickness:     0
+Qmon*project_config.project_deny_tw.highlightThickness:  0
+Qmon*project_config.project_deny_tw.labelType:           PIXMAP
+Qmon*project_config.project_deny_tw.labelPixmap:         lock
+Qmon*project_config.project_deny_tw.selectPixmap:        open_lock
+Qmon*project_config.project_deny_tw.selectInsensitivePixmap: open_lock_insensitive
+
+
+!Qmon*project_config.project_allow_tw.labelString:
+!Qmon*project_config.project_allow_tw.selectColor: seagreen
+!Qmon*project_config.project_deny_tw.labelString:
+!Qmon*project_config.project_deny_tw.selectColor: seagreen
+
+
+Qmon*project_config.project_dialog.labelType:       PIXMAP
+Qmon*project_config.project_dialog.labelPixmap:     toolbar_prj
+
+Qmon*project_config.project_add.labelType:          PIXMAP
+Qmon*project_config.project_add.labelPixmap:        rightarrow
+Qmon*project_config.project_remove.labelType:       PIXMAP
+Qmon*project_config.project_remove.labelPixmap:     leftarrow
+
+Qmon*project_config.project_toggle.chooserType:    ChooserRadioBox
+Qmon*project_config.project_toggle.strings: \
+   "@{Allow Access}", "@{Deny Access}"
+
+Qmon*project_config*scrollBarDisplayPolicy:  AS_NEEDED
+Qmon*project_config*listSizePolicy:          CONSTANT
+
+Qmon*project_config*project_list.fontList:          $fixed_font
+Qmon*project_config*project_list.selectionPolicy:   EXTENDED_SELECT
+Qmon*project_config*project_list.scrollingPolicy:   AUTOMATIC
+Qmon*project_config*project_list.visualPolicy:      CONSTANT
+Qmon*project_config*project_list.visibleItemCount:  10
+
+Qmon*project_config*project_allow.fontList:         $fixed_font
+Qmon*project_config*project_allow.selectionPolicy:  EXTENDED_SELECT
+Qmon*project_config*project_allow.scrollingPolicy:  AUTOMATIC
+Qmon*project_config*project_allow.visualPolicy:     CONSTANT
+Qmon*project_config*project_allow.visibleItemCount: 4
+
+Qmon*project_config*project_deny.fontList:          $fixed_font
+Qmon*project_config*project_deny.selectionPolicy:   EXTENDED_SELECT
+Qmon*project_config*project_deny.scrollingPolicy:   AUTOMATIC
+Qmon*project_config*project_deny.visualPolicy:      CONSTANT
+Qmon*project_config*project_deny.visibleItemCount:  4
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! owners list 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*owner_config.tabLabel: @{@fBOwners}
+Qmon*owner_config.xmtChildren: \
+   StringList     owner_list = owner_list; \
+   InputField  owner_new; \
+   XmPushButton   owner_remove; \
+   XmLabel        owner_list_label; \
+   XmToggleButton owner_list_tw = owner_list_tw;
+
+Qmon*owner_config.layout: \
+   Row { \
+      Col { \
+         Row { owner_list_tw owner_list_label <> } \
+         3 in owner_list \
+         <> \
+      } \
+      Fixed 1 in Col { \
+         <>\
+         Caption tl "@{Enter Owner}" owner_new \
+         # \
+         Fixed FlushLeft owner_remove \
+         <>\
+      } \
+      <> \
+   }
+
+Qmon*owner_config.owner_list_label.labelString:    @{@fBOwner List}
+Qmon*owner_config.owner_list_tw.valueChangedCallback:    ToggleSensitive(self);
+
+Qmon*owner_config.owner_list_tw.indicatorOn:         False
+Qmon*owner_config.owner_list_tw.shadowThickness:     0
+Qmon*owner_config.owner_list_tw.highlightThickness:  0
+Qmon*owner_config.owner_list_tw.labelType:           PIXMAP
+Qmon*owner_config.owner_list_tw.labelPixmap:         lock
+Qmon*owner_config.owner_list_tw.selectPixmap:        open_lock
+Qmon*owner_config.owner_list_tw.selectInsensitivePixmap: open_lock_insensitive
+
+
+!Qmon*owner_config.owner_list_tw.labelString:
+!Qmon*owner_config.owner_list_tw.selectColor:    seagreen
+
+Qmon*owner_config.owner_remove.labelType:      PIXMAP
+Qmon*owner_config.owner_remove.labelPixmap:    trashcan
+!Qmon*owner_config.owner_remove.labelString:      @{Delete}
+Qmon*owner_config.owner_remove.activateCallback:  DeleteItems(*owner_list);
+
+Qmon*owner_config*scrollBarDisplayPolicy:   AS_NEEDED
+Qmon*owner_config*listSizePolicy:           CONSTANT
+Qmon*owner_config*owner_list.visibleItemCount: 10
+
+Qmon*owner_config*owner_list.fontList:         $fixed_font
+Qmon*owner_config*owner_list.selectionPolicy:  EXTENDED_SELECT
+Qmon*owner_config*owner_list.scrollingPolicy:  AUTOMATIC
+Qmon*owner_config*owner_list.visualPolicy:     CONSTANT
+
+Qmon*owner_config*owner_list.xmtChildren: unmanaged XmtPopupMenu cq_menu;
+Qmon*owner_config*owner_list*cq_menu.menuPost: <Btn3Down>
+
+Qmon*owner_config*owner_list*cq_menu.items: \
+   Title "@{@fBOperations}"; \
+   ------;\
+   "@{_Delete}" [Ctrl-D] DeleteItems(*owner_list);
+

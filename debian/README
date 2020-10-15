@@ -1,0 +1,20 @@
+Unlike the packages shipped with Debian, this native version of the
+packaging is intended as an add-on, installing into /opt/sge in
+vanilla form for sharing in a cluster.  (Obviously it can also be used
+for non-shared installations.)
+
+It needs to be further installed as usual by running ./inst_sge in
+/opt/sge to create a suitable cell.  The only real configuration it
+does on the installation system is to create an "sgeadmin" account for
+convenience.
+
+If building with a recent version of debuild(1) which doesn't allow
+overriding this in the package, give it the argument
+  --suppress-tags dir-or-file-in-opt
+to avoid a lot of noise, e.g.
+  debuild -uc -us -b --lintian-opts --suppress-tags dir-or-file-in-opt
+
+This packaging supports, but doesn't require, the "hardening-wrapper"
+package.  It's probably a good idea to build with hardening-wrapper
+installed to provide some robustness to the built daemons
+<http://wiki.debian.org/Hardening>.

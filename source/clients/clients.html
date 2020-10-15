@@ -1,0 +1,616 @@
+<!--___INFO__MARK_BEGIN__
+/*************************************************************************
+ *
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ *
+ *  Sun Microsystems Inc., March, 2001
+ *
+ *
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ *
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ *
+ *  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ *
+ *  Copyright: 2001 by Sun Microsystems, Inc.
+ *
+ *  All Rights Reserved.
+ *
+ ************************************************************************/
+___INFO__MARK_END__-->
+
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="christian reissmann">
+   <meta name="GENERATOR" content="Mozilla/4.76C-CCK-MCD Netscape [en] (X11; U; SunOS 5.8 sun4u) [Netscape]">
+</head>
+<body>
+
+<h1>
+<a NAME="General client implementation"></a>General client implementation</h1>
+
+<p><br><img SRC="GDI_request_flow.gif" height=383 width=575 align=BOTTOM>
+<br>&nbsp;
+<p>All Grid Engine client applications look very similar, because they
+are using the GDI interface <font color="#000000">(see&nbsp;</font> <a href="../libs/gdi/gdi.html">gdi.html</a><font color="#000000">)</font>to
+send<font color="#000000"> requests </font>to the qmaster daemon. This
+is a typical client/server interface, where the qmaster is the server.
+Each client can use the function sge_gdi() to send<font color="#000000">
+a request to the qmaster.&nbsp; The qmaster will check a received request
+for its correctness and will perfom the specified actions. The client will
+receive a status notification after processing the client request through
+the qmaster.</font>
+<p>The GDI interface is designed to exchange data lists between the clients
+and the qmaster. All Grid Engine lists are so called&nbsp; <a href="#cull list">cull
+lists</a> . You can interpret such a list as <font color="#000000">an o</font>bject,
+such as for instance the job list, which defines a submitted job. All job
+related data is stored in this list. Other examples are the queue list
+for queue objects or for cluster configurations the cluster configuration
+list. All Grid Engine relevant data is stored in <a href="#cull list">cull
+lists</a> and all data is managed by the qmaster.
+<p>The GDI interface can handle four main operations:
+<blockquote>
+<ol>
+<li>
+<tt>SGE_GDI_GET -</tt> Get a object list from the qmaster</li>
+
+<li>
+<tt>SGE_GDI_ADD -</tt> Add a new object list ( e.g. new job(list), new
+queue(list) )</li>
+
+<li>
+<tt>SGE_GDI_DEL -</tt> Delete an object at the qmaster</li>
+
+<li>
+<tt>SGE_GDI_MOD -</tt> Modify an object at the qmaster</li>
+</ol>
+</blockquote>
+For further details on the GDI please refer to <font color="#000000">(see
+</font><a href="../libs/gdi/gdi.html">gdi.html</a><font color="#000000">
+) and The GDI section (section 3) in the Grid Engine reference manual.</font>
+<p>The qmaster handles the client requests through the GDI interface in
+the qmaster function sge_c_gdi() which is implemented in the file gridengine/source/daemons/qmaster/sge_c_gdi.c.
+The client GDI interface is implemented in the gdi lib (file gridengine/source/libs/gdi/sge_gdi_request.c).
+<p>The sge_c_gdi() function itself is called from the qmaster when a new
+GDI request arrives. The qmaster main loop (while (TRUE) {}) is implemented
+in the file /gridengine/source/daemons/qmaster/qmaster.c. Here the master
+reacts on so called tags. One tag is e.g. TAG_GDI_REQUEST which indicates
+to enter the GDI request function sge_c_gdi().
+<p>In order to setup the connection to the qmaster each client will perform
+a <a href="#general client setup">general client setup</a>. After that,
+command line parameters are parsed. Now a client will generate a GDI request
+depending on the client and on the options given to the client. The qsub
+client, for instance, will generate a new job list and will use the SGE_GDI_ADD
+functionallity of the sge_gdi() call to send the new job object to the
+qmaster. The qdel client, on the other hand, will use the SGE_GDI_DEL functionallity
+to tell the qmaster that a particular job object should get deleted at
+the qmaster.
+<p>
+<hr WIDTH="100%">
+<h1>
+special - clients</h1>
+
+<h2>
+<a NAME="qrsh"></a><font size=+1><a href="qrsh/qrsh.html#qrsh_dokument">qrsh
+and qlogin</a> - Grid Engine rsh and login integration</font></h2>
+
+<h2>
+<a NAME="qmake"></a><font size=+1><a href="../3rdparty/qmake/qmake.html">qmake</a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+- Grid Engine parallel make integration</font></h2>
+
+<h2>
+<a NAME="qsh"></a><font size=+1><a href="qsh/qsh.html">qsh</a> - Grid Engine
+sh integration</font></h2>
+
+<h2>
+<a NAME="qtcsh"></a><font size=+1><a href="../3rdparty/qtcsh/qtcsh.html">qtcsh</a>
+- Grid Engine tcsh integration</font></h2>
+
+<h2>
+
+<hr WIDTH="100%"></h2>
+
+<h1>
+job - related clients</h1>
+
+<h2>
+
+<hr WIDTH="100%"></h2>
+
+<h2>
+<a NAME="qsub"></a><font size=+1>qsub - submit jobs</font></h2>
+This client program is used to submit job scripts.&nbsp; Please read the
+man page for a functional overview. This client is implemented in the way
+described in <a href="#General client implementation">general client implementation.</a>
+<br>&nbsp;
+<br>&nbsp;
+<p><b><u>Functional summary</u></b>
+<p>The main function of the program can be found in the file <i>gridengine/source/clients/qsub/qsub.c</i>.
+It contains the steps:
+<ol>1.&nbsp; <a href="#Setup I18N">Setup internationalization</a>
+<ol>
+<ol>&nbsp;</ol>
+</ol>
+2.&nbsp; <a href="#general client setup">General client setup</a>
+<ol>
+<ol>&nbsp;</ol>
+</ol>
+3. Read in all command line options
+<ol>
+<ol>&nbsp;</ol>
+The qsub command will interpret additional default switches from the
+<a href="#default files">default
+files</a> as command arguments. These switches are generally used when
+a job is submitted. The default switches are simply added to the ones which
+are from the command line. All parameters from the command line are stored
+into a&nbsp; <a href="#cull list">cull list</a> of the type SPA_Type.</ol>
+4. Create a new job list
+<ol>
+<ol>&nbsp;</ol>
+The function <b>cull_parse_job_parameter()</b> (file: <i>gridengine/source/common/parse_job_cull.c</i>
+) creates a job object in accordance with the command line parameters.</ol>
+5. Send job list to qmaster
+<ol>
+<ol>&nbsp;</ol>
+Every job is represented by a job list at the qmaster. In order to send
+the new generated job to the qmaster the <b>sge_gdi()</b> function (file:
+<i>gridengine/source/libs/gdi/sge_gdi_request.c</i>
+) is used.</ol>
+6. Analyze answer from qmaster</ol>
+
+<hr WIDTH="100%">
+<h2>
+<a NAME="qresub"></a><font size=+1>qresub - submit a copy of an existing
+job</font></h2>
+This client program is used to submit a new job with the same parameters
+as an already pending or running job. Please read the corresponding man
+page for a functional overview. This client is a file link to the <a href="#qalter">qalter</a>
+client. The qalter client will react in an different way when its invocation
+name is "qresub". This client is implemented in the way described in <a href="#General client implementation">general
+client implementation.</a>
+<br>&nbsp;
+<p><b><u>Functional summary</u></b>
+<p>The main function of the progam can be found in in the file <i>gridengine/source/clients/qalter/qalter.c</i>.
+It contains the steps:
+<ol>1. <a href="#Setup I18N">Setup internationalization</a>
+<ol>
+<ol>&nbsp;</ol>
+</ol>
+2. <a href="#general client setup">General client setup</a>
+<ol>
+<ol>&nbsp;</ol>
+</ol>
+3. Read in all command line options
+<ol>
+<ol>&nbsp;</ol>
+All parameters from the command line are stored into a&nbsp; <a href="#cull list">cull
+list</a> of the type SPA_Type.</ol>
+4. Create a request list
+<ol>This list will contain all changes needed by qmaster to submit a job
+copy. For qresub this is only the job id of the job which should be copied.</ol>
+5. Send GDI request to qmaster
+<ol>
+<ol>&nbsp;</ol>
+The client will now send the request list which includs the job id of the
+job (which should be copied) to the qmaster. For this action the GDI interface
+operation SGE_GDI_COPY is used when calling the <b>sge_gdi()</b> function
+(file: <i>gridengine/source/libs/gdi/sge_gdi_request.c</i> ).
+<ol>&nbsp;</ol>
+</ol>
+6. Analyze answer from qmaster</ol>
+
+<p><br>
+<hr WIDTH="100%">
+<br>&nbsp;
+<h2>
+<a NAME="qalter"></a><font size=+1>qalter - modify submitted jobs</font></h2>
+This client program is used to modify already pending or running jobs.
+Please read the corresponding man page for a functional overview. This
+client is implemented in the way described in <a href="#General client implementation">general
+client implementation.</a>
+<br>&nbsp;
+<p><b><u>Functional summary</u></b>
+<p>The main function of the program can be found in the file <i>gridengine/source/clients/qalter/qalter.c</i>.
+It contains the following steps:
+<ol>1. <a href="#Setup I18N">Setup internationalization</a>
+<ol>
+<ol>&nbsp;</ol>
+</ol>
+2. <a href="#general client setup">General client setup</a>
+<ol>
+<ol>&nbsp;</ol>
+</ol>
+3. Read in all command line options
+<ol>
+<ol>&nbsp;</ol>
+All parameters from the command line are stored into a&nbsp; <a href="#cull list">cull
+list</a> of the type SPA_Type.</ol>
+4. Create a request list
+<ol>This list will contain all changes needed by qmaster to manipulate
+the existing job.</ol>
+
+<ol>
+<ol>&nbsp;</ol>
+</ol>
+5. Send GDI request to qmaster
+<ol>
+<ol>&nbsp;</ol>
+The client will now send the request list which includs the job id of the
+job (which should be modified) and all desired modifications to the qmaster.
+For this action the GDI interface operation SGE_GDI_MOD is used when calling
+the <b>sge_gdi()</b> function (file: <i>gridengine/source/libs/gdi/sge_gdi_request.c</i>
+).
+<ol>&nbsp;</ol>
+</ol>
+6. Analyze answer from qmaster</ol>
+
+<p><br>
+<hr WIDTH="100%">
+<br>&nbsp;
+<h2>
+<a NAME="qdel"></a><font size=+1>qdel - delete jobs</font></h2>
+This client program is used to delete pending or running jobs. Please read
+the corresponding man page for a functional overview. This client is implemented
+in the way described in <a href="#General client implementation">general
+client implementation.</a>
+<br>&nbsp;
+<p><b><u>Functional summarization</u></b>
+<p>The main function fof the program can be found in the file <i>gridengine/source/clients/qdel/qdel.c</i>.
+It contains the following steps:
+<ol>1. <a href="#Setup I18N">Setup internationalization</a>
+<ol>&nbsp;</ol>
+2. <a href="#general client setup">General client setup</a>
+<ol>&nbsp;</ol>
+3. Read in all command line options
+<ol>&nbsp;
+<br>All parameters from the command line are stored into a&nbsp; <a href="#cull list">cull
+list</a> of the type SPA_Type.</ol>
+4. Generate a job list
+<br>&nbsp;
+<ol>The job list contains the job id(s) to be deleted.</ol>
+5. Send GDI request to qmaster
+<ol>&nbsp;
+<br>The client will now send the job list which includs the job id(s) of
+the job(s) (which should be deleted) to the qmaster. For this action the
+GDI interface operation SGE_GDI_DEL is used when calling the <b>sge_gdi()</b>
+function (file: <i>gridengine/source/libs/gdi/sge_gdi_request.c</i> ).</ol>
+6. Analyze answer from qmaster</ol>
+
+<p><br>
+<hr WIDTH="100%">
+<br>&nbsp;
+<h2>
+<a NAME="qhold"></a><font size=+1>qhold - hold back jobs from execution</font></h2>
+This client program is used to set pending or running jobs into hold state.
+Please read the corresponding man page for a functional overview. This
+command is no new client binary. It is only a shell script which is using
+the <a href="#qalter">qalter</a> client to modify a job.
+<br>&nbsp;
+<p>
+<hr WIDTH="100%">
+<br>&nbsp;
+<h2>
+<a NAME="qrls"></a><font size=+1>qrls - release jobs from previous hold
+state</font></h2>
+This client program is used to release pending or running jobs from hold
+state. Please read the corresponding man page for a functional overview.
+This command is no new client binary. It is only a shell script which is
+using the <a href="#qalter">qalter</a> client to modify a job.
+<br>&nbsp;
+<p>
+<hr WIDTH="100%">
+<h1>
+accounting - related clients</h1>
+&nbsp;
+<h2>
+<a NAME="qacct"></a><font size=+1>qacct - get accounting information for
+completed jobs</font></h2>
+This client program is used as reporting and accounting tool. Please read
+the corresponding man page for a functional overview. This client is implemented
+in the way described in <a href="#General client implementation">general
+client implementation.</a>
+<p><b><u>Functional summary</u></b>
+<p>The main function of the program can be found in the file <i>gridengine/source/clients/qacct/qacct.c</i>.
+It contains the following steps:
+<ol>1. <a href="#Setup I18N">Setup internationalization</a>
+<ol>
+<ol>&nbsp;</ol>
+</ol>
+2. <a href="#general client setup">General client setup</a>
+<ol>
+<ol>&nbsp;</ol>
+</ol>
+3. Read in all command line options
+<ol>
+<ol>&nbsp;</ol>
+All parameters from the command line are stored into a&nbsp; <a href="#cull list">cull
+list</a> of the type SPA_Type.</ol>
+4. Send GDI request(s) to qmaster
+<ol>
+<ol>&nbsp;</ol>
+The client will retrieve diverse data from the qmaster. For this action
+the GDI interface operation SGE_GDI_GET is used when calling the <b>sge_gdi()</b>
+function (file: <i>gridengine/source/libs/gdi/sge_gdi_request.c</i> ).
+<ol>&nbsp;</ol>
+</ol>
+5. Analyze answer from qmaster and display accounting information.
+<p>6. Repeat the last two steps for different data calls.</ol>
+
+<hr WIDTH="100%">
+<h1>
+queue - related clients</h1>
+&nbsp;
+<h2>
+<a NAME="qconf"></a><font size=+1>qconf - add, remove, modify or show Grid
+Engine configurations</font></h2>
+This client program is the main command-line administrative interface for
+Grid Engine. Please read the corresponding man page for a functional overview.
+This client is implemented in the way described in <a href="#General client implementation">general
+client implementation.</a>
+<br>&nbsp;
+<p><b><u>Functional summary</u></b>
+<p>The main function of the program can be found in the file <i>gridengine/source/clients/qconf/qconf.c</i>.
+It contains the following steps:
+<ol>1. <a href="#Setup I18N">Setup internationalization</a>
+<ol>
+<ol>&nbsp;</ol>
+</ol>
+2. <a href="#general client setup">General client setup</a>
+<ol>
+<ol>&nbsp;</ol>
+</ol>
+3. Read in all command line options
+<ol>
+<ol>&nbsp;</ol>
+All parameters from the command line are stored into a&nbsp; <a href="#cull list">cull
+list</a> of the type SPA_Type.</ol>
+4. If neccessary get configuration lists from qmaster
+<ol>Get e.g. queue configuration list ( with SGE_GDI_GET call )</ol>
+5. If neccessary Manipulate the lists
+<ol>Change list attributes</ol>
+6. Send manipulated list back to qmaster ( with e.g. SGE_GDI_MOD call )
+<ol>
+<ol>&nbsp;</ol>
+The client will send one or more requests to the qmaster. To perform this,
+diverse GDI interface operations are used when calling the <b>sge_gdi()</b>
+function (file: <i>gridengine/source/libs/gdi/sge_gdi_request.c</i> ).
+<ol>&nbsp;</ol>
+</ol>
+7. Alternatively to the 3 steps above new objects can be created or existing
+objects can be deleted
+<p>8. Analyze answer from qmaster</ol>
+
+<p><br>
+<hr WIDTH="100%">
+<br>&nbsp;
+<h2>
+<a NAME="qmod"></a><font size=+1>qmod - modify queue status</font></h2>
+This client program is used to modify the status of existing queues. Please
+read the corresponding man page for a functional overview. This client
+is implemented in the way described in <a href="#General client implementation">general
+client implementation.</a>
+<br>&nbsp;
+<p><b><u>Functional summary</u></b>
+<p>The main function of the program can be found in the file <i>gridengine/source/clients/qmod/qmod.c.</i>
+It contains the steps:
+<ol>1. <a href="#Setup I18N">Setup internationalization</a>
+<ol>
+<ol>&nbsp;</ol>
+</ol>
+2. <a href="#general client setup">General client setup</a>
+<ol>
+<ol>&nbsp;</ol>
+</ol>
+3. Read in all command line options
+<ol>
+<ol>&nbsp;</ol>
+All parameters from the command line are stored into a&nbsp; <a href="#cull list">cull
+list</a> of the type SPA_Type.</ol>
+4. Generate&nbsp; SGE_QUEUE_LIST
+<p>5. Send GDI request to qmaster
+<ol>
+<ol>&nbsp;</ol>
+The client will send the request list to the qmaster. For this action the
+GDI interface operation SGE_GDI_TRIGGER is used when calling the <b>gdi_qmod()</b>
+function (file: <i>gridengine/source/libs/gdi/gdi_qmod.c</i> ).
+<ol>&nbsp;</ol>
+</ol>
+6. Analyze answer from qmaster</ol>
+
+<p><br>
+<hr WIDTH="100%">
+<br>&nbsp;
+<h1>
+general - related clients</h1>
+
+<h2>
+<a NAME="qhost"></a><font size=+1>qhost - get information about hosts,
+queues or jobs</font></h2>
+This client program is used to get information about the Grid Engine Cluster.
+Please read the corresponding man page for a functional overview. This
+client is implemented in the way described in <a href="#General client implementation">general
+client implementation.</a>
+<br>&nbsp;
+<p><b><u>Functional summary</u></b>
+<p>The main function of the program can be found in the file <i>gridengine/source/clients/qhost/qhost.c</i>.
+It contains the steps:
+<ol>1. <a href="#Setup I18N">Setup internationalization</a>
+<ol>
+<ol>&nbsp;</ol>
+</ol>
+2. <a href="#general client setup">General client setup</a>
+<ol>
+<ol>&nbsp;</ol>
+</ol>
+3. Read in all command line options
+<ol>
+<ol>&nbsp;</ol>
+All parameters from the command line are stored into a&nbsp; <a href="#cull list">cull
+list</a> of the type SPA_Type.</ol>
+4. Send GDI request(s) to qmaster
+<ol>
+<ol>&nbsp;</ol>
+The client will retrieve diverse data from the qmaster. For this action
+the GDI interface operation SGE_GDI_GET is used when calling the <b>sge_gdi()</b>
+function (file: <i>gridengine/source/libs/gdi/sge_gdi_request.c</i> ).
+<ol>&nbsp;</ol>
+</ol>
+5. Analyze answer from qmaster and display results</ol>
+
+<p><br>
+<hr WIDTH="100%">
+<br>&nbsp;
+<h2>
+<a NAME="qselect"></a><font size=+1>qselect - get queue names which match
+given request</font></h2>
+This client program is used to get queue names which match search patterns.
+Please read the man corresponding page for a functional overview. This
+client is a file link to the <a href="#qstat">qstat</a> client. The qstat
+client will react in an different way when its program name is "qselect".
+This client is implemented in the way described in <a href="#General client implementation">general
+client implementation.</a>
+<br>&nbsp;
+<p>
+<hr WIDTH="100%">
+<br>&nbsp;
+<h2>
+<a NAME="qstat"></a><font size=+1>qstat - show status of jobs and queues</font></h2>
+This client program is used get information about jobs and/or queues. Please
+read the corresponding man page for a functional overview. This client
+is implemented in the way described in <a href="#General client implementation">general
+client implementation.</a>
+<br>&nbsp;
+<p><b><u>Functional summary</u></b>
+<p>The main function of the program can be found in the file <i>gridengine/source/clients/qstat/qstat.c</i>.
+It contains the steps:
+<ol>1. <a href="#Setup I18N">Setup internationalization</a>
+<ol>
+<ol>&nbsp;</ol>
+</ol>
+2. <a href="#general client setup">General client setup</a>
+<ol>
+<ol>&nbsp;</ol>
+</ol>
+3. Read in all command line options
+<ol>
+<ol>&nbsp;</ol>
+All parameters from the command line are stored into a&nbsp; <a href="#cull list">cull
+list</a> of the type SPA_Type.</ol>
+4. Send GDI request(s) to qmaster
+<ol>
+<ol>&nbsp;</ol>
+The client will retrieve diverse data from the qmaster. For this action
+the GDI interface operation SGE_GDI_GET is used when calling the <b>sge_gdi()</b>
+function (file: <i>gridengine/source/libs/gdi/sge_gdi_request.c</i> ).
+<ol>&nbsp;</ol>
+</ol>
+5. Analyze answer from qmaster and display results.</ol>
+
+<p><br>
+<hr WIDTH="100%">
+<br>&nbsp;
+<h2>
+<a NAME="general client setup"></a><font size=+1>general client setup</font></h2>
+
+<p><br>The following function calls are made in each client before starting
+any other action. Please do not mix up the call order.
+<br>&nbsp;
+<p>sge_setup()
+<blockquote>
+<li>
+set program name and path variables</li>
+
+<li>
+check for sanity</li>
+</blockquote>
+prepare_enroll()
+<ul>
+<li>
+initialize security module</li>
+
+<li>
+setup communication library parameters</li>
+</ul>
+install_exit_func()
+<blockquote>
+<li>
+set function pointer to an exit function</li>
+</blockquote>
+lInit()
+<blockquote>
+<li>
+initialze list library (cull) name space</li>
+</blockquote>
+setup_sig_handlers()
+<blockquote>
+<li>
+setup signal masks and handler functions</li>
+</blockquote>
+
+<hr WIDTH="100%">
+<h2>
+<a NAME="default files"></a><font size=+1>default files</font></h2>
+Default files are read and processed during job submission before any submit
+option embedded in the job script and before any option in the qsub or
+qsh command line are considered. This means the options written into this
+file are automatically added to the command line on each qsub call. Please
+read the manual page "sge_request" for more information.
+<br>&nbsp;
+<p>
+<hr WIDTH="100%">
+<h2>
+<a NAME="cull list"></a><font size=+1>cull list</font></h2>
+All Grid Engine internal data (jobs, queues, hosts, etc.) are stored in
+so called <a href="../libs/cull/cull.html">cull</a> (Common Usable List
+Library) list.
+<p>The cull defines different list and data types. Each list entry can
+be accessed by name or position. Also sublists are allowed. Here are some
+defined list specifiers:
+<ul>
+<li>
+SGE_JOB_LIST - job list</li>
+
+<li>
+SGE_QUEUE_LIST - queue list</li>
+
+<li>
+SGE_CKPT_LIST - checkpointing object list</li>
+
+<li>
+....</li>
+</ul>
+
+<hr WIDTH="100%">
+<h2>
+<a NAME="Setup I18N"></a><font size=+1>Setup internationalization</font></h2>
+In order to have the possibility to internationalize the Grid Engine messages,
+one of the first things to do at startup of a client application is to
+setup the internationalization function. The function install_language_func()
+is used to set up a message wrapper. If the Grid Engine system is linked
+with the gettext library, this function if called with the original (english)
+message, will return the localized message from a message catalouge. The
+_() macro is set to this function. Every message put into this macro (between
+the brackets) can be localized. All localized messages are defined as a
+macro in the msg_x.h files.
+<br>&nbsp;
+<br>&nbsp;
+<br>
+<br>
+<center>
+<p>Copyright 2001 Sun Microsystems, Inc. All rights reserved.</center>
+
+</body>
+</html>

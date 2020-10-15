@@ -1,0 +1,55 @@
+#!/bin/sh
+
+# List idle SGE nodes.
+
+# Dave Love <fx@gnu.org>, 2008-09
+# Copyright (C) 2008 The University of Liverpool
+# Licence: FreeBSD <http://www.gnu.org/licenses/license-list.html#FreeBSD>
+
+usage () {
+    echo "Usage: $(basename $0) [-w]
+List nodes with SGE active (sge_execd responding) not currently running jobs.
+May include nodes with queues disabled (see \`disabled-nodes').
+-w means separate node names with commas, to produce a list suitable
+for the -w arg of pdsh."
+}
+
+sep='"\n"'
+case $1 in
+    --help) usage; exit;;
+    -w) sep='","';;
+    '') : ;;
+    *) usage 1>&2; exit 1;;
+esac
+
+# The qhost output comprises a header and node lines up until the
+# first node with a job in it, when the node ine is followed by
+# another header and the job details.  Filter the headers and look for
+# node lines, which have leading node names (no spaces).  If the
+# following line has leading blanks and a number (job info), the node
+# is busy.
+qhost -j |
+  awk '
+/^HOSTNAME|^-/ {node=""}	# header
+
+/^[[:blank:]]+(job-ID|-)/ {next}# header
+
+/^[^-[:blank:]]/ {		# node
+    if (node) {
+	printf ("%s%s", sep, node)	# from previous line
+       'sep=$sep'			# shell substitution!
+    }
+    if ($7 == "-")
+	node = ""
+    else
+	node = $1
+}
+
+/^[[:blank:]]+[0-9]/ {node = ""}	# job
+
+END {
+    if (node)
+	printf ("%s%s", sep, node) # possible left-over
+    if (sep != ",") print ""
+}
+'

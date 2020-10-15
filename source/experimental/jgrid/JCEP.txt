@@ -1,0 +1,60 @@
+JGrid Compute Engine Protocol 1.0
+
+JCEP Header: 0x74676980
+JCEP Version: (major)(minor)
+	Version 1.0 = 0x10
+Submit Job: 0x40 num_bytes serialized_job
+	Starts a new job and registers this connection that that job
+Cancel Job: 0x41 job_number
+	Stops the job and unregisters this connection from that job
+Checkpoint: 0x42 job_number
+	Causes the job's state to be written to disk
+Shutdown: 0x43
+	Causes the server to save all jobs and halt
+Register: 0x44 job_number
+	Registers this connection with the given job number
+Unregister 0x45 job_number
+	Unregisters this connection with the given job number
+Suspend: 0x46 job_number
+	Suspends the given job
+Resume: 0x47 job_number
+	Resumes a suspended job
+Log Message: 0x80 job_number message
+	Output message from the job
+Job Error: 0x81 job_number error
+	Error message from the job
+New Job State: 0x82 job_number state
+	Indicates that the job has changed state to:
+		RUNNING = 0x01
+		SUSPENDED = 0x02
+		STOPPED = 0x03
+		COMPLETED = 0x04
+		FAILED = 0x05
+Command Failed: 0x83 command job_number reason
+	The given command failed to execute for the given reason
+Job Checkpointed: 0x84 job_number
+ 	The job has been successfully checkpointed
+Shutting Down: 0x85
+	The server is stopping all jobs and shutting down
+
+//This is now out of date
+S: Listen port 13516
+C: Connect port 13516
+C: JCEP Header
+C: JCEP Version (1 byte)
+S: JCEP Version (1 byte)
+[C: Shutdown
+[S: Command Failed job_number UTF]
+[S: Shutting Down]]
+C: Submit Job serialized_job
+[[S: Command Failed job_number UTF]
+[S: Job Started job_number]]
+S*: Log Message job_number UTF
+[C: Checkpoint job_number
+[S: Command Failed job_number UTF]
+[S: Job Checkpointed job_number]]*
+[S: Job Error job_number UTF]
+[C: Cancel Job job_number
+[S: Command Failed job_number UTF]
+[S: Job Canceled job_number]]
+[S: Job Complete job_number]

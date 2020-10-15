@@ -1,0 +1,115 @@
+#!/bin/sh
+#
+#
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Shannon Davidson, Raytheon
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+set +u
+
+usage() {
+   echo " "
+   echo "usage: gmps [-a] [-h] [-k] [-v] [-p port]"
+   echo " "
+   echo "  -a   Get info for all hosts"
+   echo "  -h   Display this usage information"
+   echo "  -k   Kill processes"
+   echo "  -v   Verbose output (pid and port)"
+   echo "  -p   Query for this port number"
+   echo " "
+}
+
+gethosts() {
+   $gm_board_info | grep "^  [ 0-9][0-9] " | awk '{ print $3 }' | sort
+}
+
+gm_board_info=$(whence gm_board_info)
+if [ "$gm_board_info" = "" ]; then
+   echo "gm_board_info is not in your path" 1>&2
+   exit 1
+fi
+
+gmport="[24567]"
+verbose=0
+kill=0
+allhosts=0
+portopt=0
+while [ "$1" != "" ]; do
+
+   case "$1" in
+      -v) verbose=1;;
+      -k) kill=1;;
+      -a) allhosts=1;;
+      -p) portopt=1;gmport=$2;shift;;
+      -h) usage; exit 0;;
+      *) echo "gmps: Unknown option - $1"; usage 1>&2; exit 1;;
+   esac
+
+   shift
+done
+
+if [ $allhosts -eq 1 ]; then
+   hosts=$(gethosts)
+   gmps=$(whence gmps)
+   if [ "$gmps" = "" ]; then
+      echo "gmps is not in your PATH" 1>&2
+      exit 2
+   fi
+   gmpath=$(dirname $gm_board_info)
+   gmopts=
+   [ $verbose -eq 1 ] && gmopts="$gmopts -v"
+   [ $kill -eq 1 ] && gmopts="$gmopts -k"
+   [ $portopt -eq 1 ] && gmopts="$gmopts -p $gmport"
+   for h in $hosts; do
+      echo "$h:"
+      rsh $h "PATH=$PATH:$gmpath; export PATH; $gmps $gmopts" 2>/dev/null
+   done
+   exit 0
+fi
+
+pids="$($gm_board_info | egrep "$gmport: *BUSY" | awk '{ echo $3; }')"
+
+if [ $kill -eq 1 ]; then
+   for a in $pids; do
+      kill $a
+   done
+fi
+
+if [ "$pids" != "" ]; then
+   if [ $verbose -eq 1 ]; then
+      echo "   PID PORT"
+      $gm_board_info | egrep "$gmport: *BUSY" | awk '{ printf("%6d %s\n", $3, substr($1, 0, 1)); }'
+   else
+      echo -- "$pids"
+   fi
+fi
+
+

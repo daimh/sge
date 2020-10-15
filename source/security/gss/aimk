@@ -1,0 +1,245 @@
+#!/bin/csh -fb
+#
+#
+# aimk - Architecture Independent MaKefile
+#
+# Originally aimk comes from the PVM distribution
+#
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+set noglob
+
+if (! $?SGE_ROOT) then
+   echo Please set your SGE_ROOT environment variable before calling aimk
+   echo
+   exit 1
+endif
+
+if (! $?KRB_HOME) then
+   #set KRB_HOME = /krb5/
+   set KRB_HOME = /usr/local/
+endif
+
+# common compiler and linker settings 
+#
+unsetenv LD_LIBRARY_PATH
+set CC         = cc
+set ARCH       = `$SGE_ROOT/util/arch`
+set MAKE       = make
+set MAKEFILE   = ../Makefile
+set SDIR       = ".."
+set CFLAGS     = ""
+set LFLAGS     = ""
+set LIBS       = ""
+set DEBUG_FLAG = ""
+set RANLIB     = echo
+set STATIC     = "-static -nostartfiles"
+set START_FILE = ""
+
+unset nomk
+set found
+
+while ($#argv >= 1 && $?found)
+
+   switch ("$argv[1]")
+   case "-h":
+   case "-help":
+      echo "aimk options:"
+      echo '     -nomk      dont call make - echo architecture and exit'
+      echo '     -debug     compile with "-g" option'
+      echo '     -cc        force usage of "cc" as compiler'
+      echo '     -gcc       force usage of "gcc" as compiler'
+      echo '     -gss       compile with the Kerberos GSSAPI libraries'
+      exit 0
+      breaksw
+   case "-nomk":
+      set nomk
+      set argv = ($argv[2-])
+      breaksw
+   case "-debug":
+      set argv  = ($argv[2-])
+      set DEBUG_FLAG = "$DEBUG_FLAG -g"
+      breaksw      
+   case "-gcc"
+      set argv     = ($argv[2-])
+      set CC       = gcc
+      breaksw
+   case "-cc"
+      set argv     = ($argv[2-])
+      set CC       = cc
+      breaksw
+   case "-gss"
+      set argv     = ($argv[2-])
+      set CFLAGS  = "-DKERBEROS -I$KRB_HOME/include/gssapi -I$KRB_HOME/include $CFLAGS"
+      set LFLAGS  = "-L$KRB_HOME/lib $LFLAGS"
+      set LIBS    = "$LIBS -lgssapi_krb5 -lkrb5 -lk5crypto -lcom_err"
+      breaksw
+   case "-dce"
+      set argv     = ($argv[2-])
+      set CFLAGS  = "-DDCE -I/usr/include/dce $CFLAGS"
+      set LIBS    = "$LIBS -ldce -threads"
+      breaksw
+   default:
+      unset found
+      breaksw
+   endsw
+end
+
+set CTOR = ""
+set DTOR = ""
+
+switch ($ARCH)
+
+case aix51:
+   set CFLAGS = "-DAIX51 -DUSE_STDARG $DEBUG_FLAG $CFLAGS"
+   set LFLAGS = "$DEBUG_FLAG $LFLAGS"
+   set LIBS = "$LIBS"
+   breaksw
+
+case irix5:
+   if ( $CC == gcc ) then
+      set CFLAGS = "-Wall -Wstrict-prototypes -DIRIX5 $DEBUG_FLAG $CFLAGS"
+   else
+      set CFLAGS = "-DIRIX5 $DEBUG_FLAG $CFLAGS"
+   endif
+   set LFLAGS = "$DEBUG_FLAG $LFLAGS"
+   set LIBS = "$LIBS"
+   breaksw
+
+case irix6*:
+   set CFLAGS = "-DIRIX6 $DEBUG_FLAG $CFLAGS"
+   set LFLAGS = "$DEBUG_FLAG $LFLAGS"
+   set LIBS = "$LIBS"
+   set DTOR = "/usr/lib/crt1.o"
+   set DTOR = "/usr/lib/crtn.o"
+	set STATIC   = "-nostartfiles"
+   breaksw
+
+case hp:
+   if ( $CC == gcc ) then
+      set CFLAGS = "-Wall -Wstrict-prototypes -DHPUX $DEBUG_FLAG $CFLAGS"
+   else
+      set CFLAGS = "-Aa -D_HPUX_SOURCE -DHPUX $DEBUG_FLAG $CFLAGS"
+   endif
+   set LFLAGS = "$DEBUG_FLAG $LFLAGS"
+   set LIBS = "$LIBS"
+   breaksw
+
+case hp11:
+   if ( $CC == gcc ) then
+      set CFLAGS = "-O -Wall -Wstrict-prototypes -DHP11 $DEBUG_FLAG $CFLAGS"
+   else
+      set CFLAGS = "-Ae -O -DHP11 $DEBUG_FLAG $CFLAGS"
+   endif
+   set LFLAGS = "$DEBUG_FLAG $LFLAGS"
+   set LIBS = "$LIBS"
+   breaksw
+
+
+case *linux:
+   set CC = gcc
+   set CFLAGS = "-O -Wall -DLINUX $DEBUG_FLAG $CFLAGS"
+   set LFLAGS = "$DEBUG_FLAG $LFLAGS"
+   set LIBS = "$LIBS"
+   set START_FILE = "/usr/lib/crti.o /usr/lib/crtbegin.o"
+   set CTOR = "/usr/lib/crti.o /usr/lib/crtbegin.o"
+   set DTOR = "/usr/lib/crtend.o /usr/lib/crtn.o"
+   breaksw
+
+case osf:
+case osf4:
+case tru64:
+   if ( $CC == gcc ) then
+      set CFLAGS = "-Wall -Wstrict-prototypes -D_BSD -DALPHA $DEBUG_FLAG $CFLAGS"
+   else
+      set CFLAGS = "-std1 -warnprotos -D_BSD -DALPHA $DEBUG_FLAG $CFLAGS -Olimit 1500"
+   endif
+   set LFLAGS = "$DEBUG_FLAG $LFLAGS"
+   set LIBS = "$LIBS"
+   breaksw
+
+case rs6000:
+   if ( $CC == gcc ) then
+      set CFLAGS = "-Wall -Wstrict-prototypes -DAIX32 $DEBUG_FLAG $CFLAGS"
+   else
+      set CFLAGS = "-DAIX32 -DUSE_STDARG $DEBUG_FLAG $CFLAGS"
+   endif
+   set LFLAGS = "$DEBUG_FLAG $LFLAGS"
+   set LIBS = "$LIBS"
+   breaksw
+
+case solaris:
+#   set CC   = "gcc"
+   if ( $CC == gcc ) then
+      set CFLAGS   = "-DSOLARIS -O -Wall $DEBUG_FLAG $CFLAGS"
+   else
+      set CFLAGS = "-std1 -DSOLARIS -O $DEBUG_FLAG $CFLAGS"
+   endif
+   set LIBS = "$LIBS -lresolv -lsocket -lnsl"         
+	set STATIC   = "-nostartfiles"
+   breaksw
+
+case sun4:
+   set CC = gcc
+   set CFLAGS = "-Wall -Wstrict-prototypes -DSUN4 $DEBUG_FLAG $CFLAGS"
+   set LFLAGS = "-static $DEBUG_FLAG $LFLAGS"
+   set LIBS   = "$LIBS"
+   set RANLIB = ranlib
+   breaksw
+
+default:
+   echo "ERROR: Architecture not yet supported by CODINE-aimk"
+   echo "Better use the top-level aimk with -gss"
+   exit 1
+endsw
+
+#----------------------------------------
+if ($?nomk) then
+   echo $ARCH
+   exit 0
+endif
+
+if ( ! -d $ARCH ) then
+   echo "INFO: Architecture directory $ARCH doesn't exist. Making"
+   mkdir $ARCH
+endif
+
+echo making in $ARCH/ for $ARCH
+cd $ARCH
+
+
+$MAKE -f $MAKEFILE.security "CC=$CC" "CFLAGS=$CFLAGS" "LFLAGS=$LFLAGS" \
+      "SDIR=$SDIR" "LIBS=$LIBS" \
+      "RANLIB=$RANLIB" "STATIC=$STATIC" "ARCH=$ARCH" \
+      "START_FILE=$START_FILE" \
+      "CTOR=$CTOR" "DTOR=$DTOR" $argv

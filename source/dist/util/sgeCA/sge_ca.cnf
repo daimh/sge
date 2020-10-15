@@ -1,0 +1,54 @@
+if [ -z "$SGE_ROOT" -o ! -d "$SGE_ROOT" ]; then
+   echo
+   echo ERROR: Please set your \$SGE_ROOT environment variable
+   echo and start this script again.
+   echo Exit
+   echo
+   exit 1
+fi
+
+if [ ! -f $SGE_ROOT/util/arch_variables ]; then
+   echo
+   echo ERROR: Missing shell script \"$SGE_ROOT/util/arch_variables\".
+   echo Please verify your distribution and restart this script. Exit.
+   echo
+   exit 1
+fi
+
+. $SGE_ROOT/util/arch_variables
+
+if [ "$SGE_CELL" = "" ]; then
+   SGE_CELL=default
+   export SGE_CELL
+fi
+
+if [ "$SGE_QMASTER_PORT" != "" ]; then
+   CA_PORT=port$SGE_QMASTER_PORT
+   export CA_PORT
+else
+   CA_PORT=sge_qmaster
+   export CA_PORT
+fi
+
+SetAdminUser
+
+CATOP=$SGE_ROOT/$SGE_CELL/common/sgeCA
+export CATOP
+
+euid=`$V5UTILBIN/uidgid -euid`
+if [ $euid = 0 ]; then
+   CALOCALTOP=/var/lib/sgeCA/$CA_PORT/$SGE_CELL
+   HOMEDIR=`env LC_ALL=C grep '^root:' /etc/passwd | cut -f6 -d:`
+else
+   CALOCALTOP=/tmp/sgeCA/$CA_PORT/$SGE_CELL
+   HOMEDIR=$HOME
+fi
+
+CAHOMEKEYDIR=$HOMEDIR/.sge/$CA_PORT/$SGE_CELL
+
+if [ -f $SGE_ROOT/$SGE_CELL/common/act_qmaster ]; then
+   CAHOST="`cat $SGE_ROOT/$SGE_CELL/common/act_qmaster`"
+else
+   CAHOST=""
+fi   
+

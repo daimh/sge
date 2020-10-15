@@ -1,0 +1,33 @@
+jobstats README
+===============
+
+The jobstats script can generate a summary of useful information
+about jobs that have completed in an SGE environment.  The data
+is obtained from the SGE accounting file or a copy of the data.
+
+The simplest output format is a textual summary like that shown below
+
+ Showing 11 jobs (47588 to 47780)
+  First job started on Fri Feb 20, 2009 at 19:59:09
+  Last job completed on Sun Feb 22, 2009 at 09:37:26
+  Failed jobs: 0
+
+  Report covers period of 1 days 13h 38m 17s
+  Total job usage is 2057.30 cpu hours (85.72 cpu days)
+
+     Name    owner    id queue     host      pe slots     t(s) fail
+     N512   harvey 47588 all.q    c0173     mpi   136        7    0
+      ESP     zola 47723 all.q r2250_33     mpi    96    19030    0
+      ESP     zola 47724 all.q r2250_21     mpi    96    18926    0
+      ESP     zola 47725 all.q r2250_33     mpi    96    18907    0
+      ESP     zola 47729 all.q r2250_42     mpi    96    19983    0
+ priomark    paula 47772 all.q    s0185 openmpi     8       11    0
+ priomark    paula 47774 all.q    s0185 openmpi     8        6    0
+ priomark    paula 47775 all.q    s0185 openmpi     8     1001    0
+ priomark    paula 47778 all.q    s0185 openmpi     8     1039    0
+ priomark    paula 47779 all.q r2250_60 openmpi     8     1253    0
+     GM48    jimbo 47780 all.q r2250_62     mpi    48       34    0
+
+Additional options produce output in HTML and for HTML output you
+can optionally produce a job timeline.
+The script will be less useful and less efficient on large clusters.

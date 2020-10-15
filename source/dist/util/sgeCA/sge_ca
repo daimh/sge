@@ -1,0 +1,2356 @@
+#!/bin/sh
+#
+# Grid Engine CA framework script
+#
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+#
+# set -x
+
+# Reset PATH to a safe value  
+#
+PATH=/bin:/usr/bin:/usr/sbin:/usr/bsd:/usr/ucb
+
+# Easy way to prevent clearing of screen
+#
+CLEAR=clear
+#CLEAR=:
+
+
+#-------------------------------------------------------------------------
+# USEFUL LOCAL SHELL PROCEDURES
+
+#-------------------------------------------------------------------------
+# PrintError
+PrintError() 
+{
+   fmt="Error: $1"
+   shift
+   $INFOTEXT -e "$fmt" "$@"
+   $INFOTEXT -log "$fmt" "$@"
+}
+
+PrintErrorAndExit()
+{
+   exitcode=$1
+   shift
+   fmt="$1"
+   shift
+   PrintError "$fmt" "$@"
+   exit $exitcode
+}
+
+#-------------------------------------------------------------------------
+# ErrUsage: print usage string, exit
+#
+ErrUsage()
+{
+   if [ $# -gt 0 ]; then
+      PrintError "$@"
+   fi
+   myname=`basename $0`
+   $INFOTEXT -e \
+   "\nUsage: %s <command>\n" \
+   "   -adminuser <user>   set admin user\n" \
+   "   -init               initialize CA infrastructure\n" \
+   "   -req                generate a certificate request and private key\n" \
+   "   -sign               sign a certificate request\n" \
+   "   -copy               install user certificate and private key\n" \
+   "   -verify <cert>      verify a <cert>\n" \
+   "   -print <cert>       print a <cert>\n" \
+   "   -printkey <key>     print a <key>\n" \
+   "   -printcrl <crl>     print a <crl>\n" \
+   "   -rrenew <user>      revoke and extend the certificate of <user>\n" \
+   "   -renew <user>       extend the certificate of <user>\n" \
+   "   -renew_ca           extend the CA certificate\n" \
+   "   -renew_sys          extend the daemon certificate\n" \
+   "   -rrenew_sys         revoke and extend the daemon certificate\n" \
+   "   -renew_sdm <g>      renew certificate of a SDM daemon with\n" \
+   "                       <g>=Common Name of the SDM daemon\n" \
+   "   -rrenew_sdm <g>     revoke and renew certificate of a SDM daemon with\n" \
+   "                       <g>=Common Name of the SDM daemon\n" \
+   "   -revoke <cert>      Revoke certificate <cert>\n" \
+   "   -days <days>        days of validity of the certificate/CRL\n" \
+   "   -sha1               use SHA-1 instead of MD5 as message digest\n" \
+   "   -encryptkey         use DES to encrypt the generated key with a passphrase\n" \
+   "   -outdir <dir>       write to directory <dir>\n" \
+   "   -cahost <host>      define CA hostname (CA master host)\n" \
+   "   -cadir <dir>        define CALOCALTOP and CATOP settings\n" \
+   "   -calocaltop <dir>   define CALOCALTOP setting\n" \
+   "   -catop <dir>        define CATOP setting\n" \
+   "   -pkcs12 <user>      generate pkcs12 format file for user <user> \n" \
+   "   -pkcs12pwf <file>   pkcs12 password file\n" \
+   "   -pkcs12dir <dir>    pkcs12 output directory\n" \
+   "   -usercert <file>    generate certificates and keys for the users in <file>\n" \
+   "   -userks             generate keystore for existing users\n" \
+   "   -user <u:g:e>       generate certificates and keys for <u:g:e>\n" \
+   "                       with u=Unix User, g=Common Name, e=email\n" \
+   "   -sdm_daemon <u:g:e> generate certificate and key for a SDM daemon\n" \
+   "                       with u=Unix User, g=Common Name, e=email\n" \
+   "   -sdm_pkcs12 <g>     generate pkcs12 format file for SDM daemon\n" \
+   "                       with g=Common Name of the SDM daemon\n" \
+   "   -sys_pkcs12 <g>     generate pkcs12 format file for SGE daemon\n" \
+   "                       with g=Common Name of the SGE daemon\n" \
+   "   -ks <user>          generate a keystore file for <user>\n" \
+   "   -kspwf <file>       keystore pw file\n" \
+   "   -ksout <file>       keystore output file\n" \
+   "   -sysks              generate keystore for SGE daemon\n" \
+   "   -showCaTop          caTop path\n" \
+   "   -showCaLocalTop     caLocalTop path\n" \
+   $myname
+
+   exit 1
+}
+
+#-------------------------------------------------------------------------
+# Enter: input is read and returned to stdout. If input is empty echo $1
+#
+# USES: variable "$autoinst" 
+#
+Enter()
+{
+   if [ "$autoinst" = true ]; then
+      $INFOTEXT $1
+   else
+      read INP
+      if [ "$INP" = "" ]; then
+         $INFOTEXT $1
+      else
+         $INFOTEXT $INP
+      fi
+   fi
+}
+
+
+#-------------------------------------------------------------------------
+# Execute command as user $ADMINUSER and exit if exit status != 0
+# if ADMINUSER = default then execute command unchanged
+#
+# uses binary "adminrun" from SGE distribution
+#
+# USES: variables "$verbose"    (if set to "true" print arguments)
+#                  $ADMINUSER   (if set to "default" do not use "adminrun)
+#                 "$V5UTILBIN"  (path to the binary in utilbin)
+#
+ExecuteAsAdmin()
+{
+   if [ "$verbose" = true ]; then
+      $ECHO "$@"
+   fi
+
+   if [ $ADMINUSER = default ]; then
+      "$@"
+   else
+      $V5UTILBIN/adminrun $ADMINUSER "$@"
+   fi
+
+   return $?
+}
+
+#-------------------------------------------------------------------------
+# Execute command and return exit status
+#
+Execute()
+{
+   if [ "$verbose" = true ]; then
+      $ECHO "$@"
+   fi
+   "$@"
+   return $?
+}
+
+ExecRm() {
+  Execute $RM -rf "$@" > /dev/null 2>&1
+  files=""
+  for i in "$@"; do
+     if [ -f $i -o -d $i ]; then
+        files="$files $i" 
+     fi 
+  done
+  if [ "$files" != "" ]; then
+    sleep 1
+    for i in $files; do
+       Execute $RM -rf $i  > /dev/null 2>&1
+       if [ $? -ne 0 ]; then
+          return 1
+       fi
+    done
+  fi
+  return 0
+}
+
+ExecRmAsAdmin() {
+  ExecuteAsAdmin $RM -rf "$@"  > /dev/null 2>&1
+  files=""
+  for i in "$@"; do
+     if [ -f $i -o -d $i ]; then
+        files="$files $i" 
+     fi 
+  done
+  if [ "$files" != "" ]; then
+    sleep 1
+    for i in $files; do
+       ExecuteAsAdmin $RM -rf $i  > /dev/null 2>&1
+       if [ $? -ne 0 ]; then
+          return 1
+       fi
+    done
+  fi
+  return 0
+}
+
+#-------------------------------------------------------------------------
+# Change the ownership of a file or directory
+# Is only executed as root
+#
+ExecChown()
+{
+   if [ $rootinstalls = true ]; then
+      Execute $CHOWN "$@"
+      return $?
+   else
+      return 0
+   fi
+   
+}
+
+#--------------------------------------------------------------------------
+# InitCA Init CA directories and get DN info
+#
+InitCA()
+{
+   $CLEAR
+   $INFOTEXT -u "\nInitializing Certificate Authority (CA) for OpenSSL security framework"
+
+   if [ -d $CATOP -a -d $CALOCALTOP ]; then
+      $INFOTEXT -e "\nThere are already directories of the CA infrastructure in\n   %s\n   or\n   %s\n" "$CATOP" "$CALOCALTOP"
+      $INFOTEXT -auto $AUTO -ask "y" "n" -def "y" -n \
+         "Do you want to recreate your SGE CA infrastructure (y/n) [y] >> "
+      if [ $? != 0 ]; then
+         $INFOTEXT "We will not reinitialize your SGE CA infrastructure."
+         exit 0
+      fi
+   fi
+
+   MakeCADirs
+   if [ $? != 0 ]; then
+      PrintErrorAndExit 1 "CA initialization failed. Exit."
+   fi
+   MakeCAcert
+   if [ $? -ne 0 ]; then
+      PrintErrorAndExit 1 "CA initialization failed. Exit."
+   fi
+ 
+   MakeCert daemon $ME "SGE Daemon" none
+   if [ $? -ne 0 ]; then
+      PrintErrorAndExit 1 "CA initialization failed. Exit."
+   fi
+   
+   MakeCert user $ME "SGE install user" none
+   if [ $? -ne 0 ]; then
+      PrintErrorAndExit 1 "CA initialization failed. Exit."
+   fi
+
+   if [ "$ADMINUSER" != default ]; then
+      MakeCert user $ADMINUSER "SGE admin user" none
+      if [ $? -ne 0 ]; then
+         PrintErrorAndExit 1 "CA initialization failed. Exit."
+      fi
+   fi
+}
+
+#---------------------------------------------------------------------------
+#  create a certificate request
+#
+RequestCert()
+{
+    # create a certificate request
+    $REQ -new -keyout $outdir/$newkey -out $outdir/$newreq $DAYS
+    RET=$?
+    if [ $RET = 0 ]; then
+      $INFOTEXT "Request is in %s" $outdir/$newreq
+      $INFOTEXT "Private key is in %s" $outdir/$newkey
+    else
+      PrintErrorAndExit 1 "Creating a certificate request failed"
+    fi
+}
+
+#---------------------------------------------------------------------------
+#  Sign a certificate
+#
+SignCert()
+{
+    $CA -config $SGE_ROOT/util/sgeCA/sge_ssl.cnf -policy policy_anything $DAYS $BATCHMODE -notext -out $outdir/$newcert -infiles $indir/$newreq
+    RET=$?
+    if [ $RET = 0 ]; then
+      $INFOTEXT "Signed certificate is in %s" $outdir/$newcert
+    else
+      PrintErrorAndExit 1 "Signing a certificate failed"
+    fi
+}
+
+#---------------------------------------------------------------------------
+#  verify a certificate
+#
+VerifyCert() 
+{
+   $VERIFY -CAfile $CATOP/$CACERT $newcert
+   if [ $? != 0 ]; then
+      PrintErrorAndExit 1 "Verification of certificate failed"
+   fi
+}
+
+PrintX509() 
+{
+   if [ $1 = "cert" ]; then
+      $X509 -in $2 -text
+   elif [ $1 = "key" ]; then
+      $X509KEY -in $newcert -text
+   elif [ $1 = "crl" ]; then
+      $X509CRL -in $newcert -text
+   else
+      PrintErrorAndExit 1 "Can not print %s" $1
+   fi
+   
+   if [ $? != 0 ]; then
+      PrintErrorAndExit 1 "Printing %s failed (%s)" $1 $2
+   fi
+}
+
+RevokeX509()
+{
+   RANDFILE=$1; export RANDFILE
+   CERTFILE=$2
+   CRLFILE=$CATOP/ca-crl.pem
+
+
+   # revoke certificate
+   ExecuteAsAdmin $CA -config $CONFIG_DIR/sge_ssl_template.cnf -policy policy_anything \
+                      -batch $DAYS \
+                      -revoke $CERTFILE 
+
+   if [ $? != 0 ]; then
+      PrintError "Can't revoke %s." $CERTFILE
+      return 1
+   fi
+
+
+   # create the certificate revocation list
+   ExecuteAsAdmin $CA -config $CONFIG_DIR/sge_ssl_template.cnf -policy policy_anything \
+                      -batch $CRLDAYS \
+                      -gencrl -out ${CRLFILE}.tmp
+
+   if [ $? != 0 ]; then
+      PrintError "Can't generate revocation list %s.." $CRLFILE
+      return 1
+   fi
+
+
+   # move new certificate revocation list
+   ExecuteAsAdmin $MV ${CRLFILE}.tmp $CRLFILE
+   if [ $? != 0 ]; then
+      PrintError "Could not move file (%s -> %s)"  ${CRLFILE}.tmp $CRLFILE
+      return 1
+   fi
+   ExecuteAsAdmin $CHMOD 644 $CRLFILE
+   if [ $? != 0 ]; then
+      PrintError "chmod failed (%s)" $CRLFILE
+      return 1
+   fi
+}
+
+
+#--------------------------------------------------------------------------
+# CheckIfCaHost
+#    If our hostname given in $1 is the same as "CAHOST"
+#    echo "true" else echo "false"
+#
+# $1 = hostname
+#
+CheckIfCaHost()
+{
+   host=$1
+
+   if [ "$host" = "$CAHOST" ]; then
+      echo true
+   else
+      echo false
+   fi
+}
+
+#--------------------------------------------------------------------------
+# InstallKey
+#
+# $1 = user | daemon
+# $2 = $ME ( username )
+#
+InstallKey()
+{
+   HOST=`$V5UTILBIN/gethostname -aname`
+   result=`CheckIfCaHost $HOST`
+   if [ "$result" != "true" ]; then 
+      PrintError "You can install your private key and certificate only on the master host."
+      return 1
+   fi 
+
+   if [ -d $CALOCALTOP/userkeys ]; then
+      userkeydir=$CALOCALTOP/userkeys
+   else
+      PrintError "Can not find local userkey directory."
+      return 1
+   fi   
+
+   if [ $1 = daemon ]; then
+      keyfile=$CALOCALTOP/private/key.pem
+      certfile=$CATOP/certs/cert.pem
+      randfile=$CALOCALTOP/private/rand.seed
+   else
+      keyfile=$userkeydir/$ME/key.pem
+      certfile=$userkeydir/$ME/cert.pem
+      randfile=$userkeydir/$ME/rand.seed
+      HOMEDIR=$HOME
+   fi
+
+   basedir=$CAHOMEKEYDIR
+   if [ ! -d $basedir ]; then
+      $V5UTILBIN/adminrun $2 $MKDIR -p $basedir
+   fi
+
+   if [ ! -d $basedir/certs ]; then
+      $V5UTILBIN/adminrun $2 $MKDIR $basedir/certs
+   fi
+
+   if [ ! -d $basedir/private ]; then
+      $V5UTILBIN/adminrun $2 $MKDIR $basedir/private
+   fi
+
+   if [ -f $basedir/private/key.pem ]; then
+      $V5UTILBIN/adminrun $2 rm -f $basedir/private/key.pem
+   fi
+
+   if [ -f $basedir/private/rand.seed ]; then
+      $V5UTILBIN/adminrun $2 rm -f $basedir/private/rand.seed
+   fi
+
+   if [ -f $basedir/certs/cert.pem ]; then
+      $V5UTILBIN/adminrun $2 rm -f $basedir/certs/cert.pem
+   fi
+
+   $V5UTILBIN/adminrun $2 $CP $keyfile $basedir/private
+   if [ $? -ne 0 ]; then
+      PrintError "Could not copy key file (%s -> %s)" $keyfile $basedir/private
+      return 1
+   fi
+   $V5UTILBIN/adminrun $2 $CP $randfile $basedir/private
+   if [ $? -ne 0 ]; then
+      PrintError "Could not copy rand file (%s -> %s)" $randfile $basedir/private
+      return 1
+   fi
+   
+   $V5UTILBIN/adminrun $2 $CHMOD 700 $basedir/private
+   if [ $? -ne 0 ]; then
+      PrintError "chmod for %s on private dir failed (%s)" $2 $basedir/private
+      return 1
+   fi
+   
+   $V5UTILBIN/adminrun $2 $CHMOD 600 $basedir/private/*
+   if [ $? -ne 0 ]; then
+      PrintError "chmod for %s on private files failed (%s/\*)" $2 $basedir/private
+      return 1
+   fi
+
+   $V5UTILBIN/adminrun $2 $CP $certfile $basedir/certs
+   if [ $? -ne 0 ]; then
+      PrintError "Could not copy cert file (%s -> %s)" $certfile $basedir/certs
+      return 1
+   fi
+   
+   $V5UTILBIN/adminrun $2 $CHMOD 755 $basedir/certs
+   if [ $? -ne 0 ]; then
+      PrintError "chmod for %s on certs dir failed (%s)" $2 $basedir/certs
+      return 1
+   fi
+   
+   $V5UTILBIN/adminrun $2 $CHMOD 644 $basedir/certs/*
+   if [ $? -ne 0 ]; then
+      PrintError "chmod for %s on cert files failed (%s/\*)" $2 $basedir/certs
+      return 1
+   fi
+
+   $INFOTEXT "Certificate and private key for user %s have been installed" $ME
+
+   return 0
+}
+
+
+#--------------------------------------------------------------------------
+# MakeCAcert create CA certificate and private key
+#
+#
+MakeCAcert()
+{
+   $INFOTEXT -u "\nCreating CA certificate and private key"
+   $INFOTEXT -e "Please give some basic parameters to create the distinguished name (DN)\n" \
+   "for the certificates.\n\n" \
+   "We will ask for\n" \
+   "   - the two letter country code\n" \
+   "   - the state\n" \
+   "   - the location, e.g city or your buildingcode\n" \
+   "   - the organization (e.g. your company name)\n" \
+   "   - the organizational unit, e.g. your department\n" \
+   "   - the email address of the CA administrator (you!)\n"
+
+   $INFOTEXT -wait -auto $AUTO -n "\nHit <RETURN> to continue >> "
+   # $CLEAR
+
+   done=false
+   while [ $done = false ]; do
+
+      if [ "$AUTO" = "true" ]; then
+            CA_C=`echo $CSP_COUNTRY_CODE | env LC_ALL=C tr "[a-z]" "[A-Z]"`
+            CA_ST="$CSP_STATE"
+            CA_L="$CSP_LOCATION"
+            CA_O="$CSP_ORGA"
+            CA_OU="$CSP_ORGA_UNIT"
+            CA_EMAIL="$CSP_MAIL_ADDRESS"
+      else
+         dndone=false
+         while [ $dndone = false ]; do
+            $INFOTEXT -n "Please enter your two letter country code, e.g. 'US' >> "
+            INP=`Enter ""`
+            if [ "$INP != " -a `echo $INP | wc -c` = 3 ]; then
+               CA_C=`echo $INP | env LC_ALL=C tr "[a-z]" "[A-Z]"`
+               dndone=true
+            fi
+         done
+
+         dndone=false
+         while [ $dndone = false ]; do
+            $INFOTEXT -n "Please enter your state >> "
+            INP=`Enter ""`
+            CA_ST="$INP"
+            if [ "$INP" != "" ]; then
+               CA_ST="$INP"
+               dndone=true
+            fi
+         done
+
+         dndone=false
+         while [ $dndone = false ]; do
+            $INFOTEXT -n "Please enter your location, e.g city or building code >> "
+            INP=`Enter ""`
+            CA_L="$INP"
+            if [ "$INP" != "" ]; then
+               CA_L="$INP"
+               dndone=true
+            fi
+         done
+
+         dndone=false
+         while [ $dndone = false ]; do
+            $INFOTEXT -n "Please enter the name of your organization >> "
+            INP=`Enter ""`   
+            if [ "$INP" != "" ]; then
+               CA_O="$INP"
+               dndone=true
+            fi
+         done
+
+         dndone=false
+         while [ $dndone = false ]; do
+            $INFOTEXT -n "Please enter your organizational unit, e.g. your department >> "
+            INP=`Enter ""`    
+            CA_OU="$INP"
+            if [ "$INP" != "" ]; then
+               CA_OU="$INP"
+               dndone=true
+            fi
+         done
+
+         dndone=false
+         while [ $dndone = false ]; do
+            $INFOTEXT -n "Please enter the email address of the CA administrator >> "
+            INP=`Enter ""`   
+            if [ "$INP" != "" ]; then
+               CA_EMAIL="$INP"
+               dndone=true
+            fi
+         done
+      fi
+
+
+      $CLEAR
+      $INFOTEXT -e "\nYou selected the following basic data for the distinguished name of\n" \
+      "your certificates:\n\n" \
+      "Country code:         %s=%s\n" \
+      "State:                %s=%s\n" \
+      "Location:             %s=%s\n" \
+      "Organization:         %s=%s\n" \
+      "Organizational unit:  %s=%s\n" \
+      "CA email address:     %s=%s\n" \
+      C "$CA_C" ST "$CA_ST" L "$CA_L" O "$CA_O" OU "$CA_OU" emailAddress "$CA_EMAIL"
+      
+      $INFOTEXT -auto $AUTO -ask "y" "n" -def "y" -n \
+         "Do you want to use these data (y/n) [y] >> "
+      if [ $? = 0 ]; then
+         done=true
+ 
+         TMPFILE=/tmp/sge_ca$$.tmp
+         TMPFILE1=/tmp/sge_ca1$$.tmp
+         ExecRm $TMPFILE $TMPFILE1
+         if [ $? -ne 0 ]; then
+            PrintError "Could not delete file %s" $TMPFILE
+            return 1
+         fi
+         
+         ExecRm $TMPFILE1
+         if [ $? -ne 0 ]; then
+            PrintError "Could not delete file %s" $TMPFILE1
+            return 1
+         fi
+         
+         $TOUCH $TMPFILE
+         if [ $? -ne 0 ]; then
+            PrintError "Could not touch file %s" $TMPFILE
+            return 1
+         fi
+         $TOUCH $TMPFILE1
+         if [ $? -ne 0 ]; then
+            PrintError "Could not touch file %s" $TMPFILE1
+            return 1
+         fi
+         
+         echo C="$CA_C" >> $TMPFILE
+         echo ST="$CA_ST" >> $TMPFILE
+         echo L="$CA_L" >> $TMPFILE
+         echo O="$CA_O" >> $TMPFILE
+         echo OU="$CA_OU" >> $TMPFILE
+         ExecuteAsAdmin $CP $TMPFILE $CATOP/dn.info
+         if [ $? -ne 0 ]; then
+            PrintError "Could not copy file (%s -> %s)" $TMPFILE $CATOP/dn.info
+            return 1
+         fi
+         
+         echo CN="SGE Certificate Authority" >> $TMPFILE
+         echo userId=CA >> $TMPFILE
+         echo emailAddress=$CA_EMAIL >> $TMPFILE
+
+         export CATOP
+         Execute cat $CONFIG_DIR/sge_ssl_template.cnf $TMPFILE > $TMPFILE1
+         if [ $? -ne 0 ]; then
+            PrintError "Could not cat file (%s)" $CONFIG_DIR/sge_ssl_template.cnf
+            return 1
+         fi
+
+         if [ $ADMINUSER != default -a $rootinstalls = true ]; then
+            # echo +++ $ADMINUSER
+            MakeRandFile $CALOCALTOP/private/rand.seed $ADMINUSER
+         else
+            # echo +++ $ME
+            MakeRandFile $CALOCALTOP/private/rand.seed $ME
+         fi
+         if [ $? -ne 0 ]; then
+            return 1
+         fi
+         RANDFILE=$CALOCALTOP/private/rand.seed; export RANDFILE
+
+         umask 077
+         $INFOTEXT "Creating CA certificate and private key"
+         ExecuteAsAdmin $REQ -config $TMPFILE1 -new -x509 \
+              -keyout ${CALOCALTOP}/private/$CAKEY -out ${CATOP}/$CACERT $DAYS
+         status=$?
+         umask 022
+
+         ExecuteAsAdmin $CHMOD 644 ${CATOP}/$CACERT
+         if [ $? -ne 0 ]; then
+            PrintError "chmod as %s failed (%s)" $ADMINUSER ${CATOP}/$CACERT
+            return 1
+         fi
+         rm -f $TMPFILE $TMPFILE1
+
+         if [ $status != 0 ]; then
+            PrintError "Failed to create CA certificate and private key. Exit"
+            return 1
+         fi
+
+      else
+         $CLEAR
+      fi
+   done
+
+   $INFOTEXT -wait -auto $AUTO -n "\nHit <RETURN> to continue >> "
+   $CLEAR
+   return 0
+}
+
+#--------------------------------------------------------------------------
+# MakeRandFile create a random data file
+#  
+# $1 = <randfilename>
+# $2 = <owner>
+#
+MakeRandFile()
+{
+
+   # OpenSSL uses /dev/urandom by default so if it's there, don't
+   # pollute the PRNG with predictable data.
+   rfile="/dev/urandom"
+   if [ ! -r /dev/urandom ]; then
+      if [ -r /dev/random ]; then 
+         rfile=/dev/random
+      elif [ -r /bin/vi ]; then
+         rfile="/bin/vi"
+      fi
+   fi
+   # $INFOTEXT "Creating RANDFILE from '%s' in '%s'" $rfile $1
+
+   if [ "$2" = "default" ]; then
+      myuser=root
+   else
+      myuser=$2
+   fi
+
+   RANDFILE=/tmp/.rand.$$; export RANDFILE;
+   $V5UTILBIN/adminrun $myuser dd if=$rfile of=$RANDFILE count=2048 > /dev/null 2>&1
+   if [ $? -lt 0 ]; then
+       PrintError "Could not create random number for (%s -> %s)" $rfile $RANDFILE
+       return 1
+   fi
+   $V5UTILBIN/adminrun $myuser $OPENSSL rand -rand $RANDFILE -out $1 2048  > /dev/null 2>&1
+   if [ $? -ne 0 ]; then
+       PrintError "bootstraping of rand command as user %s failed (%s -> %s)" $2 $RANDFILE $1
+       return 1
+   fi
+   
+   $V5UTILBIN/adminrun $myuser $OPENSSL rand -rand $rfile -out $1 2048  > /dev/null 2>&1
+   if [ $? -ne 0 ]; then
+       PrintError "openssl rand command as user %s failed (%s -> %s)" $2 $rfile $1
+       return 1
+   fi
+
+   $V5UTILBIN/adminrun $myuser $RM $RANDFILE > /dev/null 2>&1
+   if [ $? -ne 0 ]; then
+       PrintError "Could not delete file %s as user %s" $RANDFILE $2
+       return 1
+   fi
+   
+   $V5UTILBIN/adminrun $myuser $CHMOD 644 $1 > /dev/null 2>&1
+   if [ $? -ne 0 ]; then
+       PrintError "chmod as user %s on file %s failed" $2 $1
+       return 1
+   fi
+   
+   # echo "--------------"
+   # ls -l $rfile $1
+   # echo "--------------"
+
+}
+
+
+#--------------------------------------------------------------------------
+# MakeUserCert create user certificates and keys for Windows Admin user
+#
+# $1 = certificate type "user" or "sdm_daemon"
+# $2 = <user:gecos:email>
+#
+MakeUserCert()
+{
+   cert_type=$1
+   line="$2"
+
+   unixuser=`echo $line|cut -d: -f1`
+   gecos=`echo $line|cut -d: -f2`
+   email=`echo $line|cut -d: -f3`
+
+   # echo $unixuser:$gecos:$email
+   if [ "$unixuser" = "" ]; then
+      PrintErrorAndExit 1 "no Unix user specified. Exit."
+   fi   
+
+   if [ "$gecos" = "" ]; then
+      gecos=$unixuser
+   fi   
+   if [ "$email" = "" ]; then
+      email=$unixuser
+   fi   
+
+   if [ "$ADMINUSER" = default ]; then
+      entries=`grep "CN=$gecos/" $CATOP/index.txt|grep '^V'|wc -l`
+   else 
+      entries=`$V5UTILBIN/adminrun $ADMINUSER grep "CN=$gecos/" $CATOP/index.txt|grep '^V'|wc -l`
+   fi
+   if [ $entries = 0 ]; then
+      $INFOTEXT "Generating %s certificate and key for '%s' ('%s','%s')." \
+         "$cert_type" "$unixuser" "$gecos" "$email"
+      MakeCert $cert_type "$unixuser" "$gecos" "$email"
+      if [ $? -ne 0 ]; then
+         return 1
+      fi
+   else
+      PrintError "Please renew %s certificate for '%s' ('%s','%s') instead." \
+                 "$cert_type" "$unixuser" "$gecos" "$email"
+      # RenewCert user $unixuser
+      return 1
+   fi
+   return 0
+}
+
+#--------------------------------------------------------------------------
+# MakeUserCerts create user certificates and keys from userfile
+# userfile contains a list of entries of the following format per user.
+#
+# <unix username>:<gecos field>:<user's email address>
+#
+# $1 = <userfile>
+#
+MakeUserCerts()
+{
+   if [ ! -f "$1" ]; then
+      PrintErrorAndExit 1 "no valid userfile '%s'. Exit." $1
+   fi
+
+   userfile=$1
+
+   cat $userfile | while read line; do
+      MakeUserCert user "$line"
+   done   
+}
+
+#--------------------------------------------------------------------------
+# MakeUserKeystores create keystores for existing users in 
+# $CALOCALTOP/userkeys 
+#
+MakeUserKeystores()
+{
+   for user in `ls $CALOCALTOP/userkeys`; do
+      MakeUserKeystore $user
+   done   
+}
+
+#--------------------------------------------------------------------------
+# MakeUserKeystore create keystores for existing user in 
+# $CALOCALTOP/userkeys/<user> 
+#
+# $1 <user> 
+MakeUserKeystore()
+{
+   if [ "$1" = "" ]; then
+      PrintErrorAndExit 1 "no valid user '%s'. Exit." $1
+   fi
+
+   user=$1
+
+   if [ "$ksoutfile" = "" ]; then
+      ksoutfile_saved=$ksoutfile
+   fi
+
+   remove_kspwfile=false
+   if [ "$kspwfile" = "" ]; then
+      touch /tmp/tmp.$$
+      kspwfile=/tmp/tmp.$$
+      remove_kspwfile=true
+   fi   
+   certfile=$CALOCALTOP/userkeys/$user/cert.pem
+   if [ -r $certfile ]; then 
+      ksoutfile=$CALOCALTOP/userkeys/$user/keystore
+      touch $ksoutfile
+      $CHOWN $user $ksoutfile
+      $CHMOD 600 $ksoutfile
+      MakeKeystore user "$user"
+   fi
+   if [ "$remove_kspwfile" = "true" ]; then
+      rm $kspwfile
+      kspwfile=""
+   fi
+   ksoutfile=$ksoutfile_saved
+}
+
+#--------------------------------------------------------------------------
+# MakeSysKeystore create keystore for SGE Daemon
+# $CALOCALTOP/private 
+#
+MakeSysKeystore()
+{
+   ret=0
+   remove_kspwfile=false
+   if [ "$kspwfile" = "" ]; then
+      touch /tmp/tmp.$$
+      kspwfile=/tmp/tmp.$$
+      remove_kspwfile=true
+   fi   
+   certfile=$CATOP/certs/cert.pem
+   if [ -r $certfile ]; then 
+      if [ "$ksoutfile" = "" ]; then
+         ksoutfile=$CALOCALTOP/private/keystore
+      fi   
+      ksoutdir=`dirname $ksoutfile`
+      if [ ! -d "$ksoutdir" ]; then
+         PrintError "keystore directory does not exist: $ksoutdir"
+         if [ "$remove_kspwfile" = "true" ]; then
+            rm $kspwfile
+            kspwfile=""
+         fi
+         return 1
+      fi   
+      ExecuteAsAdmin touch $ksoutfile
+      ExecuteAsAdmin chmod 600 $ksoutfile
+      MakeKeystore sge_daemon "SGEDaemon"
+      ret=$?
+   else 
+      PrintError "no certificate file"
+      ret=1
+   fi
+   if [ "$remove_kspwfile" = "true" ]; then
+      rm $kspwfile
+      kspwfile=""
+   fi
+   return $ret
+}
+
+
+
+#--------------------------------------------------------------------------
+# MakeKeystore create keystore file of user's certificate and key
+#
+# $1 = user or sge_daemon
+# $2 = <unix user>
+#
+MakeKeystore()
+{
+   type=$1
+   if [ "$type" != "user" -a "$type" != "sge_daemon" ]; then
+      PrintError "unknown type $type only user or sge_daemon allowed"
+      return 1
+   fi
+   myuser=$2
+   if [ "$myuser" = "" ]; then 
+      PrintError "username is empty"
+      return 1
+   fi
+   CA_ARGS="-catop $CATOP"
+   CA_ARGS="$CA_ARGS -calocaltop $CALOCALTOP"
+   CA_ARGS="$CA_ARGS -cascript $ROOT_PATH/util/sgeCA/sge_ca"
+   CA_ARGS="$CA_ARGS -cahost $CAHOST -adminuser $ADMINUSER"
+   CA_ARGS="$CA_ARGS initks $type $myuser $ksoutfile"
+   if [ "$kspwfile" != "" ]; then
+      CA_ARGS="$CA_ARGS $kspwfile"
+   fi
+
+   if [ "$JAVA_HOME" != "" -a -x $JAVA_HOME/bin/java ]; then 
+      JAVA=$JAVA_HOME/bin/java
+   else   
+      JAVA=`which java`
+   fi
+   if [ ! -x $JAVA ]; then
+      PrintError "JAVA_HOME not set"
+      return 1
+   fi
+
+   # Fixme:  Change this (per Fedora) if the jars are installed outside
+   # ROOT_PATH.
+   JVM_ARGS="-cp $ROOT_PATH/lib/juti.jar"
+   JVM_ARGS="$JVM_ARGS -Djava.util.logging.config.file=$ROOT_PATH/util/sgeCA/logging.properties"
+
+   OUTPUT=`$JAVA $JVM_ARGS com.sun.grid.ca.Main $CA_ARGS 2>&1`
+   if [ $? != 0 ]; then
+      PrintError "initks failed: $OUTPUT"
+      return 1
+   fi   
+      
+}
+
+#--------------------------------------------------------------------------
+# MakePKCS12 create pkcs12 file of user's certificate and key
+#
+# $1 = "user" or "sdm_daemon" or "sge_daemon"
+# $2 = <unix user> or <sdm daemon>
+#
+MakePKCS12()
+{
+   if [ "$1" = "user" ]; then
+      if [ "$2" = "" ]; then
+         PrintError "no valid user '%s'." $1
+         return 1
+      fi
+      keyowner=$2
+      unixuser=$2
+      KEYFILE=$CALOCALTOP/userkeys/$keyowner/key.pem
+      CERTFILE=$CALOCALTOP/userkeys/$keyowner/cert.pem
+   elif [ "$1" = "sdm_daemon" ]; then
+      if [ "$2" = "" ]; then
+         PrintError "no valid sdm daemon '%s'." $1
+         return 1
+      fi
+      keyowner=$2
+      unixuser=$ADMINUSER
+      KEYFILE=$CALOCALTOP/daemons/$keyowner/key.pem
+      CERTFILE=$CALOCALTOP/daemons/$keyowner/cert.pem
+   elif [ "$1" = "sge_daemon" ]; then
+      keyowner=$2
+      unixuser=$ADMINUSER
+      KEYFILE=$CALOCALTOP/private/key.pem
+      CERTFILE=$CATOP/certs/cert.pem
+   else
+      PrintError "valid argument: %s" $1
+      return 1
+   fi
+   
+
+   pwoptions=""
+   if [ "$passinfile" != "" ]; then
+      pwoptions="-passout file:$passinfile"
+   fi
+
+   myoutdir="."
+   if [ "$pkcs12outdir" != "" ]; then
+      myoutdir="$pkcs12outdir"
+   fi
+
+   $INFOTEXT "Generating %s/%s.p12." "$myoutdir" "$keyowner"
+   # create rand.seed file
+   RSFILE=/tmp/rand.seed.$$
+   MakeRandFile $RSFILE $unixuser
+   if [ $? -ne 0 ]; then
+      return 1
+   fi
+   RANDFILE=$RSFILE; export RANDFILE
+
+   if [ ! -s $CATOP/cacert.pem ]; then
+      PrintError "openssl pkcs12 command failed: $CATOP/cacert.pem missing"
+      return 1
+   fi
+
+   $P12 $pwoptions -export -nodes -inkey $KEYFILE -out $myoutdir/$keyowner.p12 -in $CERTFILE -certfile $CATOP/cacert.pem -caname "SGE CA"
+   if [ $? -ne 0 ]; then
+      PrintError "openssl pkcs12 command failed"
+      return 1
+   fi
+   $RM -f $RANDFILE
+}
+
+#--------------------------------------------------------------------------
+# MakePKCS12ForUsers create pkcs12 file of user certificate and keys from userfile
+# userfile contains a list of entries of the following format per user.
+#
+# <unix username>:<gecos field>:<user's email address>
+#
+# $1 = <userfile>
+#
+MakePKCS12ForUsers()
+{
+   if [ ! -f "$1" ]; then
+      PrintErrorAndExit 1 "no valid userfile '%s'. Exit." $1
+   fi
+   
+   cat $1 | while read line; do
+      unixuser=`echo $line|cut -d: -f1`
+      $INFOTEXT "Generating %s/%s.p12." \
+         "$pkcs12outdir" "$unixuser"
+      pkcs12outdir=$CALOCALTOP/userkeys/$unixuser
+      MakePKCS12 user "$unixuser"
+   done   
+}
+
+#--------------------------------------------------------------------------
+# DumpUsers dump user info 
+#
+DumpUsers()
+{
+   CERTDIR=$CALOCALTOP/userkeys
+   RSFILE=/tmp/rand.$$
+
+   # create rand.seed file
+   MakeRandFile $RSFILE $USER
+   if [ $? -ne 0 ]; then
+      exit 1
+   fi
+   RANDFILE=$RSFILE; export RANDFILE
+
+   $INFOTEXT "Dumping users to $outdir/dumped_users.txt"
+   for i in `ls $CERTDIR`; do
+      $X509 -in $CERTDIR/$i/cert.pem -subject -noout|$AWK -F '/' '{print $8 ":" $7 ":" $9}' | sed -e 's/UID=//' -e 's/CN=//' -e 's/emailAddress=//' >> $outdir/dumped_users.txt
+      if [ $? -ne 0 ]; then
+         PrintError "openssl x509 command for user %s failed" $i
+      fi
+   done
+}
+
+#--------------------------------------------------------------------------
+# MakeCert create certificate and private key for daemon
+#
+# $1 = certificate type ("daemon" or "user"  or "sdm_daemon")
+# $2 = userId   (Unix user name)
+# $3 = commonname         (e.g. passwd gecos field or name of sdm_daemon)
+# $4 = email address
+#
+MakeCert()
+{
+   $INFOTEXT -u "\nCreating '%s' certificate and key for %s" "$1" "$3"
+
+   TMPFILE=/tmp/sge_ca$$.tmp
+   TMPFILE1=/tmp/sge_ca1$$.tmp
+   $RM -f $TMPFILE $TMPFILE1
+   Execute cp $CATOP/dn.info $TMPFILE
+   if [ $? -ne 0 ]; then
+      PrintError "Could not copy file (%s -> %s)" $CATOP/dn.info $TMPFILE
+      return 1
+   fi
+
+   # 
+   #  For SDM daemon the uid is always "sdm_daemon"
+   #  the SdmCATrustManagerLoginModule needs this information
+   #  to distingush between daemon and user certificates
+   #
+   if [ $1 = sdm_daemon ]; then
+      echo userId=sdm_daemon_$2 >> $TMPFILE
+   else
+      echo userId=$2 >> $TMPFILE
+   fi
+   echo CN=$3 >> $TMPFILE
+   echo emailAddress=$4 >> $TMPFILE
+
+   Execute cat $CONFIG_DIR/sge_ssl_template.cnf $TMPFILE > $TMPFILE1
+   if [ $? -ne 0 ]; then
+      PrintError "Could not cat file (%s, %s -> %s)" $CONFIG_DIR/sge_ssl_template.cnf $TMPFILE $TMPFILE1
+      return 1
+   fi
+
+   if [ $1 = daemon ]; then
+      KEYDIR=$CALOCALTOP/private
+      KEYFILE=$CALOCALTOP/private/key.pem
+      REQFILE=$CALOCALTOP/private/req.pem
+      CERTFILE=$CATOP/certs/cert.pem
+      RSFILE=$CALOCALTOP/private/rand.seed
+   elif [ $1 = user ]; then
+      KEYDIR=$CALOCALTOP/userkeys/$2
+      KEYFILE=$KEYDIR/key.pem
+      REQFILE=$KEYDIR/req.pem
+      CERTFILE=$KEYDIR/cert.pem
+      CERTFILE_PUBLIC_DIR=$CATOP/usercerts/$2
+      RSFILE=$KEYDIR/rand.seed
+      ExecRm $KEYDIR
+      ExecuteAsAdmin $MKDIR $KEYDIR
+   elif [ $1 = sdm_daemon ]; then
+      KEYDIR=$CALOCALTOP/daemons/$3
+      KEYFILE=$KEYDIR/key.pem
+      REQFILE=$KEYDIR/req.pem
+      CERTFILE=$KEYDIR/cert.pem
+      RSFILE=$KEYDIR/rand.seed
+      ExecRm $KEYDIR
+      ExecuteAsAdmin $MKDIR $KEYDIR
+   else 
+      PrintError "Unknown certificate type %s" $1
+      return 1
+   fi
+
+   # create rand.seed file
+   if [ "$ADMINUSER" = default ]; then
+      MakeRandFile $RSFILE  root
+   else
+      MakeRandFile $RSFILE $ADMINUSER
+   fi
+   if [ $? -ne 0 ]; then
+      return 1
+   fi
+
+   RANDFILE=$RSFILE; export RANDFILE
+
+   umask 077
+
+   # create a certificate request
+   ExecuteAsAdmin $REQ -config $TMPFILE1 -new -keyout $KEYFILE -out $REQFILE $DAYS
+   if [ $? != 0 ]; then
+      PrintError "Can't create %s or %s. Exit." $KEYFILE $REQFILE
+      return 1
+   fi  
+
+   # sign certificate request
+   ExecuteAsAdmin $CA -config $TMPFILE1 -policy policy_anything -batch $DAYS \
+                      -notext -out $CERTFILE -infiles $REQFILE
+   if [ $? != 0 ]; then
+      PrintError "Can't sign certificate request %s. Exit." $REQFILE 
+      return 1
+   fi
+   ExecuteAsAdmin $CHMOD 644 $CERTFILE
+   if [ $? != 0 ]; then
+      PrintError "chmod as %s failed (%s)" $ADMINUSER $CERTFILE
+      return 1
+   fi
+   
+   if [ "$1" = user ]; then
+      ExecuteAsAdmin $MKDIR -m 755 -p $CERTFILE_PUBLIC_DIR
+      ExecuteAsAdmin $CP $CERTFILE $CERTFILE_PUBLIC_DIR
+      ExecuteAsAdmin $CHMOD 644 $CERTFILE_PUBLIC_DIR/cert.pem
+   fi
+   
+   $RM -f $TMPFILE $TMPFILE1 
+
+   Execute $CHMOD 700 $KEYDIR
+   if [ $? != 0 ]; then
+      PrintError "chmod failed (%s)" $KEYDIR
+      return 1
+   fi
+   Execute $CHMOD 600 $KEYDIR/*
+   if [ $? != 0 ]; then
+      PrintError "chmod failed (%s/\*)" $KEYDIR
+      return 1
+   fi
+   Execute $CHMOD 600 $KEYDIR/rand.seed
+   if [ $? != 0 ]; then
+      PrintError "chmod failed (%s)" $KEYDIR/rand.seed
+      return 1
+   fi
+   if [ $1 = daemon ]; then
+      $INFOTEXT "created and signed certificate for SGE daemons" 
+   elif [ $1 = sdm_daemon ]; then
+      $INFOTEXT "created and signed certificate for sdm_daemon '%s' in '%s'" $3 $KEYDIR
+   else
+      # check if user exists and chown if yes
+      id $2  > /dev/null 2>&1
+      if [ $? = 0 ]; then
+         ExecChown -R $2 $KEYDIR
+         if [ $? != 0 ]; then
+            PrintError "chown to %s failed (%s)" $2 $KEYDIR
+            return 1
+         fi
+      fi   
+      $INFOTEXT "created and signed certificate for user '%s' in '%s'" $2 $KEYDIR
+   fi
+
+   umask 022
+   return 0
+}
+
+#--------------------------------------------------------------------------
+# RenewCA renew a selfsigned CA certificate
+#
+RenewCA()
+{
+   $INFOTEXT -u "\nRenewing CA certificate"
+
+   CAKEYDIR=$CALOCALTOP/private
+   CAKEYFILE=$CALOCALTOP/private/cakey.pem
+   CACERTFILE=$CATOP/cacert.pem
+   RSFILE=$CALOCALTOP/private/rand.seed
+   NEWCACERTFILE=$CATOP/cacert.pem.new
+   OLDCACERTFILE=$CATOP/cacert.pem.`date | tr " " "_"`
+   RANDFILE=$RSFILE; export RANDFILE
+
+   ExecuteAsAdmin $X509 -in $CACERTFILE -signkey $CAKEYFILE $DAYS -out $NEWCACERTFILE
+   if [ $? != 0 ]; then
+      PrintError "openssl x509 as %s failed (RenewCA)" $ADMINUSER
+      return 1
+   fi
+
+   ExecuteAsAdmin $CP $CACERTFILE $OLDCACERTFILE
+   if [ $? != 0 ]; then
+      PrintError "Could not copy file as %s (%s -> %s)" $ADMINUSER $CACERTFILE $OLDCACERTFILE
+      return 1
+   fi
+   ExecuteAsAdmin $CHMOD 644 $CACERTFILE
+   if [ $? != 0 ]; then
+      PrintError "chmod as %s failed (%s)" $ADMINUSER $CACERTFILE
+      return 1
+   fi
+   ExecuteAsAdmin $MV $NEWCACERTFILE $CACERTFILE
+   if [ $? != 0 ]; then
+      PrintError "Could not move file as %s (%s -> %s)" $ADMINUSER $NEWCACERTFILE $CACERTFILE
+      return 1
+   fi
+   ExecuteAsAdmin $CHMOD 644 $CACERTFILE
+   if [ $? != 0 ]; then
+      PrintError "chmod as %s failed (%s)" $ADMINUSER $CACERTFILE
+      return 1
+   fi
+   return 0
+}
+
+
+#--------------------------------------------------------------------------
+# RenewCert renew a certificate
+#
+# $1 = certificate type ("daemon" or "user" or "sdm_daemon"
+# $2 = userId   (Unix user name of common name of sdm_damon)
+# $3 = revoke (blank or "true")
+#
+RenewCert()
+{
+   ADMINRUN_NO_EXIT=true # ExecuteAsAdmin should not exit, 
+                         # we need to cleanup the file permissions
+
+   # in the gridengine environment only root user is allowed
+   # to renew certificates
+   # for haithabu the admin user can also renew certificates
+   if [ "$rootinstalls" != true -a $SGE_CNF = true ]; then
+      PrintError "Only root user can renew certificates!"
+      return 1
+   fi
+  
+   if [ "$1" = daemon ]; then
+      $INFOTEXT -u "\nRenewing daemon certificate"
+      if [ "$2" = default ]; then
+         $2=root
+      fi
+   else
+      $INFOTEXT -u "\nRenewing  '%s' '%s' certificate" "$2" "$1"
+   fi
+
+   TMPFILE=/tmp/sge_ca$$.tmp
+   TMPFILE1=/tmp/sge_ca1$$.tmp
+   $RM -f $TMPFILE $TMPFILE1
+   Execute cp $CATOP/dn.info $TMPFILE
+   if [ $? != 0 ]; then
+      PrintError "Could not copy file (%s -> %s)" $CATOP/dn.info $TMPFILE
+      return 1
+   fi
+   echo userId=$2 >> $TMPFILE
+   echo CN="dummy" >> $TMPFILE
+   echo emailAddress="dummy" >> $TMPFILE
+   Execute cat $CONFIG_DIR/sge_ssl_template.cnf $TMPFILE > $TMPFILE1
+   if [ $? != 0 ]; then
+      PrintError "Could not cat file (%s, %s -> %s)" $CONFIG_DIR/sge_ssl_template.cnf $TMPFILE > $TMPFILE1
+      return 1
+   fi
+
+
+   if [ "$1" = daemon ]; then
+      KEYDIR=$CALOCALTOP/private
+      KEYFILE=$CALOCALTOP/private/key.pem
+      REQFILE=$CALOCALTOP/private/req.pem
+      CERTFILE=$CATOP/certs/cert.pem
+      NEWCERTFILE=$CATOP/certs/cert.pem.new
+      OLDCERTFILE=$CATOP/certs/cert.pem.old
+      RSFILE=$CALOCALTOP/private/rand.seed
+      CRLFILE=$CATOP/ca-crl.pem
+   elif [ $1 = sdm_daemon ]; then
+      KEYDIR=$CALOCALTOP/daemons/$2
+      NEWKEYBASEDIR=/tmp/sge_ca_dir_$$
+      NEWKEYDIR=$NEWKEYBASEDIR/daemons/$2
+      KEYFILE=$NEWKEYDIR/key.pem
+      REQFILE=$NEWKEYDIR/req.pem
+      CERTFILE=$NEWKEYDIR/cert.pem
+      NEWCERTFILE=$NEWKEYDIR/cert.pem.new
+      OLDCERTFILE=$NEWKEYDIR/cert.pem.old
+      RSFILE=$NEWKEYDIR/rand.seed
+      CRLFILE=$CATOP/ca-crl.pem
+   elif [ $1 = user ]; then
+      KEYDIR=$CALOCALTOP/userkeys/$2
+      NEWKEYBASEDIR=/tmp/sge_ca_dir_$$
+      NEWKEYDIR=$NEWKEYBASEDIR/userkeys/$2
+      KEYFILE=$NEWKEYDIR/key.pem
+      REQFILE=$NEWKEYDIR/req.pem
+      CERTFILE=$NEWKEYDIR/cert.pem
+      NEWCERTFILE=$NEWKEYDIR/cert.pem.new
+      OLDCERTFILE=$NEWKEYDIR/cert.pem.old
+      RSFILE=$NEWKEYDIR/rand.seed
+      CRLFILE=$CATOP/ca-crl.pem
+      CERTFILE_PUBLIC_DIR=$CATOP/usercerts/$2
+   else 
+      PrintError "Unknown certificate type %s" $1
+      return 1
+   fi
+
+   # create rand.seed file
+   # rand.seed already exists, therefore no MakeRandFile $RSFILE $2
+   RANDFILE=$RSFILE; export RANDFILE
+
+   if [ "$1" = daemon ]; then
+      Execute $CHMOD 644 $CERTFILE
+      if [ $? != 0 ]; then
+         PrintError "chmod failed (%s)" $CERTFILE
+         return 1
+      fi
+   else
+      Execute $MKDIR -p $NEWKEYDIR
+      if [ $? != 0 ]; then
+         PrintError "mkdir failed (%s)" $NEWKEYDIR
+         return 1
+      fi
+      Execute $CP $KEYDIR/* $NEWKEYDIR
+      if [ $? != 0 ]; then
+         PrintError "Could not copy files (%s/\* -> %s)" $KEYDIR/* $NEWKEYDIR
+         return 1
+      fi
+      if [ "$ADMINUSER" = default ]; then
+         ExecChown -R root $NEWKEYDIR
+      else
+         ExecChown -R $ADMINUSER $NEWKEYDIR
+      fi
+      if [ $? != 0 ]; then
+         PrintError "chown failed (%s)" $NEWKEYDIR
+         return 1
+      fi
+      if [ $? != 0 ]; then
+         PrintError "chown failed (%s)" $NEWKEYDIR
+         return 1
+      fi
+      Execute $CHMOD 644 $NEWKEYDIR/*
+      if [ $? != 0 ]; then
+         PrintError "chmod failed (%s/\*)" $NEWKEYDIR
+         return 1
+      fi
+      
+   fi
+
+   umask 077
+
+   if [ "$3" = "true" ]; then
+      # revoke the old certificate
+      ExecuteAsAdmin $CA -config $TMPFILE1 -policy policy_anything \
+                         -batch $DAYS \
+                         -revoke $CERTFILE 
+
+      if [ $? != 0 ]; then
+         PrintError "Can't revoke %s." $CERTFILE
+         return 1
+      fi
+   fi
+
+   # sign certificate request
+   ExecuteAsAdmin $CA -config $TMPFILE1 \
+                      -policy policy_anything -batch $DAYS \
+                      -notext -out $NEWCERTFILE -infiles $REQFILE
+
+   if [ $? != 0 ]; then
+      PrintError "Can't renew %s." $CERTFILE
+      return 1
+   else  
+      
+      # create the certificate revocation list
+      ExecuteAsAdmin $CA -config $TMPFILE1 -policy policy_anything \
+                         -batch $CRLDAYS \
+                         -gencrl -out ${CRLFILE}.tmp
+
+      if [ $? != 0 ]; then
+         PrintError "Can't generate revocation list %s.." $CRLFILE
+         return 1
+      else
+         if [ $1 = daemon ]; then
+            $INFOTEXT "renewed certificate for SGE daemons" 
+         else
+            $INFOTEXT "renewed certificate for user '%s' in '%s'" $2 $KEYDIR
+         fi
+      fi  
+
+      if [ -f $OLDCERTFILE ]; then
+         ExecuteAsAdmin $RM -f $OLDCERTFILE
+         if [ $? != 0 ]; then
+            PrintError "Can not delete old cert file (%s)"  $OLDCERTFILE
+            return 1
+         fi
+      fi
+
+      ExecuteAsAdmin $CP $CERTFILE $OLDCERTFILE
+      if [ $? != 0 ]; then
+         PrintError "Could not copy file (%s -> %s)"  $CERTFILE $OLDCERTFILE
+         return 1
+      fi
+      ExecuteAsAdmin $MV $NEWCERTFILE $CERTFILE
+      if [ $? != 0 ]; then
+         PrintError "Could not move file (%s -> %s)"  $NEWCERTFILE $CERTFILE
+         return 1
+      fi
+      ExecuteAsAdmin $CHMOD 644 $CERTFILE
+      if [ $? != 0 ]; then
+         PrintError "chmod failed (%s)" $CERTFILE
+         return 1
+      fi
+
+      # copy renewed cert.pem to $CERTFILE_PUBLIC_DIR
+      if [ "$1" = user ]; then
+         umask 022
+         if [ ! -d "$CERTFILE_PUBLIC_DIR" ]; then
+            ExecuteAsAdmin $MKDIR -m 755 -p $CERTFILE_PUBLIC_DIR
+            if [ $? != 0 ]; then
+               umask 077
+               PrintError "Could not create %s"  $CERTFILE_PUBLIC_DIR
+               return 1
+            fi
+         fi
+         ExecuteAsAdmin $CP $CERTFILE $CERTFILE_PUBLIC_DIR
+         if [ $? != 0 ]; then
+            umask 077
+            PrintError "Could not copy file (%s -> %s)"  $CERTFILE $CERTFILE_PUBLIC_DIR
+            return 1
+         fi
+         ExecuteAsAdmin $CHMOD 644 $CERTFILE_PUBLIC_DIR/cert.pem
+         if [ $? != 0 ]; then
+            umask 077
+            PrintError "Could not chown 644 file %s"  $CERTFILE_PUBLIC_DIR/cert.pem
+            return 1
+         fi
+         umask 077
+      fi
+   
+      if [ "$1" != daemon ]; then
+         Execute $CP -f $NEWKEYDIR/* $KEYDIR
+         if [ $? != 0 ]; then
+            PrintError "Could not copy files (%s/\* -> %s)"  $NEWKEYDIR $KEYDIR
+            return 1
+         fi
+      fi
+
+      ExecuteAsAdmin $MV ${CRLFILE}.tmp $CRLFILE
+      if [ $? != 0 ]; then
+         PrintError "Could not move file (%s -> %s)"  ${CRLFILE}.tmp $CRLFILE
+         return 1
+      fi
+      ExecuteAsAdmin $CHMOD 644 $CRLFILE 
+      if [ $? != 0 ]; then
+         PrintError "chmod failed (%s)" $CERTFILE
+         return 1
+      fi
+   fi
+ 
+   Execute $RM -f $TMPFILE $TMPFILE1 
+
+   if [ "$1" != daemon ]; then
+      ExecRm $NEWKEYBASEDIR
+      Execute $CHMOD 500 $KEYDIR
+      if [ $? != 0 ]; then
+         PrintError "chmod failed (%s)" $KEYDIR
+         return 1
+      fi
+      Execute $CHMOD 600 $KEYDIR/*
+      if [ $? != 0 ]; then
+         PrintError "chmod failed (%s/\*)" $KEYDIR
+         return 1
+      fi
+      # The chown can only be done for user certificates
+      # sdm_daemon certificate are owned by $ADMINUSER
+      if [ $1 = "user" ]; then
+         id $2  > /dev/null 2>&1
+         if [ $? = 0 ]; then
+            ExecChown -R $2 $KEYDIR
+            if [ $? != 0 ]; then
+               PrintError "chown to %s failed (%s)" $2 $KEYDIR
+               return 1
+            fi
+         fi
+      fi
+   fi
+
+   umask 022
+   return 0
+}
+
+
+#--------------------------------------------------------------------------
+# MakeCADirs
+#    create all directories for CA infrastructure
+#
+# 
+MakeCADirs()
+{
+
+
+   if [ -f $CATOP -o -f $CALOCALTOP ]; then
+      $INFOTEXT "The CA directories\n   %s or %s\n seem to be regular files" \
+            $CATOP $CALOCALTOP
+      $INFOTEXT "CA initialization failed. Exit."
+      exit 1
+   fi
+
+   ExecRm $CALOCALTOP 
+   if [ -f $CALOCALTOP -o -d $CALOCALTOP ]; then
+      PrintError "Can't delete the CA local directories\n   %s" \
+                 $CALOCALTOP
+      return 1
+   fi
+
+   ExecRmAsAdmin $CATOP 
+   if [ -f $CATOP -o -d $CATOP ]; then
+      PrintError "Can't delete the CA directories\n   %s" \
+                 $CATOP 
+      return 1
+   fi
+
+
+   $INFOTEXT "Creating %s" $CATOP
+   ExecuteAsAdmin $MKDIR $CATOP
+   if [ $? != 0 ]; then
+      PrintError "mkdir failed (%s)" $CATOP
+      return 1
+   fi
+   $INFOTEXT "Creating %s" $CALOCALTOP
+   Execute $MKDIR -p $CALOCALTOP
+   if [ $? != 0 ]; then
+      PrintError "mkdir failed (%s)" $CALOCALTOP
+      return 1
+   fi
+
+   if [ $ADMINUSER != default -a $rootinstalls = true ]; then
+      ExecChown $ADMINUSER $CALOCALTOP
+      if [ $? != 0 ]; then
+         PrintError "chown to %s failed (%s)" $ADMINUSER $CALOCALTOP
+         return 1
+      fi
+   fi
+
+   $INFOTEXT "Creating %s" ${CATOP}/certs
+   ExecuteAsAdmin $MKDIR ${CATOP}/certs
+   if [ $? != 0 ]; then
+      PrintError "mkdir failed (%s)" ${CATOP}/certs
+      return 1
+   fi
+
+   $INFOTEXT "Creating %s" ${CATOP}/crl
+   $INFOTEXT -log "Creating %s" ${CATOP}/crl
+   ExecuteAsAdmin $MKDIR ${CATOP}/crl
+   if [ $? != 0 ]; then
+      PrintError "mkdir failed (%s)" ${CATOP}/crl
+      return 1
+   fi
+
+   $INFOTEXT "Creating %s" ${CATOP}/newcerts
+   $INFOTEXT -log "Creating %s" ${CATOP}/newcerts
+   ExecuteAsAdmin $MKDIR ${CATOP}/newcerts
+   if [ $? != 0 ]; then
+      PrintError "mkdir failed (%s)" ${CATOP}/newcerts
+      return 1
+   fi
+
+   $INFOTEXT "Creating %s" ${CATOP}/serial
+   $INFOTEXT -log "Creating %s" ${CATOP}/serial
+   ExecuteAsAdmin $TOUCH /tmp/serial.$$
+   ExecuteAsAdmin $CHMOD 644 /tmp/serial.$$
+   if [ $? != 0 ]; then
+      PrintError "Could not touch file as %s (%s)" $ADMINUSER /tmp/serial.$$
+      return 1
+   fi
+   echo 01 > /tmp/serial.$$
+   ExecuteAsAdmin cp /tmp/serial.$$ ${CATOP}/serial
+   if [ $? != 0 ]; then
+      PrintError "Could not copy file as %s (%s)" $ADMINUSER ${CATOP}/serial
+      return 1
+   fi
+   ExecuteAsAdmin rm -f /tmp/serial.$$
+
+   ExecuteAsAdmin $CHMOD 644 ${CATOP}/serial
+   if [ $? != 0 ]; then
+      PrintError "chmod failed (%s)" ${CATOP}/serial
+      return 1
+   fi
+
+   $INFOTEXT "Creating %s" ${CATOP}/index.txt
+   $INFOTEXT -log "Creating %s" ${CATOP}/index.txt
+   ExecuteAsAdmin $TOUCH ${CATOP}/index.txt   
+   if [ $? != 0 ]; then
+      PrintError "Could not touch file as %s (%s)" $ADMINUSER ${CATOP}/index.txt
+      return 1
+   fi
+
+   $INFOTEXT "Creating %s" ${CATOP}/usercerts
+   $INFOTEXT -log "Creating %s" ${CATOP}/usercerts
+   ExecuteAsAdmin $MKDIR -m 755 -p ${CATOP}/usercerts
+   if [ $? != 0 ]; then
+      PrintError "mkdir failed (%s)" ${CATOP}/usercerts
+      return 1
+   fi
+
+   $INFOTEXT "Creating %s" ${CALOCALTOP}/userkeys
+   $INFOTEXT -log "Creating %s" ${CALOCALTOP}/userkeys
+   ExecuteAsAdmin $MKDIR ${CALOCALTOP}/userkeys   
+   if [ $? != 0 ]; then
+      PrintError "mkdir failed (%s)" ${CALOCALTOP}/userkeys
+      return 1
+   fi
+
+   if [ $SGE_CNF = false ]; then
+      # haithabu store the daemon certificates in a seperate
+      # daemons directory
+      $INFOTEXT "Creating %s" ${CALOCALTOP}/daemons
+      $INFOTEXT -log "Creating %s" ${CALOCALTOP}/daemons
+      ExecuteAsAdmin $MKDIR ${CALOCALTOP}/daemons   
+      if [ $? != 0 ]; then
+         PrintError "mkdir failed (%s)" ${CATOP}/daemons
+         return 1
+      fi
+   fi
+   
+   umask 077
+   $INFOTEXT "Creating %s" ${CALOCALTOP}/private
+   $INFOTEXT -log "Creating %s" ${CALOCALTOP}/private
+   ExecuteAsAdmin $MKDIR ${CALOCALTOP}/private
+   if [ $? != 0 ]; then
+      PrintError "mkdir failed (%s)" ${CATOP}/private
+      return 1
+   fi
+   umask 022
+
+   $INFOTEXT -wait -auto $AUTO -n "\nHit <RETURN> to continue >> "
+   $CLEAR
+
+   return 0
+}
+
+
+#--------------------------------------------------------------------------
+# ReadConfig
+#    sources the sge_ca.conf file, if the -nosge option is not set
+#
+# 
+ReadConfig() {
+   
+   i=0
+   read_it=true
+   while [ $# -gt 0 ]; do
+     if [ "$1" = "-nosge" ]; then
+        read_it=false
+        break
+     fi
+     shift
+   done
+   if [ "$read_it" = "true" ]; then
+      if [ -f  $ROOT_PATH/util/sgeCA/sge_ca.cnf ]; then
+         . $ROOT_PATH/util/sgeCA/sge_ca.cnf
+      fi
+      return 1
+   else
+      return 0
+   fi
+}
+
+#--------------------------------------------------------------------------
+# THE MAIN PROCEDURE
+#--------------------------------------------------------------------------
+TOUCH=touch
+RM=rm
+MKDIR=mkdir
+CHMOD=chmod
+CHOWN=chown
+CP=cp
+MV=mv
+
+umask 022
+
+SGE_CNF=true
+ROOT_PATH=`dirname $0`/../..
+ROOT_PATH=`cd $ROOT_PATH; pwd`
+CATOP=""
+CALOCALTOP=""
+CAHOST=""
+CAHOMEKEYDIR=""
+
+ADMINUSER="default"
+CONFIG_DIR=$ROOT_PATH/util/sgeCA
+ARCHSCRIPT=$ROOT_PATH/util/arch
+if [ ! -f "$ARCHSCRIPT" ]; then
+   echo
+   echo Error: The shell script \"$ARCHSCRIPT\" does not exist.
+   echo Please verify your setup and restart this script. Exit.
+   echo
+   exit 1
+fi
+
+ARCH=`$ARCHSCRIPT`
+V5UTILBIN=$ROOT_PATH/utilbin/$ARCH              # adminrun, infotext, uidgid
+
+if [ ! -d "$V5UTILBIN" ]; then
+   echo
+   echo "Error: The utilbin directory "$V5UTILBIN" does not exist"
+   echo "Please verify your setup and restart this script. Exit."
+   exit 1
+fi
+
+# Fixme:  Change this (per Fedora) if the jars are installed outside
+# ROOT_PATH.
+if [ ! -d "$ROOT_PATH/lib/$ARCH" ]; then
+    echo
+    echo "Error: The lib directory \"$ROOT_PATH/lib/$ARCH\" does not exist"
+    echo "Please verify your setup and restart this script. Exit."
+    exit 1
+fi
+
+shlib_path_name=`$ROOT_PATH/util/arch -lib`
+old_shlib_path_name=`eval echo '$'$shlib_path_name`
+if [ x$old_shlib_path_name  = x ]; then
+   eval $shlib_path_name=$ROOT_PATH/lib/$ARCH
+else
+   eval $shlib_path_name="$ROOT_PATH/lib/${ARCH}:${old_shlib_path_name}"
+fi
+export $shlib_path_name
+
+#---------------------------------------
+# setup INFOTEXT begin
+#---------------------------------------
+
+# INFOTXT_DUMMY is needed by message parsing script
+# which is looking for $INFOTEXT and would report
+# errors in the next command. Please use INFOTXT_DUMMY
+# instead of using $INFOTEXT
+
+INFOTXT_DUMMY=$V5UTILBIN/infotext
+INFOTEXT=$INFOTXT_DUMMY
+if [ ! -x $INFOTXT_DUMMY ]; then
+   echo "Error: Can't find binary \"$INFOTXT_DUMMY\""
+   echo "Please verify your setup and restart this script. Exit."
+   exit 1
+fi
+
+# Test the infotext binary
+tmp=`$INFOTEXT test 2>&1`
+if [ $? -ne 0 ]; then
+   echo "Error: Execution of $INFOTEXT failed: $tmp"
+   echo "Please verify your setup and restart this script. Exit."
+   exit 1
+fi
+
+#
+# From now on we can use PrintError methods to write error messages
+#
+
+SGE_INFOTEXT_MAX_COLUMN=5000; export SGE_INFOTEXT_MAX_COLUMN
+
+#---------------------------------------
+# setup INFOTEXT end
+#---------------------------------------
+
+#
+#  Check wether all needed binaries are exists
+#
+for i in adminrun uidgid; do
+   if [ ! -x $V5UTILBIN/$i ]; then
+      PrintErrorAndExit 1 "Error: Can't find binary \"%s\"" $V5UTILBIN/$i
+   fi
+done
+
+euid=`$V5UTILBIN/uidgid -euid 2>&1`
+if [ $? -ne 0 ]; then
+   PrintErrorAndExit 1 "Execution of $V5UTILBIN/uidgid failed: $euid"
+fi
+if [ $euid = 0 ]; then
+   rootinstalls=true
+else
+   rootinstalls=false
+fi
+
+ReadConfig "$@"
+
+#--------------------------------------------------------------------------
+# SGE specific settings to keep previous behavior
+#--------------------------------------------------------------------------
+
+ME=`whoami`
+if [ "$ME" = "" ]; then
+   PrintErrorAndExit 1 "Can't determine your username with \"%s\" command. Exit" whoami
+fi
+
+CAKEY=cakey.pem
+CACERT=cacert.pem
+OPENSSL=openssl
+
+AUTO="false"
+#-----------------------------
+# CommandLine Argument Parsing
+#
+WHICH="undef"
+revoke=""
+newkey=newkey.pem
+newreq=newreq.pem
+newcert=newcert.pem
+user=""
+outdir=.
+indir=.
+userfile=""
+passinfile=""
+pkcs12outdir=""
+md="-md md5"
+nodes="-nodes"
+ksoutfile=""
+kspwfile=""
+
+ARGC=$#
+while [ $ARGC != 0 ]; do
+   case $1 in
+   -adminuser)
+      ADMINUSER="$2"
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -auto)
+      AUTO="true"
+      if [ "$AUTOGUI" != true ]; then
+         . $2
+      fi
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -init)
+      WHICH="init"
+      ;;
+   -req)
+      WHICH="req"
+      ;;
+   -sign)
+      WHICH="sign"
+      ;;
+   -copy)
+      WHICH="copy"
+      ;;
+   -nosge)
+      SGE_CNF=false
+      ;;
+   -verify)
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-verify needs argument"
+         ErrUsage
+      fi
+      WHICH="verify"
+      newcert=$2
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -print)
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-print needs argument"
+         ErrUsage
+      fi
+      WHICH="print"
+      newcert=$2
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -revoke)
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-revoke needs argument"
+         ErrUsage
+      fi
+      WHICH="revoke"
+      newcert=$2
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -showCaTop)
+      WHICH="showCaTop"
+      ;;
+   -showCaLocalTop)
+      WHICH="showCaLocalTop"
+      ;;
+   -printkey)
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-printkey needs argument"
+         ErrUsage
+      fi
+      WHICH="printkey"
+      newcert=$2
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -printcrl)
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-printcrl needs argument"
+         ErrUsage
+      fi
+      WHICH="printcrl"
+      newcert=$2
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -days)
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-days needs argument"
+         ErrUsage
+      fi
+      DAYS="-days $2"
+      CRLDAYS="-crldays $2"
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -outdir)
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-outdir needs argument"
+         ErrUsage
+      fi
+      outdir="$2"
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -cahost)
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-cahost needs argument"
+         ErrUsage
+      fi
+      CAHOST="$2"
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -cadir)
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-cadir needs argument"
+         ErrUsage
+      fi
+      CATOP="$2"
+      CALOCALTOP="$2"
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -calocaltop)
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-calocaltop needs argument"
+         ErrUsage
+      fi
+      CALOCALTOP="$2"
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -catop)
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-catop needs argument"
+         ErrUsage
+      fi
+      CATOP="$2"
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -pkcs12)
+      WHICH="pkcs12"
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-pkcs12 needs argument"
+         ErrUsage
+      fi
+      user="$2"
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -sdm_pkcs12)
+      WHICH="sdm_pkcs12"
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-sdm_pkcs12 needs argument"
+         ErrUsage
+      fi
+      user="$2"
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -sys_pkcs12)
+      WHICH="sys_pkcs12"
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-sys_pkcs12 needs argument"
+         ErrUsage
+      fi
+      user="$2"
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -ks)
+      WHICH="ks"
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-ks needs argument"
+         ErrUsage
+      fi
+      user="$2"
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -ksout)   
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-ksout needs argument"
+         ErrUsage
+      fi
+      ksoutfile="$2"
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -kspwf)   
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-kspwf needs argument"
+         ErrUsage
+      fi
+      kspwfile="$2"
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -pkcs12pwf)   
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-pkcs12pwf needs argument"
+         ErrUsage
+      fi
+      passinfile="$2"
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -pkcs12dir)   
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-pkcs12dir needs argument"
+         ErrUsage
+      fi
+      pkcs12outdir="$2"
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -sha1)
+      md="-md sha1"
+      ;;
+   -encryptkey)
+      nodes=""
+      ;;
+   -usercert)
+      WHICH="usercert"
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-usercert needs argument"
+         ErrUsage
+      fi
+      userfile=$2
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -userks)
+      WHICH="userks"
+      ;;
+   -sysks)
+      WHICH="sysks"
+      ;;
+   -user)
+      WHICH="oneuser"
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-user needs argument"
+         ErrUsage
+      fi
+      user=$2
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -sdm_daemon)
+      WHICH="sdm_daemon"
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-sdm_daemon needs argument"
+         ErrUsage
+      fi
+      user=$2
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -renew|-rrenew)
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-renew needs argument"
+         ErrUsage
+      fi
+      WHICH="renew"
+      if echo "$1" | egrep '^-rr' >/dev/null; then revoke="true"; fi
+      user=$2
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -renew_sdm|-rrenew_sdm)
+      if [ $ARGC -lt 2 ]; then
+         PrintError "-rrenew_sdm needs argument"
+         ErrUsage
+      fi
+      WHICH="renew_sdm"
+      if echo "$1" | egrep '^-rr' >/dev/null; then revoke="true"; fi
+      user=$2
+      shift
+      ARGC=`expr $ARGC - 1`
+      ;;
+   -renew_sys|-rrenew_sys)
+      WHICH="renew_sys"
+      if echo "$1" | egrep '^-rr' >/dev/null; then revoke="true"; fi
+      ;;
+   -renew_ca)
+      WHICH="renew_ca"
+      ;;
+   -version)
+      WHICH="version"
+      ;;
+   -dumpusers)
+      WHICH="dumpusers"
+      ;;
+   *)
+      PrintError "Unknown option %s" "$1"
+      ErrUsage
+      ;;
+   esac
+   shift
+   ARGC=`expr $ARGC - 1`
+done
+
+if [ "$WHICH" = "undef" ]; then
+   ErrUsage
+fi
+
+#echo "ADMINUSER: $ADMINUSER" 
+#echo "CATOP: $CATOP" 
+#echo "CALOCALTOP: $CALOCALTOP" 
+#echo "CAHOST: $CAHOST" 
+
+if [ "$CATOP" = "" ]; then
+   ErrUsage "catop not set"
+fi
+if [ "$CALOCALTOP" = "" ]; then
+   ErrUsage "calocaltop not set"
+fi
+if [ "$ADMINUSER" = "" ]; then
+   ErrUsage "adminuser not set"
+fi
+if [ "$CAHOST" = "" ]; then
+   ErrUsage "cahost not set"
+fi
+
+
+export ADMINUSER CATOP CALOCALTOP CAHOST
+
+REQ="$OPENSSL req $nodes"
+
+CA="$OPENSSL ca $md -keyfile $CALOCALTOP/private/$CAKEY -cert $CATOP/$CACERT \
+             -outdir $CATOP/newcerts"
+
+VERIFY="$OPENSSL verify"
+
+X509="$OPENSSL x509"
+X509KEY="$OPENSSL rsa"
+X509CRL="$OPENSSL crl"
+
+P12="$OPENSSL pkcs12"
+
+case $WHICH in
+init)
+   InitCA  
+   ;;
+req)
+   RequestCert
+   ;;
+sign)
+   SignCert
+    ;;
+copy) 
+    InstallKey user $ME
+    ;;
+usercert) 
+    MakeUserCerts $userfile
+    ;;
+userks) 
+    MakeUserKeystores
+    ;;
+sysks) 
+    MakeSysKeystore
+    if [ $? != 0 ]; then
+       exit 1
+    fi
+    ;;
+oneuser)
+    MakeUserCert user "$user"
+    if [ $? != 0 ]; then
+       exit 1
+    fi
+    ;;
+sdm_daemon)
+    MakeUserCert sdm_daemon $user
+    if [ $? != 0 ]; then
+       exit 1
+    fi
+    ;;
+verify)
+    VerifyCert
+    ;;
+print)
+    PrintX509 cert $newcert
+    ;;
+revoke)
+    RevokeX509 $CALOCALTOP/private/rand.seed $newcert
+    ;;
+printkey) 
+    PrintX509 key $newcert
+    ;;
+printcrl) 
+    PrintX509 crl $newcert
+    ;;
+renew) 
+    RenewCert user $user $revoke
+    if [ $? != 0 ]; then
+       exit 1
+    fi
+    ;;
+renew_sdm) 
+    RenewCert sdm_daemon $user $revoke
+    if [ $? != 0 ]; then
+       exit 1
+    fi
+    ;;
+renew_sys) 
+    RenewCert daemon $ADMINUSER $revoke
+    if [ $? != 0 ]; then
+       exit 1
+    fi
+    ;;
+renew_ca) 
+    RenewCA
+    if [ $? != 0 ]; then
+       exit 1
+    fi
+    ;;
+pkcs12) 
+    MakePKCS12 user $user
+    if [ $? != 0 ]; then
+       exit 1
+    fi
+    ;;
+ks) 
+    if [  "$ksoutfile" != "" ]; then
+       MakeKeystore user $user
+    else
+       MakeUserKeystore $user
+    fi    
+    if [ $? != 0 ]; then
+       exit 1
+    fi
+    ;;
+sdm_pkcs12) 
+    MakePKCS12 sdm_daemon $user
+    if [ $? != 0 ]; then
+       exit 1
+    fi
+    ;;
+sys_pkcs12) 
+    MakePKCS12 sge_daemon $user
+    if [ $? != 0 ]; then
+       exit 1
+    fi
+    ;;
+showCaTop)
+    echo "$CATOP"
+    ;;
+showCaLocalTop)
+    echo "$CALOCALTOP"
+    ;;
+version)
+    echo "sge_ca 8.1.9"
+    ;;
+dumpusers)
+    DumpUsers
+    ;;
+help)
+    ErrUsage
+    ;;
+esac
+
+exit 0

@@ -1,0 +1,706 @@
+Notable changes in Son of Grid Engine
+=====================================
+
+For earlier changes (comprising Sun Grid Engine), see Changelog in the
+source distribution, and the bug lists at
+http://arc.liv.ac.uk/SGE/howto/Installation,%20Upgrade,%20Patches.
+For detailed recent change information, including credits for changes
+not listed here, see https://arc.liv.ac.uk/trac/SGE/log/sge/
+
+"[#<n>]" below refers to ticket <n> at
+https://arc.liv.ac.uk/trac/SGE/ticket/<n>.  For historical reasons,
+changes due to Univa/Sun are tagged as "[U]", or "[(U)]" if partially
+due to them or appearing first in this version.
+
+
+Version 8.1.9
+-------------
+
+* Security
+  * Drop setgid privileges correctly (CERT POS36-C); daemons now run
+    with (only) admin user's groups, not root's
+
+* Building
+
+  * MUNGE authentication can be built in (aimk -munge)
+  * Use a minimal autoconf framework
+  * Fix building on recent Darwin and Cygwin [#1516, #1536, #1557]
+  * Drop support for Darwin < 10 and Darwin/PPC
+  * Cope with GNU/Linux ppc64le as well as ppc64el
+  * Fix rpm packaging of spool objects [#1519]
+  * Actually install "work" in utilbin (c.f. 8.1.8)
+  * Rpm spec fixes for Fedora 23, ppc64, and OpenSuSE
+  * Fix build when bool is defined in headers
+
+* Bug fixes
+
+  * Man fixes
+  * Message fixes [#1538, #1539]
+  * Fix RPM packaging of spool files [#1519]
+  * Don't set port and cluster in check_sge.py, and accept memory in T
+  * Fix pam_sge-qrsh-setup for recent PAM
+  * Do a full, not a partial match on GECOS data when selecting certificate
+    in sge_ca [#1517]
+  * Fix checking of admin host in qconf [#1547]
+  * Report the actual exit status of master task in tightly integrated
+    parallel jobs
+  * Fix share tree accounting with array jobs [#435]
+  * Fix doubled multipliers of units in qacct memory reports
+  * Improve job scheduling within a sharetree node [#1550]
+  * Flush spool at qmaster exit [#1551]
+  * Sort jobs and advance reservations when reading from spool [#1552, #1553]
+  * Fix detection of old v. new type of cpuset [#1523]
+  * Fix treatment of some invalid entries in variable lists or the
+    environment on job submission
+
+* Enhancements
+
+  * MUNGE authentication (as above)
+  * qconf -clearusage can act on a specific user
+  * Allow generating load sensor data just before sending them
+  * Add sge_ca "-revoke <cert>" option
+  * Allow running DRMAA jobs as arbitrary user [#492].  (Partially
+    done in v 8.1.0, but not mentioned; now works with CSP.)
+  * Report SSL error numbers in hex [#1539]
+  * Use PVM_VMID environment variable [#44]
+  * rc templates support a "status" argument (for HA usage)
+
+* Potentially incompatible changes
+
+  * Print error messages to stderr and don't print on success with -terse
+    to be consistent with submit(1) saying that error messages go to
+    stderr and to make -terse more useful in cases like
+      cat test.o$(qsub -sync y -terse -cwd -N test ...)
+  * sge_ca -renew and friends no longer revoke old certificates
+  * The qconf -sep and -cb options have been removed finally
+  * A POSIX 2001-compatible library is required
+
+Version 8.1.8
+-------------
+
+* Building
+
+  * Fix build with recent GNU binutils
+  * Fix rpm build on Fedora and maybe use packaged swing-layout
+  * Fix dpkg build on recent Debian/Ubuntu
+  * uid_t/gid_t are unsigned on NetBSD
+  * Install "work" in utilbin
+  * Move qsched back to main package
+
+* Bug fixes
+
+  * Man fixes
+  * Fix buffer overflow in qmake [#1507]
+  * Avoid possible link-time error (Debian bug # 749413)
+  * Fix some global messages from qstat -j
+  * Avoid truncating usage values in accounting records
+  * Fix execd remembering existing core binding when restarted [#1511]
+
+* Enhancements
+
+  * Nagios and Ganglia monitoring scripts
+  * Python JSV implementation
+  * Upstart and systemd startup files
+  * Define DRMAA_LIBRARY_PATH in setup scripts
+
+Version 8.1.7
+-------------
+
+* Building
+
+  * Remove the shipped old jemalloc in favour of an external one
+    (aimk -jemalloc)
+  * Always use system libraries -- never load SSL stuff dynamically
+  * aimk no longer uses specific paths for openssl etc.  Use
+    INPUT_*_FLAGS if necessary
+  * SUpport building rpm on OpenSuSE and RHEL7
+
+* Bug fixes
+
+  * Man, other doc, and message fixes/changes [#1504]
+  * Fix minor memory leaks and check result of all malloc calls
+  * Don't pause for a second with client JSVs [#1475]
+  * Allow longer "failed" strings in admin mail
+  * Fix spurious thread error reports from qping [#588]
+  * Avoid possible crash reading malformed configuration files
+  * Fix GUI installer startup [#1488]
+  * Always define SGE_STARTER_USE_LOGIN_SHELL with starter method
+  * Modify cpuset-based process killing [#1483, #1490]
+  * Make various files optional when setting permissions at installation
+  * Fix cpu-bound shepherd with qlogin
+  * Fix queue list for adding queue in qmon [#1495]
+  * Clean up some file permissions and shebangs in non-executables [#1493]
+  * Really ignore -e, -o args of qrsh/qsh/qlogin, as documented
+  * Fix use of SGE_QMASTER_PIDFILE and double writing of pid file
+  * Fix occasional qmaster major space leak with schedd_job_info [#360, #682]
+  * Wait until daemon goes down when stopping sge_execd
+
+* Enhancements
+
+  * Support Cygwin x86_64, and GNU/Linux on arm64 and ppc64el (untested)
+  * qconf -aattr et al now support modifying types user, userset, calendar,
+    and project
+  * Translate exit code to signal name in qacct output
+  * qacct -m prints only master tasks
+  * Add ar_sub_time to qacct output
+  * Allow rctemplate configuration from /etc/sysconfig as well as
+    /etc/default
+  * Update MPI PE templates and install a tight integration "mpi" PE
+  * Make suid files, dtrace, qmon, start_gui_installer optional in
+    setfileperm.sh (used at installation)
+  * Speed up JSV in bash by not calling cut
+
+* Potentially incompatible changes
+
+  * Default ENABLE_ADDGRP_KILL to on
+  * Clean symbol exports from libdrmaa.so (GNU ld only); now only exports
+    drmaa_* and Java_com_sun_grid_*
+  * Non-public functions in Bourne shell JSV implementation are
+    prefixed with "_"
+  * qping -info prints (very different) malloc statistics when the daemon
+    uses jemalloc.  See print_malloc_info in sge_conf(5).
+
+Version 8.1.6
+-------------
+
+* Bug fixes
+
+  * Man and message fixes
+  * Fix building of patched openssh for tight integration
+  * Fix detailed_job_info XML schema for -ncb case
+  * Don't ignore qsub -tc when max_aj_instances=0
+  * Fix sge_ca failures [#1484]
+  * Replace missing bits of OpenBSD support
+  * Fix cpuset failures [#1479, #1480, #1483]
+  * Fix configuring classic spooling with GUI installer [#1478]
+  * Correct job type for qrsh -noshell
+  * Fix missing symbol in sge_authorize PAM module
+  * Fix qsub hang with -sync and single-task array
+  * Pass TERM from environment to interactive jobs (only)
+  * Fix qsched crash with no waiting, potentially-runnable jobs
+  * Better diagnose server and client version mis-matches
+  * Fix problems with killing processes via cpusets [#1483,#1490]
+  * Check for malloc failures in various places
+
+Version 8.1.5
+-------------
+
+* Bug fixes
+
+  * Fix strsignal-related build failure on MS Windows, at least
+  * Fix MS Windows build without -no-secure
+  * Fix qstat job summary messages [#1450]
+  * Fix format/type errors in some cases
+  * Fix detection of armhf
+  * Man and other doc fixes
+
+Version 8.1.4
+-------------
+
+Milestone version: over 1000 patches since the last from Sun
+
+* Bug fixes
+
+  * Man and other doc fixes
+  * Various message fixes
+  * Minor fixes [#15]
+  * Distinguish zombie jobs in qstat output [#98, #1432]
+  * Use admin user root consistently in install scripts/bootstrap [#390]
+  * Include missing items in backups
+  * Make qsub -clear affect -b, -binding, -shell, -t, -tc [#1452]
+  * Allow qsub -binding and -t args to be repeated [#1453]
+  * Print job type info in qstat -j normal output, as for XML output
+  * Fix regressions reporting floating point values from fix for #1394.
+    Now always use C numeric locale, i.e. English-style floating point
+    printing
+  * Don't run checkpointing-type shepherd commands with user shell [#1448]
+  * Add supplementary group to programs for checkpointing etc. started
+    by shepherd so that they can be killed but are also accounted [#1449]
+  * Pass all SGE_... environment variables to non-builtin remote startup
+    (needed for pam_sge-qrsh-setup)
+  * Fix load report for 0 slots cluster queue [#1455]
+  * Ignore min_uid, min_gid when running prolog etc. [#1456]
+  * The qmaster rpm no longer requires java
+  * Various fixes in rpm and dpkg packaging
+  * Add qsort_args to PE definitions if necessary on upgrade
+  * qmod -cj now needs operator privileges
+  * Avoid crash looking up group info (seen with non-local user database)
+  * Avoid problems with daemon init scripts by adding required-stop items
+  * Fix load reporting on recent NetBSD
+  * Fix NetBSD build issues
+  * Avoid problems due to re-setting IFS when reading auto-installation
+    templates, now assuming they are valid sh
+  * Fix PE definition in Hadoop setup
+  * Fix failures of qlogin (or command-less qrsh) with builtin startup
+    [#1437, #1467]
+  * Fix getservbyname crash with bad args
+  * Fix return code of qconf -secl and -sep
+  * Fix regression with multi-line environment variables
+  * Error returns from epilog and pe_stop have the documented effects
+  * inst_sge fixes [#1461]
+  * Avoid overflows when reporting 64-bit usage values
+  * Restrict qmod -rj to operators
+  * Use admin user root consistently in install scripts/bootstrap [#340]
+
+* Enhancements
+
+  * qacct:  print category information; support -A like -P [#19]; make
+    -u a synonym for -o; -E selects on job end times [#408] read from
+    standard input with -f [#460]
+  * Move manager/operator setup in startup scripts [#593]
+  * Installation creates an environment modules file
+  * Add monitor_qmaster.sh script
+  * Write shepherd panic messages to syslog, not into /tmp
+  * Add .desktop file for qmon
+  * rpm/dpkg packaging allows building against motif (recent Debian/Fedora)
+  * Accounting reports qmaster-enforced resource limits (only on master PE
+    task if accounting_summary is false)
+  * Add "smp" to the default queue PE list
+  * install_execd doesn't check the presence of (mostly irrelevant) binaries
+  * Add configuration for logcheck
+
+* Potentially incompatible changes
+
+  * renew_all_certs.ksh re-named to renew_all_certs.sh
+  * Expand $ja_task_id to 0 for non-array jobs [379]
+  * Move manager/operator setup in startup scripts [#593]
+  * For security reasons, installation defaults for min_uid, min_gid in
+    sge_conf(5) are now 100 without CSP.  See
+    <http://arc.liv.ac.uk/SGE/howto/sge-security.html>
+  * RPM layout changed to put relevant ones under noarch (on RHEL6 and
+    recent Fedora), with a separate guiinst package
+  * Memory values can be input and output in TB or tB (possible
+    incompatibility parsing output)
+  * Reduce execd CPU time reading large smaps files from Linux /proc and
+    provide USE_SMAPS in execd_params to turn it on (default now off
+    because huge smaps are generated by some programs)
+  * Remove redundant -verify option from qsh, qlogin (per doc)
+
+Version 8.1.3
+-------------
+
+* Bug fixes
+
+  * Man and other doc fixes [including #354, #1285, #1436, #1444]
+  * Use correct schema with qstat -xml
+  * Correct qstat -pri -xml output [#359]
+  * Correct more bad XML [#314]
+  * Fixes for building on Solaris and Interix
+  * Minor fixes [#350, #351, #369, #593, #794, #1413, #1436]
+  * Assorted code improvements from better checking, particularly format
+    errors in diagnostic output
+  * Avoid qmaster crash with old client [#1441]
+  * Report dynamic limits correctly in qquota
+  * Fix JRE path on some GNU/Linux architectures
+  * Avoid possible crashes sending mail [#1443]
+  * Correct fix for "invalid pe job range" [#1402]
+  * Print "r" checkpoint flag in qstat [#1445]
+  * Pass TERM to jobs from submission environment, not execd's
+  * Fix idle-nodes script
+  * Fix sge_qquota parsing [#486]
+
+* Enhancements
+
+  * Document Interix building explicitly
+  * qstat reports array task maximum concurrency [#1338]
+  * qstatus removes [] suffix for non-array jobs if -t was requested
+  * Read /etc/default/{sgeexecd,sgemaster} to allow customizing rc scripts
+  * Location of daemon pid files can be specified with SGE_QMASTER_PIDFILE,
+    SGE_EXECD_PIDFILE
+  * Debian packaging (as an add-on, installing into /opt/sge)
+  * Expand $sge_root and $sge_cell in the definitions of prolog and
+    similar methods
+  * Check in init script that shepherd will load [#1412]
+  * Add lx-armhf architecture
+  * On Linux and NetBSD, report jobs' virtual memory usage as accurately
+    as possible [#62, #1301]
+  * Add -nobincheck installation option to avoid checking binaries [#45]
+  * Add some build hooks, useful for Debian particularly.
+
+* Potentially incompatible changes
+
+  * qacct prints units [#174] (might affect parsing the output)
+  * Correct spelling of "comunication_error" in qstat XML error output
+  * Fix problems submitting to ARs [#788] (printing times now doesn't use
+    a days field in qstat etc.)
+  * Java version >= 1.5 required
+  * Lower default MAX_DYN_EC somewhat to avoid warning on typical Linux
+    configurations
+
+* Other changes
+
+  * Don't install the ckpt directory (contents obsolete)
+
+Version 8.1.2
+-------------
+
+* Bug fixes
+
+  * Man and other documentation fixes
+  * Fix possible failure building qtcsh
+  * Remove spurious runtime dependencies on hwloc
+  * Include sge_share_mon in RPM
+  * Deal gracefully with requesting fewer PE slots than defined for a PE
+  * Fix regression from string-handling changes (e.g. failure with Unix
+    groups in ACLs)
+
+* Enhancements
+
+  * Use cpusets for process containment on fairly recent Linux-based systems
+    (see USE_CGROUPS in sge_conf(5))
+  * Add bootstrap build script
+  * Make SGE template an RPM conf file [#1383, #1430]
+
+* Incompatible changes
+
+  * Make CRL and certificate expiry consistent [#1423]
+
+Version 8.1.1
+-------------
+
+* Bug fixes
+
+  * Many man and other documentation fixes
+  * Various build fixes; including correct linking of libdrmaa.so
+  * Fix various messages
+  * Fix ownership of pty created with "-pty y" per submit(1)
+  * Fix setting of non-"explicit" binding parameters with JSV
+  * Fix qevent crash when printing usage
+  * Avoid qsub crash when user information is unavailable [#772]
+  * Fix problems with qmon and optimized compiles due to invalid C
+  * Fix effective units for memory reporting on Darwin
+  * Delay closing descriptors for interactive sessions
+  * Avoid sensitivity of internal floating-point handling to numeric
+    locale [#1394]
+  * Allow full wildcard patterns for wc_pe_name type in parallel
+    environment requests, not just "*" [#1410]
+  * Pass the user environment with MS Windows display_win_gui=true
+    jobs [#1380]
+  * Treat -pty the same as qsh for qlogin and command-less qrsh
+  * Fix handling of newlines in qrsh commands, exposed by qmake update
+    [#1420], and preserve "\n" in environment values
+  * Avoid breaking some NSS modules, resulting in failed passwd lookup
+  * Fix suspension of parallel jobs [#577]
+  * Improve portability of qstatus(1)
+  * Fix signature of drmaa_run_bulk_jobs [#362]
+  * Fix some cases with shell_start_mode=unix_behaviour
+  * Use correct KRB5CCNAME when deleting Kerberos credentials [#64]
+    (though GSS security is not currently useful)
+  * Fix spurious deletion of the job script with multiple PE array
+    jobs on a node
+
+* Security
+
+  * Don't pass any user environment to remote startup daemons -- better
+    fix for half of CVE-2012-0208
+
+* Enhancements
+
+  * SGE_BINDING is set in the environment for all types of binding
+  * New jobstats(1) provides historical job summary
+  * Berkeleydb spools can optionally be opened "private" to allow
+    operation on NFS3 filesystems.  Currently no installer support, but
+    see bootstrap(5) and the health warning
+  * Environment variable SGE_DRMAA_ALLOW_JOB_ERROR_STATE allows DRMAA
+    jobs to enter the error state [#1374]; see drmaa_submit(3)
+  * Define SGE_JOBEXIT_STAT environment variable in epilog; see submit(1)
+  * The user from which mail is sent can be configured in sge_conf(5)
+  * Topology items are now static load values; see load_parameters(5)
+  * qstat now prints array job dependency info
+  * Default to support for qsort_args in sge_pe(5)
+  * Include an example of logrotate usage
+  * Install an "smp" PE
+  * Distribute/document sge_share_mon(1) to print share tree [#1373]
+  * Improve install template defaults [#1362]
+  * GPU load sensor (dist/util/resources/loadsensors/gpu-loadsensor.c)
+  * Allow building Kerberos/GSSAPI security modules against Heimdal
+    (but GSS is still not properly usable)
+  * Support arm and mipsel on GNU/Linux, completing the set
+    of official Debian Linux-based ports
+  * Support for OpenBSD (untested)
+  * Preliminary support for Cygwin: everything builds, clients work
+    (lightly tested), daemons need fixing
+  * Add ja_task_id to expandable variables in ckpt_command and similar
+    methods
+  * distinst supports installation with install(1) for use with -local
+
+* Incompatible changes
+
+  * The CA directory is now /var/lib/sgeCA instead of /var/sgeCA
+    [#293] but installation will offer to move it [fixme]
+  * Drop (any pretence at) support for Cray/Unicos, NEC SX, Darwin 6
+  * The spool format for parallel job tasks has changed from any previous
+    version built with qsort_args (as above), which will make live
+    upgrades from such a version fail on nodes running parallel jobs
+
+* Other changes
+
+  * Extensive internal changes to improve robustness, e.g. of
+    string-handling against buffer overruns -- somewhat error-prone
+    and may have caused regressions; more required
+  * Install script allows rsh et al to be omitted from binary distribution
+    in favour of ssh
+
+
+Version 8.1.0
+-------------
+
+* Security fix
+
+  * Prevent users other than root deleting entries with sgepasswd
+
+* Version numbering
+
+  * Switch to a more logical numbering scheme now that the Univa
+    baseline is irrelevant
+
+* Bug fixes
+
+  * Correct patch for [#1328]
+  * Build libdrmaa against libhwloc when appropriate
+  * Install AUTHORS and sge_pqs_api.h
+  * Actually use AIX perflib (and drop ibm-loadsensor)
+  * Man fixes
+
+* Other changes
+
+  * Update RPM spec file to include gui-installer and herd in RPM
+  * Link duplicated man pages rather than copying them [#1408]
+  * Update copyright licences
+  * Hadoop support now for a more recent Hadoop distribution (see
+    README.BUILD)
+  * Drop support for AIX 4.3 and earlier and HPUX 10 (from patch dependency)
+
+Version 8.0.0e
+--------------
+
+Mostly build and security issues
+
+* Bug fixes
+
+  * Fix linker-dependent hwloc build failure.
+  * Fix Java build with -no-hwloc
+  * Fix spurious messages from deleting job spool directories.
+  * Fix build error on Solaris 11
+  * Fix spec file for systems that use mandb [#1407]
+  * Fix #777 (8.0.0d) properly
+  * Allow building against berkeleydb 5 and with GNU ld --as-needed
+    (e.g. Ubuntu 12.04)
+  * Rename status(1) to qstatus(1) to avoid name clash with upstart
+  * Update LICENCES with some missing items
+  * Fix qevent crash printing usage and add man page
+
+* Security fixes
+
+  The first fix is for a trivial remote root by a valid user.  The
+  others, including fixes for potential buffer overruns in daemon and
+  setuid programs, may or may not be exploitable.
+
+  * Sanitize the environment before executing remote startup programs etc.
+    Somewhat incompatible:  LD_LIBRARY_PATH etc. may need to be set
+    differently.  See the security notes in remote_startup(5) and
+    sge_conf(5).  (CVE-2012-0208, thanks to William Hay)
+  * Don't write initial log messages in /tmp [#508].  Somewhat
+    incompatible:  initial messages now in syslog.
+  * Avoid using mktemp.  (Probably not a significant problem.)
+  * Control core dumps under setuid etc. with SGE_ENABLE_COREDUMP.
+    (Not normally a security issue.)
+  * Bounds checking in replace_params [#215]
+  * Avoid execd crash and possible overruns [#1328]
+  * Fixes for buffer overrun and other improvements for (setuid
+    program) sgepasswd [including #386]
+
+* Enhancements
+
+  * Logging can be configured to use syslog [#808] from fixing #508.
+
+Version 8.0.0d
+--------------
+
+* Bug fixes
+
+  * Man and fixes
+  * Fix building with older gcc versions
+  * Provide load average in qstat XML output [#446, #454]
+  * Partially back out Univa change which broke classic spooling
+  * Fix -terse in sge_request [#777]
+  * Replace 3rd_party_licscopyrights with updated LICENCES directory
+    to fix some missing items
+
+* Other changes (possibly-incompatible)
+
+  * Message fixes
+
+Version 8.0.0c
+--------------
+
+* Bug fixes
+
+  * Man and other documentation fixes
+  * Build/installation fixes (particularly for Red Hat 6 and Linux 3)
+  * Fix group ids for submitted jobs [U]
+  * Fix default value of boolean with JSV [U]
+  * Windows fixes for helper crashes and Vista GUI jobs [U]
+  * Ensure parallel jobs are dispatched to the least loaded host [U]
+  * Correct ownership of qsub -pty output file; was owned by admin user [U]
+  * Fix format of Windows loadcheck.exe output [U]
+  * Read from stderr even if stdout is already closed in IJS [U]
+  * Fix PDC_INTERVAL=NEVER execd parameter [U]
+  * Fix accounting information for Windows GUI jobs [U]
+  * Increase default MAX_DYN_EC qmaster param [U]
+  * Fix qsub -sync y error message and enforce MAX_DYN_EC correctly [U]
+  * Fix job validation (-w e) behaviour [#716] [U]
+  * Fix qrsh input redirection [U]
+  * Avoid warning when submitting a qrsh job [U]
+  * Print start time in qstat -j -xml output [U]
+  * Don't raise an error changing resource request on waiting job [#806]
+  * Don't exit 0 on error with qconf -secl or -sep
+  * Include string.h in drmaa.h [#712]
+  * Fix process-scheduler-log with host aliases
+
+* Enhancements
+
+  * Base qmake and qtcsh on the current gmake and tcsh source [#289,
+    #504, #832]
+  * Support "-binding linear" and "-binding linear:slots"
+  * Use the hwloc library for all topology information and core
+    binding, supporting more operating systems (now: AIX, Darwin,
+    FreeBSD, GNU/Linux, HPUX, MS Windows, OSF/1, Solaris), and more
+    hardware types (specifically AMD Magny Cours and similar)
+  * Add task number to execd "exceeds job ... limit"
+
+* Other changes (possibly-incompatible)
+
+  * Modify default paths in build files and elsewhere [U]
+  * Assorted message fixes
+  * In RPMs, move qsched to qmaster package, and separate drmaa4ruby
+  * Default to newijs in load_sge_config.sh
+  * Default to sh, not csh for configured shell
+
+Version 8.0.0b
+--------------
+
+* Bug fixes
+
+  * Build/installation fixes [including #424, #1349] [(U)]
+  * Fix execd init script [#1348]
+  * Man and other documentation fixes [including #614, #764] [(U)]
+  * Fix contents of admin mail properly [#1307, #1345]
+  * Fix qalter messages for -tc
+  * Fix build with -DSGE_PQS_API
+  * Fix group ids for submitted jobs [U]
+
+* Enhancements
+
+  * Update qsched and add man page
+
+* Other changes (possibly-incompatible)
+
+  * Avoid the use of /bin/ksh [#1306]
+  * Change installation defaults to classic spooling, not adding
+    shadow hosts, and not JMX. [(U)]
+
+Version 8.0.0a
+--------------
+
+This is roughly a superset of Univa's 8.0.0 (the V800_TAG from
+https://github.com/gridengine/gridengine), with thanks for that.
+
+Changes made there which haven't been included in this version:  PLPA
+source not removed; some different build/installation defaults
+(e.g. for JMX); Univa/UGE "branding" (partly because trademark status
+is unknown); authuser not removed (for SDM and testing use),
+
+* Bug fixes
+
+  * Many man and other documentation fixes [including #790, #776,
+    #769, #733, #610, #587, #581, #459, #456, #439, #255, #1288, #797,
+    #1271, #773] [(U)]
+  * Some program message fixes [(U)]
+  * Various build and installation fixes [including #761, #709, #656,
+    #616, #546, #536, #521, #491, #438, #414, #411, #383, #381, #138,
+    #455, #344, #438, #1311, #1272, #1273] [(U)]
+  * Ask for keystore password twice on installation
+  * Fix qmaster crashes with tightly integrated parallel jobs or
+    un-discoverable qinstance [#789] [U]
+  * Report 0 cores and sockets on unsupported Solaris hosts [U]
+  * Fix malloc hooks which caused crashes, particularly with SuSE 11
+    [#792, #748, #749] [U]
+  * Verify the pe task start user in execd in non-CSP mode [U]
+  * Fix binding parameters parsing [U]
+  * Fix JSV logging with multiple users submitting jobs on same submit
+    host [U]
+  * Fix unresponsive qmaster when modifying the global configuration
+    in a huge cluster [U]
+  * Speed up finishing tightly integrated jobs [U]
+  * Check consistency of JSV binding information properly [U]
+  * Fix broken project spooling, which caused loss of project when
+    restarting master when using core binding [U]
+  * Fix slotwise preemption failure to unsuspend one job per host [#775] [U]
+  * Fix problems retrieving passwd and group information with large
+    responses [#1295] [(U)]
+  * Fix JSV changing default of boolean [U]
+  * Fix ENABLE_RESCHEDULE_SLAVE=1 [U]
+  * Allow comma in CMDNAME with Perl JSV scripts [#803]
+  * Don't put queue into error state when supplementary group id
+    cannot be set [#185] [U]
+  * Don't convert LF to CRLF with qrsh -pty [U]
+  * Fix qconf segfault on bad subordination string [U]
+  * Fix group ids of submitted jobs [U]
+  * Disallow -masterq with serial jobs [#155] [U]
+  * Fix 100% CPU use by shepherd of qsh [U]
+  * Removed unnecessary binding warning on job starts [U]
+  * Fix qconf error reports when tmp directory has 755 permissions [U]
+  * Fix suspending of remote process on qrsh -pty yes <cmd> on Solaris [U]
+  * Fix starting jobs after global host changed [U]
+  * Reject invalid load_formula value [U]
+  * Fix handling of implicitly-requested exclusive resources [U]
+  * Fix execd vmem reporting on 64-bit Linux [U]
+  * Fix startup of execd on Windows Vista [U]
+  * Set xterm's path more appropriately on GNU/Linux [#557]
+  * Fix generation of admin email from failed jobs [#1307]
+  * Fix some ill-formed output from qstat -xml [#314]
+  * Fix handling of multi-line environment variables propagated to
+    shepherd [#395]
+  * Fix example MPI PE templates 
+  * Fix bad quoting in JSV sh library
+  * Fix checking of consumables for parallel jobs across multiple hosts [U]
+
+* Enhancements
+
+  * Additional and clarified documentation
+  * PAM modules for ssh tight integration and access control for
+    interactive jobs
+  * Initial core binding support for Solaris/SPARC64 [U]
+  * Some efficiency improvements and memory leaks fixed [U]
+  * Ports to S/390 and PARISC GNU/Linux [U]
+  * New complex m_thread [U]
+  * Show topology by default in qhost [U]
+  * qsub -pty switch [#704] [U]
+  * Improved qmon graphics [#530] [(U)]
+  * Include bash in default shell list [U]
+  * A JSV that rejects all jobs [U]
+  * Files for Scali-MPI
+  * Ruby DRMAA implementation
+  * Enable easy building against shared system libraries and use
+    system openssl and bdb binaries
+  * New scripts: "qsched" reports resource reservations; "status"
+    wraps qstat; enable/disable submission; node-selection (idle etc.)
+  * Restart argument for daemon init scripts
+  * Improved efficiency of shell JSV if used with bash
+  * Core dumps from crashing daemons enabled under Linux [U]
+  * Example host_aliases file [#154]
+  * Spec file for RPM packaging [#820]
+
+* Other changes (possibly-incompatible)
+
+  * Show core binding by default in qstat, qhost (use -ncb for
+    compatibility) [U]
+  * Removed Berkeley DB RPC support (recently dropped by BDB) [U]
+  * Changed position in pending job list for user-rescheduled jobs
+    (exit99, qmod -rj) and OLD_RESCHEDULE_BEHAVIOR,
+    OLD_RESCHEDULE_BEHAVIOR_ARRAY_JOB parameters [U]
+  * Unified GNU/Linux arch strings (lx-*, from lx24-* and lx26-*) [U]
+  * Default to enabling core binding on GNU/Linux [U]
+  * Removed Sun service tags support [U]
+  * Removed obsolete SunHPCT5 files

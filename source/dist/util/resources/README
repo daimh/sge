@@ -1,0 +1,14 @@
+Various configuration files for SGE and for other things to work with it.
+
+calendars:  Example calendar definitions per calendar_conf(5)
+centry:  Default complex definitions used by installer
+configs:  Configuration files for use with other programs
+drmaa4ruby:  DRMAA Ruby binding examples
+jsv:  JSV jsv_script_interface(3) implementation and examples
+loadsensors:  load sensor implementations (some obsolete)
+pe:  Default installed PE definitions per sge_pe(5)
+schemas:  Schemas for XML output from qstat et al
+scripts:  Various add-on utility scripts
+starter_methods:  Example starter methods
+usersets:  Default installed ACLs
+wrappers:  Wrapper scripts per remote_startup(5)

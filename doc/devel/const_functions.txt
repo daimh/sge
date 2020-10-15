@@ -1,0 +1,12 @@
+Functions to be changed to accept and/or return const objects
+(- means still to do, + means finished)
+
+Please use the grep command with FIX_CONST_GUI or FIX_CONST to find
+additional places where is something to do.
+
++ lib/cull
+- lib/gdi
+   libs/gdi/cull_parse_util.c
++ lib/sched
++ lib/uti
++ lib/comm

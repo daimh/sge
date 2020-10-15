@@ -1,0 +1,91 @@
+#!/bin/sh
+
+if [ "$SGE_ROOT" = "" ]; then
+  echo "Please source \$SGE_ROOT/\$SGE_CELL/common/settings.(c)sh !"
+  exit 1
+fi   
+
+BASEDIR=`dirname $0`
+BASEDIR=`cd $BASEDIR; pwd`
+
+. $BASEDIR/run_util.sh
+
+PRE_ARGS=""
+POST_ARGS=""
+POSTPOST_ARGS=""
+CSP=0
+CONNECT=0
+GENERAL_ARGS=true
+
+if [ "$SGE_KEYSTORE" = "" ]; then
+   SGE_KEYSTORE=/var/lib/sgeCA/port$SGE_QMASTER_PORT/$SGE_CELL/private/keystore
+fi   
+
+while [ "$GENERAL_ARGS" = "true" -a $# -gt 0 ]; do
+  case $1 in
+    --) GENERAL_ARGS=false;;
+    -v) PRE_ARGS="$PRE_ARGS -v";;
+    -d) PRE_ARGS="$PRE_ARGS -d";;
+    -j) PRE_ARGS="$PRE_ARGS -j";;
+    -csp) CSP=1; POST_ARGS="$POST_ARGS -csp";;
+    -c) CONNECT=1;;
+    -pw) PW=1; POST_ARGS="$POST_ARGS -pw";;
+    -ks) KW=1; POST_ARGS="$POST_ARGS -ks -catop $SGE_ROOT/$SGE_CELL/common/sgeCA -keystore $SGE_KEYSTORE";;
+    -catop) POST_ARGS="$POST_ARGS -catop $SGE_ROOT/$SGE_CELL/common/sgeCA";; 
+#    *)  echo "Unkonwn option $1"; exit 1;;
+  esac
+  shift
+done
+
+POSTPOST_ARGS="$POSTPOST_ARGS $*"
+
+if [ $CSP -eq 1 ]; then
+   PRE_ARGS="$PRE_ARGS -Djava.security.policy=util/jgdi.policy"
+   PRE_ARGS="$PRE_ARGS -Djava.security.auth.login.config=util/jaas.config"
+   PRE_ARGS="$PRE_ARGS -Djava.security.manager"
+fi
+
+
+PRE_ARGS="$PRE_ARGS -Djava.util.logging.config.file=util/shell_logging.properties"
+
+if [ "$SGE_ROOT" != "" ]; then
+   CP=$SGE_ROOT/lib/jgdi.jar:$SGE_ROOT/lib/juti.jar
+else
+   CP=build/jgdi.jar:build/juti.jar
+fi
+
+#echo "READLINE_JAVA_JAR: $READLINE_JAVA_JAR"
+#echo "READLINE_LIB_PATH: $READLINE_LIB_PATH"
+
+if [ "$READLINE_JAVA_JAR" != "" ]; then
+   CP="$CP:$READLINE_JAVA_JAR"
+fi
+
+if [ "$READLINE_LIB_PATH" ]; then
+   if [ "$LD_LIBRARY_PATH" = "" ]; then
+        LD_LIBRARY_PATH=$READLINE_LIB_PATH
+   else
+        LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$READLINE_LIB_PATH"
+   fi
+fi
+
+if [ $ARCH = "darwin-x86" -o $ARCH = "darwin-ppc" -o $ARCH = "darwin-x64" ]; then
+   PRE_ARGS="$PRE_ARGS -Djava.awt.headless=true"
+   DYLD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DYLD_LIBRARY_PATH
+   export DYLD_LIBRARY_PATH
+fi   
+
+if [ $ARCH = "aix51" ]; then
+   LIBPATH=$LD_LIBRARY_PATH:$LIBPATH
+   export LIBPATH 
+fi   
+
+if [ $CONNECT -eq 1 ]; then
+  POST_ARGS="$POST_ARGS -c bootstrap://${SGE_ROOT}@${SGE_CELL}:${SGE_QMASTER_PORT}"
+fi
+
+POST_ARGS="$POST_ARGS $POSTPOST_ARGS"
+
+# echo "run $PRE_ARGS -cp $CP -- com.sun.grid.jgdi.util.JGDIShell $POST_ARGS"
+run $PRE_ARGS -cp $CP -- com.sun.grid.jgdi.util.JGDIShell $POST_ARGS
+

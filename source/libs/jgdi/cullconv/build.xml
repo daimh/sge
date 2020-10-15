@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Cull2Java" default="all" basedir=".">
+    <description>Builds, tests, and runs the project Cull2Java.</description>
+    
+    <target name="init">
+        <property file="../../../build_private.properties"/>
+        <property file="../../../build.properties"/>
+        <property name="cullconv.jar" value="build/cullconv.jar"/>
+        
+        <mkdir dir="build"/>
+        <mkdir dir="build/gensrc"/>
+        <mkdir dir="build/classes"/>
+    </target>
+    
+    <target name="clean">
+        <delete dir="build" failonerror="false"/>
+        <sleep seconds="2"/>
+        <delete dir="build"/>
+    </target>
+    
+    <target name="compile" depends="init, javacc">   
+        <javac debug="${javac.debug}" 
+               deprecation="${javac.deprecated}"
+               destdir="build/classes"
+               includeantruntime="true"
+               target="${jgdi.javac.target}"
+               source="${jgdi.javac.source}">
+            <src path="src"/>
+            <src path="build/gensrc"/>
+        </javac>
+    </target>
+    
+    
+    <target name="javacc" depends="init">
+        <dependset>
+            <srcfilelist dir="${basedir}" files="Cull.jj"/>
+            <targetfileset dir="${basedir}/build/gensrc"
+                           includes = "**/*.java"/>
+        </dependset>        
+        
+        <available file="${basedir}/build/gensrc/com/sun/grid/cull/ParseException.java"
+                   property="javacc.available"/>
+        
+        <antcall target="javacc.javacc"/>
+    </target>
+    
+    <!-- target javacc.javacc starts the javacc compiler it is only
+         executed if the property javacc.available is not set -->
+    <target name="javacc.javacc" unless="javacc.available">
+        <mkdir dir="${basedir}/build/gensrc/com/sun/grid/cull"/>  
+        
+        <javacc javacchome="${javacc.home}" 
+                outputdirectory="${basedir}/build/gensrc/com/sun/grid/cull"
+                target="${basedir}/Cull.jj"
+                static="true"/>
+    </target>
+    
+    <target name="all" depends="cullconv.jar"/>
+    
+    <target name="cullconv.jar" depends="compile"
+            description="create the jar file for the cull converter">
+        <jar file="${cullconv.jar}"
+             basedir="build/classes"/>
+    </target>    
+    
+    <target name="javah" depends="cullconv.jar">
+        <javah outputFile="build/cullconv.h">
+            <class name="com.sun.grid.cull.CullConstantConverter"/>
+            <classpath>
+                <pathelement location="${cullconv.jar}"/>
+            </classpath>
+        </javah>    
+    </target>
+    
+    
+    <target name="test.template" depends="init">
+        <taskdef name="culltempl" classname="com.sun.grid.cull.ant.TemplateTask">
+            <classpath location="${cullconv.jar}"/>
+        </taskdef>
+        <mkdir dir="${basedir}/build/template"/>
+        <culltempl buildDir="${basedir}/build/template" 
+                   template="${basedir}/test/testtemplate.txt" 
+                   classname="com.sun.grid.template.TestTemplate"                 
+                   outputFile="${basedir}/build/template/testtemplate.txt">
+            
+            <classpath>
+                <path location="${cullconv.jar}"/>
+            </classpath>
+        </culltempl>
+    </target>
+    
+    <target depends="init" description="Javadoc for Cull Converter" name="javadoc">
+        <mkdir dir="build/javadoc"/>
+        <javadoc destdir="build/javadoc" packagenames="*">
+            <sourcepath>
+                <path location="src"/>
+                <path location="build/gensrc"/>
+            </sourcepath>
+        </javadoc>
+    </target>
+    
+</project>

@@ -1,0 +1,140 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Jobcustom Dialog
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*jcu_shell.allowShellResize:      True
+Qmon*jcu_shell.resizePolicy:          RESIZE_ANY
+Qmon*jcu_shell.xmtChildren:  unmanaged XmtLayout jcu;
+
+Qmon*jcu.autoUnmanage:    False
+Qmon*jcu.dialogTitle:    @{J O B   C U S T O M I Z E}
+
+Qmon*jcu.xmtChildren: \
+      XmPushButton      jcu_ok, jcu_cancel, jcu_save; \
+      Folder            jcu_folder;
+
+Qmon*jcu.layout: \
+   Shadowed Out 4 2 Centered jcu_folder \
+   Equal Even Shadowed Out 4 2 Fixed Row { \
+      Fixed jcu_save \
+      Fixed jcu_cancel \
+      Fixed jcu_ok \
+   } \
+
+Qmon*jcu.jcu_ok.labelString:              @{Ok}
+Qmon*jcu.jcu_cancel.labelString:          @{Cancel}
+Qmon*jcu.jcu_save.labelString:            @{Save}
+
+Qmon*jcu.jcu_folder.xmtChildren: \
+   XmtLayout   jobfilter, \
+               jobfield;
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Two Scrolled Lists showing job fields that can be enabled disabled
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*jobfield.tabLabel: @{@fBSelect Job Fields}
+
+Qmon*jobfield.xmtChildren: \
+   XmScrolledList jobfield_available, jobfield_selected;\
+   XmPushButton   jobfield_add, jobfield_remove;
+
+Qmon*jobfield.layout: \
+   Row { \
+      Etched Through 4 2 Caption tc "@{@fBAvailable Fields}" \
+         30 em jobfield_available\
+      Fixed Col { \
+         <>\
+         Fixed Centered jobfield_add \
+         ## \
+         Fixed Centered jobfield_remove \
+         <>\
+      } \
+      Etched Through 4 2 Caption tc "@{@fBSelected Fields}" \
+         30 em jobfield_selected \
+   }
+
+
+Qmon*jobfield.jobfield_add.labelType:          PIXMAP
+Qmon*jobfield.jobfield_add.labelPixmap:        rightarrow
+Qmon*jobfield.jobfield_remove.labelType:       PIXMAP
+Qmon*jobfield.jobfield_remove.labelPixmap:     leftarrow
+
+Qmon*jobfield*fontList:                 $fixed_font
+Qmon*jobfield*scrollingPolicy:          AUTOMATIC
+Qmon*jobfield*visualPolicy:             CONSTANT
+Qmon*jobfield*scrollBarDisplayPolicy:   AS_NEEDED
+Qmon*jobfield*selectionPolicy:          EXTENDED_SELECT
+Qmon*jobfield*visibleItemCount:         15
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Resource List Dialog to select jobs with -l 
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*jobfilter.tabLabel:    @{@fBFilter Jobs}
+Qmon*jobfilter.deleteResponse:  XmUNMAP
+
+Qmon*jobfilter.xmtChildren:  \
+   Iconlist          jobfilter_ar, jobfilter_sr; \
+   XmToggleButton    jobfilter_arrays_compressed; \
+   InputField        jobfilter_owner; \
+   XmPushButton      jobfilter_clear;\
+
+Qmon*jobfilter.layout: \
+   Row { \
+      Col { \
+         Row { \
+            Col { \
+               Caption tl "@{@fBFilter Resources}" 20 em jobfilter_sr \
+               Fixed Centered jobfilter_clear \
+            } \
+            # \
+            Caption tl "@{@fBAvailable Resources}" 20 em jobfilter_ar \
+         } \
+         Caption tl "@{@fBFilter by Owner}" jobfilter_owner \
+         Row { jobfilter_arrays_compressed <> } \
+      } \
+   }
+
+Qmon*jobfilter_clear.labelString:            @{Clear}
+Qmon*jobfilter_arrays_compressed.labelString:  @{@fBCompact Job Array Display}
+
+
+!Qmon*jobfilter_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+Qmon*jobfilter_ar*iconWidth:         16
+Qmon*jobfilter_ar*iconHeight:        16
+Qmon*jobfilter_ar*highlightOnEnter:  False
+
+Qmon*jobfilter_sr*iconWidth:         16
+Qmon*jobfilter_sr*iconHeight:        16
+Qmon*jobfilter_sr*highlightOnEnter:  False

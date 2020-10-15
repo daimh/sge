@@ -1,0 +1,8 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<UU_Type>
+   <name>${name}</name>
+   <oticket>0</oticket>
+   <fshare>0</fshare>
+   <deleteTime>0</deleteTime>
+   <defaultProject>NONE</defaultProject>
+</UU_Type>

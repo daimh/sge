@@ -1,0 +1,5 @@
+# Ignore NMU.
+changelog-should-mention-nmu
+source-nmu-has-incorrect-version-number *
+# Want to build on older systems.
+out-of-date-standards-version *

@@ -1,0 +1,166 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="StarOffice 8  (Solaris Sparc)">
+	<META NAME="AUTHOR" CONTENT="andre alefeld">
+	<META NAME="CREATED" CONTENT="20070802;15502500">
+	<META NAME="CHANGEDBY" CONTENT="Marco Donauer">
+	<META NAME="CHANGED" CONTENT="20070802;16013900">
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+
+	<P><FONT SIZE=5>Module description gridengine/source/scripts</FONT> 
+	</P>
+	<P STYLE="margin-bottom: 0in">This directory contains some
+	scripts which are needed during the build and installation process
+	of Grid Engine, or development. Many of the scripts here are not called directly
+	usually. They are either called by 'aimk' or by the make target of
+	various modules. <BR>&nbsp; <BR>&nbsp; 
+	</P>
+
+<DL>
+	<DD>
+	<TABLE WIDTH="100%" BORDER=1 CELLPADDING=2 CELLSPACING=3>
+		<COL WIDTH="37*">
+		<COL WIDTH="219*">
+		<TR VALIGN=TOP>
+			<TD WIDTH="15%">
+				<P ALIGN=LEFT>README.distinst&nbsp;</P>
+			</TD>
+			<TD WIDTH="85%">
+				<P ALIGN=LEFT>description how the 'distinst' script works</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH="15%">
+				<P>README.mk_dist</P>
+			</TD>
+			<TD WIDTH="85%">
+				<P>description how the 'mk_dist' script works</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH="15%" VALIGN=TOP>
+				<P>detab.sh</P>
+			</TD>
+			<TD WIDTH="85%">
+				<P>removes tabulators from files given in command line using the
+				'expand' command. Renames input file by adding a ~ and writes
+				output to original file name. The original file is kept unchanged
+				with the ~-suffix</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH="15%" VALIGN=TOP>
+				<P>distinst</P>
+			</TD>
+			<TD WIDTH="85%">
+				<P>script used to create a Grid Engine distribution. See
+				'README.distinst' for a detailed description</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH="15%" VALIGN=TOP>
+				<P>format.sh</P>
+			</TD>
+			<TD WIDTH="85%">
+				<P>script to format source files according to the Grid Engine
+				coding convention. Needs GNU indent which must be installed in
+				your $PATH first. Formats files given in command line.The
+				original file is renamed and gets a ~ suffix. 'indent' formats
+				the file and the result is then expanded and renamed to its
+				original file name</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH="15%" VALIGN=TOP>
+				<P>gelint</P>
+			</TD>
+			<TD WIDTH="85%">
+				<P>Script for source code checking. This script should be used
+				for syntactical and logical source code checking. It is <BR>planned
+				to integrate this script into the build process of gridengine, to
+				guarantee a error free source code. Lint is able<BR>to find
+				errors (eg. Buffer overflow (security issues), strcpy,
+				unreachable statements), which are not found by compilers.<BR>Usage:
+				./gelint &lt;absolute path to gridengine source dir&gt; &lt;absolute
+				path to c file&gt;<BR>eg.: gelint /home/user/gridengine
+				/home/user/gridengine/source/clients/qsub/qsub.c</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH="15%">
+				<P>ldAix</P>
+			</TD>
+			<TD WIDTH="85%">
+				<P>wrapper for 'ld' on AIX. See description in the file what it
+				does</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH="15%">
+				<P>mk_ascman</P>
+			</TD>
+			<TD WIDTH="85%">
+				<P>create man pages in nroff format. Requires 'groff'. Can also
+				generate HTML versions of the man pages.</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH="15%">
+				<P>mk_catman</P>
+			</TD>
+			<TD WIDTH="85%">
+				<P>create preformatted man pages in catman directory hierarchy</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH="15%">
+				<P>mk_dist</P>
+			</TD>
+			<TD WIDTH="85%">
+				<P>create a distribution from distribution repository. See
+				'README.dist' for a detailed description</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH="15%">
+				<P>scripts.html</P>
+			</TD>
+			<TD WIDTH="85%">
+				<P>this file</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH="15%">
+				<P>sed_help</P>
+			</TD>
+			<TD WIDTH="85%">
+				<P>script to process 'qmon_help.ad' file</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH="15%" VALIGN=TOP>
+				<P>template.html</P>
+			</TD>
+			<TD WIDTH="85%">
+				<P>template for 'index.html' for man pages in HTML format. Used
+				during creation of HTML manpages by 'mk_ascman'</P>
+			</TD>
+		</TR>
+		<TR>
+			<TD WIDTH="15%">
+				<P>zerodepend</P>
+			</TD>
+			<TD WIDTH="85%">
+				<P>creates zero length header dependency files</P>
+			</TD>
+		</TR>
+	</TABLE>
+</DL>
+<P><BR><BR>
+</P>
+</BODY>
+</HTML>

@@ -1,0 +1,52 @@
+#!/bin/sh
+
+COMPILE_ARCH=$1
+
+EDITION=1.0
+REVISION=`grep GDI_VERSION libs/gdi/version.* | cut -f 2 -d '"'`
+
+ADOC=3rdparty/adoc/$COMPILE_ARCH/adoc
+
+ADOC () {
+    # without --no-warnings, get complaints apparently on everything,
+    # including examples from adoc itself
+    $ADOC --no-warnings -f -b -DEDITION "$EDITION" -DREVISION "SGE $REVISION" -DCOPYRIGHT "The Grid Engine Team" -DAUTHOR "The Grid Engine Team" -I -xon -xitemize -2 "$@"
+}
+
+echo "Creating documentation for libs: libcomm.texi"
+ADOC --project 'Grid Engine Communication Library' libs/comm/*.[ch] -o $COMPILE_ARCH/libcomm.texi
+
+echo "Creating documentation for libs: libcull.texi"
+ADOC -DPROJECT "Grid Engine CULL Library" libs/cull/*.[ch] -o $COMPILE_ARCH/libcull.texi
+
+echo "Creating documentation for libs: eventclient.texi"
+ADOC -DPROJECT "Event Client Interface" libs/evc/*.[ch] libs/evm/*.h libs/evm/*.c -o $COMPILE_ARCH/eventclient.texi
+
+echo "Creating documentation for libs: libgdi.texi"
+ADOC -DPROJECT "Grid Engine GDI Library" libs/gdi/*.[ch] -o $COMPILE_ARCH/libgdi.texi
+
+echo "Creating documentation for libs: libmir.texi"
+ADOC -DPROJECT "Grid Engine Mirror Interface" libs/mir/*.[ch] -o $COMPILE_ARCH/libmir.texi
+
+echo "Creating documentation for libs: libsched.texi"
+ADOC -DPROJECT "Grid Engine SCHED Library" libs/sched/*.[ch] -o $COMPILE_ARCH/libsched.texi
+
+echo "Creating documentation for libs: libsgeobj.texi"
+ADOC -DPROJECT "Grid Engine SGEOBJ Library" libs/sgeobj/*.[ch] -o $COMPILE_ARCH/libsgeobj.texi
+
+echo "Creating documentation for libs: libjapi.texi"
+ADOC -DPROJECT "Grid Engine Job API Library" libs/japi/japi.[ch] -o $COMPILE_ARCH/libjapi.texi
+
+echo "Creating documentation for libs: libuti.texi"
+ADOC -DPROJECT "Grid Engine Utility Library" libs/uti/*.[ch] libs/uti2/*.[ch] -o $COMPILE_ARCH/libuti.texi
+
+echo "Creating documentation for libs: libwingrid.texi"
+ADOC -DPROJECT "Grid Engine MS Windows Library" libs/wingrid/*.[ch] -o $COMPILE_ARCH/libwingrid.texi
+
+echo "Creating documentation for libs: libspool.texi"
+ADOC -DPROJECT "Grid Engine Spooling Library" libs/spool/*.[ch] -o $COMPILE_ARCH/libspool.texi
+
+echo "Creating html from texi"
+for root in libcomm libcull eventclient libsgeobj libsched libmir libjapi libuti libwingrid libjapi libspool libgdi; do
+   makeinfo --no-validate --no-split --html -o $COMPILE_ARCH/$root.html  $COMPILE_ARCH/$root.texi
+done

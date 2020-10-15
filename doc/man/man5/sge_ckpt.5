@@ -1,0 +1,155 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\"
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\" "
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH xxQS_NAME_Sxx_CKPT 5 2012-09-18 "xxRELxx" "xxQS_NAMExx User Commands"
+.\"
+.SH NAME
+xxqs_name_sxx_ckpt \- the xxQS_NAMExx checkpointing mechanism and checkpointing
+support
+.\"
+.SH DESCRIPTION
+xxQS_NAMExx
+supports two levels of checkpointing: the user level and an operating
+system-provided transparent
+level. User level checkpointing refers to applications which do their
+own checkpointing by writing restart files at certain times or
+algorithmic steps and by properly processing these restart files when
+restarted.
+.PP
+Transparent checkpointing has to be provided by the operating system and is 
+usually integrated in the operating system kernel. An example for a kernel 
+integrated checkpointing facility is the Hibernator package from Softway
+for SGI IRIX platforms.
+.PP
+Checkpointing jobs need to be identified to the xxQS_NAMExx system by using the 
+\fI\-ckpt\fP option of the
+.M qsub 1
+command. The argument to this flag refers to a so 
+called checkpointing environment, which defines the attributes of the 
+checkpointing method to be used (see
+.M checkpoint 5
+for details). 
+Checkpointing environments are setup by the
+.M qconf 1
+options \fI\-ackpt\fP, \fI\-dckpt\fP, \fI\-mckpt\fP and \fI\-sckpt\fP. The
+.M qsub 1
+option \fI\-c\fP can be used to overwrite the \fIwhen\fP
+attribute for the referenced checkpointing environment.
+.PP
+As opposed to the behavior for
+regular batch jobs, checkpointing jobs (see the \fB\-ckpt\fP option to
+.M qsub 1 )
+are aborted under conditions
+for which batch or interactive jobs are suspended or even stay
+unaffected. These conditions are:
+.\"
+.IP "\(bu" 3n
+Explicit suspension of the queue or job via
+.M qmod 1
+by the cluster administration or a queue owner
+if the \fIx\fP occasion specifier (see
+.M qsub 1
+\fI\-c\fP and 
+.M checkpoint 5 )
+was assigned to the job.
+.\"
+.IP "\(bu" 3n
+A load average value exceeding the suspend threshold as configured for
+the corresponding queues (see
+.M queue_conf 5 ).
+.\"
+.IP "\(bu" 3n
+Shutdown of the xxQS_NAMExx execution daemon
+.M xxqs_name_sxx_execd 8
+being responsible for the checkpointing job.
+.PP
+.\"
+After they are aborted, jobs will migrate to other hosts, and possibly
+other cluster queues, unless they were
+submitted to a specific one by an explicit user request.
+The migration of jobs leads to a dynamic load balancing.
+\fBNote:\fP Aborting checkpointed jobs will free all resources
+(memory, swap space) which the job occupies at that time. This is
+opposed to the situation for suspended regular jobs, which still use
+virtual memory and other consumable resources.
+.PP
+.\"
+.\"
+.SH RESTRICTIONS
+When a job migrates to another machine, at present no files
+are transferred automatically to that machine. This means that all files
+which are used throughout the entire job, including restart files,
+executables, and scratch files, must be visible or transferred explicitly
+(e.g. at the beginning of the job script).
+.PP
+.\"
+There are also some practical limitations regarding use of disk space
+for transparently checkpointing jobs. Checkpoints of a transparently
+checkpointed application are usually stored in a checkpoint file or
+directory by the operating system. The file or directory contains all
+the text, data, and stack space for the process, along with some
+additional control information. This means jobs which use a very large
+virtual address space will generate very large checkpoint files. Also
+the workstations on which the jobs will actually execute may have
+little free disk space. Thus it is not always possible to transfer a
+transparent checkpointing job to a machine, even though that machine is
+idle. Since large virtual memory jobs must wait for a machine that is
+both idle, and has a sufficient amount of free disk space, such jobs
+may suffer long turnaround times.
+.PP
+There is currently no mechanism for restarting jobs with the same resources they
+were granted originally.  That might be important if they were
+submitted with a choice or range of resources and start running in a
+particular way with what they're given.
+.PP
+Similarly, with heterogeneous execution hosts, jobs may need to
+restart on a host which supports a superset of the instruction set
+where the job originally ran if the checkpoint mechanism (e.g. BLCR or
+DMTCP) dumps an image of the running process.  Runtime libraries, in
+particular, may initialize themselves depending on details of the
+architecture they start up on \- say to use a specific type of vector
+unit.  Then, they may fail if moved to an older host of similar
+architecture which lacks that feature, even if they were compiled for
+a common instruction set.
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M qconf 1 ,
+.M qmod 1 ,
+.M qsub 1 ,
+.M checkpoint 5
+.\" .M checkpoint 5 ,
+.\" .I xxQS_NAMExx Installation and Administration Guide,
+.\" .I xxQS_NAMExx User's Guide
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

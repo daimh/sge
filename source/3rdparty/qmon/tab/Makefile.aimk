@@ -1,0 +1,34 @@
+# Changes by AA 15.1.96 
+# use with aimk 
+# The objects are build in the corresponding arch directory
+# The CFLAGS,XCFLAGS and the SDIR variable are delivered by aimk
+
+
+TAB_SDIR = ../tab
+
+TAB_SRCS = \
+   $(TAB_SDIR)/Tab.c
+
+TAB_HEADERS = \
+   $(TAB_SDIR)/Tab.h \
+   $(TAB_SDIR)/TabP.h
+
+TAB_OBJS = \
+   Tab.o
+
+XTABLIB     = libXtab$(LIBEXT)
+
+all: $(XTABLIB)
+   
+libXtab.a: $(TAB_OBJS)
+	$(AR) $(ARFLAGS) libXtab.a $(TAB_OBJS)
+	$(RANLIB) libXtab.a
+
+libXtab$(SHAREDEXT): $(TAB_OBJS)
+	$(SHAREDLD) $(XLFLAGS) $(SHARED_LFLAGS) -o libXtab$(SHAREDEXT) $(TAB_OBJS) $(XLIBS)
+
+Xtab_clean:
+	$(RM) $(TAB_OBJS) libXtab.a libXtab$(SHAREDEXT)
+
+Tab.o:  $(TAB_SDIR)/Tab.c $(TAB_HEADERS)
+	$(CC) -c $(TAB_DEFINES) $(CFLAGS) $(XCFLAGS) $(SHARED_CFLAGS) $(TAB_SDIR)/Tab.c

@@ -1,0 +1,12 @@
+# Version: Grid Engine 6
+# 
+# DO NOT MODIFY THIS FILE MANUALLY!
+# 
+name        h_cpu
+shortcut    h_cpu
+type        TIME
+relop       <=
+requestable YES
+consumable  NO
+default     0:0:0
+urgency     0

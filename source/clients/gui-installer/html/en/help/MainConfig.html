@@ -1,0 +1,111 @@
+<!--___INFO__MARK_BEGIN__
+/*************************************************************************
+ *
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ *
+ *  Sun Microsystems Inc., March, 2001
+ *
+ *
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ *
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ *
+ *  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ *
+ *  Copyright: 2001 by Sun Microsystems, Inc.
+ *
+ *  All Rights Reserved.
+ *
+ ************************************************************************/
+___INFO__MARK_END__-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=utf-8">
+    <title></title>
+</HEAD>
+<BODY LANG="en-US" DIR="LTR">
+<H1>Main configuration</H1>
+<UL>
+	<LI><P STYLE="margin-bottom: 0in"><B>Admin user</B> &mdash; SGE processes
+	will be executed under this user name and certain directories will
+        be onwed by this user as well
+	</P>
+	<LI><P STYLE="margin-bottom: 0in"><B>Qmaster host</B> &mdash; host that
+	will run qmaster daemon (main component), can be changed later in
+	the host selection 
+	</P>
+	<LI><P STYLE="margin-bottom: 0in"><B>Grid Engine root directory</B>
+	- the directory where you unpacked the SGE tar.gz archive or
+	installed a package (e.g.: rpm, pkg), must not contain an
+	automounter prefix 
+	</P>
+	<LI><P STYLE="margin-bottom: 0in"><B>Cell name</B> &mdash; name of this
+	Grid Engine cell, a value that identifies an instance of a Grid
+	Engine when several instances run simultaneously 
+	</P>
+	<LI><P STYLE="margin-bottom: 0in"><B>Cluster name</B> &mdash; name of this
+	Grid Engine instance used by SMF on Solaris machines and also by
+	Accounting and Reporting Console (ARCo), in express installation
+	mode it's hidden and has a value p6444, there are following naming
+	restrictions on this field: The cluster name must start with a
+	letter ([A-Za-z]), followed by letters, digits ([0-9]), dashes (&quot;-&quot;)
+	or underscores (&quot;_&quot;). 
+	</P>
+	<LI><P STYLE="margin-bottom: 0in"><B>Qmaster port</B> &mdash; a port that
+	will be used by the qmaster daemon 
+	</P>
+	<LI><P STYLE="margin-bottom: 0in"><B>Execd port</B> &mdash; a port that
+	will be used by the execution daemon 
+	</P>
+	<LI><P STYLE="margin-bottom: 0in"><B>Group id range</B> &mdash; range of
+	additional group ids, the group ids in this range must not be used
+	anywhere else, the size of the range determines how many concurrent
+	jobs can run in the Grid Engine, choose a safe large value 
+	</P>
+	<LI><P STYLE="margin-bottom: 0in"><B>Shell name</B> &mdash; remote shell
+	to be used when connection to remove hosts, must have ssh/rsh
+	syntax, expected values <I>ssh</I> or <I>rsh</I>
+		</P>
+	<LI><P STYLE="margin-bottom: 0in"><B>Copy command</B> &mdash; remote copy
+	command to be used when copying files to remove hosts, must have
+	scp/rcp syntax, expected values <I>scp</I> or <I>rcp</I>
+		</P>
+	<LI><P><B>Administrator email</B> &mdash; email of Grid Engine
+	administrator 
+	</P>
+</UL>
+<UL>
+	<LI><P STYLE="margin-bottom: 0in"><B>Automatically start service(s)
+	at machine boot</B> – <SPAN STYLE="font-weight: normal">Component
+	(service) will be automatically started at machine boot. By default
+	checked.</SPAN></P>
+	<LI><P STYLE="margin-bottom: 0in"><B>Ignore domain names</B> –
+	<SPAN STYLE="font-weight: normal">Grid Engine will ignore domain
+	names when comparing host names. By default checked.</SPAN></P>
+	<LI><P STYLE="margin-bottom: 0in"><B>Use JMX</B> &mdash; this checkbox
+	triggers installation of JVM thread in qmaster, needed for SGE Inspect 
+        or when you plan to install SDM. By default checked.</P>
+	<LI><P STYLE="margin-bottom: 0in"><B>Use CSP product mode</B> –
+	Grid Engine will be installed with certificate security protocol
+	(CSP). Communication between Grid Engine daemons will be
+	protected, and users will be authenticated
+	by an SSL certificate. Has an impact on cluster throughput,
+	but is required to prevent users impersonating others. By default
+	unchecked.</P>
+</UL>
+<P><BR><BR>
+</P>
+</BODY>
+</HTML>

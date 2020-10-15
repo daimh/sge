@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Written to assume that classpath is rooted in the current directory. --><!-- So this should be OK if you make this script in the root of a filesystem. --><!-- If not, you may prefer to adjust the basedir, or move some directories around. --><!-- The idea is that both Ant and NetBeans have to know what the package root is --><!-- for the classes in your application. --><project basedir="." default="all" name="myapp">
+
+    <!-- Don't worry if you don't know the Ant syntax completely or need help on some tasks! -->
+    <!-- The standard Ant documentation can be downloaded from AutoUpdate and -->
+    <!-- and then you can access the help in menu Help | Help Sets | Ant 1.5.1 Manual. -->
+
+    <target name="init">
+    </target>
+
+    <target depends="init" name="compile">
+        <!-- Both srcdir and destdir should be package roots. -->
+        <!-- They could be different of course; in that case NetBeans can also be set -->
+        <!-- up to compile to a different filesystem in the same way; see Compiler Types: -->
+        <javac debug="false" deprecation="true" destdir="." srcdir=".">
+						<include name="com"/>
+            <exclude name="com/sun/grid/jgrid/proxy/DRMAdapter.java"/>
+            <exclude name="com/sun/grid/jgrid/proxy/DRMException.java"/>
+            <exclude name="com/sun/grid/jgrid/server/ComputeEngine.java"/>
+            <exclude name="com/sun/grid/jgrid/server/ComputeEngine_Skel.java"/>
+            <exclude name="com/sun/grid/jgrid/server/ComputeEngine_Stub.java"/>
+            <exclude name="com/sun/grid/jgrid/ComputeListener.java"/>
+        </javac>
+        <rmic/>
+    </target>
+
+    <target depends="init,compile" name="jar">
+        <!-- To make a standalone app: -->
+        <!-- 1. Create a myapp.mf manifest somewhere. -->
+        <!-- 2. Put in it two lines: -->
+        <!-- Manifest-Version: 1.0 -->
+        <!-- Main-Class: com.foo.Main -->
+        <!-- 3. Pass to <jar>: manifest="myapp.mf" -->
+        <jar basedir="." compress="true" jarfile="myapp.jar">
+            <exclude name="**/*.java"/>
+            <exclude name="**/*.form"/>
+            <exclude name="myapp.mf"/>
+            <exclude name="myapp.jar"/>
+            <exclude name="apidoc"/>
+        </jar>
+    </target>
+
+    <target depends="init,jar" description="Build everything." name="all">
+        <echo message="Application built. Hello ${hello}!"/>
+    </target>
+
+    <target depends="init,all" description="Try running it." name="test">
+        <java classname="com.foo.Main" failonerror="true" fork="true">
+            <classpath>
+                <pathelement location="."/>
+            </classpath>
+            <!-- Pass some args, perhaps: -->
+            <arg value="-myfile"/>
+            <!-- Will be given as an absolute path: -->
+            <arg file="myfile.txt"/>
+        </java>
+    </target>
+
+    <target depends="init" description="Javadoc for my API." name="javadoc">
+        <mkdir dir="apidoc"/>
+        <javadoc destdir="apidoc" packagenames="com.foo.mylib.*,com.foo.myapi.*">
+            <sourcepath>
+                <pathelement location="."/>
+            </sourcepath>
+        </javadoc>
+    </target>
+
+    <target depends="init" description="Clean all build products." name="clean">
+        <delete>
+            <fileset dir=".">
+                <include name="**/*.class"/>
+            </fileset>
+        </delete>
+    <delete file="myapp.jar"/>
+        <delete dir="apidoc"/>
+    </target>
+
+</project>

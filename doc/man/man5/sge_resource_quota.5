@@ -1,0 +1,352 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\" Copyright (C) 2012 Dave Love, Liverpool University
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.de MO		\" other man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH xxQS_NAME_Sxx_RESOURCE_QUOTA 5 2012-04-02 "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+xxqs_name_sxx_resource_quota \- xxQS_NAMExx resource quota file format
+.\"
+.SH DESCRIPTION
+Resource quota sets (RQS) are a flexible way to set a maximum resource
+consumption for any job requests. They are used by the scheduler to
+select the next possible jobs for running.
+The job request quota application is done according to a set of user,
+project, cluster queue, host and PE filter criteria.
+RQS are applied to resource requests before considering the amount of
+resources defined (in order) at the global, host, and queue levels.
+If an RQS denies the request the other levels are not considered.
+.PP
+By using resource quota sets, administrators can define a fine-grained
+quota configuration, restricting some job requests to lesser
+resource usage and granting others higher usage.
+.sp 1
+Note: Jobs requesting an Advance Reservation (AR) are not honored by RQS, and
+are neither subject to the resulting limit, nor debited in the usage consumption.
+.PP
+A list of currently configured RQS can be displayed via the
+.M qconf 1
+\fB\-srqsl\fP option. The contents of each listed rqs definition
+can be shown via the \fB\-srqs\fP switch. The output follows the
+format described below. New RQS can be created, and existing ones
+modified, via the \fB\-arqs\fP, \fB\-mrqs\fP and \fB\-drqs\fP options to
+.M qconf 1 .
+.PP
+A resource quota set defines a maximum resource quota for a particular job request. All of the
+configured and enabled rule sets apply all of the time. This means that if multiple resource quota sets
+are defined, the most restrictive set is used.
+.PP
+Every resource quota set consists of one or more resource quota rules. These rules are evaluated
+in order, and the first rule that matches a specific request will be used. A resource quota
+set always results in at most one effective resource quota rule for a specific request.
+.PP
+Note, xxQS_NAMExx allows backslashes (\\) be used to escape newline
+characters. The backslash and the newline are replaced with a
+space character before any interpretation.
+.\"
+.\"
+.SH FORMAT
+A resource quota set definition contains the following parameters one
+per-line in braces which enclose the whole set.  See below for the
+formal syntax.
+.SS "\fBname\fP"
+The resource quota set name.
+.SS "\fBenabled\fP"
+If set to \fItrue\fP the resource quota set is active and will be considered
+for scheduling decisions. The default value is \fIfalse\fP.
+.SS "\fBdescription\fP"
+This description field is optional and can be set to an arbitrary string. The
+default value is \fINONE\fP.
+.SS "\fBlimit\fP"
+Every resource quota set needs at least one resource quota rule
+definition, started by the limit field. It is possible to define
+multiple resource quota rules, separated by a new line, processed in
+order top to bottom.
+.PP
+A resource quota rule consists of an optional name, the filters for a specific job
+request, and the resource quota limit.
+.PP
+The tags for expressing a resource quota rule are:
+.IP "name"
+The name of the rule (optional). The rule name must be unique within a
+resource quota set.
+.IP "users"
+Contains a comma-separated list of user names or ACLs (see
+.M access_list 5 ).
+This parameter filters jobs by user or ACL
+in the list. Any user not in the list will not be considered for the resource quota
+rule. The default value is '*', which means all users. An ACL is differentiated
+from a user name by prefixing the ACL name with '@'. To exclude a
+user or ACL from the rule, the name can be prefixed with '!'. The defined
+user or ACL names need not exist in the xxQS_NAMExx configuration.
+.IP "projects"
+Contains a comma-separated list of projects (see
+.M project 5 ).
+This parameter filters jobs requesting a project in the list. Any
+project not in the list will not be considered for the resource quota rule. If no
+project filter is specified, all projects, and jobs with no requested project,
+match the rule. The value '*' means all jobs with requested projects. To
+exclude a project from the rule, the name can be prefixed with '!'.
+The value '!*' means only jobs with no project requested.
+.IP "pes"
+Contains a comma-separated list of PEs (see
+.M sge_pe 5 ).
+This parameter filters jobs requesting a PE in the list. Any PE not in
+the list will not be considered for the resource quota rule. If no PE filter is
+specified, all PEs, and jobs with no requested PE, match the rule. The value '*'
+means all jobs requesting a PE. To exclude a PE from the rule, the name can
+be prefixed with '!'. The value '!*' means only jobs with no PE requested.
+.IP "queues"
+Contains a comma-separated list of cluster queues (see
+.M queue_conf 5 ).
+This parameter filters jobs that may be scheduled in a queue in the list.
+Any queue not in the list will not be considered for the resource quota rule. The
+default value is '*', which means all queues. To exclude a queue from the rule,
+the name can be prefixed with '!'.
+.IP "hosts"
+Contains a comma-separated list of hosts or hostgroups (see
+.M host 5
+and
+.M hostgroup 5 ).
+This parameter filters jobs that may be scheduled to a host in the list or a
+host contained in a hostgroup in the list. Any host not in the list will not be considered
+for the resource quota rule. The default value is '*', which means all hosts. To
+exclude a host or hostgroup from the rule, the name can be prefixed with '!'.
+.IP "to"
+This mandatory field defines the quota for resource attributes for this rule. The quota
+is expressed by one or more comma-separated limit definitions
+referring to fixed or consumable resources (not load values).  Two
+kinds of limit definition may be used:
+.RS
+.IP "static limits"
+Static limits set static values as quotas. Each limit consists of a complex
+attribute followed by an "=" sign and a value specification consistent with
+the complex attribute's type (see
+.M complex 5 ).
+.IP "dynamic limits"
+A dynamic limit is a simple algebraic expression used to derive the limit
+value. The formula can reference complex attributes, whose
+value is used for the calculation of the resulting limit.
+The formula expression syntax is that of
+a sum of weighted complex values, that is:
+.sp 1
+.nf
+{\fIw1\fP|\fB$\fP\fIcomplex1\fP[\fB*\fP\fIw1\fP]}[{\fB+\fP|\fB\-\fP}{\fIw2\fP|\fB$\fP\fIcomplex2\fP[\fB*\fP\fIw2\fP]}[{\fB+\fP|\fB\-\fP}...]]
+.fi
+.sp 1
+The weighting factors (\fIw1\fP, ...) are positive integers or floating point numbers
+in double precision. The complex values (\fIcomplex1\fP, ...)
+must be of numerical type (INT, DOUBLE, MEMORY, or TIME), as specified
+by the complex's type in the complex list (see
+.M complex 5 )
+and defined either on global, queue, or host level to resolve the value.
+.br
+.B Note:
+Dynamic limits can only be configured for a host-specific rule, and
+must be defined for an expanded host list (or individual host).
+Also, if a load value corresponding to a complex used is not
+available, a large value is used for it to suggest an overloaded
+condition.  Dynamic limits may slow the scheduler significantly.
+.RE
+.PP
+A complex form of limit may be used:  "expanded" filters with the
+consumer list enclosed in braces ('{' '}').  This may be thought of as
+applying for each member of the list individually, as opposed to for
+all elements of a non-braced list in total.  Alternatively, it is
+equivalent to an expansion into multiple instances of the rule, per
+the syntax which inspired it in shells such as
+.MO bash 1 .
+Thus
+.RS
+limit users {a, b} ... to ...
+.RE
+is equivalent to
+.RS
+.nf
+limit users a ... to ...
+limit users b ... to ...
+.fi
+.RE
+where the text represented by the ellipses in each position is carried
+over to the expansion, and could be expanded itself.  '{*}' represents
+a limit for each consumer of that type, as opposed to '*', which
+limits all the consumers together.  E.g.
+.RS
+limit users * to slots=100
+.RE
+limits the total number of slots in use to 100, whereas
+.RS
+limit users {*} to slots=100
+.RE
+limits each user to 100 slots.  ACLs and hostgroups in expanded lists
+are treated as if they are expanded into a list of their constituents
+before expanding the whole list.  A '!' prefix is distributed through
+the expansion of ACLs or hostgroups, i.e.
+.RS
+limit users {!@acl,...} ...
+.RE
+where @acl has members user1, user2, ..., expands to
+.RS
+limit users {!user1,!user2,...} ...
+.RE
+and thus
+.RS
+.nf
+ limit users !user1 ...
+ limit users !user2 ...
+ ...
+.fi
+.RE
+.SS "Formal Syntax"
+.TS
+tab(@);
+ll.
+ALL: @ '*'
+SEPARATOR: @ ','
+STRING: @ [^\\n]*
+QUOTE: @ '"'            \" "
+S_EXPANDER: @ '{'
+E_EXPANDER: @ '}'
+NOT: @ '!'
+BOOL: @ [tT][rR][uU][eE]
+@ | 1
+@ | [fF][aA][lL][sS][eE]
+@ | 0
+NAME: @ [a-zA-Z][a-zA-Z0-9_-]*
+LISTVALUE: @ ALL | [NOT]STRING
+LIST: @ LISTVALUE [SEPARATOR LISTVALUE]*
+FILTER: @ LIST | S_EXPANDER LIST E_EXPANDER
+RESOURCEPAIR: @ STRING=STRING
+RESOURCE: @ RESOURCEPAIR [SEPARATOR RESOURCEPAIR]*
+
+rule: @ "limit" ["name" NAME] ["users" FILTER]
+@ ["projects" FILTER] ["pes" FILTER] ["queues" FILTER]
+@ ["hosts" FILTER] "to" RESOURCE NL
+
+ruleset_attributes:@ "name" NAME NL
+@ ["enabled" BOOL NL]
+@ ["description" QUOTE STRING QUOTE NL]
+
+ruleset: @ "{" 
+         @ ruleset_attributes
+         @ rule+
+         @ "}" NL
+
+rulesets: @ ruleset*
+.TE
+.\"
+.SH NOTES
+Please note that resource quotas are not enforced as job resource limits.
+Limiting, for example, h_vmem in a resource quota set does not result in a
+memory limit being set for job execution; it is necessary to specify such
+a limit on the job request, or as the complex's default value.  Thus
+.RS
+limit users {*} to h_vmem=2G
+.RE
+will not restrict the memory a job can actually allocate to 2G, only what it can
+request, with the request actually enforcing the allocation.
+.PP
+The most restrictive rule in a set should be first in the
+.B limit
+List so that the scheduler can dispatch jobs efficiently by rejecting
+queues to consider as early as possible since subsequent rules in the
+list are not considered after one matches.  This can be important in
+large clusters, in which RQS can significantly slow down scheduling.
+.\"
+.\"
+.SH EXAMPLES
+The following is the simplest form of a resource quota set. It restricts all
+users together to a maximal use of 100 slots in the whole cluster.
+Similarly, "slots=0" could be used to prevent new jobs starting for
+draining the system.
+.nf
+
+=======================================================================
+{
+   name         max_u_slots
+   description  "All users max use of 100 slots"
+   enabled      true
+   limit        to slots=100
+}
+=======================================================================
+
+.fi
+.sp 1
+The next example restricts user1 and user2 to requesting 6g virtual_free,
+and all other users to requesting 4g virtual_free, on
+each host in hostgroup lx_hosts.
+.nf
+
+=======================================================================
+{
+   name         max_virtual_free_on_lx_hosts
+   description  "resource quota for virtual_free restriction"
+   enabled      true
+   limit        users {user1,user2} hosts {@lx_host} to virtual_free=6g
+   limit        users {*} hosts {@lx_host} to virtual_free=4g
+}
+=======================================================================
+
+.fi
+.sp 1
+The next example shows the use of a dynamic limit.  It restricts the
+total slot usage by all users on each host to twice the value of
+num_proc (the number of processor units) on the host.  (It would be
+more usual to use "slots=$num_proc" to prevent over-subscription of
+nodes.)
+.nf
+
+=======================================================================
+{
+   name         max_slots_on_every_host
+   enabled      true
+   limit        hosts {*} to slots=$num_proc*2
+}
+=======================================================================
+
+.fi
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M access_list 5 ,
+.M complex 5 ,
+.M host 5 ,
+.M hostgroup 5 ,
+.M qconf 1 ,
+.M qquota 1 ,
+.M project 5 .
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

@@ -1,0 +1,10 @@
+A collection of SGE-related things for Nagios, Ganglia etc.
+
+check_sgejobs.py:  Nagios check for jobs in error state.  This is better
+                   done with a passive check, with one qstat/qhost invocation
+                   for all hosts.
+
+check_gridengine: Nagios check of qmaster or execd state using qping.
+
+ganglia-sge-jobs: Script to inject current job count metrics into
+                  Ganglia.  Intended to be run under cron.

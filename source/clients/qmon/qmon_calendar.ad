@@ -1,0 +1,130 @@
+!!___INFO__MARK_BEGIN__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!
+!!  The Contents of this file are made available subject to the terms of
+!!  the Sun Industry Standards Source License Version 1.2
+!!
+!!  Sun Microsystems Inc., March, 2001
+!!
+!!
+!!  Sun Industry Standards Source License Version 1.2
+!!  =================================================
+!!  The contents of this file are subject to the Sun Industry Standards
+!!  Source License Version 1.2 (the "License"); You may not use this file
+!!  except in compliance with the License. You may obtain a copy of the
+!!  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+!!
+!!  Software provided under this License is provided on an "AS IS" basis,
+!!  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+!!  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+!!  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+!!  See the License for the specific provisions governing your rights and
+!!  obligations concerning the Software.
+!!
+!!  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+!!
+!!  Copyright: 2001 by Sun Microsystems, Inc.
+!!
+!!  All Rights Reserved.
+!!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!___INFO__MARK_END__
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!! Calendar Configuration
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Qmon*qmon_cal.xmtChildren:  unmanaged XmtLayout cal_layout;
+
+Qmon*qmon_cal.cal_layout.autoUnmanage:  False
+Qmon*qmon_cal.cal_layout.resizePolicy:  RESIZE_NONE
+Qmon*qmon_cal.cal_layout.dialogTitle:  @{QMON  +++  Calendar Configuration}
+!Qmon*qmon_cal.cal_layout.fontList:   $dialog_font
+
+Qmon*qmon_cal.cal_layout.xmtChildren: \
+   XmPushButton   cal_main_link; \
+   XmScrolledList cal_names, cal_conf_list; \
+   XmPushButton   cal_delete, cal_add, cal_modify, cal_done, cal_help;
+
+Qmon*qmon_cal.cal_layout.layout: \
+   Fixed Shadowed Out 4 2 LREvenSpaced Row calconfig_title { \
+      Fixed Centered cal_main_link \
+      Centered Color "$title_fg" "@{@fBCalendar Configuration}" \
+   } \
+   # \
+   Row { \
+      Caption tl "@{Calendars}" 2 in cal_names \
+      Caption tl "@{Configuration}" 5 in cal_conf_list \
+      Fixed Shadowed Col { \
+         Fixed cal_add \
+         Fixed cal_modify \
+         Fixed cal_delete \
+         Fixed cal_done \
+         Fixed cal_help \
+      } \
+   }
+
+Qmon*qmon_cal.cal_layout.cal_main_link.labelType:   PIXMAP
+Qmon*qmon_cal.cal_layout.cal_main_link.labelPixmap: logo
+Qmon*qmon_cal.cal_layout.cal_main_link.shadowThickness:    1
+Qmon*qmon_cal.cal_layout.cal_main_link.highlightThickness: 0
+Qmon*qmon_cal.cal_layout.cal_main_link.marginHeight:       0
+Qmon*qmon_cal.cal_layout.cal_main_link.marginWidth:        0
+
+Qmon*qmon_cal.cal_layout.cal_delete.labelString:    @{Delete}
+Qmon*qmon_cal.cal_layout.cal_add.labelString:       @{Add}
+Qmon*qmon_cal.cal_layout.cal_modify.labelString:    @{Modify}
+Qmon*qmon_cal.cal_layout.cal_done.labelString:      @{Done}
+Qmon*qmon_cal.cal_layout.cal_help.labelString:      @{Help}
+
+!! We can't directly scalcify the parent of cal_names or cal_conf_list
+Qmon*qmon_cal.cal_layout*scrollBarDisplayPolicy:          AS_NEEDED
+Qmon*qmon_cal.cal_layout*listSizePolicy:                  CONSTANT
+
+Qmon*qmon_cal.cal_layout*cal_names.fontList:               $fixed_font
+Qmon*qmon_cal.cal_layout*cal_names.selectionPolicy:        BROWSE_SELECT
+Qmon*qmon_cal.cal_layout*cal_names.visibleItemCount:       8
+
+Qmon*qmon_cal.cal_layout*cal_conf_list.fontList:           $fixed_font
+Qmon*qmon_cal.cal_layout*cal_conf_list.selectionPolicy:    BROWSE_SELECT
+Qmon*qmon_cal.cal_layout*cal_conf_list.visibleItemCount:   8
+
+Qmon*cal_help.activateCallback:   XmtHelpDisplayContextHelp(self);
+
+
+
+Qmon*cal_ask_shell.xmtChildren: unmanaged XmtLayout cal_ask_layout;
+
+Qmon*cal_ask_shell.cal_ask_layout.autoUnmanage:  False
+Qmon*cal_ask_shell.cal_ask_layout.resizePolicy:  RESIZE_NONE
+Qmon*cal_ask_shell.cal_ask_layout.dialogTitle:   @{Add/Modify Calendar}
+!Qmon*cal_ask_shell.cal_ask_layout.fontList:      $dialog_font
+
+Qmon*cal_ask_shell.cal_ask_layout.XmtInputField.marginWidth:       2
+Qmon*cal_ask_shell.cal_ask_layout.XmtInputField.marginHeight:      2
+
+Qmon*cal_ask_shell.cal_ask_layout.xmtChildren: \
+   InputField     cal_name, \
+                  cal_year, \
+                  cal_week; \
+   XmPushButton   cal_ok, cal_cancel;
+
+Qmon*cal_ask_layout.layout: \
+   Row { \
+      Shadowed Col { \
+         Fixed Caption tl "@{@fBCalendar Name}" cal_name \
+         #\
+         "@{@fBExample}"\
+         "@{calendar.year_example.Year\n1.1.1997,30.3.1997-31.3.1997,26.12.1997[=suspended]}"\
+         "@{calendar.week_example.Week\nmon-fri=20-6[=suspended] sat-sun[=suspended]}"\
+         #\
+         Fixed Caption tl "@{Year}" 4 in cal_year \
+         Fixed Caption tl "@{Week}" 4 in cal_week \
+      } \
+      Fixed Shadowed Col { \
+         Fixed cal_ok \
+         Fixed cal_cancel \
+      } \
+   }
+
+Qmon*cal_ask_layout.cal_ok.labelString:     @{Ok}
+Qmon*cal_ask_layout.cal_cancel.labelString: @{Cancel}
+

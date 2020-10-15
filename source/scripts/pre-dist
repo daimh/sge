@@ -1,0 +1,9 @@
+#!/bin/sh
+# Fix things for building the source tarball (e.g. for darcs predist hook).
+
+# Causes problems with dpkg build
+rm .gitignore
+# For rpmbuild -tb
+ln -sf gridengine.spec sge.spec
+# Generated files aren't under revision control.
+cd source && autoreconf

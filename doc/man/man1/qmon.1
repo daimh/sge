@@ -1,0 +1,570 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH QMON 1 "2011-05-18" "xxRELxx" "xxQS_NAMExx User Commands"
+.SH NAME
+qmon \- X-Windows OSF/Motif graphical user interface for xxQS_NAMExx
+.\"
+.SH SYNTAX
+.B "qmon"
+[options]
+.\"
+.\"
+.SH DESCRIPTION
+.I Qmon
+allows administrators and users to manipulate the xxQS_NAMExx system
+from an X-Window environment.
+.I Qmon
+provides various dialogues linked together in multiple ways.
+For each task the user wishes to accomplish via
+.I qmon
+a corresponding dialogue is provided. There are
+multiple ways to address the proper dialogue for a certain task:
+.PP
+.IP "\(bu" 3n
+The
+.I qmon
+main window that comes up first on start-up contains icon buttons
+for all major administrative and user tasks. A functionality tooltip
+is displayed when pointing at the different icons.
+.\"
+.IP "\(bu" 3n
+A \fBTask\fP pulldown menu button appears in the
+.I qmon
+main window menu bar. Clicking on it opens a list of available
+tasks. Selecting one of them opens the corresponding dialogue.
+.\"
+.IP "\(bu" 3n
+The \fBTask\fP pulldown menu also contains the key accelerators
+which can be used to invoke the task dialogues directly from the
+main window by pressing a certain sequence on the
+keyboard.
+.\"
+.IP "\(bu" 3n
+While navigating through a certain dialogue and its dialogue
+sub-hierarchy, links to other dialogues occur whenever a
+connection between both dialogues is obvious. Pushing
+the buttons that identify the links opens up the
+other dialogues.
+.\"
+.\"
+.SH OPTIONS
+The supported options are the standard X Toolkit options as
+described in
+.M X 1
+section \fBOptions\fP. Furthermore,
+.I qmon
+supports:
+.\"
+.IP "\fB\-cmap\fP"
+Installs a private color map for
+.IR qmon .
+This is sometimes useful if other applications have already
+allocated lots of colors and if
+.IR qmon ,
+therefore prints corresponding error messages. \fBNote\fP, however,
+that using a private color map will result in color map switches
+whenever you enter or leave
+.I qmon
+windows.
+.IP "\fB\-fontFamily {big|medium|small}\fP"
+Notifies
+.I qmon
+to use different size font families for different resolution
+sizes.
+.IP "\fB\-help\fP"
+Displays usage information.
+.IP "\fB\-nologo\fP"
+Startup without logo.
+.\"
+.\"
+.SH DIALOGUES
+.SS "\fBJob Control\fP"
+The \fBJob Control\fP dialogue provides a folder of tabulated lists of the 
+still pending jobs, already running jobs and recently finished jobs. 
+The dialogue allows for detailed information on the jobs as well as for 
+the deletion and suspension of jobs being selected. 
+In addition the job control dialogue offers links to the \fBSubmit\fP 
+dialogue in order to submit new jobs or to change attributes of pending 
+jobs (\fBQalter\fP button). The fields displayed in the tabular display
+and the jobs displayed can be customized by pressing the \fBCustomize\fP 
+button. This customization can be saved to the \fI~/.qmon_preferences\fP file
+and is used on following startup for the initial configuration of the
+\fBJob Control\fP dialogue.
+
+.\"
+.SS "\fBQueue Control\fP"
+The \fBQueue Control\fP dialogue with its sub-dialogue hierarchy enables the
+user to control the status of the xxQS_NAMExx queues actually configured
+in the system and allows the administrator to add new queues or to modify
+or delete existing ones. The \fBQueue Control\fP dialogue shows a
+tabbed view of Cluster Queues or their corresponding Queue Instances in a tabular way.
+.sp 1
+By pushing the \fBAdd\fP, \fBClone\fP or \fBModify\fP button, a sub-dialogue 
+for configuring xxQS_NAMExx queues is opened. 
+A queue needs to be selected to use the clone and modify operation. The 
+configuration sub-dialogue allows for definition of the queue and its attributes.
+The configuration sub-dialogue contains in the upper section the queue name and a list of hosts or hostgroups for which this queue contains the configuration.
+The lower section contains a list of hosts or hostgroups at the left, where the default attributes are shown when the "@/" entry is highlighted.
+These default attributes can be overruled on a hostgroup or host basis by enabling attributes and changing their values after this hostgroup or host entry has been added in the "Attributes for Host/Hostgroup" listbox. 
+The queue configuration parameters (see
+.M queue_conf 5 )
+are subdivided into different categories (\fBGeneral Configuration\fP,
+\fBExecution Methods\fP, \fBCheckpointing\fP, \fBLoad/Suspend Thresholds\fP,
+\fBLimits\fP, \fBComplexes\fP, \fBUser Access\fP, 
+\fBProject Access, \fBSubordinate Queues\fP, \fBOwners\fP)
+which are selectable by the tab widget area presented in the lower region 
+of the queue configuration sub-dialogue. 
+The administrator may select previously-configured settings from
+already existing queues (\fBClone\fP button). By pushing the \fBOk\fP
+button, the definitions are registered with
+.M xxqs_name_sxx_qmaster 8 .
+The \fBQueue Control\fP dialogue can be customized in a similar way as the
+\fBJob Control\fP dialogue. The settings applied here are also saved in
+\fI~/.qmon_preferences\fP.
+.\"
+.SS "\fBSubmit\fP"
+The
+.B Job Submission
+dialogue serves for submitting batch and interactive 
+jobs and is also invoked when changing attributes of pending jobs from the 
+.B Job Control
+dialogue explained above (\fBQalter\fP button). To toggle between 
+batch and interactive jobs please use the
+.B Batch/Interactive
+button at the top 
+of the button column on the right side of the
+.B Job Submission
+screen.
+.sp 1
+The dialogue consists of a folder containing two job preparation dialogue pages. The most frequently used parameters in the course of a job submission are offered on the \fBGeneral\fP page. A job script has to be
+defined; all other fields are optional. If the job demands specification
+of advanced requirements, the \fBAdvanced\fP tab can be used to
+switch to an enhanced parameter display.
+.sp 1
+If resource requirements are
+mandatory for the job, the \fBRequest Resources\fP icon button has to
+be used to pop up the \fBRequested Resources\fP sub-dialogue. 
+This sub-dialogue allows for selection of the required resources of the job
+and for definition of the quantities in which this resources are to be
+provided. The \fBAvailable Resources\fP are constituted from those
+complex attributes declared \fIrequestable\fP (see
+.M complex 5
+for details). Resource requirements can be made \fBHard\fP, i.e. they
+must be met before a job can be started in a queue, or \fBSoft\fP,
+i.e. they are granted on an as-available basis.
+.sp 1
+Closing the \fBRequested Resources\fP sub-dialogue with the done button
+books the specified requirement for the job. Pushing the \fBSubmit\fP
+button on the top level \fBSubmit\fP dialogue submits the job.
+.\"
+.SS "\fBComplex Config\fP"
+The
+.B Complex Config
+allows the administrator to add new complex attributes or to 
+modify or delete existing ones (see
+.M complex 5 ).
+The complex configuration dialogue provides a tabulated list of
+the complex attribute entries and an input region for the declaration of new or modified 
+entries. The
+.B Add
+button updates the tabulated list with a new attribute.
+The
+.B Modify
+button changes a highlighted existing entry.
+The
+.B Delete
+button removes the highlighted attributes.
+The
+.B Load and Save
+buttons allow saving or reloading the whole attribute list to or from file.
+The
+.B Ok
+button registers the additional or modified complex attributes with 
+.M xxqs_name_sxx_qmaster 8 .
+.\"
+.SS "\fBHost Config\fP"
+Four types of host related lists can be maintained via the \fBHost Config\fP
+dialogue:
+.sp 1
+.nf
+.RS
+Administration Hosts
+Submit Hosts
+Host Groups
+Execution Hosts
+.RE
+.fi
+.sp 1
+The host list to be manipulated is selected via clicking at one of the tabs 
+named correspondingly. The first two host lists only provide for adding or 
+deleting entries, thereby allowing administrative or submit permission for the 
+hosts on the lists, or denying it otherwise respectively.
+The host group list allows the manipulation of host groups. Host groups can reference either other host groups or hosts.
+The execution host list 
+entries in addition provide the ability to define scaling factors for the load 
+sensors, consumable complex attributes and access attributes 
+(access, xaccess and projects, xprojects) as described in
+.M complex 5 .
+CPU, memory and I/O usage reported for running jobs can be 
+scaled in addition and the relative performance of a host can be defined with
+the
+.B Resource Capability Factor
+(see
+.M host_conf 5 ).
+.\"
+.SS "\fBCluster Config\fP"
+This dialogue maintains the cluster global configuration as well as
+host specific derivatives (see
+.M xxqs_name_sxx_conf 5 ).
+When opened, the dialogue displays a selection list for all hosts which
+have a configuration assigned. The special name "global" refers to the
+cluster global configuration. By pushing the \fBAdd/Modify\fP button
+a sub-dialogue is opened, which allows for modification of the cluster
+configuration. For host specific configurations the 'global' host specific
+configuration fields are set insensitive and only the allowed parameters
+can be manipulated.
+.\"
+.SS "\fBScheduler Config\fP"
+The
+.B Scheduler Configuration
+dialogue provides the means to change the 
+behavior of the xxQS_NAMExx scheduler thread part of
+.M xxqs_name_sxx_qmaster 8 
+process.
+The dialogue 
+contains a representation for all scheduler configuration parameters as 
+described in
+.M sched_conf 5 .
+It is subdivided in the two sections
+.B General Parameters
+and
+.BR "Load Adjustments" ,
+which can be selected via the corresponding tabs.
+The
+.B Ok
+button registers any changes with 
+.M xxqs_name_sxx_qmaster 8 .
+.\"
+.SS "\fBCalendar Config\fP"
+The
+.B Calendar Config
+allows the administrator to add new calendars or to 
+modify or delete existing ones (see
+.M calendar_conf 5 ).
+The dialogue offers a 
+selection list for the existing calendars and displays the configuration of the 
+one being selected. By pushing the
+.B Delete
+button, the selected calendar is 
+deleted from the configuration. Pushing the \fBAdd\fP/\fBModify\fP
+button will open a 
+calendar configuration dialogue, which allows to create new calendars or 
+which provides the means to change the existing ones. The
+.B Ok
+button registers the additional or modified calendar with
+.M xxqs_name_sxx_qmaster 8 . 
+.\"
+.SS "\fBUser Config\fP"
+User permissions are controlled via the \fBUser Config\fP dialogue.
+The tab widget 
+in the left section of the dialogue allows for selecting between
+.sp 1
+.nf
+.RS
+Configuration of \fBManager\fP accounts.
+Configuration of \fBOperator\fP accounts.
+Definition of \fBUsersets\fP.
+Definition of \fBUser\fP accounts.
+.RE
+.fi
+.sp 1
+Those user accounts added to the list of manager or operator accounts
+are given permission to act as managers or operators respectively when
+accessing xxQS_NAMExx under their own account.
+.sp 1
+The userset lists are used together with the
+.B user_lists
+and
+.B xuser_lists
+host, queue, project and cluster configuration parameters (see
+.M queue_conf 5 ,
+.M project 5
+and 
+.M xxqs_name_sxx_conf 5 )
+to control access of users to hosts, queues, projects and the entire cluster.
+A userset is just a
+collection of user names and UNIX group names. Group names are
+identified by prefixing them with a "@" sign. The already-defined
+usersets are displayed in a selection list. These lists can be
+modified, and new lists can be created, using the
+.B Userset
+definition dialogue.
+.sp 1
+Usersets can be used as
+.B Access List
+and/or as
+.B Department
+required for the so called 
+.B Functional Policy
+and
+.B Override Policy
+(see
+.B Ticket Config
+below).
+.sp 1
+User names can be added to the system as entries to the xxQS_NAMExx user database (see
+.M user 5 );
+here a default project can be attached to the user too.
+This can be done with the 
+.B User
+sub-dialogue.
+.sp 1
+The
+.B Tickets
+button in the button list on the right side of the dialogue opens the 
+.B Ticket Config
+dialogue (see below).
+.\"
+.SS "\fBPE Config\fP"
+Parallel environment (PE) interfaces can be configured with this dialogue.
+PE interfaces are necessary to describe how parallel programming
+environments like PVM (Parallel Virtual Machine), MPI (Message Passing
+Interface), or shared memory parallel systems, are to be instantiated and
+to impose access restrictions onto the PEs. When the dialogue is opened a
+list of the configured PEs is displayed, together with the current
+configuration (see
+.M xxqs_name_sxx_pe 5 )
+of the selected PE interface.
+To add new PE interfaces, or to modify existing ones, an \fBAdd\fP and a
+\fBModify\fP button are available which open a PE interface configuration
+sub-dialogue. After applying the changes and quitting this sub-dialogue
+with the \fBOK\fP button, the new or modified PE interface is registered
+with
+.M xxqs_name_sxx_qmaster 8 .
+.\"
+.SS "\fBCheckpoint Config\fP"
+Checkpointing environment interfaces can be configured with this dialogue. 
+Checkpointing environments are necessary to describe the attributes which 
+the different checkpointing methods and their derivatives on various 
+operating system platforms supported by xxQS_NAMExx have. When the dialogue 
+is opened a list of the already configured checkpointing environments is 
+displayed together with the current configuration (see
+.M checkpoint 5 )
+of the 
+selected checkpointing environment. To add new checkpointing environments,
+or to modify existing ones, an \fBAdd\fP and a \fBModify\fP button
+is available which 
+opens a checkpointing environment configuration sub-dialogue. After 
+applying the changes and quitting this sub-dialogue with the \fBOK\fP
+button, the 
+new or modified checkpointing environment is registered with
+.M xxqs_name_sxx_qmaster 8 .
+.\"
+.SS "\fBTicket Conf\fP"
+This dialogue offers an overview and editing screen for allocating tickets
+to the share-based, functional and override scheduling policies.
+.PP
+The \fBDeadline Job\fP button opens the \fBUser Conf\fP dialogue box.
+Please change 
+to the Userset sub-dialogue and select the userset named "deadlineusers".
+Only users of this userset may submit deadline jobs.
+.sp 1
+The \fBShare Tree Policy\fP button opens the dialogue for
+creating and editing the xxQS_NAMExx share tree (see
+.M share_tree 5
+and
+.M sched_conf 5
+for a description of the configuration parameters).
+.sp 1
+The \fBFunctional Policy\fP button opens the dialogue
+for creating and editing the allocation of the functional shares (see
+.M sched_conf 5 ,
+.M access_list 5 , 
+.M project 5 ,
+.M queue_conf 5
+and
+.M user 5
+for a description of the different types 
+of functional shares and the configurable weighting parameters).
+.sp 1
+The \fBOverride Policy\fP button opens the dialogue for creating and
+editing the allocation of override tickets (see
+.M access_list 5 ,
+.M project 5 ,
+.M queue_conf 5
+and
+.M user 5
+for a description of the different types of override tickets).
+.\"
+.SS "\fBProject Conf\fP"
+This button opens a dialog for creating projects.
+.br
+The dialogue offers a selection list for the existing projects and displays the 
+configuration of the one being selected. By pushing the
+.B Delete
+button, the selected project is deleted from the configuration. Pushing the
+\fBAdd\fP/\fBModify\fP 
+button will open a project configuration dialogue, which allows creating new 
+projects changing existing ones. Project
+configuration in essence means giving or denying access to a project for
+usersets (see
+.B User Conf
+above as well as
+.M project 5 ).
+The Ok button registers the additional or modified project with
+.M xxqs_name_sxx_qmaster 8 .
+.\"
+.\"
+.SS "\fBBrowser\fP"
+The \fBObject Browser\fP dialogue's purpose is manifold: First of all,
+xxQS_NAMExx and
+.I qmon
+Messages, such as notification of error or success concerning a previously
+taken action, can be displayed in the dialogue's output window.
+Also the standard output and the standard error output of
+.I qmon
+can be diverted to the \fBObject Browser\fP output window.
+.sp 1
+Additionally the \fBObject Browser\fP can be used to display continuous
+information about xxQS_NAMExx objects as the mouse pointer moves over
+their representation as icons or table entries in other
+.I qmon
+dialogues. Currently, only the display of the configuration of two
+xxQS_NAMExx objects in two separate dialogues is supported:
+.\"
+.IP "\(bu" 3n
+Queue configurations are displayed as soon as the mouse pointer
+enters a queue icon in the top level \fBQueue Control\fP
+dialogue (see above). This facility is activated by pushing the
+\fBQueue\fP button in the \fBObject Browser\fP dialogue.
+.\"
+.IP "\(bu" 3n
+Detailed job information is printed as soon as the user
+moves the mouse pointer over a line in the \fBJob Control\fP
+dialogue (see above) assigned to a running or pending job.
+.IP "\(bu" 3n
+Additionally job scheduling information is displayed in the browser
+if the \fBWhy?\fP button in the \fBJob Control\fP dialogue is
+pressed. In this case the Browser dialogue is opened implicitly and
+any scheduling related information is displayed.
+.\"
+.SS "\fBExit\fP"
+The \fBExit\fP icon button is not linked with a dialogue. Its
+sole purpose is to close all active
+.I qmon
+dialogues and to exit the application.
+.\"
+.\"
+.SH "RESOURCES"
+The available resources, their meaning and the syntax to be
+followed in order to modify them are described in the default
+.I qmon
+resource file (see the section \fBFiles\fP below for the location
+of the resource file).
+.\"
+.\"
+.SH "ENVIRONMENT VARIABLES"
+.\" 
+.IP "\fBxxQS_NAME_Sxx_ROOT\fP" 1.5i
+Specifies the location of the xxQS_NAMExx standard configuration
+files.
+.\"
+.IP "\fBxxQS_NAME_Sxx_CELL\fP" 1.5i
+If set, specifies the default xxQS_NAMExx cell. To address a xxQS_NAMExx
+cell
+.I qmon
+uses (in the order of precedence):
+.sp 1
+.RS
+The name of the cell specified in the environment 
+variable xxQS_NAME_Sxx_CELL, if it is set.
+.sp 1
+The name of the default cell, i.e. \fBdefault\fP.
+.sp 1
+.RE
+.\"
+.IP "\fBxxQS_NAME_Sxx_DEBUG_LEVEL\fP" 1.5i
+If set, specifies that debug information
+should be written to stderr. In addition the level of
+detail in which debug information is generated is defined.
+.\"
+.IP "\fBxxQS_NAME_Sxx_QMASTER_PORT\fP" 1.5i
+If set, specifies the tcp port on which
+.M xxqs_name_sxx_qmaster 8
+is expected to listen for communication requests.
+Most installations will use a services map entry instead
+to define that port.
+.\"
+.\"
+.IP \fBSGE_LOAD_AVG\fP 1.5i
+Specify a load parameter (see
+.M load_parameters 5 )
+to use instead of
+.B load_avg
+when displaying/selecting load values.
+.\"
+.SH "RESTRICTIONS"
+If the line to be entered in an editing window is longer than the
+width of the window, then the text just runs off the end of the window.
+.\"
+.\"
+.SH "FILES"
+.nf
+.ta \w'/usr/lib/X11/defaults/Qmon     'u
+\fI<xxqs_name_sxx_root>/qmon/Qmon\fP	\fIQmon\fP sample resources file
+\fI/usr/lib/X11/defaults/Qmon\fP	\fIQmon\fP system resources file
+\fI$HOME/Qmon\fP	\fIQmon\fP user resources file
+\fI$HOME/.qmon_preferences\fP	\fIQmon\fP job/queue customization file
+.fi
+
+.\"
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M xxqs_name_sxx_conf 5 ,
+.M access_list 5 , 
+.M xxqs_name_sxx_pe 5 ,
+.M calendar_conf 5 ,
+.M complex 5 , 
+.M project 5 , 
+.M queue_conf 5 ,
+.M sched_conf 5 ,
+.M user 5 ,
+.M xxqs_name_sxx_qmaster 8 . 
+.\"
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+and the information provided in <xxqs_name_sxx_root>/3rd_party/qmon
+for a statement
+of further rights and permissions and for credits to be given to public
+domain and freeware widget developers. 

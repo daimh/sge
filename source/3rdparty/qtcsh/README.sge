@@ -1,0 +1,17 @@
+qtcsh is an extension of the popular csh derivative tcsh 
+allowing transparent remote execution using Grid Engine.
+
+It is based on tcsh v6.17.00 whose copyright notice can
+be found in the file 'Copyright'. The copyright notice
+of csh can be found in 'copyright.csh'.  Some irrelevant files
+have been removed that weren't in the original 6.09-based version,
+specifically the "win32", "test", and non-"C" nls directories, and
+tcsh.vcproj.  (make check is broken anyway with recent versions of
+GNU m4.)
+
+For additional information and usage see the manpage qtcsh(1)
+respectively tcsh(1).
+
+At least the following files were noted by Sun as modified for Grid Engine:
+config.sub,Makefile.in,configure,ed.h,sh.c,sh.err.c,sh.exec.c,sh.h,
+sh.init.c,tc.alloc.c,tc.os.h,tc.sig.h,tc.vers.c

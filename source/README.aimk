@@ -1,0 +1,256 @@
+              README.aimk
+              -----------
+
+Content
+-------
+
+1) What 'aimk' is
+2) What 'aimk' does
+3) The files 'aimk.site' and 'aimk.private'
+4) 'aimk' options
+   4.1) Short help on line options
+   4.2) Compiling without openSSL support
+   4.3) Restricting compile targets
+   4.4) 'cc' or 'gcc'
+   4.5) Creating the dependency tool
+   4.6) Passing flags to the compiler
+   4.7) Creating man pages
+5) Copyright
+
+
+1) What 'aimk' is
+-----------------
+
+   'aimk' stands for Architecture Independent MaKe. It is inspired by
+   the 'aimk' script of PVM (Parallel Virtual Machine).
+ 
+   It is not, as the name indicates, architecture independent at all. It is
+   highly dependent on the underlying operating system and calls the
+   makefiles with the appropriate parameters (compiler flags etc.). This
+   scheme allows keeping the makefiles quite simple and makes it possible to
+   use plain 'make' on operating systems where the standard make utility
+   does not offer a lot of sophisticated options which are available in
+   modern make utilities.
+
+
+2) What 'aimk' does
+-------------------
+
+   The script 'aimk' is a wrapper for the various makefiles and other
+   scripts which are called to compile Grid Engine. By default 'aimk' will
+   build all binaries, but it accepts options to restrict the build process
+   for certain parts of Grid Engine. Not all options of 'aimk' work
+   together. This limitation is usually not detected by the command line
+   parsing.
+
+   When 'aimk' is started, it first determines the current operating system
+   by calling the script 'dist/util/arch'. This script returns a string
+   which is unique for a given OS. This string will be mapped to an
+   uppercase string which is then used. See the file 'dist/README.arch' in
+   this directory for details on architecture strings and how they are
+   mapped.  If the current operating system is not supported yet (or not
+   supported anymore), aimk will print out an error message and exit.
+
+   Unrecognized command line options, also beginning with a dash ('-') are
+   passed to make. This can cause unexpected error messages from 'make' if a
+   typo in the command line is passed to it.
+
+   'aimk' sources scripts 'aimk.site' and 'aimk.private'.  This script
+   contains paths and variables to tools which you need to build
+   special parts of Grid Engine.
+
+   
+3) The files 'aimk.site' and 'aimk.private'
+-------------------------------------------
+
+  'aimk' is written in csh. The scripts 'aimk.site' and 'aimk.private'
+  (optional) need to use csh syntax since they are sourced by 'aimk'.
+
+  The file 'aimk.site' contains a few definitions of paths to tools which
+  are needed to build Grid Engine. You need to adjust this script to your
+  needs or you can create your custom 'aimk.private' file which overrides
+  the settings in 'aimk.site'.
+
+  You can also enter your favorite command lines option to 'aimk.private',
+  e.g as follows:
+
+    # aimk.private
+    # add "-only-qmon" and "-j 4" flag to aimk
+    set  argv = ( -only-qmon -j 4 $* )
+
+4) Command line options of aimk
+-------------------------------
+
+   4.1 Short help on line options
+   ------------------------------
+
+   Show a brief summary of its command line options:
+
+      % aimk -help
+
+   4.2 Compiling without openSSL support
+   -------------------------------------
+
+   'aimk' by default compiles Grid Engine with openSSL support. If you want
+   to compile Grid Engine without openSSL support call:
+   
+      % aimk -no-secure
+
+   4.3 Restricting compile targets
+   -------------------------------
+
+   Common options are (the -only-* options are mutually exclusive):
+
+      % aimk -only-core   compile core system only
+      % aimk -only-java   compile Java[TM] class files only
+      % aimk -only-qmon   compile qmon only
+      % aimk -only-qmake  compile qmake only
+      % aimk -only-qtcsh  compile qtcsh only
+
+   To compile Grid Engine without one or more default targets use the flags:
+
+      -no-core
+      -no-java  (or "-no-gui-inst -no-herd", avoiding the most
+      		 troublesome targets)
+      -no-jni
+      -no-qmake 
+      -no-qmon
+      -no-qtcsh
+      -no-remote  (rsh, rshd, rlogin targets)
+
+   For creating the SGE qmaster daemon you only would enter:
+
+      % aimk -only-core sge_qmaster
+
+   By default, the JNI library for the DRMAA Java language binding will be
+   built, but the class files will not.  To compile SGE without the DRMAA
+   Java language binding, use:
+
+      % aimk -no-jni -no-java
+
+   The -no-java is not strictly necessary in most cases, but it ensures that
+   no class files are compiled, even if the aimk.private contains the -java
+   switch.  Note that with or without the -no-jni switch, the libdrmaa
+   shared library will be created.  The difference will be in whether the
+   shared library contains the JNI components.
+
+   To compile only the Java class files, use:
+
+      % aimk -only-java
+
+   To compile the complete SGE system, including the DRMAA Java language
+   binding, use:
+
+      % aimk
+
+   Note that in order to compile the DRMAA Java language binding, ant 1.5 or
+   better must be in the classpath, and JAVA_HOME must point to JDK 1.4 or
+   better.  For platforms without a suitable JDK, -no-jni (and
+   -no-java) must be used.
+
+   4.4 'cc' or 'gcc'
+   -----------------
+
+   By default the system compiler is used (cc, gcc on GNU/Linux). The flags:
+
+      -cc
+      -gcc
+
+   override this default. Note, that this option often does not work since
+   a target has not been tested and ported with gcc yet. The use of "gcc" on
+   operating systems where this compiler is not installed by default will
+   usually require changes to aimk.
+
+   4.5 Creating the dependency tool
+   --------------------------------
+
+   The tool for creating Makefile dependencies 'sge_depend' is created with:
+
+      % aimk -only-depend
+
+   Makefile dependencies are created with:
+
+      % aimk depend
+
+
+   4.6 Passing flags to the compiler
+   ---------------------------------
+
+   To pass a "-Dmydefine" to the compiler CFLAGS, enter:
+
+     % aimk -Dmydefine ....
+
+   Other flags which are passed to the compiler as CFLAGS can be set in the
+   command line through the environment variable 'SGE_INPUT_CFLAGS', e.g.
+
+      setenv SGE_INPUT_CFLAGS "-xyz -Dmydefine"
+
+   'SGE_INPUT_LDFLAGS' behaves similarly for setting LFLAGS for the linker.
+
+   These can be used to define library and include paths.
+
+
+   4.7 Creating man pages
+   ----------------------
+
+   The man pages in the repository contain a few macros 
+   
+   To create man pages you enter
+
+      % aimk -man       create man pages in nroff format
+      % aimk -htmlman   create man pages in nroff and html format
+      % aimk -catman    create man pages in catman format (e.g. for Irix)
+
+   To build man pages in nroff format you need to define the variable
+   GROFFPATH in 'aimk.site'. This is where 'groff' is installed. For html
+   man pages you need the tool 'man2html'. This is the one from
+   http://www.nongnu.org/man2html/, not the one in Debian, for instance.
+   The path is defined with the MAN2HTMLPATH variable in
+   'aimk.site'. To create man pages in catman format you need to first
+   create the nroff man pages and then on an Irix system the catman
+   pages (only on Irix, the 'pack -f' command forces compression of
+   all pages regardless of their size).
+
+   4.8 Creating JavaDoc documentation
+   ----------------------------------
+
+   To create JavaDocs appropriate for the end user, enter
+
+      % aimk -javadoc
+
+   This creates documentation of only the public fields and methods.
+
+   To create the full documentation, enter
+
+      % aimk -javadoc -protected
+
+   This creates documentation of all protected and public fields and methods.
+
+
+5) Copyright
+------------
+
+   The Contents of this file are made available subject to the terms of
+   the Sun Industry Standards Source License Version 1.2
+ 
+   Sun Microsystems Inc., March, 2001
+
+   Sun Industry Standards Source License Version 1.2  
+   =================================================
+   The contents of this file are subject to the Sun Industry Standards
+   Source License Version 1.2 (the "License"); You may not use this file
+   except in compliance with the License. You may obtain a copy of the
+   License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ 
+   Software provided under this License is provided on an "AS IS" basis,
+   WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,  
+   WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,  
+   MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+   See the License for the specific provisions governing your rights and
+   obligations concerning the Software.
+ 
+   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+
+   Copyright: 2001 by Sun Microsystems, Inc.
+ 
+   All Rights Reserved.

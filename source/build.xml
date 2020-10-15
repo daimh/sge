@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Gridengine Java" default="all" basedir=".">
+   
+   <description>Builds the java parts of gridengine</description>
+
+   <target name="init">
+
+      <property file="build_private.properties"/>
+      <property file="build.properties"/>
+
+      <property name="javac.source" value="${default.sge.javac.source}"/>
+      <property name="javac.target" value="${default.sge.javac.target}"/>
+
+      <property environment="env"/>
+      <condition property="skip.gui.inst" value="${env.BUILD_NO_GUI_INSTALLER}">
+            <isset property="env.BUILD_NO_GUI_INSTALLER"/>
+      </condition>
+      <condition property="skip.herd" value="${env.BUILD_NO_HERD}">
+            <isset property="env.BUILD_NO_HERD"/>
+      </condition>
+      
+      <macrodef name="myant">
+         <attribute name="target" default=""/>
+         <!-- attribute name="args" default="${sge.ant.args}"/ -->
+         <attribute name="dir" default="${basedir}"/>
+         <sequential>
+            <echo>myant: Doing target="@{target}" on directory "@{dir}"</echo>
+            <java classname="org.apache.tools.ant.launch.Launcher" 
+               fork="true" failonerror="true"
+               dir="@{dir}">
+               <jvmarg value="-Djava.compiler=none"/>
+               <classpath>
+                  <pathelement path="${java.class.path}"/>
+                  <pathelement location="${libs.junit.classpath}"/>
+               </classpath>
+               <!-- arg line="@{args} @{target}"/ -->
+               <arg line="@{target}"/>
+            </java>
+         </sequential>         
+      </macrodef>
+   </target>
+    
+   <target name="all" depends="detect_jvm_lib, drmaa, juti, jgdi, gui_inst, jjsv, herd"/>
+   <target name="depend" depends="init"/>
+   <target name="clean" depends="detect_jvm_lib.clean, drmaa.clean, juti.clean, jgdi.clean, gui_inst.clean, jjsv.clean, herd.clean"/>
+   <target name="javadoc" depends="drmaa.javadoc, juti.javadoc, jgdi.javadoc, gui_inst.javadoc, jjsv.javadoc, herd.javadoc"/>
+   <target name="test" depends="drmaa.test, juti.test, jgdi.test, gui_inst.test, jjsv.test, herd.test"/>
+    
+   <!-- DRMAA -->
+   <target name="drmaa" depends="init">
+      <myant dir="libs/jdrmaa"/>
+   </target>
+    
+   <target name="drmaa.clean" depends="init">
+     <myant dir="libs/jdrmaa" target="clean"/>
+   </target>
+
+   <target name="drmaa.javadoc" depends="init">
+     <myant dir="libs/jdrmaa" target="javadoc"/>
+   </target>
+    
+   <target name="drmaa.test" depends="init">
+      <myant dir="libs/jdrmaa" target="test"/>
+   </target>
+    
+   <!-- JUTI -->
+   <target name="juti" depends="init">
+      <myant dir="libs/juti"/>
+   </target>
+    
+   <target name="juti.clean" depends="init">
+      <myant dir="libs/juti" target="clean"/>
+   </target>
+    
+   <target name="juti.javadoc" depends="init">
+      <myant dir="libs/juti" target="javadoc"/>
+   </target>
+    
+   <target name="juti.test" depends="init">
+      <myant dir="libs/juti" target="test"/>
+   </target>
+    
+   <!-- JGDI -->
+   <target name="jgdi" depends="init">
+      <myant dir="libs/jgdi"/>
+   </target>
+    
+   <target name="jgdi.clean" depends="init">
+      <myant dir="libs/jgdi" target="clean"/>
+   </target>
+
+   <target name="jgdi.javadoc" depends="init">
+      <myant dir="libs/jgdi" target="javadoc"/>
+   </target>
+    
+   <target name="jgdi.test" depends="init">
+      <myant dir="libs/jgdi" target="test"/>
+   </target>
+    
+   <!-- GUI installer -->
+   <target name="gui_inst" depends="init" unless="skip.gui.inst" description="Builds GUI Installer">
+      <echo message="Building GUI installer..."/>
+      <ant antfile="build.xml" target="do.jar" dir="clients/gui-installer/" inheritall="false"/>
+   </target>
+   <target name="gui_inst.clean" unless="skip.gui.inst" depends="init">
+      <ant antfile="build.xml" target="clean" dir="clients/gui-installer/" inheritall="false"/>
+   </target>
+
+   <target name="gui_inst.javadoc" unless="skip.gui.inst" depends="init">
+      <ant antfile="build.xml" target="javadoc" dir="clients/gui-installer/" inheritall="false"/>
+   </target>
+
+   <target name="gui_inst.test" unless="skip.gui.inst" depends="init">
+      <ant antfile="build.xml" target="test" dir="clients/gui-installer/" inheritall="false"/>
+   </target>
+
+   <!-- JSV Java Language Binding -->
+   <target name="jjsv" depends="init">
+      <myant dir="libs/jjsv"/>
+   </target>
+
+   <target name="jjsv.clean" depends="init">
+     <myant dir="libs/jjsv" target="clean"/>
+   </target>
+
+   <target name="jjsv.javadoc" depends="init">
+     <myant dir="libs/jjsv" target="javadoc"/>
+   </target>
+
+   <target name="jjsv.test" depends="init">
+      <myant dir="libs/jjsv" target="test"/>
+   </target>
+
+   <!-- Hadoop integration -->
+   <target name="herd" depends="init" unless="skip.herd">
+      <myant dir="libs/herd"/>
+   </target>
+
+   <target name="herd.clean" depends="init" unless="skip.herd">
+     <myant dir="libs/herd" target="clean"/>
+   </target>
+
+   <target name="herd.javadoc" depends="init" unless="skip.herd">
+     <myant dir="libs/herd" target="javadoc"/>
+   </target>
+
+   <target name="herd.test" depends="init" unless="skip.herd">
+      <myant dir="libs/herd" target="test"/>
+   </target>
+
+   <!-- DetectJvmLibrary java util -->
+   <target name="detect_jvm_lib" depends="init" description="Builds GUI Installer">
+      <echo message="Building DetectJvmLibrary ..."/>
+      <ant antfile="build.xml" target="all" dir="dist/DetectJvmLibrary" inheritall="false"/>
+   </target>
+   <target name="detect_jvm_lib.clean" depends="init">
+      <ant antfile="build.xml" target="clean" dir="dist/DetectJvmLibrary" inheritall="false"/>
+   </target>
+</project>

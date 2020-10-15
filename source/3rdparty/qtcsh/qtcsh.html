@@ -1,0 +1,33 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+	<META HTTP-EQUIV="CONTENT-TYPE" CONTENT="text/html; charset=iso-8859-1">
+	<TITLE></TITLE>
+	<META NAME="GENERATOR" CONTENT="StarOffice/5.2 (Solaris Sparc)">
+	<META NAME="AUTHOR" CONTENT=" ">
+	<META NAME="CREATED" CONTENT="20010612;14562600">
+	<META NAME="CHANGEDBY" CONTENT=" ">
+	<META NAME="CHANGED" CONTENT="20010619;16371400">
+</HEAD>
+<BODY>
+<H1>Overview</H1>
+<P STYLE="margin-bottom: 0in">Qtcsh is an extension to the popular
+csh(1) derivative tcsh (version 6.09.00). The implementation of transparent remote
+execution bases on libgdi. For details on qtcsh have a look to
+qtcsh(1).</P>
+<H1>Implementation</H1>
+<P STYLE="margin-bottom: 0in">The implementation consists in essence
+of two functions sge_init() and sge_execv() that are contained in
+libgdi. The purpose of sge_init() is to read all qtask(5) file
+configuration. It is called immediately after all initial sourcing
+work (.cshrc, ..) is done. The second function sge_execv() is used to
+substitute execv(2) occurrencies in tcsh source code. In case the
+command is to be executed remotely due to qtask(5) file configuration
+sge_execv() executes an appropriate qrsh command. For commands which
+are to be executed locally an execv(2) is called within sge_execv().</P>
+<P STYLE="margin-bottom: 0in"><BR>
+</P>
+<P ALIGN=CENTER STYLE="margin-bottom: 0in; text-decoration: none">Copyright
+2001 Sun Microsystems, Inc. All rights reserved.</P>
+</BODY>
+</HTML>

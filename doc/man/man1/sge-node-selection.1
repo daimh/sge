@@ -1,0 +1,80 @@
+.\" Copyright (C), 2011  Dave Love
+.\" You may distribute this file under the terms of the GNU Free
+.\" Documentation License.
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH sge\-node\-selection 1 2011-01-01 
+.SH NAME
+busy\-nodes, idle\-nodes, dead\-nodes, nodes\-in\-job, qselect\-node\-list \- List xxQS_NAMExx node names by various criteria
+.SH SYNOPSIS
+.B busy\-nodes
+.RB [ \-w ]
+.RB [ \-h | \-\-help ]
+.br
+.B idle\-nodes
+.RB [ \-w ]
+.RB [ \-h | \-\-help ]
+.br
+.B dead\-nodes
+.RB [ \-w ]
+.RB [ \-h | \-\-help ]
+.br
+.B nodes\-in\-job
+.RB [ \-w ]
+.RB [ \-h | \-\-help ]
+.I jobid
+.br
+.B qselect\-node\-list
+.RB [ \-h | \-\-help ]
+.I qselect_arg
+\&...
+.SH DESCRIPTION
+.BR busy\-nodes ,
+.BR idle\-nodes ,
+and
+.BR dead\-nodes
+respectively list xxQS_NAMExx nodes which are:  busy with one or more
+jobs, idle (without a job running), and "dead" (their xxQS_NAMExx exec
+daemon is not responding).
+.B nodes-in-job
+list nodes which are running the given
+.I jobid
+(presumably a parallel one).
+.B qselect\-node\-list
+runs
+.M qselect 1
+with the given arguments.  The node list is printed one node per line
+unless the
+.B \-w
+option is used.
+.SH OPTIONS
+.TP
+.BR \-h , \-\-help
+Print usage information.
+.TP
+.B \-w
+Print the output in a form compatible with the
+.B \-w
+argument of
+.M pdsh 1 .
+.SH EXAMPLES
+The following would reboot all idle nodes.  (It is actually preferable
+to submit a job to reboot nodes, to avoid a race with job further
+submission.)
+.RS
+.B "pdsh \-w `idle\-nodes \-w` reboot"
+.RE
+.PP
+The following would run
+.M qhost 1 ,
+selecting only nodes in job number "123".
+.RS
+.B "qhost `nodes\-in\-job 123`"
+.RE
+.SH "SEE ALSO"
+.M qhost 1 ,
+.M qselect 1 ,
+.M pdsh 1 .
+.SH AUTHOR
+Dave Love <d.love@liverpool.ac.uk>

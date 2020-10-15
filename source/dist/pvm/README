@@ -1,0 +1,91 @@
+                             PVM 
+                             ---
+A Parallel Environment for Grid Engine and Grid Engine Enterprise Edition
+
+___INFO__MARK_BEGIN__
+
+
+  The Contents of this file are made available subject to the terms of
+  the Sun Industry Standards Source License Version 1.2
+ 
+  Sun Microsystems Inc., March, 2001
+ 
+ 
+  Sun Industry Standards Source License Version 1.2
+  ================================================= 
+  The contents of this file are subject to the Sun Industry Standards
+  Source License Version 1.2 (the "License"); You may not use this file
+  except in compliance with the License. You may obtain a copy of the
+  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ 
+  Software provided under this License is provided on an "AS IS" basis,
+  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+  See the License for the specific provisions governing your rights and
+  obligations concerning the Software.
+ 
+  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ 
+  Copyright: 2001 by Sun Microsystems, Inc.
+ 
+  All Rights Reserved.
+
+___INFO__MARK_END__
+
+This directory contains the following files:
+
+              README        - this file 
+   1.         startpvm.sh   - the startup script for PVM
+   2.         stoppvm.sh    - the shutdown script for PVM
+   3.         pvm.template  - a template for a PVM parallel environment
+
+   4.         pvm.sh        - a sample PVM job
+   5.         pvm_nogs.sh   - a second sample PVM job not using PVM group 
+                              communication facilities
+   
+Refer to the "Installation and Administration Guide" Chapter "Support of
+Parallel Environments" for a general introduction to the Parallel
+Environment Interface of Grid Engine/Grid Engine Enterprise Edition.
+
+Please note that there is a need to build some binaries for successful use
+of the prepared startup scripts and the job examples. To build these
+binaries ensure that PVM_ROOT, PVM_ARCH  and SGE_ROOT are set in your
+environment. Change into $SGE_ROOT/pvm/src and start ./aimk. Then use 
+the script 'install.sh' to copy all necessary binaries to the places where 
+they are expected by the scripts described below.
+
+1. The task of the PVM starter script is to start the pvmd. The script also
+   passes all necessary informations about desicions of the Grid
+   Engine/Grid Engine Enterprise Edition scheduler to PVM. The script needs
+   'start_pvm'. Its use is to verify that the master pvmd was able to start
+   slave pvmd's. In most cases start of pvm slave fails since the 'rsh'
+   command failed. 'start_pvm' detects this failure. The advantage is that
+   the pvm job is not started without a properly setup PVM environment for
+   that job. The starter script 'startpvm.sh' needs some command line
+   arguments, to be configured by use of either qmon or qconf. The first
+   one is the path to the "$pe_hostfile" that gets transformed by
+   startpvm.sh into a PVM host file. The second argument "$host" is used to
+   pass the master host to startpvm.sh. The third argument must be the path
+   of $PVM_ROOT. It is used for starting the pvmd.
+
+2. The stopper 'stoppvm.sh' is shutting down the PVM virtual machine which
+   was setup for this job. For that purpose 'stop_pvm' which is used by the
+   script uses pvm_halt(3) which shuts down the entire virtual machine. 
+   'stoppvm.sh' needs the two command line arguments
+   $pe_hostfile and $host.
+
+3. Use this template as a starting point when establishing a parallel
+   environment for PVM. You need to replace <a_list_of_parallel_queues>, 
+   <the_number_of_slots>, <your_sge_root> and <your_pvm_root> with 
+   the appropriate information.
+
+There are two samples included. You should use these samples to verify that
+your integration of Grid Engine/Grid Engine Enterprise Edition with PVM
+works correctly.
+
+4. The first job example 'pvm.sh' is a shell wrapper around the 'spmd' from
+   the PVM distribution.
+
+5. The second example starts a pvm sample with master-slave communication.
+   No group communication is needed.

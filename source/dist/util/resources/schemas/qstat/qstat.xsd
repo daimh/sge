@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--___INFO__MARK_BEGIN__
+/*************************************************************************
+ * 
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ * 
+ *  Sun Microsystems Inc., March, 2001
+ * 
+ * 
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ * 
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ * 
+ *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ * 
+ *   Copyright: 2001 by Sun Microsystems, Inc.
+ * 
+ *   All Rights Reserved.
+ * 
+ ************************************************************************/
+___INFO__MARK_END__-->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+ targetNamespace="http://arc.liv.ac.uk/repos/darcs/sge/source/dist/util/resources/schemas/qstat/qstat_cb.xsd"
+            xmlns="http://arc.liv.ac.uk/repos/darcs/sge/source/dist/util/resources/schemas/qstat/qstat_cb.xsd"
+           elementFormDefault="qualified">
+	<xs:element name="job_info">
+		<xs:complexType>
+			<xs:annotation>
+				<xs:documentation> 
+               This schema describes most of the qstat outputs. There are extra
+               schema defintions for "qstat -j" and and "qstat -j job".
+              </xs:documentation>
+			</xs:annotation>
+			<xs:sequence>
+				<xs:element name="queue_info" type="queue_info_t" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="job_info" type="job_info_t" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element name="cluster_queue_summary" type="cqueue_summary_t" minOccurs="0" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+<!-- ======================================= -->
+<!-- general qstat output                    -->
+
+	<xs:complexType name="cqueue_summary_t">
+		<xs:sequence>
+			<xs:element name="name" type="xs:string"/>
+        	<xs:element name="load" type="xs:float" minOccurs="0"/>
+			<xs:element name="used" type="xs:unsignedInt"/>
+			<xs:element name="resv" type="xs:unsignedInt"/>
+			<xs:element name="available" type="xs:unsignedInt"/>
+			<xs:element name="total" type="xs:unsignedInt"/>
+			<xs:element name="temp_disabled" type="xs:unsignedInt"/>
+			<xs:element name="manual_intervention" type="xs:unsignedInt"/>
+			<xs:element name="suspend_manual" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="suspend_threshold" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="suspend_on_subordinate" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="suspend_calendar" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="unknown" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="load_alarm" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="disabled_manual" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="disabled_calendar" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="ambiguous" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="orphaned" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="error" type="xs:unsignedInt" minOccurs="0"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="queue_info_t">
+		<xs:sequence minOccurs="0" maxOccurs="unbounded">
+                <!-- Queue-List looks like a mistake, but too late to change -->
+			<xs:element name="Queue-List" type="queue_list_t" minOccurs="0"/>
+			<xs:element name="job_list" type="job_list_t" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="queue_list_t">
+		<xs:sequence minOccurs="0">
+			<xs:element name="name" type="xs:string" minOccurs="0"/>
+			<xs:element name="qtype" type="xs:string" minOccurs="0"/>
+			<xs:element name="slots_resv" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="slots_used" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="slots_total" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="load_avg" type="xs:float" minOccurs="0"/>
+			<xs:element name="arch" type="xs:string" minOccurs="0"/>
+			<xs:element name="state" type="xs:string" minOccurs="0"/>
+			<xs:element name="message" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="resource" type="resource_t" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="job_list" type="job_list_t" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="job_info_t">
+		<xs:sequence>
+			<xs:element name="job_list" type="job_list_t" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="job_list_t">
+		<xs:sequence>
+			<xs:element name="JB_job_number" type="xs:unsignedInt"/>
+			<xs:element name="JAT_prio" type="xs:float"/>
+			<xs:element name="JAT_ntix" type="xs:float" minOccurs="0"/>
+
+			<xs:element name="JB_nppri" type="xs:float" minOccurs="0"/>
+			<xs:element name="JB_nurg" type="xs:float" minOccurs="0"/>
+			<xs:element name="JB_urg" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="JB_rrcontr" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="JB_wtcontr" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="JB_dlcontr" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="JB_priority" type="xs:unsignedInt" minOccurs="0"/>
+
+			<xs:element name="JB_name" type="xs:string"/>
+			<xs:element name="JB_owner" type="xs:string"/>
+			<xs:element name="JB_project" type="xs:string" minOccurs="0"/>
+			<xs:element name="JB_department" type="xs:string" minOccurs="0"/>
+
+			<xs:element name="state" type="xs:string"/>
+
+			<xs:element name="JB_submission_time" type="xs:dateTime" minOccurs="0"/>
+			<xs:element name="JAT_start_time" type="xs:dateTime" minOccurs="0"/>
+			<xs:element name="JB_deadline" type="xs:dateTime" minOccurs="0"/>
+
+			<xs:element name="cpu_usage" type="xs:float" minOccurs="0"/>
+			<xs:element name="mem_usage" type="xs:float" minOccurs="0"/>
+			<xs:element name="io_usage" type="xs:float" minOccurs="0"/>
+
+			<xs:element name="tickets" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="JB_override_tickets" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="JB_jobshare" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="otickets" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="ftickets" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="stickets" type="xs:unsignedInt" minOccurs="0"/>
+			<xs:element name="JAT_share" type="xs:float" minOccurs="0"/>
+
+			<xs:element name="queue_name" type="xs:string" minOccurs="0"/>
+			<xs:element name="master" type="xs:string" minOccurs="0"/>
+
+			<xs:element name="slots" type="xs:unsignedInt"/>
+			<xs:element name="tasks" type="xs:string" minOccurs="0"/>
+
+			<xs:element name="requested_pe" type="requested_pe_t" minOccurs="0"/>
+			<xs:element name="granted_pe" type="granted_pe_t" minOccurs="0"/>
+			<xs:element name="JB_checkpoint_name" type="xs:string" minOccurs="0"/>
+			<xs:element name="hard_request" type="request_t" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="def_hard_request" type="request_t" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="soft_request" type="request_t" minOccurs="0" maxOccurs="unbounded"/>
+
+			<xs:element name="hard_req_queue" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="soft_req_queue" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="master_hard_req_queue" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="predecessor_jobs_req" type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="predecessor_jobs" type="xs:unsignedInt" minOccurs="0" maxOccurs="unbounded"/>
+
+         <xs:element name="binding" type="xs:string" minOccurs="0"/>
+		</xs:sequence>
+		<xs:attribute name="state" type="xs:string" use="required"/>
+	</xs:complexType>
+
+<!-- ======================================= -->
+
+	<xs:complexType name="request_t">
+		<xs:attribute name="name" type="xs:string" use="required"/>
+		<xs:attribute name="resource_contribution" type="xs:float"/>
+	</xs:complexType>
+
+	<xs:complexType name="granted_pe_t">
+		<xs:attribute name="name" type="xs:string" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="requested_pe_t">
+		<xs:attribute name="name" type="xs:string" use="required"/>
+	</xs:complexType>
+
+	<xs:complexType name="resource_t">
+		<xs:attribute name="name" type="xs:string" use="required"/>
+		<xs:attribute name="type" type="xs:string" use="required"/>
+	</xs:complexType>
+</xs:schema>

@@ -1,0 +1,228 @@
+#!/bin/sh
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+##########################################################################
+#___INFO__MARK_END__
+
+# arguments
+IS_BDB=$1
+IS_QMASTER=$2
+IS_SHADOW=$3
+IS_EXECD=$4
+
+SPOOLING_METHOD="${cfg.spooling.method}"
+if [ "$SPOOLING_METHOD" = "none" ]; then
+   SPOOLING_METHOD="berkeleydb"
+fi
+
+# exit code for run fuctions
+EXIT_CODE=0
+
+ADMINUSER="${cfg.admin.user}"
+if [ "${host.arch}" = "win32-x86" ]; then
+   HOSTNAME=`hostname | tr "[a-z]" "[A-Z]"`
+   ADMINUSER="$HOSTNAME+$ADMINUSER"
+fi
+
+# run the command as admin user
+RunAsAdmin()
+{
+   "${cfg.sge.root}"/utilbin/"${host.arch}"/adminrun $ADMINUSER $@
+   EXIT_CODE=$?
+}
+
+# run the command as executor then if it fails as admin user
+RunAsBoth()
+{
+   ALL="$@"
+   $ALL
+   EXIT_CODE=$?
+   if [ $EXIT_CODE -ne 0 -a "${user.name}" != "${cfg.admin.user}" ]; then
+      RunAsAdmin $ALL      
+   fi
+}
+
+# returns with the first existing parent directory in the hierarchy
+GetFirstExistingDir()
+{
+  dir="$1"
+
+  if [ ! -d "$dir" ]; then
+     while [ ! -d "$dir" ]; do
+        tmp_dir=`dirname "$dir"`
+        dir="$tmp_dir"
+     done
+  fi
+  echo "$dir"
+}
+
+#Genaretes output from the exit code and terminates the script
+# $1 ... EXIT_CODE
+Exit()
+{
+   EXIT_CODE=$1
+   echo "___EXIT_CODE_${EXIT_CODE}___"
+   exit $EXIT_CODE
+}
+
+# checks whether the executor or the admin user has write permission on
+# the given directory even if the directory does not exist.
+IsDirWritable()
+{
+   dir=`GetFirstExistingDir "$1"`
+   RunAsBoth test -w "$dir"
+   #TODO: Even when rwx, the dir can be mounted as read-only => permission denied during installation
+}
+
+# checks whether the admin user has write permission on
+# the given directory even if the directory does not exist.
+IsDirWritableByAdminUser()
+{
+   dir=`GetFirstExistingDir "$1"`
+   RunAsAdmin test -w "$dir"
+}
+
+#Test that admin user is availabe on the remote host. The installation will need it at some point!
+RunAsAdmin echo
+if [ $EXIT_CODE -ne 0 ]; then
+   Exit 60  # admin user not known on this host
+fi
+
+# if qmaster host
+if [ "$IS_QMASTER" = true ]; then
+   # TODO check qmaster port usage
+
+   # check write permission on qmaster spool dir
+   IsDirWritable "${cfg.qmaster.spool.dir}"
+   if [ $EXIT_CODE -ne 0 ]; then
+      Exit 20
+   fi
+
+   # check write permission on global execd spool dir
+   IsDirWritable "${cfg.execd.spool.dir}"
+   if [ $EXIT_CODE -ne 0 ]; then
+      Exit 21
+   fi
+
+   # if JMX is enabled check configuration
+   USE_JMX="${add.sge.jmx}"
+   if [ "$USE_JMX" = true ]; then
+      # TODO check JMX port usage
+
+      # check write permission on JMX keystore dir
+      IsDirWritable "${cfg.sge.jmx.ssl.keystore}"
+      if [ $EXIT_CODE -ne 0 ]; then
+         Exit 22
+      fi
+
+      jvm_lib_path="${cfg.sge.jvm.lib.path}"
+      if [ -z "${cfg.sge.jvm.lib.path}" -o ! -f "${cfg.sge.jvm.lib.path}" ]; then
+         #Detecting JVM will only verify it will be detected during the installation
+         SGE_ROOT="${cfg.sge.root}" ; export SGE_ROOT
+         . $SGE_ROOT/util/install_modules/inst_qmaster.sh
+         HaveSuitableJavaBin "1.5.0" "jvm"
+         if [ -z "$jvm_lib_path" ]; then
+            Exit 23
+         fi
+      fi
+
+      # check JVM library validity
+      if [ -n "$jvm_lib_path" ]; then
+         "${cfg.sge.root}"/utilbin/"${host.arch}"/valid_jvmlib "$jvm_lib_path"
+         if [ $? -ne 0 ]; then
+            Exit 24
+         fi
+      fi
+  fi
+
+   # if local BDB spooling is enabled ...
+   if [ "$SPOOLING_METHOD" = "berkeleydb" ]; then
+      # ...fail if exists
+      if [ -d "${cfg.db.spooling.dir}" ]; then
+         Exit 25
+      fi
+
+      # ...fail if FSType equals 'nfs'
+      FIRST_EXISTING_DIR=`GetFirstExistingDir "${cfg.db.spooling.dir}"`
+      fstype=`"${cfg.sge.root}"/utilbin/"${host.arch}"/fstype $FIRST_EXISTING_DIR`
+      if [ "$fstype" = "nfs" ]; then
+         Exit 26
+      fi
+
+      # ...check write permission on BDB spool dir
+      IsDirWritable "${cfg.db.spooling.dir}"
+      if [ $EXIT_CODE -ne 0 ]; then
+         Exit 27
+      fi
+   fi
+fi
+
+# if shadowd host
+if [ "$IS_SHADOW" = true ]; then
+   # TODO check whether to start jmx
+   # check JVM library
+   if [ "${add.sge.jmx}" = "true" ]; then
+      if [ -z "${cfg.sge.jvm.lib.path}" -o ! -f "${cfg.sge.jvm.lib.path}" ]; then
+         #Detecting JVM will only verify it will be detected during the installation
+         SGE_ROOT="${cfg.sge.root}" ; export SGE_ROOT
+         . $SGE_ROOT/util/install_modules/inst_qmaster.sh
+         HaveSuitableJavaBin "1.5.0" "jvm"
+         if [ -z "$jvm_lib_path" ]; then
+            Exit 30
+         fi
+      else
+         # Need to do validity check only if not autodetected (already doen there)
+         "${cfg.sge.root}"/utilbin/"${host.arch}"/valid_jvmlib "${cfg.sge.jvm.lib.path}"
+         if [ $? -ne 0 ]; then
+            Exit 31
+         fi
+      fi
+   fi
+fi
+
+# if execd host
+if [ "$IS_EXECD" = true ]; then
+   # TODO check execd port usage
+
+   # check write permission on local execd spool dir
+   if [ -n "${cfg.exec.spool.dir.local}" ]; then
+      IsDirWritable "${cfg.exec.spool.dir.local}"
+   else
+      # Need to check both install and admin users, since root can create whatever he wants
+      IsDirWritable "${cfg.execd.spool.dir}"
+   fi
+
+   if [ $EXIT_CODE -ne 0 ]; then
+      Exit 40
+   fi
+
+fi
+
+Exit 0

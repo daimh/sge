@@ -1,0 +1,338 @@
+      Functional Specification: Job Submission Verifier 
+      =================================================
+
+      Version  Comment                                Date      Author
+      -------  -------------------------------------  --------  -------------
+      0.1      Initial version                        ?         Andreas Haas
+      0.5      Describe changes so that enhancement   17-09-08  Ernst Bablick
+               can be implemented for Urubu with
+               less performance loss
+      0.6      added missing parts according to       22-09-08  Ernst Bablick
+               discussion with RD and AS
+      0.7      Changes according to discussion on     23-09-08  Ernst Bablick
+               users mailing list
+
+1     INTRODUCTION
+      ============
+
+      In the past some of our users expressed their need for some kind of 
+      presubmission procedure which is executed whenever a job enters the GE
+      system. (see also issue #2621). Here are some examples what should be 
+      done in such a procedure:
+       
+      -  Check accounting DB to make sure the user has enough wall clock 
+         hours in their account to run the requested job on the requested 
+         slots for the requested time. 
+
+      -  Guarantee that the number of slots requested is a multiple of 16 for
+         parallel jobs.
+   
+      -  Verify that the user can write to various shared filesystems.
+
+      -  Make sure that the user does not request certain -l resources that 
+         might not behave the way the user expects them to (h_vmem, h_data, 
+         etc). 
+
+      -  Add required resource requests that users don't now are mandatory. 
+
+      -  Add a project request of the form -P queue_name where queue_name is 
+         the queue used with the -q option.
+
+      -  Make sure that the user hasn't messed up their ssh keys so badly 
+         that they cannot ssh into compute nodes w/o a passphrase.
+
+      -  Print out status messages and errors about the above as well as 
+         printing out the queue, allocation account name, PE, 
+         total number of tasks requested, and number of tasks per node 
+         requested.
+
+      -  Print out an motd-like message at the top of qsub output
+
+         > qsub job.sge
+         Welcome
+         -------
+         Please note that we strongly advise using the mvapich-devel MPI
+         stack for running jobs with more than 2048 MPI tasks.
+         ---------------------------------------------------------------
+         --> Submitting 16 tasks...
+         --> Submitting 16 tasks/host...
+         --> Submitting exclusive job to 1 hosts...
+         ...
+   
+
+2     PROJECT OVERVIEW
+      ================
+
+2.1   Project Aim
+
+      Aim of the project is it to provide a interface enhancement for GE that
+      allows it to define job verification/modification routines which will 
+      either be executed on client side or within qmaster process when a 
+      job enters the system or both.
+
+2.2   Project Benefit
+
+      The administrator of a GE cluster can define additional policies needed.
+
+      The GE cluster will not be loaded with jobs which would break a defined
+      policy if a job verification/modification routine is defined. 
+
+2.3   Project Duration
+
+2.4   Project Dependencies
+
+      There are no known dependencies with other projects
+
+
+3     SYSTEM ARCHITECTURE
+      ===================
+
+3.1   Enhancement Functions
+
+      Here is the summary of the customer needs:
+   
+      (N1)  The administrator gets the possibility to define job verification
+            procedure which will be executed in qsub, qrsh, qsh, qlogin, qmon 
+            and applications using DRMAA, to evaluate a job before it is send 
+            to qmaster
+
+      (N2)  The administrator gets the possibility to define a job verification
+            procedure which will be executed on qmaster side before a job 
+            is finally added to the qmaster data store or before the 
+            modification of a job is finally accepted.
+
+      (N3)  It will be possible to define under which user account the
+            verification procedure within the master is executed. By default 
+            the script is executed as sgeadmin user.
+
+      (N4)  Data defining the job will be provided to the verification 
+            procedure. 
+
+      (N5)  After evaluating a job the verification result might either be:
+               *  accept job
+               *  correct parameters part of the job specification
+               *  reject job 
+               *  temporarily reject job (it might be accepted later)
+
+      (N6)  Nearly all parameters which define a job can be changed by the 
+            verification procedure but there are some exceptions. Following
+            things are only available as read only parameter:
+               * type (qsub job => qlogin ...)
+               * script file to be executed
+               * arguments passed to the job  
+               * user who submitted the job
+            The job script contend itself is not available in the job
+            submission verification script.
+      
+   
+      (N7)  As a minimum requirement at least following parameters have to be
+            changeable by the job verification procedure in a first 
+            implementation
+               * pe request 
+               * resource requests (hard and soft)
+               * queue and host requests 
+               * project request
+
+      Implementation notes and necessary steps:
+
+      (I1)  (N1) and (N2) will be realized as script. The script language can 
+            be chosen by the administrator. 
+
+      (I2)  The script has to be written in a way so that it can be executed
+            like a loadsensor script. It has to accept commands and 
+            parameters from stdin and return results via stdout. 
+            It should not terminate until it gets a corresponding command.
+
+      (I3)  qsub, qrsh, qsh, qlogin and qmon and the DRMAA library (N1) 
+            will start a presubmission script which can be configured by using 
+            "-jsv <jsi_url>" in the cluster wide sge_request file. The script
+            specified with <jsi_url> will be started under the user account 
+            of the user which tries to submit a job.
+
+      (I4)  The script to be evaluated in qmaster (N2) has to be configured
+            in the cluster configuration. The parameter will be named
+            "server_jsv". The value is also a <jsi_url>
+
+      (I4.1) <jsi_url> will have following format
+
+               <jsi_url> := [ <type> ":" ] [ <user> "@" ] <path> 
+
+            <user> is the username under which the JSV code will be executed.
+            <type> might be the string "script". (In future we might support
+            shared libraries or master plugins which might be written in java.)
+
+      (I5)  One instance of server_jsv will be started during startup of 
+            qmaster for each worker thread or whenever the cluster
+            configuration parameter changes or whenever the timestamp of the
+            script file changes. 
+      
+      (I6)  The server side instances of the verification scripts are connected
+            to the worker threads via pipes. Parameters and commands will
+            be send to the scripts and the response is read from the script 
+            output.
+
+      (I7)  After the script has been started it has to be responsive to 
+            execute following commands. Please note that each command 
+            might print ERROR=<message> to stdout to indicate an error.
+
+            command  action
+            -------  --------------------------------------------------------- 
+            START    Trashes cached data and starts a verification for a 
+                     new job. 
+                                 
+                     Prints "STARTED" to stdout
+
+                     After that the script accepts only a "BEGIN" or one or 
+                     multiple "PARAM <name> <value>" commands 
+
+            BEGIN    This command triggers the verification of provided 
+                     parameters set by "PARAM <name> <value>"
+
+                     Prints "RESULT STATE <result>" as last line in the outout
+                     and optionally "RESULT MSG <message>" and/or 
+                     "RESULT LOGMSG <message>" before that.
+
+                     <result> might be:
+                        ACCEPT         
+                           job is accepted without changes
+                        CORRECT        
+                           job is accepted but all PARAM... which have 
+                           been sent between the initial BEGIN and the final 
+                           RESULT have to be evaluated and applied to the job
+                           before it is accepted.
+                        REJECT         
+                           job is rejected
+                        REJECT_WAIT    
+                           job is rejected but might be accepted later 
+
+                     <message> is a user readable message
+                        which will be sent to the client to be printed as
+                        GDI answer (RESULT MSG) or it will be printed to
+                        stdout of the client command (RESULT LOGMSG on
+                        client side) or it will be printed to the master 
+                        messages file (RESULT LOGMSG on master side)
+                        On client side the RESULT MSG and RESULT LOGMSG
+                        messages will be ignored if the -terse option is used 
+                        with qsub.
+
+            PARAM <name> <value>    
+                     <name> and <value> are parameter names 
+                     and corresponding values as documented in submit(1) e.g.
+
+                     <name>      <value>
+                     ----------- ---------------------
+                     a           <date_time> in the format CCYYMMDDhhmmSS
+                     ac          <variable>[=<value>],...
+                     ar          <ar_id>
+                     A           <account_string>
+                     b           "y" | "n"
+                     ...
+
+                     switches without additional arguments like -cwd or -notify
+                     will be handled like arguments with yes/no argument
+
+                     cwd         "y" | "n"
+                     notify      "y" | "n"
+                     ...
+
+                     Client parameter which were not specified by the 
+                     submitter of a job and which have a default value
+                     during the submission won't be passed to the JSV script. 
+
+                     Additionally to the client switches following names 
+                     are supported
+
+                     VERSION     <major>.<minor> 
+                                 e.g "1.0"
+                     CLIENT      "qsub" | "qsh" | "qlogin" | "qmon" | "qalter"
+                     CONTEXT     "client" | "server"
+                                 explains if the script is executed in a 
+                                 client (N1) or in the master (N2)
+                     JOB_ID      <job_id> (only within master available)
+                     SCRIPT      <path_of_job_script>
+                     SCRIPT_ARGS <arguments_for_job_script>
+                     USER        <submit_user_name>
+
+            QUIT     Terminates the job submission verification script
+
+            Exampe: Find below the data which is sent to the job submission
+                    verification script, when following job is submitted:
+
+                    > qsub -pe p 3 -hard -l a=1,b=5 -soft -l q=all.q troete.sh 
+
+                    Please note that parameters that are not explicitely 
+                    requested by the submitter of a job are not passed
+                    to the script. This means that e.g "-b n" of qsub won't be
+                    passed to the script because this is the default
+                    when nothing else is specified.
+
+                Input                Output
+
+            01) "START" 
+            02)                      "STARTED"
+            03) "PARAM CLIENT qsub"
+            04) "PARAM USER ernst"
+            05) "PARAM pe p 3"
+            06) "PARAM hard"
+            07) "PARAM l a=1,b=5"
+            08) "PARAM soft"
+            09) "PARAM l q=all.q" 
+            10) "PARAM SCRIPT troete.sh"
+            11) "BEGIN"
+            12)                      "PARAM pe p 4"
+            13)                      "RESULT MSG no multiple of 4"
+            14)                      "RESULT STATE CORRECT"
+
+            15) "START"
+            16)                      "STARTED"
+            17) ...
+
+            99) "QUIT"
+
+      (I8)  A bourne shell jsv script will be part of Urubu which can be used
+            as template for a GE administrator.
+
+3.2   Overall Block Diagram
+
+
+4     FUNCTIONAL DEFINITION
+      =====================
+
+4.1   Performance
+
+4.2   Reliability, Availability, Serviceability
+
+4.3   Diagnostics
+
+4.4   User Experience
+
+4.5   Manufacturing
+
+4.6   Quality Assurance
+
+4.7   Security & Privacy
+
+4.8   Mitigation Path
+
+4.9   Documentation
+
+4.10  Installation
+
+4.11  Packing
+
+4.12  Issues/Risks and Purposed Mitigation
+
+
+5     COMPONENT DESCRIPTION
+      =====================
+
+5.1   Component: Commandline  
+
+5.1.1 Overview
+
+5.1.2 Functionality
+
+5.1.3 Interfaces
+
+5.1.4 Other Requirements
+

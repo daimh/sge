@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://www.netbeans.org/ns/project/1">
+    <type>org.netbeans.modules.ant.freeform</type>
+    <configuration>
+        <general-data xmlns="http://www.netbeans.org/ns/freeform-project/1">
+            <!--Do not use Project Properties customizer when editing this file manually.-->
+            <name>Cull2Java</name>
+            <properties>
+                <property-file>../../../build_private.properties</property-file>
+                <property-file>../../../build.properties</property-file>
+            </properties>
+            <folders>
+                <source-folder>
+                    <label>build/gensrc</label>
+                    <type>java</type>
+                    <location>build/gensrc</location>
+                </source-folder>
+                <source-folder>
+                    <label>src</label>
+                    <type>java</type>
+                    <location>src</location>
+                </source-folder>
+                <source-folder>
+                    <label>test</label>
+                    <type>java</type>
+                    <location>test</location>
+                </source-folder>
+            </folders>
+            <ide-actions>
+                <action name="build">
+                    <target>all</target>
+                </action>
+                <action name="clean">
+                    <target>clean</target>
+                </action>
+                <action name="rebuild">
+                    <target>clean</target>
+                    <target>cullconv.jar</target>
+                </action>
+            </ide-actions>
+            <export>
+                <type>jar</type>
+                <location>cullconv.jar</location>
+                <build-target>all</build-target>
+            </export>
+            <view>
+                <items>
+                    <source-folder style="packages">
+                        <label>build/gensrc</label>
+                        <location>build/gensrc</location>
+                    </source-folder>
+                    <source-folder style="packages">
+                        <label>src</label>
+                        <location>src</location>
+                    </source-folder>
+                    <source-folder style="packages">
+                        <label>test</label>
+                        <location>test</location>
+                    </source-folder>
+                    <source-file>
+                        <location>build.xml</location>
+                    </source-file>
+                    <source-file>
+                        <location>Cull.jj</location>
+                    </source-file>
+                </items>
+                <context-menu>
+                    <ide-action name="build"/>
+                    <ide-action name="clean"/>
+                    <ide-action name="rebuild"/>
+                </context-menu>
+            </view>
+            <subprojects/>
+        </general-data>
+        <java-data xmlns="http://www.netbeans.org/ns/freeform-project-java/2">
+            <compilation-unit>
+                <package-root>src</package-root>
+                <classpath mode="compile">${local.ant.home}/lib/ant.jar</classpath>
+                <built-to>cullconv.jar</built-to>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+            <compilation-unit>
+                <package-root>test</package-root>
+                <unit-tests/>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+            <compilation-unit>
+                <package-root>build/gensrc</package-root>
+                <classpath mode="compile">src</classpath>
+                <source-level>1.5</source-level>
+            </compilation-unit>
+        </java-data>
+    </configuration>
+</project>

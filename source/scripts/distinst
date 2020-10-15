@@ -1,0 +1,1755 @@
+#!/bin/sh
+#
+#  distinst
+#___INFO__MARK_BEGIN__
+##########################################################################
+#
+#  The Contents of this file are made available subject to the terms of
+#  the Sun Industry Standards Source License Version 1.2
+#
+#  Sun Microsystems Inc., March, 2001
+#
+#
+#  Sun Industry Standards Source License Version 1.2
+#  =================================================
+#  The contents of this file are subject to the Sun Industry Standards
+#  Source License Version 1.2 (the "License"); You may not use this file
+#  except in compliance with the License. You may obtain a copy of the
+#  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+#
+#  Software provided under this License is provided on an "AS IS" basis,
+#  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+#  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+#  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+#  See the License for the specific provisions governing your rights and
+#  obligations concerning the Software.
+#
+#  The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+#
+#  Copyright: 2001 by Sun Microsystems, Inc.
+#
+#  All Rights Reserved.
+#
+#  Portions of this code are Copyright 2011 Univa Corporation.
+# Copyright (C) 2011, 2012 Dave Love, University of Liverpool
+#
+##########################################################################
+#___INFO__MARK_END__
+
+umask 022
+
+#TOPFILES="bin catman ckpt doc examples include inst_sge \
+TOPFILES="bin ckpt doc examples include inst_sge \
+          install_execd install_qmaster lib man mpi pvm hadoop qmon util utilbin"
+
+HASARCHDIR="bin lib examples/jobsbin utilbin"
+
+DEFAULTPROG="sge_qmaster sge_execd sge_shadowd \
+             sge_shepherd sge_coshepherd qstat qsub qalter qconf qdel \
+             qacct qmod qsh utilbin jobs qmon qhost qmake qtcsh qping \
+             qloadsensor.exe sgepasswd qquota qrsub qrstat qrdel qevent \
+             sge_share_mon"
+
+UTILITYBINARIES="uidgid gethostname gethostbyname gethostbyaddr \
+                 getservbyname filestat checkprog loadcheck now checkuser \
+                 adminrun qrsh_starter testsuidroot authuser read_raw echo_raw \
+                 infotext spooldefaults spooledit spoolinit \
+                 fstype SGE_Helper_Service.exe SGE_Starter.exe valid_jvmlib"
+
+BDBUTILITYBINARIES="db_deadlock db_dump db_load db_printlog db_recover db_stat db_upgrade db_verify"
+
+SSLUTILITYBINARIES="openssl"
+
+REMOTEBINARIES="rsh rshd rlogin"
+
+#JOBBINARIES="work showq"
+JOBBINARIES="work"
+
+SHARED_LIBRARIES="libcom libcull libgdi librmon libsched libsge libuti \
+                  libspool libspoolb libspoold libspoolc libspoolf \
+                  libsgeobj libsgeobjd \
+                  libevc libevm libmir \
+                  libjuti libjgdi"
+
+SHARED_MODULES="libcore pam_sge-qrsh-setup pam_sge_authorize"
+
+QMON_SHARED_LIBRARIES="libXbae libXicon libXmt libXspin libXtab"
+QMON_NEED_SHARED_LIBRARIES="libXltree"
+OPENSSL_SHARED_LIBRARIES="libcrypto libssl"
+
+BASE_HEADER_FILES="libs/sched/sge_pqs_api.h"
+
+BERKELEYDB_SHARED_LIBRARIES="libdb-4.4"
+
+DRMAA_SHARED_LIBRARIES="libdrmaa"
+# The last number listed here will be the verson linked from libdrmaa.so
+DRMAA_SHARED_LIB_VERSIONS="1.0"
+DRMAA_HEADER_FILES="libs/japi/drmaa.h"
+DRMAAJ_FILES="CLASSES/jdrmaa/drmaa"
+
+JNI_SHARED_LIBRARIES="libdrmaa libjuti libjgdi"
+
+JUTIJ_FILES="CLASSES/juti/juti"
+JGDIJ_FILES="libs/jgdi/build/jgdi"
+JJSV_FILES="CLASSES/jjsv/JSV"
+JAVA_LIBRARIES="${DRMAAJ_FILES} ${JUTIJ_FILES} ${JGDIJ_FILES} ${JJSV_FILES}"
+
+PVMSOURCES="start_pvm.c stop_pvm.c slave.c master.c spmd.c Makefile"
+PVMSRCSCRIPTS="install.sh aimk"
+PVMSCRIPTS="startpvm.sh stoppvm.sh pvm.sh pvm_nogs.sh README pvm.template"
+
+MPI_FILES="README mpich.template"
+MPI_SCRIPTS="hostname  mpi.sh mpi_cpi.sh rsh startmpi.sh stopmpi.sh"
+
+HADOOP_FILES="logging.properties"
+HADOOP_SCRIPTS="env.sh jsv.sh load_sensor.sh make_conf.sh pestart.sh pestop.sh setup.pl ssh wait.sh"
+
+DTRACE_FILES="README-dtrace.txt monitor.d"
+DTRACE_SCRIPTS="monitor.sh"
+
+MYRINET_FILES="README README.x mpich.template \
+               mpich_multi.template"
+MYRINET_SCRIPTS="gmps sge_mpirun sge_mpirun.x startmpi.sh startmpi.sh.x \
+                 stopmpi.sh"
+
+SCALI_FILES="README"
+SCALI_SCRIPTS="Scali_Resume.sh Scali_Suspend.sh"
+
+SECFILES="security/gss/get_cred.c security/gss/put_cred.c \
+          security/gss/delete_cred.c security/gss/sge_gsslib.c \
+          security/gss/sge_gsslib.h security/gss/renew_cred.sh \
+          security/gss/starter_cred.sh security/gss/msg_gss.h \
+          security/gss/aimk security/gss/Makefile.security \
+          security/gss/doc/gss_customer.html \
+          common/basis_types.h security/gss/put_cred.sh \
+          security/gss/get_cred.sh \
+          security/gss/k5dcelogin.c security/gss/k5dce.h"
+
+SECURITYBINARIES="get_cred put_cred delete_cred renew_cred \
+                  starter_cred get_cred.sh put_cred.sh k5dcelogin"
+
+USERSCRIPTS="qstatus sge-disable-submits sge-enable-submits dead-nodes \
+             busy-nodes idle-nodes nodes-in-job qselect-node-list \
+	     process-scheduler-log qsched jobstats"
+
+EXCLUDE_MANPAGE="usermapping.5"
+
+GE_SOURCEDIR=`pwd`
+
+#-------------------------------------------------------------------------
+# help output, exits after printing help
+#
+ErrUsage()
+{
+   echo "Usage: distinst [-opts] [other archs] [-- other progs]"
+   echo "       -all           = all binaries + common"
+   echo "       -allall        = all binaries + common + doc + arco + sgeinspect"
+   echo "       -basedir <dir> = define base directory for distribution"
+   echo "       -bin           = all binaries and libraries"
+   echo "       -help_arch     = show architectures table"
+   echo "       -libs          = all libraries"
+   echo "       -local         = install in \$SGE_ROOT"
+   echo "       -shlibpath     = cause LD_LIBRARY_PATH be always set even if RUNPATH supported (Solaris/GNU/Linux)"
+   echo "       -mansrc <dir>  = take man pages from MANSBUILD_<dir>"
+   echo "       -nobdb         = do not install the Berkeley DB binaries and libs"
+   echo "       -noexit        = do not exit on installation errors"
+   echo "       -noinst        = no install, show target arch"
+   echo "       -noopenssl     = do not install the OpenSSL binaries and libs"
+   echo "       -nosource      = do not source \"distinst.private\""
+   echo "       -onlybin       = all binaries, no libraries"
+   echo "       -classic-targets = qmaster+spool* from <ARCHDIR>_classic"
+   echo "       -resetarch     = set PROG="" (useful to override distinst.private)"
+   echo "       -resetprog     = set ARCH="" (useful to override distinst.private)"
+   echo "       -tcc           = create file .COMMON_CHANGED if common changed"
+   echo "       -v             = more verbose"
+   echo "       -vdir <dir>    = define version directory for distribution"
+   echo "<other progs>:"
+   echo "       \"arco\"       = ARCo files (dbwriter, reporting)"
+#   echo "       \"ckpt\"       = checkpointing support files"
+   echo "       \"common\"     = arch. independent, no man/ and no doc/"
+   echo "       \"distcommon\" = arch. independent stuff + man + doc/"
+   echo "       \"doc\"        = doc/ directory tree"
+   echo "       \"dtrace\"     = Dtrace scripts"
+   echo "       \"examples\"   = examples/ directory tree without binaries"
+   echo "       \"iscript\"    = install script"
+   echo "       \"jobs\"       = examples/jobsbin/ example binaries"
+   echo "       \"man\"        = manual pages"
+   echo "       \"mpi\"        = MPI scripts"
+   echo "       \"pvm\"        = PVM source files and scripts"
+   echo "       \"hadoop\"        = Hadoop scripts and libraries"
+   echo "       \"qmontree\"   = PIXMAPS, resource-, help-, copyright files"
+   echo "       \"sec\"        = DCE/Kerberos security modules"
+   echo "       \"secbin\"     = DCE/Kerberos security binaries"
+   echo "       \"sgeinspect\" = SGE Inspect binaries"
+   echo "       \"txtdoc\"     = doc/ directory tree without PS and PDF files"
+   echo "       \"userscripts\" = user-level scripts in bin"
+   echo "       \"utilbin\"    = utilbin/\$ARCH/*"
+   echo "       \"utiltree\"   = util/ directory tree"
+   exit 0
+}
+
+#-------------------------------------------------------------------------
+#
+SetArchBin()
+{
+   BUILDARCH=`$GE_SOURCEDIR/scripts/compilearch -b $1`
+   if [ $? -ne 0 ]; then
+      echo "No ARCHBIN name for \"$1\""
+      if [ $exit_on_error = true ]; then
+         exit 1
+      else
+         ARCHBIN="undefined"
+      fi
+   else
+      ARCHBIN=`$GE_SOURCEDIR/scripts/compilearch -c $1`
+      if [ "$ARCHBIN" = "" ]; then
+         ARCHBIN=$BUILDARCH
+      fi
+   fi
+}
+
+#-------------------------------------------------------------------------
+#
+ArchTable()
+{
+   echo "Arch Name             Platform"
+   echo "-------------------------------------------"
+   echo "aix51                 AIX 5.1"
+   echo "hp11                  HP-UX 11.x"
+   echo "hp11-64               HP-UX 11.x 64bit"
+   echo "irix65                Irix 6.5"
+   echo "lx-alpha              Alpha GNU/Linux"
+   echo "lx-amd64              AMD64/x86_64 GNU/Linux"
+   echo "lx-arm                ARM GNU/Linux"
+   echo "lx-arm64              64 bit ARM GNU/Linux"
+   echo "lx-armeb              Big endian ARM GNU/Linux"
+   echo "lx-armhf              ARM GNU/Linux with hard FP"
+   echo "lx-parisc             HP PARISC GNU/Linux"
+   echo "lx-ia64               IA64 GNU/Linux"
+   echo "lx-mips64             64-bit MIPS GNU/Linux"
+   echo "lx-mips               MIPS GNU/Linux"
+   echo "lx-mipsel             Little endian MIPS GNU/Linux"
+   echo "lx-ppc                PPC GNU/Linux"
+   echo "lx-ppc64              64 bit PPC GNU/Linux"
+   echo "lx-ppc64el            Little endian 64 bit PPC GNU/Linux"
+   echo "lx-sparc              SPARC GNU/Linux"
+   echo "lx-sparc64            SPARC 64bit GNU/Linux"
+   echo "lx-x86                x86 GNU/Linux"
+   echo "ulx-alpha             Alpha GNU/Linux, libc < 2.3"
+   echo "ulx-amd64             AMD GNU/Linux, libc < 2.3"
+   echo "ulx-ia64              IA64 GNU/Linux, libc < 2.3"
+   echo "ulx-ppc               PPC GNU/Linux, libc < 2.3"
+   echo "ulx-sparc             SPARC GNU/Linux, libc < 2.3"
+   echo "ulx-sparc64           SPARC 64bit GNU/Linux, libc < 2.3"
+   echo "ulx-x86               x86 GNU/Linux, libc < 2.3"
+   echo "tru64                 TRU64 UNIX"
+   echo "sol-x86               Solaris x86"
+   echo "sol-amd64             Solaris 10 AMD64"
+   echo "sol-sparc             Solaris SPARC"
+   echo "sol-sparc64           Solaris SPARC 64bit"
+   echo "usol-x86              Solaris 8, x86"
+   echo "usol-sparc            Solaris 7, SPARC"
+   echo "usol-sparc64          Solaris 7, SPARC 64bit"
+   echo "darwin-ppc            MacOS 10.x PowerPC"
+   echo "darwin-x86            MacOS 10.x x86 32bit"
+   echo "darwin-x64            MacOS 10.x x86 64bit"
+   echo "fbsd-alpha            Alpha FreeBSD"
+   echo "fbsd-amd64            AMD64 FreeBSD"
+   echo "fbsd-i386             x86 FreeBSD"
+   echo "fbsd-ia64             IA64 FreeBSD"
+   echo "fbsd-ppc              PowerPC FreeBSD"
+   echo "fbsd-sparc64          SPARC FreeBSD 64bit"
+   exit 0
+}
+
+#-------------------------------------------------------------------------
+#
+MakeArchDirs()
+{
+   echo Checking and creating binary directories 
+   for d in $HASARCHDIR; do
+      if [ ! -d $DEST_SGE_ROOT/$d ]; then
+         Execute mkdir -p $DEST_SGE_ROOT/$d
+      fi
+      for a in $*; do
+         if [ ! -d $DEST_SGE_ROOT/$d/$a ]; then
+            Execute mkdir -p $DEST_SGE_ROOT/$d/$a
+         fi
+      done
+   done
+}
+
+#-------------------------------------------------------------------------
+# Call arguments, be verbose if $verbose is set and exit on error if
+# $exit_on_error is set
+#
+Execute()
+{
+        if [ $verbose = true ]; then
+                echo $*
+        fi
+        $*
+        if [ $? -gt 0 ]; then
+                echo
+                echo This command failed: $* 
+                echo
+                if [ "$exit_on_error" = true ]; then
+                   echo "Installation failed. Exiting."
+                   echo
+                   exit 1
+                fi
+        fi
+}
+
+#-------------------------------------------------------------------------
+# Create directory if it doesn't exist
+# and exit if $exit_on_error is set
+#
+MakeDir()
+{
+   if [ ! -d $DEST_SGE_ROOT/$1 ]; then
+      Execute mkdir $DEST_SGE_ROOT/$1
+   fi
+   Execute chmod 755 $DEST_SGE_ROOT/$1
+}
+
+#-------------------------------------------------------------------------
+# Delete CVS directories and backup files etc.
+#
+Cleanup()
+{
+   for i in $*; do
+      find $DEST_SGE_ROOT/$i -name CVS -type d -exec rm -rf {} \; 2>/dev/null
+      find $DEST_SGE_ROOT/$i \( -name "*~" -o -name "*.bak" -o \
+                                -name ".#*" -o -name "*.swp" \) \
+                              -type f -exec rm -f {} \;
+      if [ $IAMROOT = true ]; then
+         Execute chown -R 0:0 $DEST_SGE_ROOT/$i
+      fi
+   done
+}
+
+#-------------------------------------------------------------------------
+# Install user.group permissions source destination
+Install()
+{
+   target_uid=`echo $1 | cut -d. -f1`
+   target_gid=`echo $1 | cut -d. -f2`
+   if [ -n "$INSTALL" ]; then
+      Execute "$INSTALL" -o $target_uid -g $target_gid -m "$2" "$3" "$4"
+   else
+      Execute cp $3 $4
+      if [ $IAMROOT = true ]; then
+         Execute chown $target_uid "$4"
+         Execute chgrp $target_gid "$4"
+      fi
+      if [ -d $4 ]; then
+         Execute chmod $2 $4/`basename $3`
+      else
+         Execute chmod $2 $4
+      fi
+   fi
+}
+
+#-------------------------------------------------------------------------
+#
+InstallProg()
+{
+   echo Installing $1
+   Install 0.0 755 $1 $DEST_SGE_ROOT/${UTILPREFIX}/$DSTARCH/`basename $1`
+}
+
+#-------------------------------------------------------------------------
+#
+InstallProgAs()
+{
+   echo Installing $1 as $2
+   Install 0.0 755 $1 $DEST_SGE_ROOT/${UTILPREFIX}/$DSTARCH/$2
+}
+
+#-------------------------------------------------------------------------
+#
+InstallProgSUID()
+{
+   echo Installing $1
+   Install 0.0 4755 $1 $DEST_SGE_ROOT/${UTILPREFIX}/$DSTARCH/`basename $1`
+}
+
+#-------------------------------------------------------------------------
+# Only file permissions are different from InstallProg
+InstallLib()
+{
+   echo Installing $1
+   Install 0.0 644 $1 $DEST_SGE_ROOT/${UTILPREFIX}/$DSTARCH/$1
+}
+
+#-------------------------------------------------------------------------
+# MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN MAIN
+
+# How else I can find out that I'm user root?
+# The code below worked everywhere
+#
+idout="`id`"
+five=`expr "$idout" : "uid=0"`
+if [ $five = 5 ]; then
+  IAMROOT=true
+else
+  IAMROOT=false
+fi
+
+# Main targets and target directories
+#
+# BASEDIR      -> base dir for distribution
+# VERSIONDIR   -> directory below $BASEDIR where distribution is installed
+# MANSRCDIR    -> directory from which proprocessed man pages are taken
+# ARCH         -> list of binary architectures
+# PROG         -> list of programs and special install targets
+# localinst    -> Use $SGE_ROOT for target directory
+BASEDIR=undefined
+VERSIONDIR=undefined
+localinst=false
+MANSRCDIR=sge
+ARCH=""
+PROG=""
+
+# General variables which influence script behavior
+#
+# verbose               -> echo commands called via Execute() function
+# exit_on_error         -> exit if command called via Execute() exits != 0
+# touchcommonchanged    -> create file .COMMON_CHANGED in target dir if 
+#                          "common" install target has changed
+verbose=false
+exit_on_error=true
+touchcommonchanged=false
+
+# Install targets
+#
+instjobs=true
+instsharedlibs=false
+instckpt=false
+instdrmaa=false
+instiscript=false
+instutiltree=false
+instexamples=false
+instman=false
+instdoc=false
+instdtrace=false
+insttxtdoc=false
+instjava=false
+instjavadoc=false
+instpvm=false
+instmpi=false
+insthadoop=false
+instqmon=false
+instcommon=false
+instutilbin=false
+instsec=false
+instsecbin=false
+instclassictargets=false
+instopenssl=true
+instbdb=true
+instbdbdoc=false
+instarco=false
+instguiinst=true
+instsgeinspect=false
+enforce_shlibpath=false
+userscripts=false
+instremote=true
+
+cmdname=`basename $0`
+
+if [ $cmdname = myinst ]; then
+   echo "\"myinst\" is no longer supported. Use \"% scripts/distinst -local\""
+   echo "instead. See \"scripts/distinst -help\" for further command line options."
+   exit 1
+elif [ $cmdname = sgeinst -o $cmdname = sgeeeinst ]; then
+   echo \"sge[ee]inst\" is no longer supported. Use \"% scripts/distinst -mansrc sge\"
+   echo instead.
+   exit 1
+fi
+
+#-------------------------------------------------------------------------
+# source sitewide and private files after setting defaults
+# this allows a convenient override of all default settings
+#
+if [ -f scripts/distinst.site ]; then
+   . ./scripts/distinst.site
+fi
+
+if [ -f scripts/distinst.private ]; then
+   echo Sourcing of \"scripts/distinst.private\" is no longer supported.
+   echo Copy this script to \"./distinst.private\" instead.
+   exit 1
+fi
+
+if [ "$1" != -nosource ]; then
+   if [ -f distinst.private ]; then
+      . ./distinst.private
+   fi
+else
+   shift
+fi
+
+#-------------------------------------------------------------------------
+# command line parsing
+#
+if  [ $# -eq 0 ]; then
+   ErrUsage
+fi
+
+while [ $# -ge 1 ]; do
+   case "$1" in
+   -allall)
+      PROG="$DEFAULTPROG distcommon arco sgeinspect"
+      instsharedlibs=true
+      userscripts=true
+      ;;
+   -all)
+      PROG="$DEFAULTPROG common"
+      instsharedlibs=true
+      userscripts=true
+      ;;
+   -basedir)
+      shift
+      if [ "$1" != "" ]; then
+         BASEDIR=$1
+      else
+         echo
+         echo need argument for \"-basedir\". Installation failed.
+         echo
+         exit 1
+      fi
+      ;;
+   -bin)
+      PROG="$DEFAULTPROG $PROG"
+      instsharedlibs=true
+      userscripts=true
+      ;;
+   -onlybin)
+      PROG="$DEFAULTPROG $PROG"
+      ;;
+   -h|-help)
+      ErrUsage
+      ;;
+   -help_arch)
+      ArchTable
+      ;;
+   -resetprog)
+      PROG=""
+      ;;
+   -resetarch)
+      ARCH=""
+      ;;
+   -classic-targets)
+      instclassictargets=true
+      ;;
+   -tcc)
+      touchcommonchanged=true
+      ;;
+   -libs)
+      instsharedlibs=true
+      ;;
+   -local)
+      if [ "$SGE_ROOT" = "" ]; then
+         echo Please set variable SGE_ROOT. Installation failed.
+         exit 1
+      fi
+      if [ ! -d $SGE_ROOT ]; then
+         echo Please create directory \"$SGE_ROOT\" first. Installation failed.
+         exit 1
+      fi
+      DEST_SGE_ROOT=$SGE_ROOT
+      localinst=true
+      ;;
+   -mansrc)
+      shift
+      if [ "$1" != "" ]; then
+         MANSRCDIR=$1
+      else
+         echo
+         echo need argument for \"-mansrc\". Installation failed.
+         echo
+         exit 1
+      fi
+      ;;
+   -nobdb)
+      instbdb=false
+      ;;
+   -noexit)
+      exit_on_error=false
+      ;;
+   -noinst)
+      PROG="$DEFAULTPROG"
+      INSTOPT="noinst"
+      ;;
+   -noopenssl)
+      instopenssl=false
+      ;;
+   -shlibpath)
+      enforce_shlibpath=true
+      ;;
+   -v)
+      verbose=true
+      ;;
+   -vdir)
+      shift
+      if [ "$1" != "" ]; then
+         VERSIONDIR=$1
+      else
+         echo
+         echo need argument for \"-vdir\". Installation failed.
+         echo
+         exit 1
+      fi
+      ;;
+   --)
+      break
+      ;;
+   -*)
+      echo option \"$1\" is not supported. Installation failed.
+      exit 1
+      ;;
+   *)
+      break
+      ;;
+   esac
+   shift
+done
+
+if [ $instbdb = true ]; then
+   UTILITYBINARIES="$UTILITYBINARIES $BDBUTILITYBINARIES"
+fi
+
+if [ $instopenssl = true ]; then
+   UTILITYBINARIES="$UTILITYBINARIES $SSLUTILITYBINARIES"
+fi
+
+
+if [ $localinst = false ]; then
+   if [ $BASEDIR = undefined ]; then
+      echo "Set \$BASEDIR with -basedir switch."
+      exit 1
+   fi
+
+   if [ $VERSIONDIR = undefined ]; then
+      echo "Set \$VERSIONDIR with -vdir switch."
+      exit 1
+   fi   
+
+   if [ ! -d $BASEDIR ]; then
+      echo "Directory \"$BASEDIR\" does not exist. Please create it first."
+      exit 1
+   fi
+
+   DEST_SGE_ROOT=$BASEDIR/$VERSIONDIR
+
+   if [ ! -d $DEST_SGE_ROOT ]; then
+      Execute mkdir $DEST_SGE_ROOT
+   fi
+
+   Execute chmod 755 $DEST_SGE_ROOT
+   
+   if [ -f $DEST_SGE_ROOT/LOCKED ]; then
+      echo "File \"$DEST_SGE_ROOT/LOCKED\" exits"
+      exit 1
+   fi
+else
+   if [ "$BASEDIR" != undefined -o "$VERSIONDIR" != undefined ]; then
+      echo
+      echo Switch \""-local\" cannot be combined with \"-vdir\" and/or \"-basedir\" switch."
+      echo
+      echo "Check \"scripts/distinst.site\" and/or \"./distinst.private\" if these"
+      echo "scripts set the variables \"BASEDIR\" or \"VERSIONDIR\"".
+      echo
+      exit 1
+   fi
+fi
+
+whoseargs="archs"
+while [ "$1" != "" ]; do
+   case "$1" in
+      --)             
+         whoseargs="progs" 
+         ;;
+      *)              
+         if [ "$whoseargs" = "archs" ]; then
+            ARCH="$ARCH $1"
+         else
+            PROG="$PROG $1"
+         fi 
+         ;;
+   esac
+   shift
+done
+
+if [ "$INSTOPT" = "noinst" ]; then
+   if [ ! -z "$ARCH" ]; then
+      echo
+      echo Target directory for distribution: $DEST_SGE_ROOT
+      SetArchBin $ARCH
+      echo Binary subdirectory for $ARCH: $ARCHBIN
+      echo
+      exit 0
+   else
+      ARCH=`dist/util/arch`
+      echo
+      echo no architecture specified.  Assuming architecture is $ARCH
+      echo
+   fi
+fi
+
+if [ -z "$ARCH" ]; then
+   ARCH=`dist/util/arch`
+   echo
+   echo No architecture specified.  Assuming architecture is $ARCH
+   echo
+fi
+
+case $ARCH in
+    lx-*) INSTALL=install;;
+esac
+
+echo
+echo   "    Installing:" $PROG
+echo   " Architectures:" $ARCH
+echo   "Base directory:" $DEST_SGE_ROOT
+printf "   OK [Y/N][Y]: "
+
+read ans
+if [ "$ans" = y -o "$ans" = Y -o "$ans" = "" ]; then
+   :
+else
+   echo
+   echo Ciao
+   echo
+   exit 1
+fi
+
+echo
+
+for prog in $PROG; do
+   case $prog in
+      arco)
+         instarco=true
+         ;;
+      sgeinspect)
+         instsgeinspect=true
+         ;;
+      common|distcommon)
+         instdrmaa=true
+         instcommon=true
+#         instckpt=true
+         instdtrace=true
+         instexamples=true
+         instiscript=true
+         instjava=true
+         instmpi=true
+         instpvm=true
+         insthadoop=true
+         instqmon=true
+         instutiltree=true
+	 userscripts=true
+         case $prog in
+         distcommon)
+            instman=true
+            instdoc=true
+            insttxtdoc=true
+            instjavadoc=true
+            instbdbdoc=true
+            ;;
+         esac
+         ;;
+#       ckpt)
+#          instckpt=true
+#          instcommon=true
+#          ;;
+      doc)
+         instdoc=true
+         insttxtdoc=true
+         instcommon=true
+         instjavadoc=true
+         ;;
+      dtrace)    
+         instdtrace=true
+         instcommon=true
+         ;;
+      examples)
+         instexamples=true
+         instcommon=true
+         ;;
+      iscript)
+         instiscript=true
+         instcommon=true
+         ;;
+      java)
+         instjava=true
+         ;;
+      jobs)   
+         instjobs=true
+         ;;
+      man)
+         instman=true
+         instcommon=true
+         ;;
+      pvm)    
+         instpvm=true
+         instcommon=true
+         ;;
+      mpi)    
+         instmpi=true
+         instcommon=true
+         ;;
+      hadoop)
+         insthadoop=true
+         ;;
+      qmontree)
+         instqmon=true
+         instcommon=true
+         ;;
+      sec)
+         instsec=true
+         instcommon=true
+         ;;
+      secbin)
+         instsecbin=true
+         ;;
+      txtdoc)
+         insttxtdoc=true
+         instcommon=true
+         ;;
+      userscripts)
+	 userscripts=true
+	 ;;
+      utilbin) 
+         instutilbin=true 
+         ;;
+      utiltree)
+         instutiltree=true
+         instcommon=true
+         ;;
+   esac
+done
+
+
+# ------------------ Install common files ------------------
+#
+
+if [ $instcommon = true ]; then
+
+   if [ $instiscript = true ]; then
+      rm -f $DEST_SGE_ROOT/inst_sge $DEST_SGE_ROOT/install_qmaster $DEST_SGE_ROOT/install_execd
+      echo "Installing \"inst_sge\", \"install_qmaster\" and \"install_execd\""
+      Execute cp dist/inst_sge dist/install_qmaster dist/install_execd $DEST_SGE_ROOT 
+      Execute chmod 755 $DEST_SGE_ROOT/inst_sge $DEST_SGE_ROOT/install_execd $DEST_SGE_ROOT/install_qmaster
+      Cleanup inst_sge install_execd install_qmaster         
+   fi
+    
+   if [ $instutiltree = true ]; then
+      echo Installing \"util/\" directory tree
+      Execute rm -rf $DEST_SGE_ROOT/util
+      MakeDir util
+      Execute cp -r dist/util $DEST_SGE_ROOT
+      Execute cp libs/jgdi/util/java.policy.template $DEST_SGE_ROOT/util
+      Execute cp libs/jgdi/util/rmiconsole.policy $DEST_SGE_ROOT/util
+      Execute cp libs/jgdi/util/jmxremote.access $DEST_SGE_ROOT/util
+      Execute cp libs/jgdi/util/jmxremote.password.template $DEST_SGE_ROOT/util/jmxremote.password
+      Execute cp libs/jgdi/util/management.properties.template $DEST_SGE_ROOT/util
+      Execute cp libs/jgdi/util/jaas.config.template $DEST_SGE_ROOT/util
+      Execute cp libs/jgdi/util/logging.properties.template $DEST_SGE_ROOT/util
+      if [ $enforce_shlibpath = true ]; then
+         Execute grep -v "#ENFORCE_SHLIBPATH#" dist/util/create_settings.sh > $DEST_SGE_ROOT/util/create_settings.sh
+         Execute grep -v "#ENFORCE_SHLIBPATH#" dist/util/rctemplates/sgemaster_template > $DEST_SGE_ROOT/util/rctemplates/sgemaster_template
+         Execute grep -v "#ENFORCE_SHLIBPATH#" dist/util/rctemplates/sgeexecd_template > $DEST_SGE_ROOT/util/rctemplates/sgeexecd_template
+         Execute grep -v "#ENFORCE_SHLIBPATH#" dist/util/install_modules/inst_common.sh > $DEST_SGE_ROOT/util/install_modules/inst_common.sh
+      else
+         Execute sed -e "s/#ENFORCE_SHLIBPATH#//" dist/util/create_settings.sh > $DEST_SGE_ROOT/util/create_settings.sh
+         Execute sed -e "s/#ENFORCE_SHLIBPATH#//" dist/util/rctemplates/sgemaster_template > $DEST_SGE_ROOT/util/rctemplates/sgemaster_template
+         Execute sed -e "s/#ENFORCE_SHLIBPATH#//" dist/util/rctemplates/sgeexecd_template > $DEST_SGE_ROOT/util/rctemplates/sgeexecd_template
+         Execute sed -e "s/#ENFORCE_SHLIBPATH#//" dist/util/install_modules/inst_common.sh > $DEST_SGE_ROOT/util/install_modules/inst_common.sh
+      fi
+
+      # DetectJvmLibrary
+      if [ -f dist/DetectJvmLibrary/build/jar/DetectJvmLibrary.jar ]; then
+         Execute cp dist/DetectJvmLibrary/build/jar/DetectJvmLibrary.jar $DEST_SGE_ROOT/util
+      fi
+
+      # JSV Java language binding
+      if [ -f libs/jjsv/java/com/sun/grid/jsv/examples/SimpleJsv.java ]; then
+         Execute cp libs/jjsv/java/com/sun/grid/jsv/examples/SimpleJsv.java $DEST_SGE_ROOT/util/resources/jsv
+      elif [ $exit_on_error = true ]; then
+         echo "\"libs/jjsv/java/com/sun/grid/jsv/examples/SimpleJsv.java\" not found. Installation failed."
+         exit 1
+      fi
+
+      # Ruby DRMAA binding.  Fixme:  Is this the best place for it?
+      Execute cp -r dist/util/resources/drmaa4ruby $DEST_SGE_ROOT/util/resources
+      Execute chmod 755 $DEST_SGE_ROOT/util/resources/drmaa4ruby/samples/flow/samples/do_*
+      Execute chmod 755 $DEST_SGE_ROOT/util/resources/drmaa4ruby/samples/test_all.sh
+
+      # User-level scripts
+      if [ $userscripts = true ]; then
+	  Execute mkdir -p $DEST_SGE_ROOT/bin
+	  for script in $USERSCRIPTS; do
+	      Execute mv $DEST_SGE_ROOT/util/resources/scripts/$script $DEST_SGE_ROOT/bin/$script
+              case $script in
+                  README*) ;;
+                  *) Execute chmod 755 $DEST_SGE_ROOT/bin/$script;;
+              esac
+	  done
+      fi
+
+      Cleanup util
+
+      Execute chmod 755 $DEST_SGE_ROOT/util/install_modules \
+			$DEST_SGE_ROOT/util/upgrade_modules \
+                        $DEST_SGE_ROOT/util/rctemplates \
+                        $DEST_SGE_ROOT/util/resources \
+                        $DEST_SGE_ROOT/util/sgeCA \
+                        $DEST_SGE_ROOT/util/resources/calendars \
+                        $DEST_SGE_ROOT/util/resources/centry \
+                        $DEST_SGE_ROOT/util/resources/loadsensors \
+                        $DEST_SGE_ROOT/util/resources/pe \
+                        $DEST_SGE_ROOT/util/resources/schemas \
+                        $DEST_SGE_ROOT/util/resources/schemas/qhost \
+                        $DEST_SGE_ROOT/util/resources/schemas/qquota \
+                        $DEST_SGE_ROOT/util/resources/schemas/qrstat \
+                        $DEST_SGE_ROOT/util/resources/schemas/qstat \
+                        $DEST_SGE_ROOT/util/resources/starter_methods \
+                        $DEST_SGE_ROOT/util/resources/drmaa4ruby \
+                        $DEST_SGE_ROOT/util/resources/usersets
+      
+      Execute chmod 755 $DEST_SGE_ROOT/util/arch \
+                        $DEST_SGE_ROOT/util/*.sh \
+                        $DEST_SGE_ROOT/util/sgeremoterun \
+                        $DEST_SGE_ROOT/util/sgeCA/sge_ca \
+                        $DEST_SGE_ROOT/util/sgeSMF/sge_smf.sh \
+                        $DEST_SGE_ROOT/util/sgeCA/renew_all_certs.sh \
+                        $DEST_SGE_ROOT/util/resources/loadsensors/*.sh \
+                        $DEST_SGE_ROOT/util/resources/starter_methods/*sh \
+                        $DEST_SGE_ROOT/util/resources/jsv/jsv.sh \
+                        $DEST_SGE_ROOT/util/resources/jsv/jjsv.sh \
+                        $DEST_SGE_ROOT/util/resources/jsv/jsv.pl \
+                        $DEST_SGE_ROOT/util/resources/jsv/jsv.tcl \
+                        $DEST_SGE_ROOT/util/resources/jsv/jsv_reject_all.sh \
+                        $DEST_SGE_ROOT/util/resources/wrappers/* \
+                        $DEST_SGE_ROOT/util/resources/scripts/* \
+                        $DEST_SGE_ROOT/util/upgrade_modules/*.sh \
+                        $DEST_SGE_ROOT/inst* \
+                        $DEST_SGE_ROOT/util/resources/monitoring/check* \
+                        $DEST_SGE_ROOT/util/resources/monitoring/ganglia-sge-jobs
+
+      Execute chmod 644 $DEST_SGE_ROOT/util/install_modules/* \
+                        $DEST_SGE_ROOT/util/rctemplates/*_template \
+                        $DEST_SGE_ROOT/util/sgeCA/*.cnf \
+                        $DEST_SGE_ROOT/util/sgeSMF/*.xml \
+                        $DEST_SGE_ROOT/util/sgeSMF/sge_smf_support.sh \
+                        $DEST_SGE_ROOT/util/DetectJvmLibrary.jar \
+                        $DEST_SGE_ROOT/util/resources/calendars/* \
+                        $DEST_SGE_ROOT/util/resources/centry/* \
+                        $DEST_SGE_ROOT/util/resources/pe/* \
+                        $DEST_SGE_ROOT/util/resources/schemas/*/* \
+                        $DEST_SGE_ROOT/util/resources/usersets/* \
+                        $DEST_SGE_ROOT/util/resources/jsv/jsv_include*
+   fi
+   
+   if [ $instexamples = true ]; then
+      echo Installing \"examples\"
+      Execute rm -rf $DEST_SGE_ROOT/examples/jobs
+      MakeDir examples
+      MakeDir examples/jobs      
+      Execute cp dist/examples/jobs/*.sh $DEST_SGE_ROOT/examples/jobs
+      Execute chmod 755 $DEST_SGE_ROOT/examples/jobs/*.sh
+      MakeDir examples/drmaa
+      Execute cp libs/japi/example.c $DEST_SGE_ROOT/examples/drmaa
+      Execute cp libs/japi/howto/*.c $DEST_SGE_ROOT/examples/drmaa
+      MakeDir examples/drmaa/ruby
+      Execute mv $DEST_SGE_ROOT/util/resources/drmaa4ruby/samples/* $DEST_SGE_ROOT/examples/drmaa/ruby
+      Execute rmdir $DEST_SGE_ROOT/util/resources/drmaa4ruby/samples
+      Execute chmod 755 $DEST_SGE_ROOT/examples/drmaa/ruby/*.rb \
+                        $DEST_SGE_ROOT/examples/drmaa/ruby/flow/*.rb
+      Cleanup examples
+   fi
+
+   if [ $instqmon = true ]; then
+      echo Copying Pixmaps and Qmon resource file
+      Execute rm -rf $DEST_SGE_ROOT/qmon
+      MakeDir qmon
+      MakeDir qmon/PIXMAPS
+      MakeDir qmon/PIXMAPS/big
+
+      Execute cp dist/qmon/PIXMAPS/small/*.xpm $DEST_SGE_ROOT/qmon/PIXMAPS
+      Execute cp dist/qmon/PIXMAPS/big/toolbar*.xpm $DEST_SGE_ROOT/qmon/PIXMAPS/big
+
+      Execute chmod 644 $DEST_SGE_ROOT/qmon/PIXMAPS/*.xpm
+      Execute chmod 644 $DEST_SGE_ROOT/qmon/PIXMAPS/big/*.xpm
+
+      Execute cp dist/qmon/Qmon $DEST_SGE_ROOT/qmon
+      Execute chmod 644 $DEST_SGE_ROOT/qmon/Qmon
+   
+      Execute cp dist/qmon/qmon_help.ad $DEST_SGE_ROOT/qmon
+      Execute chmod 644 $DEST_SGE_ROOT/qmon/qmon_help.ad
+
+      ( echo changing to $DEST_SGE_ROOT/qmon/PIXMAPS ; \
+        cd $DEST_SGE_ROOT/qmon/PIXMAPS; \
+        echo ln -sf intro-sge.xpm intro.xpm; \
+        ln -sf intro-sge.xpm intro.xpm; \
+        echo ln -sf logo-sge.xpm logo.xpm; \
+        ln -sf logo-sge.xpm logo.xpm \
+      )
+      Cleanup qmon
+   fi 
+
+   if [ $instpvm = true ]; then
+      echo Installing \"pvm\"
+      Execute rm -rf $DEST_SGE_ROOT/pvm
+      MakeDir pvm
+      MakeDir pvm/src
+           
+      for f in $PVMSCRIPTS; do
+         Execute cp dist/pvm/$f $DEST_SGE_ROOT/pvm
+      done
+      chmod 755 $DEST_SGE_ROOT/pvm/*.sh
+
+      for f in $PVMSOURCES; do
+         Execute cp dist/pvm/src/$f $DEST_SGE_ROOT/pvm/src
+      done
+
+      for f in $PVMSRCSCRIPTS; do
+         Execute cp dist/pvm/src/$f $DEST_SGE_ROOT/pvm/src
+         chmod 755 $DEST_SGE_ROOT/pvm/src/$f
+      done
+      Cleanup pvm
+   fi
+
+   echo Installing include files
+   Execute rm -rf $DEST_SGE_ROOT/include
+   MakeDir include
+   for f in $BASE_HEADER_FILES; do
+      Execute cp $f $DEST_SGE_ROOT/include
+   done
+   if [ $instdrmaa = true ]; then
+      for f in $DRMAA_HEADER_FILES; do
+         Execute cp $f $DEST_SGE_ROOT/include
+      done
+   fi
+   Cleanup include
+
+   if [ $instjava = true -o $instdrmaa = true ]; then
+      if [ $instjava = true ]; then
+         JAVA_FILES=$JAVA_LIBRARIES
+      else
+         JAVA_FILES=$DRMAAJ_FILES
+      fi
+
+      for filename in $JAVA_FILES; do
+         filename="${filename}.jar"
+         if [ -f $filename ]; then
+            echo Installing `basename $filename`
+            Execute rm -f $DEST_SGE_ROOT/lib/`basename $filename`
+            MakeDir lib
+            Install 0.0 644 $filename $DEST_SGE_ROOT/lib/`basename $filename`
+         elif [ $exit_on_error = true ]; then
+            echo "\"$filename\" not found. Installation failed."
+            exit 1
+         fi
+      done
+   fi
+
+   if [ $instdtrace = true ]; then
+      echo Installing \"Dtrace scripts\"
+      rm -rf $DEST_SGE_ROOT/dtrace
+      MakeDir dtrace
+
+      for f in $DTRACE_FILES; do
+         Execute cp scripts/dtrace/$f $DEST_SGE_ROOT/dtrace
+         Execute chmod 644 $DEST_SGE_ROOT/dtrace/$f
+      done
+
+      for f in $DTRACE_SCRIPTS; do
+         Execute cp scripts/dtrace/$f $DEST_SGE_ROOT/dtrace
+         Execute chmod 755 $DEST_SGE_ROOT/dtrace/$f
+      done
+
+      Cleanup dtrace
+   fi
+
+   if [ $instmpi = true ]; then
+      echo Installing \"mpi/\"
+      rm -rf $DEST_SGE_ROOT/mpi
+      MakeDir mpi
+
+      for f in $MPI_FILES; do
+         Execute cp dist/mpi/$f $DEST_SGE_ROOT/mpi
+         Execute chmod 644 $DEST_SGE_ROOT/mpi/$f
+      done
+
+      for f in $MPI_SCRIPTS; do
+         Execute cp dist/mpi/$f $DEST_SGE_ROOT/mpi
+         Execute chmod 755 $DEST_SGE_ROOT/mpi/$f
+      done
+
+      MYRINETBASE=mpi/myrinet
+      Execute mkdir -p $DEST_SGE_ROOT/$MYRINETBASE
+      for f in $MYRINET_FILES; do
+         Execute cp dist/$MYRINETBASE/$f $DEST_SGE_ROOT/$MYRINETBASE
+         Execute chmod 644 $DEST_SGE_ROOT/$MYRINETBASE/$f
+      done
+
+      for f in $MYRINET_SCRIPTS; do
+         Execute cp dist/$MYRINETBASE/$f $DEST_SGE_ROOT/$MYRINETBASE
+         Execute chmod 755 $DEST_SGE_ROOT/$MYRINETBASE/$f
+      done
+
+      SCALIBASE=mpi/Scali-MPI
+      Execute mkdir -p $DEST_SGE_ROOT/$SCALIBASE
+      for f in $SCALI_FILES; do
+         Execute cp dist/$SCALIBASE/$f $DEST_SGE_ROOT/$SCALIBASE
+         Execute chmod 644 $DEST_SGE_ROOT/$SCALIBASE/$f
+      done
+
+      for f in $SCALI_SCRIPTS; do
+         Execute cp dist/$SCALIBASE/$f $DEST_SGE_ROOT/$SCALIBASE
+         Execute chmod 755 $DEST_SGE_ROOT/$SCALIBASE/$f
+      done
+
+      Cleanup mpi
+   fi
+
+   if [ $insthadoop = true ]; then
+      echo Installing \"hadoop/\"
+      rm -rf $DEST_SGE_ROOT/hadoop
+      MakeDir hadoop
+
+      for f in $HADOOP_FILES; do
+         Execute cp dist/hadoop/$f $DEST_SGE_ROOT/hadoop/$f
+         Execute chmod 644 $DEST_SGE_ROOT/hadoop/$f
+      done
+
+      for f in $HADOOP_SCRIPTS; do
+         Execute cp dist/hadoop/$f $DEST_SGE_ROOT/hadoop/$f
+         Execute chmod 755 $DEST_SGE_ROOT/hadoop/$f
+      done
+
+      if [ -f CLASSES/herd/herd.jar ]; then
+         Execute cp CLASSES/herd/herd.jar $DEST_SGE_ROOT/lib/herd.jar
+      elif [ $exit_on_error = true ]; then
+         echo "\"CLASSES/herd/herd.jar\" not found. Installation failed."
+         exit 1
+      fi
+   fi
+
+   if [ $instman = true ]; then
+#      echo Installing \"man/\" and \"catman/\"
+      echo Installing \"man/\"
+      Execute rm -rf $DEST_SGE_ROOT/man $DEST_SGE_ROOT/catman
+      Execute cp -r MANSBUILD_$MANSRCDIR/SEDMAN/man $DEST_SGE_ROOT
+
+#       if [ -d MANSBUILD_$MANSRCDIR/ASCMAN/catman ]; then
+#          Execute mkdir -p $DEST_SGE_ROOT/catman
+#          Execute cp -r MANSBUILD_$MANSRCDIR/ASCMAN/catman/?_man $DEST_SGE_ROOT/catman
+#       fi
+
+#       if [ -d MANSBUILD_$MANSRCDIR/ASCMAN/man ]; then
+#          SOURCEDIR=MANSBUILD_$MANSRCDIR/ASCMAN/man
+#          DESTDIR=$DEST_SGE_ROOT/catman/cat
+#          for dir in `ls $SOURCEDIR`; do
+#             dir_num=`basename $dir | cut -d"n" -f2`
+#             for file in `ls $SOURCEDIR/$dir`; do
+#                if [ ! -d "$DESTDIR/cat$dir_num" ]; then
+#                   Execute mkdir -p $DESTDIR/cat$dir_num
+#                fi
+#                Execute cp $SOURCEDIR/$dir/$file $DESTDIR/cat$dir_num/$file.$dir_num
+#             done
+#          done
+#       fi
+
+      ( cd $DEST_SGE_ROOT/man/man1
+          for m in gethostbyaddr gethostbyname gethostname getservbyname
+          do ln -sf hostnameutils.1 $m.1; done
+          for m in qalter qlogin qresub qrsh qsh qsub
+          do ln -sf submit.1 $m.1; done
+      )
+      ( cd $DEST_SGE_ROOT/man/man3
+          for m in allocate_job_template delete_job_template get_attribute \
+              get_next_attr_value get_num_attr_values get_vector_attribute \
+              release_attr_values set_attribute set_vector_attribute
+          do ln -sf drmaa_jobtemplate.3 drmaa_$m.3; done
+          for m in control job_ps; do ln -sf drmaa_jobcontrol.3 drmaa_$m.3; done
+          for m in exit init; do ln -sf drmaa_session.3 drmaa_$m.3; done
+          for m in get_DRMAA_implementation get_DRM_system get_contact \
+              strerror version
+          do ln -sf drmaa_misc.3 drmaa_$m.3; done
+          for m in get_next_job_id get_num_job_ids release_job_ids \
+              run_bulk_jobs run_job
+          do ln -sf drmaa_submit.3 drmaa_$m.3; done
+          for m in synchronize wcoredump wexitstatus wifaborted wifexited \
+              wifsignaled wtermsig
+          do ln -sf drmaa_wait.3 drmaa_$m.3; done
+          for m in get_attribute_names get_next_attr_name \
+              get_num_attr_names get_vector_attribute_names \
+              release_attr_names
+          do ln -sf drmaa_attributes.3 drmaa_$m.3; done
+      )
+
+      for excluded_file in $EXCLUDE_MANPAGE; do
+         dir_num=`echo $excluded_file | cut -d"." -f2`
+         Execute rm -f $DEST_SGE_ROOT/catman/cat/cat$dir_num/$excluded_file
+         Execute rm -f $DEST_SGE_ROOT/man/man$dir_num/$excluded_file
+      done
+
+      if [ -d $DEST_SGE_ROOT/man ]; then
+	 Execute find $DEST_SGE_ROOT/man -type d | xargs chmod 755
+	 Execute find $DEST_SGE_ROOT/man -type f | xargs chmod 644
+      fi
+
+      if [ -d $DEST_SGE_ROOT/catman ]; then
+	 Execute find $DEST_SGE_ROOT/catman -type d | xargs chmod 755
+	 Execute find $DEST_SGE_ROOT/catman -type f | xargs chmod 644
+      fi
+
+      Cleanup man
+      [ -d $DEST_SGE_ROOT/catman ] && Cleanup catman
+   fi
+
+   if [ $instdoc = true ]; then
+      echo Installing \"doc/\"
+      Execute rm -rf $DEST_SGE_ROOT/doc
+      MakeDir doc
+   fi
+
+   # this rule must come *after* the "instdoc" rule
+   #
+   if [ $insttxtdoc = true ]; then
+      echo "Installing README, ... files"
+      Execute cp ../doc/*.asc   $DEST_SGE_ROOT/doc
+      #Execute cp ../doc/README-Autoinstall.txt $DEST_SGE_ROOT/doc
+      #Execute cp ../doc/README-Upgrade.txt $DEST_SGE_ROOT/doc
+      Execute cp ../doc/README-DRMAA.txt $DEST_SGE_ROOT/doc
+      # install a license file if available
+      if [ "x$LICENSE_FILE" != "x" ]; then
+         Execute cp $LICENSE_FILE $DEST_SGE_ROOT/doc
+      fi
+      Execute cp -r ../LICENCES $DEST_SGE_ROOT/doc
+      Execute cp ../NEWS ../README ../AUTHORS $DEST_SGE_ROOT/doc
+      Execute cp README.upgrade $DEST_SGE_ROOT/doc
+      Execute cp dist/hadoop/README.txt $DEST_SGE_ROOT/doc/README.hadoop
+      Execute chmod 644 $DEST_SGE_ROOT/doc/README.hadoop
+      Execute find $DEST_SGE_ROOT/doc -type d | xargs chmod 755
+      Execute find $DEST_SGE_ROOT/doc -type f | xargs chmod 644
+      Cleanup doc      
+   fi
+
+   if [ $instjavadoc = true ]; then
+      if [ -d JAVADOCS ]; then
+         echo "Installing doc/javadocs"
+         Execute rm -rf $DEST_SGE_ROOT/doc/javadocs
+         MakeDir doc/javadocs
+
+         Execute cp -R JAVADOCS/* $DEST_SGE_ROOT/doc/javadocs
+	 Execute cp ../doc/javadoc-index.html $DEST_SGE_ROOT/doc/javadocs/index.html
+         Execute cp -R libs/jgdi/docs $DEST_SGE_ROOT/doc/jgdi
+
+         Execute find $DEST_SGE_ROOT/doc/javadocs -type d | xargs chmod 755
+         Execute find $DEST_SGE_ROOT/doc/javadocs -type f | xargs chmod 644
+
+         Cleanup doc/javadocs
+      fi
+   fi
+
+   if [ $instbdbdoc = true ]; then
+      if [ -d $BERKELEYDBBASE/docs/utility ]; then
+         echo "Installing Berkeley DB docs"
+         Execute rm -rf $DEST_SGE_ROOT/doc/berkeleydb
+         MakeDir doc/berkeleydb
+         Execute cp -R $BERKELEYDBBASE/docs/utility $DEST_SGE_ROOT/doc/berkeleydb
+      fi
+   fi
+
+   if [ $instckpt = true ]; then
+      echo Installing \"ckpt/\"
+      Execute rm -rf $DEST_SGE_ROOT/ckpt
+      MakeDir ckpt
+      Execute cp dist/ckpt/*_command $DEST_SGE_ROOT/ckpt
+      Execute chmod 755 $DEST_SGE_ROOT/ckpt/*_command
+      Execute cp dist/ckpt/README* $DEST_SGE_ROOT/ckpt
+      Execute chmod 644 $DEST_SGE_ROOT/ckpt/README*
+      Cleanup ckpt
+   fi
+
+   if [ $instsec = true ]; then
+      echo Installing \"security\" modules
+      MakeDir security
+      for f in $SECFILES; do
+         Execute cp $f $DEST_SGE_ROOT/security
+         fb=`basename $f`
+         if [ -x $DEST_SGE_ROOT/security/$fb ]; then
+            chmod 755 $DEST_SGE_ROOT/security/$fb
+         else
+            chmod 644 $DEST_SGE_ROOT/security/$fb
+         fi
+      done
+      ( echo changing to $DEST_SGE_ROOT/security; \
+        ln -s gss_customer.html README.html )
+      Cleanup security
+   fi      
+
+   if [ $touchcommonchanged = true ]; then
+      touch $DEST_SGE_ROOT/.COMMON_CHANGED
+   fi
+
+   echo common part done
+   echo
+fi
+
+if [ $instarco = true ]; then
+   ARCO_SOURCE_DIR=`pwd`/../arco/source
+   if [ -d "$ARCO_SOURCE_DIR" ]; then 
+      echo Installing \"ARCo\" directory tree
+      Execute rm -rf $DEST_SGE_ROOT/reporting
+      Execute rm -rf $DEST_SGE_ROOT/dbwriter
+      (cd $DEST_SGE_ROOT; \
+       Execute $TAR xvpzf $ARCO_SOURCE_DIR/dbwriter/dbwriter.tar.gz; \
+       Execute $TAR xvpzf $ARCO_SOURCE_DIR/reporting/reporting.tar.gz; \
+       chown -R root:root $DEST_SGE_ROOT/reporting $DEST_SGE_ROOT/dbwriter )
+      Cleanup reporting dbwriter 
+      echo ARCo part done
+      echo
+   else
+      echo "ARCo dir \"$ARCO_SOURCE_DIR\" does not exist"
+   fi
+fi
+
+if [ $instguiinst = true ]; then
+   GUI_DIR=`pwd`/clients/gui-installer
+   if [ -d "$GUI_DIR" ]; then 
+      rm -rf $DEST_SGE_ROOT/start_gui_installer $DEST_SGE_ROOT/util/gui-installer 
+      echo "Installing \"start_gui_installer\" and \"/util/gui-installer\""
+      Execute mkdir -p $DEST_SGE_ROOT/util/gui-installer/html/en/help
+      Execute mkdir -p $DEST_SGE_ROOT/util/gui-installer/templates
+      Execute cp $GUI_DIR/dist/installer.jar $DEST_SGE_ROOT/util/gui-installer
+      Execute cp $GUI_DIR/templates/start_gui_installer.sh $DEST_SGE_ROOT/start_gui_installer
+      Execute cp -r $GUI_DIR/html $DEST_SGE_ROOT/util/gui-installer
+      Execute cp $GUI_DIR/templates/install_component $GUI_DIR/templates/gui_inst_template.conf $GUI_DIR/templates/readme_template.html $GUI_DIR/templates/check_host $DEST_SGE_ROOT/util/gui-installer/templates
+      Execute chmod 755 $DEST_SGE_ROOT/start_gui_installer
+      Cleanup util/gui-installer
+      echo GUI installer part done
+      echo
+   else
+      echo "GUI Installer dir \"$GUI_DIR\" does not exist"
+   fi
+fi
+
+if [ $instsgeinspect = true ]; then
+   if [ -d "$SGE_INSPECT_SRC_DIR" ]; then
+      if [ `echo $SGE_INSPECT_SRC_DIR | cut -c 1` = "/" ]; then
+         ABSOLUTE_SGE_INSPECT_SRC_DIR=$SGE_INSPECT_SRC_DIR
+      else
+         ABSOLUTE_SGE_INSPECT_SRC_DIR=`pwd`/$SGE_INSPECT_SRC_DIR
+      fi
+      echo Installing \"sgeinspect\" directory tree
+      Execute rm -rf $DEST_SGE_ROOT/sgeinspect
+      ( cd $DEST_SGE_ROOT; \
+        Execute unzip $ABSOLUTE_SGE_INSPECT_SRC_DIR/EventMonitor/dist/sgeinspect.zip; \
+      )
+      Execute mkdir -p $DEST_SGE_ROOT/bin
+      Execute cp $ABSOLUTE_SGE_INSPECT_SRC_DIR/scripts/sgeinspect.sh $DEST_SGE_ROOT/bin/
+      chown root:root $DEST_SGE_ROOT/bin/sgeinspect.sh
+      Execute chmod 755 $DEST_SGE_ROOT/bin/sgeinspect.sh
+      
+      if [ -f $ABSOLUTE_SGE_INSPECT_SRC_DIR/scripts/logging.properties ]; then
+         Execute cp $ABSOLUTE_SGE_INSPECT_SRC_DIR/scripts/logging.properties $DEST_SGE_ROOT/sgeinspect/etc
+         chown root:root $DEST_SGE_ROOT/sgeinspect/etc/logging.properties
+         Execute chmod 644 $DEST_SGE_ROOT/sgeinspect/etc/logging.properties
+      fi
+
+      Cleanup sgeinspect
+      echo sgeinspect part done
+      echo
+   else
+      echo "sgeinspect dir \"$SGE_INSPECT_SRC_DIR\" does not exist"
+   fi
+fi
+
+# ------------------  Copy architecure dependent stuff ----------------------
+#
+
+if [ "$ARCH" != "" ]; then
+   MakeArchDirs $ARCH
+fi
+
+for i in $ARCH; do
+   DSTARCH=$i
+   SetArchBin $i
+
+   if [ $ARCHBIN != undefined ]; then
+
+      UTILPREFIX=bin
+
+      cd $ARCHBIN
+      
+      echo "Installing binaries for $i from `pwd` -->"
+      echo "                          --> $DEST_SGE_ROOT/bin/$i"
+      echo ------------------------------------------------------------------------
+
+      for prog in $PROG; do
+         case $prog in
+            jobs|ckpt|doc|inst_sge|utiltree|examples|man|mpi|pvm|hadoop|qmontree|common|distcommon|utilbin|arco|userscripts)
+               : 
+               ;;
+            qmake)
+               echo Installing qmake
+               Install 0.0 755 ../3rdparty/qmake/$ARCHBIN/make $DEST_SGE_ROOT/${UTILPREFIX}/$DSTARCH/qmake
+               ;;
+            qtcsh)
+               echo Installing qtcsh
+               Install 0.0 755 ../3rdparty/qtcsh/$ARCHBIN/tcsh $DEST_SGE_ROOT/${UTILPREFIX}/$DSTARCH/qtcsh
+               ;;
+            sgepasswd)
+               if [ "$DSTARCH" != "win32-x86" ]; then
+                  InstallProg $prog
+               fi
+               ;;
+            sge_qmaster|spoolinit|spooldefaults)
+               if [ "$DSTARCH" != "win32-x86" ]; then
+                  if [ $instclassictargets = false ]; then
+                     InstallProg $prog
+                  else
+                     if [ -f ../${ARCHBIN}_classic/$prog ]; then
+                        InstallProgAs ../${ARCHBIN}_classic/$prog ${prog}.spool_classic
+                        InstallProgAs $prog ${prog}.spool_bdb
+                        ( echo changing to $DEST_SGE_ROOT/bin/$DSTARCH ; \
+                          cd $DEST_SGE_ROOT/bin/$DSTARCH ; \
+                          echo ln -s ${prog}.spool_bdb $prog ; \
+                          ln -s ${prog}.spool_bdb $prog
+                        )
+                     else
+                        InstallProg $prog
+                     fi
+                  fi
+               fi
+               ;;
+            sge_shadowd|qmon|spooledit)
+               if [ "$DSTARCH" != "win32-x86" ]; then
+                  InstallProg $prog
+               fi
+               ;;
+            qloadsensor.exe)
+               if [ "$DSTARCH" = "win32-x86" ]; then
+                  # Currently qloadsensor.exe is needed only for win32-x86
+                  InstallProg $prog
+               fi
+               ;;
+            sgeinspect)
+               if [ -f "$DEST_SGE_ROOT/bin/sgeinspect.sh" ]; then
+                  ( echo changing to $DEST_SGE_ROOT/bin/$DSTARCH ; \
+                    cd $DEST_SGE_ROOT/bin/$DSTARCH ; \
+                    rm sgeinspect 2>&1 > /dev/null ; \
+                    echo ln -s ../sgeinspect.sh sgeinspect; \
+                    ln -s ../sgeinspect.sh sgeinspect; \
+                  )
+               fi
+               ;;
+            *)
+               InstallProg $prog
+               if [ $prog = qstat ]; then
+                  ( echo changing to $DEST_SGE_ROOT/bin/$DSTARCH ; \
+                    cd $DEST_SGE_ROOT/bin/$DSTARCH ; \
+                    echo ln -s qstat qselect ; \
+                    ln -s qstat qselect \
+                  )
+               elif [ $prog = qalter ]; then
+                  ( echo changing to $DEST_SGE_ROOT/bin/$DSTARCH ; \
+                    cd $DEST_SGE_ROOT/bin/$DSTARCH ; \
+                    echo ln -s qalter qresub ; \
+                    ln -s qalter qresub ; \
+                    echo ln -s qalter qhold ; \
+                    ln -s qalter qhold ; \
+                    echo ln -s qalter qrls ; \
+                    ln -s qalter qrls \
+                  )
+               elif [ $prog = qsh ]; then
+                  ( echo changing to $DEST_SGE_ROOT/bin/$DSTARCH ; \
+                    cd $DEST_SGE_ROOT/bin/$DSTARCH ; \
+                    echo ln -s qsh qlogin ; \
+                    ln -s qsh qlogin ; \
+                    echo ln -s qsh qrsh ; \
+                    ln -s qsh qrsh  ; \
+                  )
+               fi
+               ;;
+         esac
+      done
+
+      if [ $instutilbin = true ]; then
+         UTILPREFIX="utilbin"    
+         echo "Installing utility binaries"
+         echo "---------------------------"
+         for prog in $UTILITYBINARIES; do
+            if [ $prog = openssl ]; then
+               if [ -f $OPENSSLBASE/$DSTARCH/bin/openssl ]; then
+                  InstallProg $OPENSSLBASE/$DSTARCH/bin/openssl
+               elif [ -f $OPENSSLBASE/bin/openssl ]; then
+                  InstallProg $OPENSSLBASE/bin/openssl
+               else
+                  echo \"openssl\" binary not found
+               fi
+            elif [ $prog = testsuidroot ]; then
+                  InstallProgSUID $prog
+            elif [ $prog = authuser ]; then
+               if [ "$DSTARCH" != "win32-x86" ]; then
+                  InstallProgSUID $prog
+               else
+                  InstallProg $prog.exe
+               fi
+            elif [ $prog = loadcheck ]; then
+               if [ "$DSTARCH" != "win32-x86" ]; then
+                  InstallProg $prog
+               else
+                  InstallProg $prog.exe
+               fi
+            elif [ $prog = db_deadlock \
+                   -o $prog = db_dump -o $prog = db_load \
+                   -o $prog = db_printlog -o $prog = db_recover \
+                   -o $prog = db_stat -o $prog = db_upgrade \
+                   -o $prog = db_verify ]; then
+               if [ "$DSTARCH" != "win32-x86" ]; then
+                  if [ -f $BERKELEYDBBASE/$DSTARCH/bin/$prog ]; then
+                     InstallProg $BERKELEYDBBASE/$DSTARCH/bin/$prog
+                  elif [ -f $BERKELEYDBBASE/bin/$prog ]; then
+                     InstallProg $BERKELEYDBBASE/bin/$prog
+                  fi
+               fi
+            elif [ $prog = spoolinit -o $prog = spooldefaults ]; then
+               if [ "$DSTARCH" != "win32-x86" ]; then
+                  if [ $instclassictargets = false ]; then
+                     InstallProg $prog
+                  elif [ -f ../${ARCHBIN}_classic/$prog ]; then
+                     InstallProgAs ../${ARCHBIN}_classic/$prog ${prog}.spool_classic
+                     InstallProgAs $prog ${prog}.spool_bdb
+                     ( echo changing to $DEST_SGE_ROOT/utilbin/$DSTARCH ; \
+                       cd $DEST_SGE_ROOT/utilbin/$DSTARCH ; \
+                       echo ln -s ${prog}.spool_bdb $prog ; \
+                       ln -s ${prog}.spool_bdb $prog
+                     )
+                  else
+                     InstallProg $prog
+                  fi
+               fi
+            elif [ "$prog" = "SGE_Helper_Service.exe" -o "$prog" = "SGE_Starter.exe" ]; then
+               if [ "$DSTARCH" = "win32-x86" ]; then
+                  InstallProg $prog
+               fi
+            elif [ "$DSTARCH" = "win32-x86" -a \( "$prog" = "spooledit" -o "$prog" = "valid_jvmlib" \) ]; then
+               # Don't install spooledit, valid_jvmlib for win32-x86
+               :
+            else
+               InstallProg $prog
+            fi
+         done
+         if [ $instremote = true ]; then
+            for prog in $REMOTEBINARIES; do
+               if [ $prog = "rsh" ] || [ $prog = "rlogin" ]; then
+                  InstallProgSUID ../3rdparty/remote/$ARCHBIN/$prog
+               else   
+                  InstallProg ../3rdparty/remote/$ARCHBIN/$prog
+               fi
+            done
+         fi
+      fi 
+
+      if [ $instsecbin = true ]; then
+         UTILPREFIX="utilbin"
+         echo "Installing security binaries"
+         echo "----------------------------"
+         for prog in $SECURITYBINARIES; do
+            InstallProg $prog
+         done
+      fi
+
+      if [ $instjobs = true ]; then
+         UTILPREFIX="utilbin"   
+         echo "Installing job binaries"
+         echo "-----------------------"
+         for prog in $JOBBINARIES; do
+            InstallProg $prog
+         done
+      fi 
+
+      if [ $instsharedlibs = true ]; then
+         # Install libraries - we need to evaluate shlib extension
+         case $i in 
+         hp11|hp11-64)
+            shlibext="sl"
+            jnilibext="sl"
+            ;;
+         darwin*)
+            shlibext="dylib"
+            jnilibext="jnilib"
+            ;;
+         cygwin*)
+            shlibext="dll"
+            jnilibext="dll"
+            ;;
+         *)
+            shlibext="so"
+            jnilibext="so"
+            ;;
+         esac
+
+         UTILPREFIX="lib"
+         echo "Installing shared libraries"
+         echo "---------------------------"
+
+         Execute rm -f $DEST_SGE_ROOT/$UTILPREFIX/$i/*
+         for lib in $SHARED_LIBRARIES; do
+            if [ "$DSTARCH" != "win32-x86" \
+                 -o \( "$lib" != "libspool" -a "$lib" != "libspoolb" \
+                    -a "$lib" != "libspoold" -a "$lib" != "libspoolc" \
+                    -a "$lib" != "libspoolf" \) ]; then
+               if [ -f $lib.$shlibext ]; then
+                  InstallProg $lib.$shlibext
+                  if [ "$DSTARCH" = "sol-sparc64" ]; then
+                     if [ "$lib" = "libjuti" -o "$lib" = "libjgdi" ]; then
+                        # Install the 32bit libraries
+                        DSTARCH="sol-sparc"
+                        SetArchBin $DSTARCH
+
+                        Execute mkdir -p $DEST_SGE_ROOT/lib/sol-sparc
+                        InstallProg ../$ARCHBIN/$lib.$shlibext
+
+                        DSTARCH="sol-sparc64"
+                        SetArchBin $DSTARCH
+                     fi
+                  fi
+               fi
+            fi
+         done
+
+         for lib in $QMON_SHARED_LIBRARIES; do
+            if [ "$DSTARCH" != "win32-x86" ]; then
+               libname="../3rdparty/qmon/$ARCHBIN/$lib.$shlibext"
+               if [ -f $libname ]; then
+                  InstallProg $libname
+               fi
+            fi
+         done
+
+         for lib in $QMON_NEED_SHARED_LIBRARIES; do
+            if [ "$DSTARCH" != "win32-x86" ]; then
+               libname="../3rdparty/qmon/$ARCHBIN/$lib.$shlibext"
+               if [ -f $libname ]; then
+                  InstallProg $libname
+               elif [ $exit_on_error = true ]; then
+                  echo "\"$libname\" not found. Installation failed."
+                  exit 1
+               fi
+            fi
+         done
+
+         if [ $instopenssl = true ]; then
+            for lib in $OPENSSL_SHARED_LIBRARIES; do
+
+               if [ $DSTARCH = tru64 ]; then
+                  libname="$lib.$shlibext"
+               elif [ $DSTARCH = darwin-ppc -o $DSTARCH = darwin-x86 -o $DSTARCH = darwin-x64 ];  then
+                  libname="$lib.$OPENSSLSOVERSION.$shlibext"
+               else
+                  libname="$lib.$shlibext.$OPENSSLSOVERSION"
+               fi
+
+               if [ -f $OPENSSLBASE/$DSTARCH/lib/$libname ]; then
+                  libname=$OPENSSLBASE/$DSTARCH/lib/$libname
+               elif [ -f $OPENSSLBASE/lib/$libname ]; then
+                  libname=$OPENSSLBASE/lib/$libname
+               fi
+
+               if [ -f $libname ]; then
+                  InstallProg $libname
+                  if [ $DSTARCH = tru64 ]; then
+                     :
+                  elif [ $DSTARCH = darwin-ppc -o $DSTARCH = darwin-x86 -o $DSTARCH = darwin-x64 ]; then
+                     (cd $DEST_SGE_ROOT/${UTILPREFIX}/$DSTARCH; \
+                      ln -s $lib.$OPENSSLSOVERSION.$shlibext $lib.$shlibext)
+                  else
+                     (cd $DEST_SGE_ROOT/${UTILPREFIX}/$DSTARCH; ln -s $lib.${shlibext}.$OPENSSLSOVERSION $lib.$shlibext)
+                  fi
+               elif [ $exit_on_error = true ]; then
+                  echo "\"$libname\" not found. Installation failed."
+                  exit 1
+               fi
+            done
+         fi
+
+         if [ $DSTARCH != win32-x86 ]; then
+            if [ $instbdb = true ]; then
+               for lib in $BERKELEYDB_SHARED_LIBRARIES; do
+                  libname="$lib.$shlibext"
+
+                  if [ -f $BERKELEYDBBASE/$DSTARCH/lib/$libname ]; then
+                     libname=$BERKELEYDBBASE/$DSTARCH/lib/$libname
+                  elif [ -f $BERKELEYDBBASE/lib/$libname ]; then
+                     libname=$BERKELEYDBBASE/lib/$libname
+                  fi
+
+                  if [ -f $libname ]; then
+                     InstallProg $libname
+                  else
+                     echo "\"$libname\" not found. Assuming binaries are statically linked."
+                  fi
+               done
+            fi
+
+            for lib in $DRMAA_SHARED_LIBRARIES; do
+               for version in $DRMAA_SHARED_LIB_VERSIONS; do
+                  libname=$lib.$shlibext.$version
+                  if [ -f $libname ]; then
+                     InstallProg $libname
+                     if [ "$DSTARCH" = "sol-sparc64" ]; then
+                        # Install the 32bit libraries
+                        DSTARCH="sol-sparc"
+                        SetArchBin $DSTARCH
+
+                        Execute mkdir -p $DEST_SGE_ROOT/lib/sol-sparc
+                        InstallProg ../$ARCHBIN/$libname
+
+                        DSTARCH="sol-sparc64"
+                        SetArchBin $DSTARCH
+                     fi
+                  elif [ $exit_on_error = true ]; then
+                     echo "\"$libname\" not found. Installation failed."
+                     exit 1
+                  fi
+               done
+            done
+
+            ( cd $DEST_SGE_ROOT/lib/$DSTARCH
+            ln -sf $libname $lib.$shlibext )
+
+            if [ "$DSTARCH" = "sol-sparc64" ]; then
+               ( cd $DEST_SGE_ROOT/lib/sol-sparc
+               ln -s $libname $lib.$shlibext )
+            fi
+
+            for lib in $JNI_SHARED_LIBRARIES; do
+               # On MacOS X, the JVM expects a special JNI extension for shared libraries
+               if [ "$shlibext" != "$jnilibext" -a -f "$lib.$shlibext" ]; then
+                  ( echo Linking $lib.$jnilibext to $lib.$shlibext
+                  cd $DEST_SGE_ROOT/lib/$DSTARCH
+                  if [ -f $lib.$jnilibext ]; then
+                     rm $lib.$jnilibext
+                  fi
+                  ln -s $lib.$shlibext $lib.$jnilibext )
+               fi
+            done
+
+	    for lib in $SHARED_MODULES; do
+		libname=$lib.$shlibext
+		if [ -f $libname ]; then
+		    InstallProg $libname
+		fi
+	    done
+         fi
+      fi
+      cd ..
+   fi
+done

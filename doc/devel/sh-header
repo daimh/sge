@@ -1,0 +1,30 @@
+#****** module/function ***************************************
+#
+#  NAME
+#     function -- short description
+#
+#  SYNOPSIS
+#     function foo bar
+#
+#  FUNCTION
+#     Function description
+#
+#  INPUTS
+#     foo  - description
+#     bar  - description
+#
+#  RESULT
+#     description
+#
+#  EXAMPLE
+#     optional
+#
+#  NOTES
+#     optional
+#
+#  SEE ALSO
+#     optional
+#
+#***************************************************************************
+#
+

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="JGDI Examples" default="compile" basedir=".">
+   
+   <target name="init">
+   
+      <property environment="env"/>
+      
+      <fail unless="env.SGE_ROOT">
+         Environment variable SGE_ROOT not set!
+         Please source your SGE_ROOT/SGE_CELL/common/settings file!
+      </fail>
+
+      <fail unless="env.SGE_CELL">
+         Environment variable SGE_CELL not set!
+         Please source your SGE_ROOT/SGE_CELL/common/settings file!
+      </fail>
+
+      <fail unless="env.SGE_CELL">
+         Environment variable SGE_QMASTER_PORT not set!
+         Please source your SGE_ROOT/SGE_CELL/common/settings file!
+      </fail>
+      
+      <property name="jgdi.home" location=".."/>
+      <property name="jgdi.jar"  location="${jgdi.home}/build/jgdi.jar"/>
+      
+   </target>
+   
+   <target name="compile" depends="init"
+           description="Compiles all sources">
+      <mkdir dir="classes"/>
+      <javac srcdir="src" destdir="classes" classpath="${jgdi.jar}"/>
+   </target>
+
+   <target name="run.init" depends="init, compile">
+      
+      <exec executable="${env.SGE_ROOT}/util/arch" outputproperty="sge.arch"/>
+      
+      <property name="sge.lib.path" value="${env.SGE_ROOT}/lib/${sge.arch}:${jgdi.home}/lib/${sge.arch}"/>
+      
+      <path id="run.classpath">
+         <pathelement location="classes"/>
+         <pathelement location="${jgdi.jar}"/>
+      </path>
+      
+      <macrodef name="run">
+         <attribute name="classname"/>
+         <attribute name="cmdargs" default=""/>
+         <sequential>
+            <java classname="@{classname}" fork="true">
+               <classpath refid="run.classpath"/>
+               <env key="LD_LIBRARY_PATH" value="${sge.lib.path}"/>
+               <arg value="bootstrap://${env.SGE_ROOT}@${env.SGE_CELL}:${env.SGE_QMASTER_PORT}"/>
+               <arg line="@{cmdargs}"/>
+            </java>
+         </sequential>
+      </macrodef>
+      
+   </target>
+   
+   <target name="run.FirstExample" depends="run.init"
+           description="Runs a simple examples which prints all cluster queues">
+      <run classname="com.sun.grid.jgdi.examples.FirstExample"/>
+   </target>
+
+   <target name="run.ClusterQueueSummaryExample" depends="run.init"
+           description="Runs the 'qstat -g c' example">
+      <run classname="com.sun.grid.jgdi.examples.ClusterQueueSummaryExample"/>
+   </target>
+   
+   <target name="run.QueueInstanceSummaryExample" depends="run.init"
+           description="Runs the 'qstat' example">
+      <run classname="com.sun.grid.jgdi.examples.QueueInstanceSummaryExample"/>
+   </target>
+
+   <target name="run.ConfigExample" depends="run.init"
+           description="Runs the 'qstat' example">
+      <run classname="com.sun.grid.jgdi.examples.ConfigExample"/>
+   </target>
+   
+   <target name="run.EventExample" depends="run.init"
+           description="Runs the event example">
+      <run classname="com.sun.grid.jgdi.examples.EventExample"/>
+   </target>
+   
+   <target name="run.EventMonitor" depends="run.init"
+           description="Runs the event monitor example">
+      <run classname="com.sun.grid.jgdi.examples.jmxeventmonitor.Main"/>
+   </target>
+   
+   <target name="clean">
+      <delete dir="classes"/>
+   </target>
+   
+</project>

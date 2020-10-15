@@ -1,0 +1,288 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\"
+.\"___INFO__MARK_END__
+.\" $RCSfile: drmaa_jobtemplate.3,v $     Last Update: $Date: 2008-07-08 09:10:04 $     Revision: $Revision: 1.10 $
+.\"
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de M    \" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH drmaa_jobtemplate 3 "$Date: 2008-07-08 09:10:04 $" "xxRELxx" "xxQS_NAMExx DRMAA"
+.\"
+.\"
+.\"
+.SH NAME
+drmaa_allocate_job_template, drmaa_delete_job_template, drmaa_set_attribute, drmaa_get_attribute, drmaa_set_vector_attribute, drmaa_get_vector_attribute, drmaa_get_next_attr_value, drmaa_get_num_attr_values, drmaa_release_attr_values \- xxQS_NAMExx DRMAA job template handling
+.PP
+.\"
+.\"
+.\"
+.SH SYNOPSIS
+.B #include """drmaa.h"""
+.PP
+.\"
+.\"
+.\"
+.nf
+\fBint drmaa_allocate_job_template(\fB
+.RS
+\fBdrmaa_job_template_t **jt,\fB
+\fBchar *error_diagnosis,\fB
+\fBsize_t error_diag_len\fB
+.RE
+.fi
+\fB);\fB
+.PP
+.nf
+\fBint drmaa_delete_job_template(\fB
+.RS
+\fBdrmaa_job_template_t *jt,\fB
+\fBchar *error_diagnosis,\fB
+\fBsize_t error_diag_len\fB
+.RE
+.fi
+\fB);\fB
+.PP
+.nf
+\fBint drmaa_set_attribute(\fB
+.RS
+\fBdrmaa_job_template_t *jt,\fB
+\fBconst char *name,\fB
+\fBconst char *value,\fB
+\fBchar *error_diagnosis,\fB
+\fBsize_t error_diag_len\fB
+.RE
+.fi
+\fB);\fB
+.PP
+.nf
+\fBint drmaa_get_attribute(\fB
+.RS
+\fBdrmaa_job_template_t *jt,\fB
+\fBconst char *name,\fB
+\fBchar *value,\fB
+\fBsize_t value_len,\fB
+\fBchar *error_diagnosis,
+\fBsize_t error_diag_len\fB
+.RE
+.fi
+\fB);\fB
+.PP
+.nf
+\fBint drmaa_set_vector_attribute(\fB
+.RS
+\fBdrmaa_job_template_t *jt,\fB
+\fBconst char *name,\fB
+\fBconst char *value[],\fB
+\fBchar *error_diagnosis,\fB
+\fBsize_t error_diag_len\fB
+.RE
+.fi
+\fB);\fB
+.PP
+.nf
+\fBint drmaa_get_vector_attribute(\fB
+.RS
+\fBdrmaa_job_template_t *jt,\fB
+\fBconst char *name,\fB
+\fBdrmaa_attr_values_t **values,\fB
+\fBchar *error_diagnosis,\fB
+\fBsize_t error_diag_len\fB
+.RE
+.fi
+\fB);\fB
+.PP
+.nf
+\fBint drmaa_get_next_attr_value(\fB
+.RS
+\fBdrmaa_attr_values_t* values,\fB
+\fBchar *value,\fB
+\fBint value_len
+.RE
+.fi
+\fB);\fB
+.PP
+.nf
+\fBint drmaa_get_num_attr_values(\fB
+.RS
+\fBdrmaa_attr_values_t* values,\fB
+\fBint *size\fB
+.RE
+.fi
+);\fB
+.PP
+.nf
+\fBvoid drmaa_release_attr_values(\fB
+.RS
+\fBdrmaa_attr_values_t* values
+.RE
+.fi
+\fB);\fB
+.PP
+.nf
+.\"
+.\"
+.\"
+.SH DESCRIPTION
+The drmaa_allocate_job_template() function allocates a new DRMAA job template
+into \fIjt\fP. DRMAA job templates describe specifics of jobs that are submitted
+using
+.M drmaa_run_job 3
+and 
+.M drmaa_run_bulk_jobs 3 .
+.\" 
+.SS "drmaa_delete_job_template()"
+The drmaa_delete_job_template() function releases all resources associated 
+with the DRMAA job template \fIjt\fP. Jobs that were submitted using the job 
+template are not affected.
+.PP
+.\" 
+.SS "drmaa_set_attribute()"
+The drmaa_set_attribute() function stores the \fIvalue\fP under \fIname\fP 
+for the given DRMAA job template, \fIjt\fP.  Only non-vector attributes may be
+passed.
+.PP
+.\" 
+.SS "drmaa_get_attribute()"
+The drmaa_get_attribute() function returns into \fIvalue\fP up to \fIvalue_len\fP 
+bytes from the string stored for the non-vector attribute, \fIname\fP, in the
+DRMAA job template, \fIjt\fP.
+.PP
+.\" 
+.SS "drmaa_set_vector_attribute()"
+The drmaa_set_vector_attribute() function stores the strings in \fIvalue\fP under
+\fIname\fP in the list of vector attributes for the given DRMAA job template,
+\fIjt\fP.  Only vector attributes may be passed. The \fIvalue\fP pointer array
+must be \fINULL\fP terminated.
+.PP
+.\" 
+.SS "drmaa_get_vector_attribute()"
+The drmaa_get_vector_attribute() function returns into \fIvalues\fP a DRMAA attribute 
+string vector containing all string values stored in the vector attribute, \fIname\fP. 
+The values in the DRMAA values string vector can be extracted using 
+.M drmaa_get_next_attr_value 3 . 
+The caller is responsible for releasing the DRMAA values string 
+vector returned into \fIvalues\fP using 
+.M drmaa_release_attr_values 3 .
+.PP
+.\" 
+.SS "drmaa_get_next_attr_value()"
+Each time drmaa_get_next_attr_value() is called it returns into \fIvalue\fP up to \fIvalue_len\fP 
+bytes of the next entry stored in the DRMAA values string vector, \fIvalues\fP.
+Once the values list has been exhausted, DRMAA_ERRNO_NO_MORE_ELEMENTS is returned. 
+.PP
+.\" 
+.SS "drmaa_get_num_attr_values()"
+The drmaa_get_num_attr_values() returns into \fIsize\fP the number of entries
+in the DRMAA values string vector.  This function is only available in the 1.0
+implementation.
+.PP
+.\" 
+.SS "drmaa_release_attr_values()"
+The drmaa_release_attr_values() function releases all resources associated with the DRMAA values
+string vector, \fIvalues\fP.
+.PP
+.\"
+.\"
+.\"
+.SH "ENVIRONMENTAL VARIABLES"
+.\"
+.IP "\fBxxQS_NAME_Sxx_ROOT\fP" 1.5i
+Specifies the location of the xxQS_NAMExx standard configuration files.
+.\"
+.IP "\fBxxQS_NAME_Sxx_CELL\fP" 1.5i
+If set, specifies the default xxQS_NAMExx cell to be used. To address a xxQS_NAMExx
+cell xxQS_NAMExx uses (in the order of precedence):
+.sp 1
+.RS
+.RS
+The name of the cell specified in the environment
+variable xxQS_NAME_Sxx_CELL, if it is set.
+.sp 1
+The name of the default cell, i.e. \fBdefault\fP.
+.sp 1
+.RE
+.RE
+.\"
+.IP "\fBxxQS_NAME_Sxx_DEBUG_LEVEL\fP" 1.5i
+If set, specifies that debug information
+should be written to stderr. In addition the level of
+detail in which debug information is generated is defined.
+.\"
+.IP "\fBxxQS_NAME_Sxx_QMASTER_PORT\fP" 1.5i
+If set, specifies the tcp port on which
+.M xxqs_name_sxx_qmaster 8
+is expected to listen for communication requests.
+Most installations will use a services map entry instead
+to define that port.
+.\"
+.\"
+.\"
+.SH "RETURN VALUES"
+Upon successful completion, drmaa_allocate_job_template(), drmaa_delete_job_template(),
+drmaa_set_attribute(), drmaa_get_attribute(), drmaa_set_vector_attribute(), 
+drmaa_get_vector_attribute(), and drmaa_get_next_attr_value() 
+return DRMAA_ERRNO_SUCCESS. Other values indicate an error.
+Up to \fIerror_diag_len\fP characters of error related diagnosis 
+information is then provided in the buffer \fIerror_diagnosis\fP.
+.PP
+.\"
+.\"
+.\"
+.SH "ERRORS"
+The drmaa_allocate_job_template(), drmaa_delete_job_template(),
+drmaa_set_attribute(), drmaa_get_attribute(), drmaa_set_vector_attribute(), 
+drmaa_get_vector_attribute(), and drmaa_get_next_attr_value() 
+functions will fail if:
+.\" 
+.SS "DRMAA_ERRNO_INTERNAL_ERROR"
+Unexpected or internal DRMAA error, like system call failure, etc.
+.\" 
+.SS "DRMAA_ERRNO_DRM_COMMUNICATION_FAILURE"
+Could not contact DRM system for this request.
+.\" 
+.SS "DRMAA_ERRNO_AUTH_FAILURE"
+The specified request is not processed successfully due to authorization failure.
+.\" 
+.SS "DRMAA_ERRNO_INVALID_ARGUMENT"
+The input value for an argument is invalid.
+.\" 
+.SS "DRMAA_ERRNO_NO_ACTIVE_SESSION"
+Failed because there is no active session.
+.\" 
+.SS "DRMAA_ERRNO_NO_MEMORY"
+Failed allocating memory.
+.\" 
+.PP
+The drmaa_set_attribute() and drmaa_set_vector_attribute() will fail if:
+.SS "DRMAA_ERRNO_INVALID_ATTRIBUTE_FORMAT"
+The format for the attribute value is invalid.
+.\" 
+.SS "DRMAA_ERRNO_INVALID_ATTRIBUTE_VALUE"
+The value for the attribute is invalid.
+.\" 
+.SS "DRMAA_ERRNO_CONFLICTING_ATTRIBUTE_VALUES"
+The value of this attribute is conflicting with a previously set attributes.
+.\" 
+.PP
+The drmaa_get_attribute() and drmaa_get_vector_attribute() will fail if:
+.SS "DRMAA_ERRNO_INVALID_ATTRIBUTE_VALUE"
+The specified attribute is not set in the DRMAA job template.
+.\" 
+.PP
+The drmaa_get_next_attr_value() will fail if:
+.SS "DRMAA_ERRNO_INVALID_ATTRIBUTE_VALUE"
+When there are no more entries in the vector.
+.\" 
+.PP
+.\" 
+.\" 
+.\" 
+.SH "SEE ALSO"
+.M drmaa_submit 3 and
+.M drmaa_attributes 3 .

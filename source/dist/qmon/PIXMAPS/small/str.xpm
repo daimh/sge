@@ -1,0 +1,90 @@
+/* XPM */
+/*___INFO__MARK_BEGIN__*/
+/*************************************************************************
+ * 
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ * 
+ *  Sun Microsystems Inc., March, 2001
+ * 
+ * 
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ * 
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ * 
+ *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ * 
+ *   Copyright: 2001 by Sun Microsystems, Inc.
+ * 
+ *   All Rights Reserved.
+ * 
+ ************************************************************************/
+/*___INFO__MARK_END__*/
+static char *str[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 37 1",
+"  c black",
+". c #040404",
+"X c #0E0E0E",
+"o c #131313",
+"O c #555753",
+"+ c #686868",
+"@ c #7B7B7B",
+"# c #7E7E7E",
+"$ c #848484",
+"% c #888A85",
+"& c gray54",
+"* c #929292",
+"= c #939393",
+"- c #959595",
+"; c #9B9B9B",
+": c gray64",
+"> c #A4A4A4",
+", c #A7A7A7",
+"< c #B7B7B7",
+"1 c #B9B9B9",
+"2 c #BCBCBC",
+"3 c gray79",
+"4 c #CACACA",
+"5 c #CECECE",
+"6 c gray90",
+"7 c #E7E7E7",
+"8 c gray92",
+"9 c gray93",
+"0 c #EFEFEF",
+"q c #F6F6F6",
+"w c #F8F8F8",
+"e c gray98",
+"r c #FBFBFB",
+"t c gray99",
+"y c #FDFDFD",
+"u c gray100",
+"i c None",
+/* pixels */
+"O%%%%%%%%%%%%%%O",
+"%uuuuuuuuuuuuuu%",
+"%u00= -0000000u%",
+"%u00   0000000u%",
+"%u06 3 8000000r%",
+"%u0: 0 :000000r%",
+"%u0 &0= 000000r%",
+"%u0     000000q%",
+"%u< 000 <0+X :r%",
+"%u #000$ 000:.0%",
+"%u 30005 0-X  0%",
+"%u00000000o28 0%",
+"%u00000000X3; 0%",
+"%u00000000-X@ 0%",
+"%uurrrurrrrqqq0%",
+"i%%%%%%%%%%%%%%i"
+};

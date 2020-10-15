@@ -1,0 +1,6 @@
+#!/bin/sh
+# See remote_startup(5)
+
+HOST=$1
+PORT=$2
+exec /usr/bin/ssh -X -p $PORT $HOST

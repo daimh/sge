@@ -1,0 +1,263 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\" Copyright: 2011 by Dave Love <d.love@liv.ac.uk>
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\" Some handy macro definitions [from Tom Christensen's man(1) manual page].
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\"
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\" "
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.de MO		\" other man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH ACCOUNTING 5 2011-11-17 "xxRELxx" "xxQS_NAMExx File Formats"
+.\"
+.SH NAME
+accounting \- xxQS_NAMExx accounting file format
+.\"
+.SH DESCRIPTION
+An accounting record is written to the xxQS_NAMExx
+accounting file
+.I $SGE_ROOT/$SGE_CELL/common/reporting
+for each finished job if
+.B accounting=true
+is specified in the
+.M sge_conf 5
+.BR reporting_params .
+This occurs at intervals of the
+.B accounting_flush_time
+specified in the same place.
+The accounting file is processed by
+.M qacct 1
+to derive accounting statistics.
+.PP
+If output to the
+.M reporting 5
+file is enabled, accounting records containing similar data are
+written there.  They include "intermediate" records written at
+midnight for long-running jobs, not just ones written at the end of
+the jobs, and so may be more appropriate to process for some purposes
+than the accounting file.
+.\"
+.\"
+.SH FORMAT
+Each job is represented by a line in the accounting file. Empty lines,
+and lines which contain one character or less are ignored by
+.IR qacct .
+Accounting record entries are
+separated by colon (':') characters. The entries denote in their order
+of appearance:
+.SS "\fB1. qname\fP"
+Name of the cluster queue in which the job has run.
+.SS "\fB2. hostname\fP"
+Name of the execution host.
+.SS "\fB3. group\fP"
+The effective group id of the job owner when executing the job.
+.SS "\fB4. owner\fP"
+Owner of the xxQS_NAMExx job.
+.SS "\fB5. job_name\fP"
+Job name.
+.SS "\fB6. \fBjob_number\fP"
+Job identifier (job number).
+.SS "\fB7. account\fP"
+An account string as specified by the
+.M qsub 1
+or
+.M qalter 1
+\fB\-A\fP option.
+.SS "\fB8. priority\fP"
+Priority value assigned to the job, corresponding to the \fBpriority\fP
+parameter in the queue configuration (see
+.M queue_conf 5 ).
+.SS "\fB9. submission_time\fP"
+Submission time in seconds since the Unix epoch (1970-01-01 00:00:00 UTC).
+.SS "\fB10. start_time\fP"
+Start time in seconds since the epoch.
+.SS "\fB11. end_time\fP"
+End time in seconds since the epoch.
+.SS "\fB12. failed\fP"
+Indicates the problem which occurred in case a job failed (at the
+system level, as opposed to the job script or binary having non-zero
+exit status, see below).  Possibly the job could not be started on
+the execution host (e.g. because the owner of the job did not have a valid 
+account on that machine), or didn't finish successfully (e.g. because
+an execution host crashed).  If xxQS_NAMExx tries to start a job
+multiple times, there may be multiple entries in the reporting file
+corresponding to the same job ID.  See
+.M sge_status 5
+for a list.
+.SS "\fB13. exit_status\fP"
+Exit status of the job script (or xxQS_NAMExx-specific status in case
+of certain error conditions).
+The exit status is determined by following the normal shell conventions.
+If the command terminates normally the value of the command is its exit status.
+However, in the case that the command exits abnormally, a value of 0200 (octal), 
+128 (decimal) is added to the value of the command to make up the exit status.
+.P
+For example: If a job dies through signal 9 (SIGKILL) \- probably issued
+by xxQS_NAMExx through
+.M qdel 1 ,
+or because the job exceeded time or memory hard limits \- then the
+exit status is 128\ +\ 9\ =\ 137.  The reason xxQS_NAMExx killed a job
+is recorded in the execd
+.I messages
+file at "W" or "I" level, depending on why it was killed.
+.SS "\fB14. ru_wallclock\fP"
+Difference between \fBend_time\fP and \fBstart_time\fP (see above),
+except that if the job fails, it is zero.
+.SS \fB15. ru_utime\fP
+.SS \fB16. ru_stime\fP
+.SS \fB17. ru_maxrss\fP
+.SS \fB18. ru_ixrss\fP
+.SS \fB19. ru_ismrss\fP
+.SS \fB20. ru_idrss\fP
+.SS \fB21. ru_isrss\fP
+.SS \fB22. ru_minflt\fP
+.SS \fB23. ru_majflt\fP
+.SS \fB24. ru_nswap\fP
+.SS \fB25. ru_inblock\fP
+.SS \fB26. ru_oublock\fP
+.SS \fB27. ru_msgsnd\fP
+.SS \fB28. ru_msgrcv\fP
+.SS \fB29. ru_nsignals\fP
+.SS \fB30. ru_nvcsw\fP
+.SS \fB31. ru_nivcsw\fP
+These entries follow the contents of the standard Unix rusage
+structure as described in
+.M getrusage 2 .
+Depending on the operating system where the job was executed, some of the
+fields may be 0.
+.SS "\fB32. project\fP"
+The project which was assigned to the job.
+.SS "\fB33. department\fP"
+The department which was assigned to the job.
+.SS "\fB34. granted_pe\fP"
+The parallel environment which was selected for the job.
+.SS "\fB35. slots\fP"
+The number of slots which were dispatched to the job by the scheduler.
+.SS "\fB36. task_number\fP"
+Array job task index number.
+.SS "\fB37. cpu\fP"
+The CPU time usage in seconds.  The value may be affected by the
+ACCT_RESERVED_USAGE execd parameter (see
+.M sge_conf 5 ).
+.SS "\fB38. mem\fP"
+The integral memory usage in Gbytes seconds.  The value may be affected by the
+ACCT_RESERVED_USAGE execd parameter (see
+.M sge_conf 5 ).
+.SS "\fB39. io\fP"
+The amount of data transferred in input/output operations in GB (if
+available, otherwise 0).  On Linux, this is summed over calls to
+.MO read 2 ,
+.MO pread 2 ,
+.MO write 2 ,
+and
+.MO pwrite 2 ;
+thus it includes i/o via cache, and may not reflect data actually
+written to filing system.
+.SS "\fB40. category\fP"
+A string specifying the job category.
+This contains a space-separated pseudo options list for the job, with
+components as follows:
+.IP "\fB\-U\fP \fIuser_list\fP"
+An owner/group ACL list composed from
+.M host_conf 5 ,
+.M sge_pe 5 ,
+And
+.M queue_conf 5
+.BR user_lists / xuser_lists
+entries.  Entries from
+.M sge_conf 5
+are not considered since they can only cause a job to be
+accepted/rejected at submit time.  Omitted if there are no such
+configuration entries.
+.IP "\fB\-P\fP \fIproject_list\fP"
+Like
+.BR \-U ,
+but for
+.BR project / xproject
+entries.
+.IP "\fB\-u\fP \fIowner\fP"
+The owner's user name, if it was referenced in any RQS (see
+.M xxqs_name_sxx_resource_quota 5 ).
+Omitted if there was no such reference.
+.IP "\fB\-q\fP \fIqueue_list\fP"
+The hard queue list (only if one was specified).
+.IP "\fB\-masterq\fP \fIqueue_list\fP"
+The master queue list (only if one was specified).
+.IP "\fB\-l\fP \fIresource_list\fP"
+The hard resource list (only if hard resources were specified).
+.IP "\fB\-soft \-l\fP \fIresource_list\fP"
+The soft resource list (only if soft resources were specified).
+.IP "\fB\-pe\fP \fIpe_name pe_range\fP"
+The parallel environment specified for the job (only for parallel
+jobs).
+.IP "\fB\-ckpt \fIckpt_name\fP"
+The job's checkpointing environment (only if one was specified).
+.IP "\fB\-I \fIy\fP"
+Present only for interactive jobs.
+.IP "\fB\-ar \fIar_id\fP"
+The advance reservation into which the job was submitted (only if one
+was specified).
+.SS "\fB41. iow\fP"
+The input/output wait time in seconds (if available, otherwise 0).
+.SS "\fB42. pe_taskid\fP"
+.\" fixme: if not none, it's <n>.<hostname>, but it's not clear <n> is
+If this identifier is not equal to \fBNONE\fP, the task was part of a
+parallel job, and was passed to xxQS_NAMExx via the \fBqrsh
+\-inherit\fP interface.  Such records are not produced if the PE's
+.B accounting_summary
+parameter is false (see
+.M sge_pe 5 ).
+.SS "\fB43. maxvmem\fP"
+The maximum vmem size in bytes.  The value may be affected by the
+ACCT_RESERVED_USAGE execd parameter (see
+.M sge_conf 5 ).
+.SS "\fB44. arid\fP"
+Advance reservation identifier. If the job used the resources of an advance
+reservation, then this field contains a positive integer identifier; otherwise the
+value is "\fB0\fP".
+.SS \fB45. ar_sub_time\fP
+Advance reservation submission time if the job uses the resources of
+an advance reservation; otherwise "\fB0\fP".
+.\"
+.SH FILES
+.I $SGE_ROOT/$SGE_CELL/common/accounting
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M qacct 1 ,
+.M qalter 1 ,
+.M qsub 1 ,
+.MO getrusage 2 ,
+.M queue_conf 5 ,
+.M sge_conf 5 ,
+.M sge_pe 5 ,
+.M sge_status 5 ,
+.M reporting 5 .
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

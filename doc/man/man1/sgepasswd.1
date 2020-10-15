@@ -1,0 +1,137 @@
+'\" t
+.\"___INFO__MARK_BEGIN__
+.\"
+.\" Copyright: 2004 by Sun Microsystems, Inc.
+.\" Copyright (C) 2011, 2012 Dave Love, University of Liverpool
+.\"
+.\"___INFO__MARK_END__
+.\"
+.\"
+.de SB		\" small and bold
+.if !"\\$1"" \\s-2\\fB\&\\$1\\s0\\fR\\$2 \\$3 \\$4 \\$5
+..
+.\" "
+.de T		\" switch to typewriter font
+.ft CW		\" probably want CW if you don't have TA font
+..
+.\"
+.de TY		\" put $1 in typewriter font
+.if t .T
+.if n ``\c
+\\$1\c
+.if t .ft P
+.if n \&''\c
+\\$2
+..
+.\"
+.de M		\" man page reference
+\\fI\\$1\\fR\\|(\\$2)\\$3
+..
+.TH SGE_PASSWD 1 "2012-02-17" "xxRELxx" "xxQS_NAMExx User Commands"
+.SH NAME
+sgepasswd \- Modify the xxQS_NAMExx password file of xxQS_NAMExx
+.\"
+.\"
+.SH SYNTAX
+.B sgepasswd
+[[
+.B -D domain
+]
+.B -d user
+]
+.PP
+.B sgepasswd
+[
+.B -D domain
+] [
+.B user
+]
+.\"
+.SH DESCRIPTION
+.I sgepasswd
+modifies the xxQS_NAMExx password file
+.M sgepasswd 5 .
+.PP
+This file contains a list of usernames and their Microsoft Windows password in
+encrypted form.
+.M sge_execd 8
+and
+.M sge_shepherd 8
+on hosts running Microsoft Windows as operating systems use this
+information to start jobs for a certain user.
+.PP
+Each user can use the
+.I sgepasswd
+application to add a new entry for their own user account.
+(In fact, normal users can create an entry for any account, so the
+entry should be made initially, when the account is created.)
+It is also possible
+to change the stored password with
+.I sgepasswd
+if the user knows the old one.
+.PP
+The root user additionally has permission to change the password entries
+for other user accounts. Root can also delete existing entries.
+.PP
+The
+.I sgepasswd
+binary is only available on non-Windows hosts.
+.PP
+.\"
+.SH OPTIONS
+.IP "\fB\-D domain\fP"
+By default
+.I sgepasswd
+will add/modify the current Unix username without a domain specification.
+This switch can be used to add a domain specification in front of the
+current user name. Consult your Microsoft Windows documentation to get
+more information about domain users.
+.\"
+.IP "\fB\-d user\fP"
+Only root can use this parameter to delete entries from the
+.M sgepasswd 5
+file.
+.\"
+.IP "\fB\-help\fP"
+Prints a listing of all options.
+.SH NOTE
+Prevent relevant jobs running before a password is changed both with
+.I sgepasswd
+and in the Windows domain.  Otherwise, if multiple jobs try to run on
+a Windows host as the user concerned, and are unable to access the
+right password, Windows' intrusion detection system may disable the
+account.
+.I sgepasswd
+and in the Windows domain.
+.\"
+.SH SECURITY
+This is a non-trivial program which needs to be setuid root, operating
+with various user-supplied input.  It probably shouldn't be installed setuid if
+it is not needed to support Windows hosts.
+.PP
+See above concerning making initial entries.
+.\"
+.SH "ENVIRONMENT VARIABLES"
+.\"
+.IP "\fBSGE_CERTFILE\fP" 1.5i
+Specifies the location of the public key file. By default
+.I sgepasswd
+will use $SGE_ROOT/$SGE_CELL/common/sgeCA/certs/cert.pem.
+.\"
+.IP "\fBSGE_KEYFILE\fP" 1.5i
+If set, specifies the location of the private key file.
+Default is /var/lib/sgeCA/port$SGE_QMASTER_PORT/$SGE_CELL/private/key.pem.
+.\"
+.IP "\fBSGE_RANDFILE\fP" 1.5i
+If set, specifies the location of the seed used to create encrypted
+versions of user passwords. Default
+is /var/lib/sgeCA/port${SGE_QMASTER_PORT}/${SGE_CELL}/private/rand.seed.
+.\"
+.SH "SEE ALSO"
+.M xxqs_name_sxx_intro 1 ,
+.M sgepasswd 5
+.\"
+.SH "COPYRIGHT"
+See
+.M xxqs_name_sxx_intro 1
+for a full statement of rights and permissions.

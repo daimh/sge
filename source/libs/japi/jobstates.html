@@ -1,0 +1,235 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN"><html><head>
+	<meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-1">
+	
+	<title></title><meta name="GENERATOR" content="StarOffice 6.0  (Solaris Sparc)">
+	<meta name="CREATED" content="20031021;10225700">
+	<meta name="CHANGED" content="20031022;9113600">
+	<style>
+	<!--
+		@page { size: 21.59cm 27.94cm; margin-left: 3.18cm; margin-right: 3.18cm; margin-top: 2.54cm; margin-bottom: 2.54cm }
+		TD P { margin-bottom: 0.21cm }
+		H1 { margin-bottom: 0.21cm }
+		H1.western { font-family: "Albany", sans-serif; font-size: 16pt }
+		H1.cjk { font-size: 16pt }
+		H1.ctl { font-size: 16pt }
+		P { margin-bottom: 0.21cm }
+		H2 { margin-bottom: 0.21cm }
+		H2.western { font-family: "Albany", sans-serif; font-size: 14pt; font-style: italic }
+		H2.cjk { font-size: 14pt; font-style: italic }
+		H2.ctl { font-size: 14pt; font-style: italic }
+		TH P { margin-bottom: 0.21cm; font-style: italic }
+	-->
+	</style></head>
+
+<body lang="en-US">
+<h1 class="western" align="center">Job States</h1>
+<h2 class="western" align="center">Comparison between SGE and DRMAA</h2>
+<p style="margin-bottom: 0cm;"><br>
+</p>
+<table width="100%" border="1" bordercolor="#000000" cellpadding="4" cellspacing="0">
+	<col width="43*">
+	<col width="43*">
+	<col width="85*">
+	<col width="85*">
+	<thead>
+		<tr valign="top">
+			<th width="17%">
+				<p>Category</p>
+			</th>
+			<th width="17%">
+				<p>State</p>
+			</th>
+			<th width="33%">
+				<p>SGE Representation</p>
+			</th>
+			<th width="33%">
+				<p>DRMAA state</p>
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		<tr valign="top">
+			<td rowspan="7" width="17%">
+				<p>Pending</p>
+			</td>
+			<td width="17%">
+				<p>pending</p>
+			</td>
+			<td width="33%">
+				<p>qw</p>
+			</td>
+			<td width="33%">
+				<p>QUEUED_ACTIVE</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="17%">
+				<p>pending, user hold</p>
+			</td>
+			<td width="33%">
+				<p>hqw</p>
+			</td>
+			<td width="33%">
+				<p>USER_ON_HOLD</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="17%">
+				<p>pending, system hold</p>
+			</td>
+			<td width="33%">
+				<p>hqw</p>
+			</td>
+			<td width="33%">
+				<p>SYSTEM_ON_HOLD</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="17%">
+				<p>pending, user and system hold</p>
+			</td>
+			<td width="33%">
+				<p>hqw</p>
+			</td>
+			<td width="33%">
+				<p>USER_SYSTEM_ON_HOLD</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="17%">
+				<p>pending, user hold, re-queue</p>
+			</td>
+			<td width="33%">
+				<p>hRwq</p>
+			</td>
+			<td width="33%">
+				<p>USER_ON_HOLD</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="17%">
+				<p>pending, system hold, re-queue</p>
+			</td>
+			<td width="33%">
+				<p>hRwq</p>
+			</td>
+			<td width="33%">
+				<p>SYSTEM_ON_HOLD</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="17%">
+				<p>pending, user and system hold, re-queue</p>
+			</td>
+			<td width="33%">
+				<p>hRwq</p>
+			</td>
+			<td width="33%">
+				<p>USER_SYSTEM_ON_HOLD</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td rowspan="2" width="17%">
+				<p>Running (, transferring)</p>
+			</td>
+			<td width="17%">
+				<p>running</p>
+			</td>
+			<td width="33%">
+				<p>r, t</p>
+			</td>
+			<td width="33%">
+				<p>RUNNING</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="17%">
+				<p>running, re-run (, transferring)</p>
+			</td>
+			<td width="33%">
+				<p>Rr, Rt</p>
+			</td>
+			<td width="33%">
+				<p>RUNNING</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td rowspan="4" width="17%">
+				<p>Suspended</p>
+			</td>
+			<td width="17%">
+				<p>job suspended</p>
+			</td>
+			<td width="33%">
+				<p>s, ts</p>
+			</td>
+			<td width="33%">
+				<p>USER_SUSPEND</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="17%">
+				<p>queue suspended</p>
+			</td>
+			<td width="33%">
+				<p>S, tS</p>
+			</td>
+			<td width="33%">
+				<p>SYSTEM_SUSPEND</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="17%">
+				<p>queue suspended by alarm</p>
+			</td>
+			<td width="33%">
+				<p>T, tT</p>
+			</td>
+			<td width="33%">
+				<p>SYSTEM_SUSPEND</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="17%">
+				<p>all suspended with re-run</p>
+			</td>
+			<td width="33%">
+				<p>Rs, Rts, RS, RtS, RT, RtT</p>
+			</td>
+			<td width="33%">
+				<p>SYSTEM_SUSPEND</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="17%">
+				<p>Error</p>
+			</td>
+			<td width="17%">
+				<p>all pending states with error</p>
+			</td>
+			<td width="33%">
+				<p>Eqw, Ehqw, EhRqw</p>
+			</td>
+			<td width="33%">
+				<p>FAILED</p>
+			</td>
+		</tr>
+		<tr valign="top">
+			<td width="17%">
+				<p>Deleting</p>
+			</td>
+			<td width="17%">
+				<p>all running and suspended states with deletion</p>
+			</td>
+			<td width="33%">
+				<p>dr, dt, dRr, dRt, ds, dS, dT, dRs, dRS, dRT</p>
+			</td>
+			<td width="33%">
+				<p><i>same as equivalent DRMAA states without the &#8220;d&#8221;</i></p>
+			</td>
+		</tr>
+	</tbody>
+</table>
+<p style="margin-bottom: 0cm;"><br>
+</p>
+</body></html>

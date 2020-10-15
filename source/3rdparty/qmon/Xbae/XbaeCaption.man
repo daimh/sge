@@ -1,0 +1,433 @@
+'\" t
+.\" describe how a callback arg item is formatted
+..
+.de cI
+.IP \fI\\$1\fR 10
+..
+.de LI
+.IP \fB\\$1\fR 5
+..
+.TH XbaeCaption 3x "15 June, 1999" "Version 4.7" "Xbae Widget Set"
+.SH NAME
+XbaeCaption
+\- The Bellcore Application Environment (BAE) XbaeCaption widget class.
+.SH SYNOPSIS
+#include <Xbae/Caption.h>
+.SH DESCRIPTION
+.B XbaeCaption
+is a simple manager used to associate a label with its
+single child. The label may be either an
+.B XmString
+or a Pixmap and can be displayed in any one of twelve positions
+around the edge of the child.
+.B XbaeCaption
+performs geometry management so that its size
+always matches its child's size plus the size of the label and label
+offset. By using
+.B XbaeCaption
+with an
+.B XmFrame
+child, groups of related
+widgets can be labeled in a visually appealing manner.
+.B XbaeCaption
+is also useful for associating labels with individual
+.BR XmTextFields .
+.SS "Classes"
+.B XbaeCaption
+inherits behavior and resources from the
+.BR Core ,
+.BR Composite ,
+.B Constraint
+and
+.B XmManager
+widget classes.
+.br
+The class pointer is
+.BR xbaeCaptionWidgetClass .
+.br
+The class name is
+.BR XbaeCaption .
+.SS "New Resources"
+The following table lists the new resources defined by
+.BR XbaeCaption .
+The codes in the Access column indicate whether
+the given resource can be set at creation time (C), or set by
+using XtSetValues (S), or retrieved by using XtGetValues (G).
+
+.TS
+expand box;
+c s s s s
+lb | lb | lb | lb | lb
+lp8 | lp8 | lp8 | lp8 | lp8 .
+XbaeCaption Resource Set
+_
+Name	Class	Type	Default	Access
+=
+XmNfontList	XmCFontList	FontList	dynamic	CSG
+_
+XmNlabelAlignment	XmCLabelAlignment	XbaeLabelAlignment	XbaeAlignmentCenter	CSG
+_
+XmNlabelOffset	XmCLabelOffset	Int	0	CSG
+_
+XmNlabelPixmap	XmCLabelPixmap	PrimForegroundPixmap	XmUNSPECIFIED_PIXMAP	CSG
+_
+XmNlabelPosition	XmCLabelPosition	XbaeLabelPosition	XbaePositionLeft	CSG
+_
+XmNlabelString	XmCXmString	XmString	widget name	CSG
+_
+XmNlabelTextAlignment	XmCAlignment	Alignment	XmALIGNMENT_CENTER	CSG
+_
+XmNlabelType	XmCLabelType	LabelType	XmString	CSG
+.TE
+.sp
+.LI XmNfontList
+Specifies the font of the text used in the caption label. If this
+value is
+.SM NULL
+at initialization, it is initialized by looking up the
+parent hierarchy of the widget for an ancestor that is a subclass of
+the
+.BR XmBulletinBoard ,
+.B VendorShell
+or
+.B XmMenuShell
+widget class. If such
+an ancestor is found, the font list is initialized to the appropriate
+default font list of the ancestor widget
+.B XmNdefaultFontList for
+.B VendorShell
+and
+.BR XmMenuShell ,
+.B XmNlabelFontList
+or
+.B XmNbuttonFontList
+for
+.B XmBulletinBoard.
+Refer to
+.B XmFontList(3X)
+for more information on the
+creation and structure of a font list. This resource is copied.
+.LI XmNlabelAlignment
+Specifies the alignment of the caption label along the side of the
+caption child.  Must be one of the enumerated
+.B XbaeLabelAlignment
+types:
+.BR XbaeAlignmentTopOrLeft ,
+.BR XbaeAlignmentCenter ,
+.BR XbaeAlignmentBottomOrRight .
+.LI XmNlabelOffset
+Specifies the offset, in pixels, of the caption
+label from the caption child. If the offset is negative, then the
+caption label will overlap the caption child by that many pixels.
+.LI XmNlabelPixmap
+Specifies the caption label pixmap when
+.B XmNlabelType
+is
+.BR XmPIXMAP .
+.LI XmNlabelPosition
+Specifies on which side of the caption child the caption label should
+be placed.  Must be one of the enumerated
+.B XbaeLabelPosition
+types: 
+.BR XbaePositionLeft ,
+.BR XbaePositionRight ,
+.BR XbaePositionTop ,
+.BR XbaePositionBottom .
+.LI XmNlabelString
+Specifies the compound string when the
+.B XmNlabelType is
+.BR XmSTRING .
+If this value is
+.SM NULL,
+it is initialized by converting the name of the
+widget to a compound string. Refer to
+.B XmString(3X)
+for more information on the creation and structure of compound strings.
+.LI XmNlabelTextAlignment
+Specifies the text alignment for the caption label. This resource is
+only useful for multi line caption labels. Valid values are:
+.B XmALIGNMENT_BEGINNING
+left alignment causes the left sides of the lines of text to be 
+vertically aligned.
+.B XmALIGNMENT_CENTER
+center alignment causes the centers of the lines of text to be vertically
+aligned.
+.B XmALIGNMENT_END
+right alignment causes the right sides of the
+lines of text to be vertically aligned.
+.LI XmNlabelType
+Specifies the caption label type. Valid values are:
+.B XmSTRING
+- the caption label will display the
+.BR XmNlabelString .
+.B XmPIXMAP
+- the caption label will display the
+.BR XmNlabelPixmap .
+.PP
+.SS "Inherited Resources"
+The following table lists the resources which
+.B XbaeCaption
+inherits from
+it's superclasses
+.BR XmManager ,
+.B Compositeand
+.BR Core .
+For a complete
+description of each resource, refer to the man page for that superclass.
+The codes in the "Access" column indicate whether the given resource can
+be set at creation time (C), or set by using XtSetValues (S), or
+retrieved by using XtGetValues (G).
+.LP
+.TS
+expand box;
+c s s s s
+lb | lb | lb | lb | lb
+lp8 | lp8 | lp8 | lp8 | lp8 .
+XmManager Resource Set
+_
+Name	Class	Type	Default	Access
+=
+XmNbottomShadowColor	XmCBottomShadowColor	Pixel	dynamic	CSG
+_
+XmNbottomShadowPixmap	XmCBottomShadowPixmap	Pixmap	XmUNSPECIFIED_PIXMAP	CSG
+_
+XmNforeground	XmCForeground	Pixel	dynamic	CSG
+_
+XmNhelpCallback	XmCCallback	Callback	NULL	CSG
+_
+XmNhighlightColor	XmCHighlightColor	Pixel	dynamic	CSG
+_
+XmNhighlightPixmap	XmCHighlightPixmap	Pixmap	dynamic	CSG
+_
+XmNnavigationType	XmCNavigationType	XmNavigationType	XmTAB_GROUP	CSG
+_
+XmNshadowThickness	XmCShadowThickness	Dimension	2	CSG
+_
+XmNstringDirection	XmCStringDirection	XmStringDirection	dynamic	CG
+_
+XmNtopShadowColor	XmCTopShadowColor	Pixel	dynamic	CSG
+_
+XmNtopShadowPixmap	XmCTopShadowPixmap	Pixmap	dynamic	CSG
+_
+XmNtraversalOn	XmCTraversalOn	Boolean	True	CSG
+_
+XmNunitType	XmCUnitType	UnsignedChar	dynamic	CSG
+_
+XmNuserData	XmCUserData	Pointer	NULL	CSG
+.TE
+.LP
+.sp
+.TS
+expand box;
+c s s s s
+lb | lb | lb | lb | lb
+lp8 | lp8 | lp8 | lp8 | lp8 .
+Composite Resource Set
+=
+Name	Class	Type	Default	Access
+_
+XmNchildren	XmCReadOnly	WidgetList	private	G
+_
+XmNinsertPosition	XmCInsertPosition	Function	NULL	CSG
+_
+XmNnumChildren	XmCReadOnly	Cardinal	4	G
+.TE
+.LP
+.sp
+.TS
+expand box;
+c s s s s
+lb | lb | lb | lb | lb
+lp8 | lp8 | lp8 | lp8 | lp8 .
+Core Resource Set
+=
+Name	Class	Type	Default	Access
+_
+XmNaccelerators	XmCAccelerators	AcceleratorTable	NULL	CSG
+_
+XmNancestorSensitive	XmCSensitive	Boolean	dynamic	CSG
+_
+XmNbackground	XmCBackground	Pixel	dynamic	G
+_
+XmNbackgroundPixmap	XmCPixmap	Pixmap	XmUNSPECIFIED_PIXMAP	CSG
+_
+XmNborderColor	XmCBorderColor	Pixel	XtDefaultForeground	CSG
+_
+XmNborderPixmap	XmCPixmap	Pixmap	XmUNSPECIFIED_PIXMAP	CSG
+_
+XmNborderWidth	XmCBorderWidth	Dimension	0	CSG
+_
+XmNcolormap	XmCColormap	Colormap	dynamic	CG
+_
+XmNdepth	XmCDepth	Int	dynamic	CG
+_
+XmNdestroyCallback	XmCCallback	Callback	NULL	CSG
+_
+XmNheight	XmCHeight	Dimension	dynamic	CSG
+_
+XmNinitialResourcesPersistent	XmCInitialResourcesPersistent	Boolean	True	CG
+_
+XmNmappedWhenManaged	XmCMappedWhenManaged	Boolean	True	CSG
+_
+XmNscreen	XmCScreen	Screen	dynamic	CG
+_
+XmNsensitive	XmCSensitive	Boolean	True	CSG
+_
+XmNtranslations	XmCTranslations	TranslationTable	internal	CSG
+_
+XmNwidth	XmCWidth	Dimension	dynamic	CSG
+_
+XmNx	XmCPosition	Position	0	CSG
+_
+XmNy	XmCPosition	Position	0	CSG
+.TE
+.sp
+.SS Translations
+.B XbaeCaption inherits translations from
+.BR XmManager .
+.SS "Type Converters"
+.sp
+.PP
+In addition to the standard type converters registered by Xt and Motif,
+.B XbaeCaption
+registers the following additional type converters:
+.IP \fCCvtStringToLabelAlignment(\|)\fP
+Converts a String to the enumerated
+.B XbaeLabelAlignment
+type. The
+Strings
+.BR TopOrLeft ,
+.B Top 
+and
+.B Left
+are converted to
+.BR XbaeAlignmentTopOrLeft .
+The String
+.B Center
+is converted to
+.BR XbaeAlignmentCenter .
+The Strings
+.BR BottomOrRight ,
+.B Bottom
+and
+.B Right
+are converted to
+.BR XbaeAlignmentBottomOrRight .
+This converter allows the
+.B XmNlabelAlignment
+resource to be specified in a resource file. The converter is case
+insensitive.
+.IP \fCCvtStringToLabelPosition(\|)\fP
+Converts a String to the enumerated
+.B XbaeLabelPosition
+type. The String
+.B Left
+is converted to
+.BR XbaePositionLeft .
+The String
+.B Right
+is converted to
+.BR XbaePositionRight .
+The String
+.B Top is converted to
+.BR XbaePositionTop .
+The String
+.B Bottom is converted to
+.BR XbaePositionBottom .
+This converter allows the
+.B XmNlabelPosition
+resource to be specified in a resource file. The converter is case
+insensitive.
+.sp
+.SS "Public Functions"
+.sp
+The following external entry points to
+.B XbaeCaption
+class methods are
+defined:
+.sp
+.ne 6
+.B XbaeCreateCaption(\|)
+.PP
+.RS
+.TS
+l s s
+l l li .
+Widget XbaeCreateCaption(\|)
+	Widget	parent;
+	String	name;
+	ArgList	arglist;
+	Cardinal	argcount;
+.TE
+.sp
+.cI parent
+Specifies the parent widget ID.
+.cI name
+Specifies the name of the created widget
+.cI arglist
+Specifies the argument list
+.cI argcount
+Specifies the number of attribute/value pairs in the argument list (arglist)
+.PP
+.B XbaeCreateCaption(\|)
+creates an instance of an XbaeCaption widget and returns the associated
+widget ID.
+.PP
+.SS "Virtual Bindings"
+.sp
+The bindings for virtual keys are vendor specific. For information about
+bindings for virtual buttons and keys, see
+.BR VirtualBindings(3X) .
+.SH AUTHOR
+.B Andrew Wason,
+Bellcore, Piscataway NJ; author
+.br
+(aw@bae.bellcore.com)
+.sp
+.B Andrew Lister;
+current maintainer
+.br
+(lister@syd.net.au)
+.sp
+.SH RELEASE
+.sp
+This document describes XbaeCaption from Xbae Version 4.6.
+.SH "SEE ALSO"
+.B Core(3X), Composite(3X), XmManager(3X), XmLabel(3X)
+.SH "Notice of Limitation"
+.sp
+Bellcore, previous and current maintainers of the Xbae widgets
+(collectively 'authors') provide this information solely
+to professionals who have the appropriate degree of experience to
+understand and interpret its contents in accordance with generally
+accepted engineering or other professional standards and applicable
+regulations. No recommendations as to products or vendors is made or
+should be implied.
+.PP
+While the information contained herein has been prepared from sources
+deemed to be reliable, the authors reserve the right to revise the
+information without notice, but have no obligation to do so. Unless the
+recipient has been expressly granted a license by Bellcore under
+separate applicable written agreement with Bellcore, no license,
+expressed or implied, is granted under any patents, copyrights or other
+intellectual property rights. Use of the information is at your
+discretion and shall not be deemed an inducement by Bellcore to infringe
+any existing or later-issued patent, copyrights or other intellectual
+property right.
+.PP
+THE AUTHORS MAKE NO REPRESENTATIONS AND EXTENDS NO WARRANTIES, EXPRESS OR
+IMPLIED, WITH RESPECT TO THE INFORMATION, INCLUDING, BUT NOT LIMITED TO,
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR ANY PARTICULAR
+PURPOSE, AND THE WARRANTY AGAINST INFRINGEMENT OF PATENTS OR OTHER
+INTELLECTUAL PROPERTY RIGHTS. THE INFORMATION IS PROVIDED ``AS IS'', AND
+IN NO EVENT SHALL THE AUTHORS OR ANY OF ITS AFFILIATES BE LIABLE FOR ANY
+DAMAGES, INCLUDING ANY LOST PROFITS OR OTHER INCIDENTAL OR CONSEQUENTIAL
+DAMAGES RELATING TO THE INFORMATION.
+.PP
+Copyright 1991 Bellcore.  All Rights Reserved.
+Copyright 1995-99 Andrew Lister
+All Rights Reserved.
+.sp 3
+The above no warranty extends to all additions and contributions.  No
+contributor shall be held liable; this work is provided ``as is''.  If
+this is a problem for you, then don't use this software.

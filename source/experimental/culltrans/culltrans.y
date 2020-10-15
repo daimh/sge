@@ -1,0 +1,147 @@
+%{
+#include "culltrans.h"
+#ifdef YYDEBUG
+   extern int yydebug = 1;
+#endif
+#if defined(ALPHA4) || defined(ALPHA5) || defined(LINUX) || defined(SOLARIS)
+extern "C"
+   int yylex(void);
+   void yyerror(const char *);
+#endif
+%}
+
+%union {
+   char     name[1024];
+   char     other;
+}
+
+%token IDLGEN_ILISTSTART IDLGEN_SLISTSTART IDLGEN_LISTEND
+%token IDLGEN_OPENBRACE IDLGEN_COMMA IDLGEN_CLOSEBRACE
+%token IDLGEN_IFLOAT IDLGEN_IDOUBLE IDLGEN_IULONG IDLGEN_ILONG IDLGEN_ICHAR 
+%token IDLGEN_IINT IDLGEN_ISTRING IDLGEN_ILIST IDLGEN_IOBJECT IDLGEN_IBOOL
+%token IDLGEN_IRFLOAT IDLGEN_IRDOUBLE IDLGEN_IRULONG IDLGEN_IRLONG IDLGEN_IRBOOL
+%token IDLGEN_IRCHAR IDLGEN_IRINT IDLGEN_IRSTRING IDLGEN_IRLIST IDLGEN_IROBJECT
+%token IDLGEN_FLOAT IDLGEN_DOUBLE IDLGEN_ULONG IDLGEN_LONG IDLGEN_CHAR 
+%token IDLGEN_INT IDLGEN_STRING IDLGEN_LIST IDLGEN_OBJECT IDLGEN_BOOL
+%token IDLGEN_RFLOAT IDLGEN_RDOUBLE IDLGEN_RULONG IDLGEN_RLONG IDLGEN_RBOOL
+%token IDLGEN_RCHAR IDLGEN_RINT IDLGEN_RSTRING IDLGEN_RLIST IDLGEN_ROBJECT
+%token IDLGEN_XLIST IDLGEN_XOBJECT IDLGEN_KULONG IDLGEN_KSTRING
+%token <name> IDLGEN_XELEM
+%token <name> IDLGEN_IDL
+%token <name> IDLGEN_IDENTIFIER
+%token <other> IDLGEN_OTHER
+
+%%
+
+list          : 
+              | list iliststart listdef listend
+              | list sliststart listdef listend
+              | list IDLGEN_OTHER {newOther($2);}
+              | error
+              ;
+
+iliststart    : IDLGEN_ILISTSTART IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_COMMA IDLGEN_IDENTIFIER IDLGEN_COMMA IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newList($3, $5, $7, true);}
+              ;
+
+sliststart    : IDLGEN_SLISTSTART IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_COMMA IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newList($3, $5, 0, false);}
+              ;
+
+listend       : IDLGEN_LISTEND {endList();}
+              ;
+
+listdef       : 
+              | listdef bool
+              | listdef float
+              | listdef double
+              | listdef ulong
+              | listdef long
+              | listdef char
+              | listdef int
+              | listdef string
+              | listdef listref
+              | listdef objref
+              | listdef idl
+              | listdef xelem
+              | listdef xlist
+              | listdef IDLGEN_OTHER {newOther($2);}
+              | listdef IDLGEN_IDENTIFIER {newWord($2);}
+              | error
+              ;
+
+bool          : IDLGEN_BOOL IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lBoolT, $3);}
+              | IDLGEN_IBOOL IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lBoolT, $3, false, true);}
+              | IDLGEN_RBOOL IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lBoolT, $3, true);}
+              | IDLGEN_IRBOOL IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lBoolT, $3, true, true);}
+              ;
+float         : IDLGEN_FLOAT IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lFloatT, $3);}
+              | IDLGEN_IFLOAT IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lFloatT, $3, false, true);}
+              | IDLGEN_RFLOAT IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lFloatT, $3, true);}
+              | IDLGEN_IRFLOAT IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lFloatT, $3, true, true);}
+              ;
+
+double        : IDLGEN_DOUBLE IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lDoubleT, $3);}
+              | IDLGEN_IDOUBLE IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lDoubleT, $3, false, true);}
+              | IDLGEN_RDOUBLE IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lDoubleT, $3, true);}
+              | IDLGEN_IRDOUBLE IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lDoubleT, $3, true, true);}
+              ;
+
+ulong         : IDLGEN_ULONG IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lUlongT, $3);}
+              | IDLGEN_IULONG IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lUlongT, $3, false, true);}
+              | IDLGEN_RULONG IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lUlongT, $3, true);}
+              | IDLGEN_IRULONG IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lUlongT, $3, true, true);}
+              | IDLGEN_KULONG IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lUlongT, $3, true, false, true);}
+              ;
+
+long          : IDLGEN_LONG IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lLongT, $3);}
+              | IDLGEN_ILONG IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lLongT, $3, false, true);}
+              | IDLGEN_RLONG IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lLongT, $3, true);}
+              | IDLGEN_IRLONG IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lLongT, $3, true, true);}
+              ;
+
+char          : IDLGEN_CHAR IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lCharT, $3);}
+              | IDLGEN_ICHAR IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lCharT, $3, false, true);}
+              | IDLGEN_RCHAR IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lCharT, $3, true);}
+              | IDLGEN_IRCHAR IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lCharT, $3, true, true);}
+              ;
+
+int           : IDLGEN_INT IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lIntT, $3);}
+              | IDLGEN_IINT IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lIntT, $3, false, true);}
+              | IDLGEN_RINT IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lIntT, $3, true);}
+              | IDLGEN_IRINT IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lIntT, $3, true, true);}
+              ;
+
+string        : IDLGEN_STRING IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lStringT, $3);}
+              | IDLGEN_ISTRING IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lStringT, $3, false, true);}
+              | IDLGEN_RSTRING IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lStringT, $3, true);}
+              | IDLGEN_IRSTRING IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lStringT, $3, true, true);}
+              | IDLGEN_KSTRING IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newElem(lStringT, $3, true, false, true);}
+              ;
+
+xelem         : IDLGEN_XELEM IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newXElem($1, $3);}
+
+listref       : IDLGEN_LIST IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_COMMA IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newListElem($3, $5);}
+              | IDLGEN_ILIST IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_COMMA IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newListElem($3, $5, false, true);}
+              | IDLGEN_RLIST IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_COMMA IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newListElem($3, $5, true);}
+              | IDLGEN_IRLIST IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_COMMA IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newListElem($3, $5, true, true);}
+              ;
+
+objref        : IDLGEN_OBJECT IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_COMMA IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newObjElem($3, $5);}
+              | IDLGEN_IOBJECT IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_COMMA IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newObjElem($3, $5, false, true);}
+              | IDLGEN_ROBJECT IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_COMMA IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newObjElem($3, $5, true);}
+              | IDLGEN_IROBJECT IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_COMMA IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newObjElem($3, $5, true, true);}
+              ;
+
+xlist         : IDLGEN_XLIST IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_COMMA IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newXList($3, $5);}
+              | IDLGEN_XOBJECT IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_COMMA IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newXList($3, $5, true);}
+              | IDLGEN_XLIST IDLGEN_OPENBRACE IDLGEN_IDENTIFIER IDLGEN_CLOSEBRACE {newXList($3);}
+              ;
+
+idl           : IDLGEN_IDL {newIDL($1);}
+
+%%
+void yyerror(const char*)
+{
+}
+extern "C" {
+int yywrap(void) { return 1; }
+}

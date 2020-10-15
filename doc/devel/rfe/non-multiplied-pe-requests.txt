@@ -1,0 +1,96 @@
+Functional Specification Document for Non-Multiplied Consumable Requests for Parallel Jobs
+==========================================================================================
+
+   Version 	Comments 	                   Date      Author
+   ----------------------------------------------------
+   0.1 	  	Initial Version                24-09-08  RD
+   0.2 	  	Incoperated Community Feedback 28-10-08  RD
+  	  	  	 
+1 Introduction
+==============
+
+   By default SGE multiplies a consumable resource request by the number of slots
+   allocated for the parallel job. This behavior is applicable for some resources
+   but not for license consumables where resources count per job or node
+
+2 Project Overview
+==================
+
+2.1 Project Aim
+
+   The goal is to allow an administrator to define whether a consumable should be debited
+   per slot (current behavior), per job or per node.
+
+   The issues targeted with this project are:
+
+   Issue    Description
+   74       Support maxujobs on a per host level
+   1254     Entry in PE to change multiplication of resource limits
+
+   2.2 Project Benefit
+
+   Allow a more flexible use of consumable resources and avoid strange requests like:
+
+     # qsub -pe mpi 4 -l lic=0.25 job.sh
+
+2.3 Project Duration
+
+2.4 Project Dependencies
+
+   There are no known dependencies with other projects
+
+3 System Architecture
+=====================
+
+3.1 Enhancement Functions
+
+   The Consumable row in the complex definition will be enhanced to allow, beside of
+   YES and NO, the value JOB and HOST.
+
+   In case of "JOB" the requested amount of the resource is debited as requested
+   (without multiplication) from the allocated master queue. The resource needs not 
+   to be available for the slave task queues.
+
+   Example:
+      Queue setup:
+      queuename                      qtype resv/used/tot. load_avg arch          states
+      ---------------------------------------------------------------------------------
+      all.q@host1                    BIPC  0/0/2          0.03     sol-amd64
+      ---------------------------------------------------------------------------------
+      all.q@host2                    BIPC  0/0/2          0.14     sol-amd64
+
+      Complex definition:
+      #name               shortcut   type        relop requestable consumable default  urgency
+      #----------------------------------------------------------------------------------------
+      jobs                j          INT         <=    YES         JOB        0        1000
+
+      Submitting a PE Job running on two queue instances:
+        # qsub -masterq "all.q@host1" -pe round_robin 4 -l jobs=1 job.sh
+      would debit in job:
+        -> 1 in Resource Quota limit
+        -> 1 on global
+        -> 1 on host1
+        -> 1 in queue instance all.q@host1
+
+   (HOST consumables are currently not implemented)
+   In case of "HOST" the requested amount of the resource is debited as requested
+   (without multiplication) in every allocated queue. Such "host"-consumables can not
+   be attached with a positive resource amount to queues because of potential host
+   overlap which would lead to scheduling conflicts.
+
+   Example:
+      Queue setup:
+      same as for example above.
+
+      Complex definition:
+      #name               shortcut   type        relop requestable consumable default  urgency
+      #----------------------------------------------------------------------------------------
+      hjobs               hj         INT         <=    YES         HOST        0        1000
+
+      Submitting a PE Job running on two queue instances:
+        # qsub -masterq "all.q@host1" -pe round_robin 4 -l jobs=1 job.sh
+      would debit in job:
+        -> 1 in Resource Quota limit for each host
+        -> 2 on global
+        -> 1 on host1
+        -> 1 on host2

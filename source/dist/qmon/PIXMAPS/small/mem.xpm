@@ -1,0 +1,115 @@
+/* XPM */
+/*___INFO__MARK_BEGIN__*/
+/*************************************************************************
+ * 
+ *  The Contents of this file are made available subject to the terms of
+ *  the Sun Industry Standards Source License Version 1.2
+ * 
+ *  Sun Microsystems Inc., March, 2001
+ * 
+ * 
+ *  Sun Industry Standards Source License Version 1.2
+ *  =================================================
+ *  The contents of this file are subject to the Sun Industry Standards
+ *  Source License Version 1.2 (the "License"); You may not use this file
+ *  except in compliance with the License. You may obtain a copy of the
+ *  License at http://gridengine.sunsource.net/Gridengine_SISSL_license.html
+ * 
+ *  Software provided under this License is provided on an "AS IS" basis,
+ *  WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING,
+ *  WITHOUT LIMITATION, WARRANTIES THAT THE SOFTWARE IS FREE OF DEFECTS,
+ *  MERCHANTABLE, FIT FOR A PARTICULAR PURPOSE, OR NON-INFRINGING.
+ *  See the License for the specific provisions governing your rights and
+ *  obligations concerning the Software.
+ * 
+ *   The Initial Developer of the Original Code is: Sun Microsystems, Inc.
+ * 
+ *   Copyright: 2001 by Sun Microsystems, Inc.
+ * 
+ *   All Rights Reserved.
+ * 
+ ************************************************************************/
+/*___INFO__MARK_END__*/
+static char *mem[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 62 1",
+"  c black",
+". c #2C2B2B",
+"X c #2D2C2B",
+"o c #2D2C2C",
+"O c #2E2D2C",
+"+ c #31302F",
+"@ c #353433",
+"# c #45433B",
+"$ c #535047",
+"% c #565247",
+"& c #53514B",
+"* c #545148",
+"= c #555249",
+"- c #575549",
+"; c #585449",
+": c #58544B",
+"> c #58554E",
+", c #59564D",
+"< c #5B574C",
+"1 c #5A574E",
+"2 c #5B574E",
+"3 c #5B5851",
+"4 c #5D5A51",
+"5 c #5E5A51",
+"6 c #5C5B56",
+"7 c #5E5B54",
+"8 c #5F5C53",
+"9 c #615E55",
+"0 c #625F56",
+"q c #636057",
+"w c #636059",
+"e c #63605B",
+"r c #646158",
+"t c #64615A",
+"y c #67645D",
+"u c #67645F",
+"i c #68655E",
+"p c #696661",
+"a c #6A6760",
+"s c #6B6861",
+"d c #6B6863",
+"f c #6D6A65",
+"g c #6E6B66",
+"h c #6E6D68",
+"j c #716E69",
+"k c #72716D",
+"l c #73726E",
+"z c #747570",
+"x c #757470",
+"c c #767571",
+"v c #787773",
+"b c #7C7B77",
+"n c #81807C",
+"m c #878681",
+"M c #8A8984",
+"N c #8D8C87",
+"B c #8F8E89",
+"V c #91908B",
+"C c #979692",
+"Z c #999894",
+"A c #9E9D99",
+"S s mask c None",
+/* pixels */
+"SSSSSSSSSSSSSSSS",
+"SSS@S@S@S@S@SSSS",
+"SSS@S@S@S@S@SSSS",
+"SS&#########&SSS",
+"@@#AZZCVBBMm#@@S",
+"SS#nbckjfsyy#SSS",
+"@+#bvlkfspq4#@@S",
+"SS#vckhsu081#SSS",
+"@o#siir41:;*#@@S",
+"SS#pir0;;**>#SSS",
+"@o#et83&$$16#@@S",
+"SS*#########:SSS",
+"SSSoSoS@S@S@SSSS",
+"SSS@S@S@S@S@SSSS",
+"SSSSSSSSSSSSSSSS",
+"SSSSSSSSSSSSSSSS"
+};
