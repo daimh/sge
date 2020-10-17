@@ -15,7 +15,7 @@ pre_install() {
 ## arg 1:  the new package version
 post_install() {
 	cd /opt/sge/build/source/
-	env SGE_ROOT=/opt/sge scripts/distinst -all -local -noexit
+	echo | env SGE_ROOT=/opt/sge scripts/distinst -all -local -noexit
 	echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 	echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
 	echo "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"

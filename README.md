@@ -8,6 +8,13 @@ We have been using and maintaining this software at Michigan Neuroscience Instit
 
 ## Three installation methods
 
+- CMake, this will be always supported
+```
+$ cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/sge
+$ cmake --build build -j 
+$ sudo cmake --install build 
+```
+
 - Standard SGE installation on modern Linux distributions, check the original source/README.BUILD for detail
 ```
 $ make
@@ -21,15 +28,8 @@ $ makepkg
 $ sudo pacman -U sge-r*.pkg.tar.zst
 ```
 
-- CMake, this will be always supported
-```
-$ cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/sge
-$ cmake --build build -j 
-$ sudo cmake --install build 
-```
-
 ## Quick test on one node
-- as root. 
+- step 1, as root. 
 ```
 $ cd /opt/sge
 $ yes "" | ./install_qmaster
@@ -40,7 +40,7 @@ $ qconf -as $(hostname -s) #add this node as submit host
 ```
 please make sure there is no SGE process running with 'ps -ef |grep sge' and directory '/opt/sge/default' is removed if you want to run the commands above again
 
-- as a regular account
+- step 2, as a regular account
 ```
 $ . /opt/sge/default/common/settings.sh 
 $ echo hostname | qsub -cwd
