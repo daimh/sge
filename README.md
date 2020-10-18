@@ -8,12 +8,13 @@ We have been using and maintaining this software at Michigan Neuroscience Instit
 
 ## Three installation methods
 
-- CMake, this will be always supported
+- CMake
 ```
 $ cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/sge
 $ cmake --build build -j 
 $ sudo cmake --install build 
 ```
+Please check the tested building environment below in case of any compiling issue.
 
 - Standard SGE installation on modern Linux distributions, check the original source/README.BUILD for detail
 ```
@@ -48,12 +49,25 @@ $ qstat #check job status
 $ ls STDIN.* #check job output
 ```
 
+## CMake building, tested on the Linux distrubitions below
+
+- Debian Buster, the latest version as of 2020-10-18, with "standard system utilities" checked during installation
+```
+$ apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev
+$ #cmake 3.18.4 from cmake.org
+```
+
+- Arch Linux, the latest version as of 2020-10-18
+```
+$ pacman -Sy --needed git cmake make gcc openmotif hwloc
+```
+
 ## Improvements
 
 - Underscore in port service name 'sge\_qmaster/sge\_execd' is changed to hyphen in all C files and shell scripts, saving us from modifying /etc/services each time
 - Systemd support
 - Version is changed to the commit version of this github repo
-- All warning are fixed. Most of them were caused by 'smarter' gcc, new SSL, new GLIBC, obsolete function such 'sigignore', depreciated function such as 'readdir\_r'.
+- All warning are fixed on Arch Linux. Most of them were caused by 'smarter' gcc, new SSL, new GLIBC, obsolete function such 'sigignore', depreciated function such as 'readdir\_r'.
 - CMake compiling support. This paved the way for easier maintenance in future. It took 38 seconds to compile in parallel and install on an 8-core old machine, while it took 302 seconds with the standard SGE way, and 377 seconds with makepkg.
 
 ## Contribute
@@ -66,7 +80,7 @@ GPLv3
 
 To the extent possible under law, [Manhong Dai](mailto:daimh@umich.edu) has waived all copyright and related or neighboring rights to this work.
 
-## Acknowledge
+## Acknowledgement
 
 Ruth Freedman, MPH, former administrator of MNI, UMICH
 

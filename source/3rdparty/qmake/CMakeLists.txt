@@ -68,5 +68,6 @@ target_link_libraries(qmake PRIVATE
 	show_job
 	sig_handlers
 	usage
+	ssl
 	uti
 )

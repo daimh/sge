@@ -1,6 +1,6 @@
 PKGVER=$(strip $(shell sed -n '/^pkgver()/,/^}/p' PKGBUILD.in | grep -w git | sh ) )
 
-build/source/LINUXAMD64/sge_qmaster :
+build/source/3rdparty/qtcsh/LINUXAMD64/tcsh :
 	install -d build
 	cp -pr source build
 	echo cd build > compile.sh

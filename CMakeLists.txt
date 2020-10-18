@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13)
 project(SGE VERSION 1.0)
 SET(CMAKE_INSTALL_RPATH "\$ORIGIN/../../lib/lx-amd64")
 add_compile_definitions(
-	SGE_ARCH_STRING="lx-amd64" 
+	SGE_ARCH_STRING="lx-amd64"
 	LINUX
 	LINUXAMD64
 	GETHOSTBYNAME_R6
@@ -15,7 +15,7 @@ add_compile_definitions(
 	NO_JNI
 	COMPILE_DC
 	__SGE_COMPILE_WITH_GETTEXT__
-	__SGE_NO_USERMAPPING__ 
+	__SGE_NO_USERMAPPING__
 )
 add_compile_options(
 	-fPIC
@@ -24,12 +24,9 @@ add_compile_options(
 	-I/usr/include/tirpc
 )
 add_link_options(
-	-lssl
-	-lcrypto
-	-ldl
 	-ltirpc
 	-lm
-	-lpthread
+	-pthread
 	-rdynamic
 )
 add_subdirectory(source)

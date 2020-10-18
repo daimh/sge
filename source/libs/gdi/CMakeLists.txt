@@ -4,7 +4,7 @@ execute_process(
 	OUTPUT_STRIP_TRAILING_WHITESPACE
 )
 execute_process(
-	COMMAND git describe  --always --dirty=.dirty
+	COMMAND git describe --always --dirty=.dirty
 	OUTPUT_VARIABLE GIT_REPO_HASH
 	OUTPUT_STRIP_TRAILING_WHITESPACE
 )

@@ -106,4 +106,5 @@ target_link_libraries(qmon PRIVATE
 	sge_qstat
 	sge_qrsub
 	sge_resource_quota_qconf
+	Xext 
 )

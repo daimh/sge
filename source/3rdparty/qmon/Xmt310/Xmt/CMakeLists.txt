@@ -107,10 +107,11 @@ target_compile_definitions(Xmt PRIVATE
 	XMT_HAS_STRERROR
 )
 target_compile_options(Xmt PRIVATE
+	-Wno-incompatible-pointer-types
 	-Wno-int-to-pointer-cast
 	-Wno-pointer-to-int-cast
 	-Wno-strict-prototypes
-	-Wno-incompatible-pointer-types
+	-Wno-unused-result
 )
 target_include_directories(Xmt PRIVATE
 	..

@@ -200,6 +200,7 @@ add_executable(sgepasswd
 	sge_passwd.c
 )
 target_compile_definitions(sgepasswd PRIVATE DEFINE_SGE_PASSWD_MAIN)
+target_compile_options(sgepasswd PRIVATE -Wno-unused-result)
 target_include_directories(sgepasswd PRIVATE
 	../common
 	../libs
@@ -225,20 +226,20 @@ target_include_directories(spooldefaults PRIVATE
 	../libs/uti
 )
 target_link_libraries(spooldefaults PRIVATE
-    comm
-    commlists
-    cull
-    evc
-    gdi
-    sched
-    sge_mt_init
-    sgeobj
-    sgeobjd
-    spool
-    spoolc
-    spoold
-    spoolloader
-    uti
+	comm
+	commlists
+	cull
+	evc
+	gdi
+	sched
+	sge_mt_init
+	sgeobj
+	sgeobjd
+	spool
+	spoolc
+	spoold
+	spoolloader
+	uti
 )
 add_executable(spoolinit
 	spoolinit.c
@@ -251,19 +252,19 @@ target_include_directories(spoolinit PRIVATE
 	../libs/uti
 )
 target_link_libraries(spoolinit PRIVATE
-    comm
-    commlists
+	comm
+	commlists
 	cull
 	evc
 	gdi
-    sge_mt_init
-    sgeobj
-    sgeobjd
-    spool
-    spoolc
-    spoold
-    spoolloader
-    uti
+	sge_mt_init
+	sgeobj
+	sgeobjd
+	spool
+	spoolc
+	spoold
+	spoolloader
+	uti
 )
 add_executable(testsuidroot
 	testsuidroot.c
@@ -276,7 +277,7 @@ target_include_directories(testsuidroot PRIVATE
 )
 target_link_libraries(testsuidroot PRIVATE
 	commlists
-    uti
+	uti
 )
 add_executable(uidgid
 	uidgid.c

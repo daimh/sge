@@ -43,7 +43,6 @@
 #
 
 # fixme: offer to move /var/sgeCA to /var/lib/sgeCA
-
 BasicSettings()
 {
   unset SGE_ND

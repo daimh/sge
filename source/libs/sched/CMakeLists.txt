@@ -34,5 +34,6 @@ target_include_directories(sched PRIVATE
 	../../libs/uti
 )
 target_link_libraries(sched PRIVATE
+	m
 	sgeobj
 )

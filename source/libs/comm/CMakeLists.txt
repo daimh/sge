@@ -20,3 +20,7 @@ target_include_directories(comm PRIVATE
 	../../libs/sgeobj
 	../../libs/uti
 )
+target_link_libraries(comm INTERFACE
+	crypto
+	ssl
+)

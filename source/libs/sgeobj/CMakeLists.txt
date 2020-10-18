@@ -77,6 +77,7 @@ target_include_directories(sgeobj PRIVATE
 )
 target_link_libraries(sgeobj PRIVATE
 	cull
+	dl
 	gdi
 	uti
 )
