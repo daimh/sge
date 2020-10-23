@@ -8,11 +8,12 @@ We have been using and maintaining this software at Michigan Neuroscience Instit
 
 ## Improvements
 
+- CMake compiling support. This paved the way for easier maintenance in future. It took 38 seconds to compile in parallel and install on an 8-core old machine, while it took 302 seconds with the legacy SGE way, and 377 seconds with makepkg.
+- Compatible with openssl-1.1.1
+- All warning are fixed on Arch Linux. Most of them were caused by 'smarter' gcc, new SSL, new GLIBC, obsolete function such 'sigignore', depreciated function such as 'readdir\_r', etc.
 - Underscore in port service name 'sge\_qmaster/sge\_execd' is changed to hyphen in all C files and shell scripts, saving us from modifying /etc/services each time
 - Systemd support
 - Version is changed to the commit version of this github repo
-- All warning are fixed on Arch Linux. Most of them were caused by 'smarter' gcc, new SSL, new GLIBC, obsolete function such 'sigignore', depreciated function such as 'readdir\_r'.
-- CMake compiling support. This paved the way for easier maintenance in future. It took 38 seconds to compile in parallel and install on an 8-core old machine, while it took 302 seconds with the legacy SGE way, and 377 seconds with makepkg.
 
 ## Three installation methods
 
@@ -88,7 +89,7 @@ Contributions are always welcome!
 
 Developed by [Manhong Dai](mailto:daimh@umich.edu)
 
-Copyright © 2020 University of Michigan. License [GPLv3+](https://gnu.org/licenses/gpl.html): GNU GPL version 3 or later 
+Copyright © 2020 University of Michigan. License [SISSL](https://opensource.org/licenses/sisslpl)
 
 This is free software: you are free to change and redistribute it.
 
