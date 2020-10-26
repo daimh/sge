@@ -9,6 +9,7 @@ We have been using and maintaining this software at Michigan Neuroscience Instit
 ## Improvements
 
 - CMake compiling support. This paved the way for easier maintenance in future. It took 38 seconds to compile in parallel and install on an 8-core old machine, while it took 302 seconds with the legacy SGE way, and 377 seconds with makepkg.
+- Fixed a permission error caused by systemd 241 in 2019 during installation, if SGE is installed as non-root on production system
 - Compatible with openssl-1.1.1
 - All warning are fixed on Arch Linux. Most of them were caused by 'smarter' gcc, new SSL, new GLIBC, obsolete function such 'sigignore', depreciated function such as 'readdir\_r', etc.
 - Underscore in port service name 'sge\_qmaster/sge\_execd' is changed to hyphen in all C files and shell scripts, saving us from modifying /etc/services each time

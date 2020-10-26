@@ -744,9 +744,10 @@ AddConfiguration()
       TMPC=/tmp/configuration_`date '+%Y-%m-%d_%H:%M:%S'`.$$
       TOUCH=touch
       rm -f $TMPC
-      ExecuteAsAdmin $TOUCH $TMPC
-      PrintConf >> $TMPC
-      SetPerm $TMPC
+#     ExecuteAsAdmin $TOUCH $TMPC
+#     PrintConf >> $TMPC
+      PrintConf > $TMPC
+#     SetPerm $TMPC
       ExecuteAsAdmin $SPOOLDEFAULTS configuration $TMPC
       rm -f $TMPC
    fi
