@@ -9,7 +9,7 @@ We have been using and maintaining this software at Michigan Neuroscience Instit
 ## Improvements
 
 - CMake compiling support. This paved the way for easier maintenance in future. It took 38 seconds to compile in parallel and install on an 8-core old machine, while it took 302 seconds with the legacy SGE way, and 377 seconds with makepkg.
-- Fixed a permission error caused by systemd 241 in 2019 during installation, if SGE is installed as non-root on production system
+- Fixed a permission error introduced since systemd 241 in 2019 during installation, if SGE is installed as non-root on production system
 - Compatible with openssl-1.1.1
 - All warning are fixed on Arch Linux. Most of them were caused by 'smarter' gcc, new SSL, new GLIBC, obsolete function such 'sigignore', depreciated function such as 'readdir\_r', etc.
 - Underscore in port service name 'sge\_qmaster/sge\_execd' is changed to hyphen in all C files and shell scripts, saving us from modifying /etc/services each time
@@ -21,8 +21,8 @@ We have been using and maintaining this software at Michigan Neuroscience Instit
 - CMake
 ```
 $ cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/sge
-$ cmake --build build -j 
-$ sudo cmake --install build 
+$ cmake --build build -j
+$ sudo cmake --install build
 ```
 Please check the tested building environment below in case of any compiling issue.
 
@@ -40,12 +40,12 @@ $ sudo pacman -U sge-r*.pkg.tar.zst
 ```
 
 ## Quick test on one node
-- step 1, as root. 
+- step 1, as root.
 ```
 $ cd /opt/sge
 $ yes "" | ./install_qmaster
 $ yes "" | ./install_execd
-$ . /opt/sge/default/common/settings.sh 
+$ . /opt/sge/default/common/settings.sh
 $ qhost -q #you should be able to see five lines of output
 $ qconf -as $(hostname -s) #add this node as submit host
 ```
@@ -53,17 +53,73 @@ please make sure there is no SGE process running with 'ps -ef |grep sge' and dir
 
 - step 2, as a regular account
 ```
-$ . /opt/sge/default/common/settings.sh 
+$ . /opt/sge/default/common/settings.sh
 $ echo hostname | qsub -cwd
-$ qstat #check job status
+$ watch qstat #check job status
 $ ls STDIN.* #check job output
+```
+
+## Production Installation on a share-nothing two-node system
+
+All SGE services are running under user 'sge' for security reason, as this is production system.
+
+Tested with the latest Arch Linux on Oct 27, 2020, on two nodes created by [daiker](https://github.com/daimh/daiker) with command 'daiker run -PT 22 ...'
+
+Assuming master node hostname is 'master-node', and execution node hostname is 'exec-node'. /etc/hosts on both nodes have these two entries
+```
+10.1.1.1	master-node
+10.1.1.2	exec-node
+```
+
+- step 1, on both nodes as root
+```
+$ ping master-node
+$ ping exec-node
+$ pacman -Sy --needed git cmake make gcc openmotif hwloc vi inetutils
+$ useradd -r -d /opt/sge sge
+$ mkdir /opt/sge
+$ chown sge /opt/sge
+$ git clone https://github.com/daimh/sge.git
+$ cd sge
+$ cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/sge
+$ cmake --build build -j 
+$ cmake --install build
+```
+
+- step 2, on master-node as root
+```
+$ cd /opt/sge
+$ yes "" | ./install_qmaster
+$ . /opt/sge/default/common/settings.sh
+$ qconf -ah exec-node
+$ qconf -as exec-node
+```
+
+- step 3, on exec-node as root
+```
+$ mkdir -p /opt/sge/default
+$ chown -R sge /opt/sge/default
+$ scp -pr master-node:/opt/sge/default/common /opt/sge/default/common
+$ cd /opt/sge
+$ yes "" | ./install_execd
+$ . /opt/sge/default/common/settings.sh
+$ qhost -q
+$ su - sge
+```
+
+- step 4, on exec-node as sge
+```
+# . /opt/sge/default/common/settings.sh
+# echo hostname | qsub -cwd
+# watch qstat
+# cat STDIN.*
 ```
 
 ## CMake building, tested with all the below Linux distributions patched up to date, on 2020-10-18
 
 - Arch Linux
 ```
-$ pacman -Sy --needed git cmake make gcc openmotif hwloc
+$ pacman -Sy --needed git cmake make gcc openmotif hwloc vi inetutils
 ```
 
 - Debian Buster, with "standard system utilities" checked during installation, and cmake 3.18.4 downloaded from cmake.org
@@ -108,6 +164,6 @@ Huda Akil, Ph.D., Director of MNI, UMICH
 
 Stanley J. Watson, M.D., Ph.D., Director of MNI, UMICH
 
-Also thanks to https://arc.liv.ac.uk/trac/SGE and Sun company. 
+Also thanks to https://arc.liv.ac.uk/trac/SGE and Sun company.
 
 no thanks to Oracle though, :)
