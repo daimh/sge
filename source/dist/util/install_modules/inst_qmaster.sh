@@ -264,7 +264,7 @@ SetPermissions()
             $INFOTEXT -auto $AUTO -ask "y" "n" -def "y" -n \
                       "Did you either install this version with a package manager,\n" \
                       "or otherwise verify and set the file permissions of your\n" \
-		      "distribution (enter: y) (y/n) [y] >> "
+                      "distribution (enter: y) (y/n) [y] >> "
          fi
          if [ $? = 0 ]; then
             $INFOTEXT -wait -auto $AUTO -n "We do not verify file permissions. Hit <RETURN> to continue >> "
@@ -618,16 +618,16 @@ SetProductMode()
           SEC_COUNT=`strings -a $SGE_BIN/sge_qmaster | grep "AIMK_SECURE_OPTION_ENABLED" | wc -l`
           ;;
       *)
-	  # strings(1) may not be installed (e.g. IZ2506).
-	  if type strings >/dev/null 2>&1; then
+      # strings(1) may not be installed (e.g. IZ2506).
+      if type strings >/dev/null 2>&1; then
               SEC_COUNT=`strings $SGE_BIN/sge_qmaster | grep "AIMK_SECURE_OPTION_ENABLED" | wc -l`
-	  else
-	      # Do our best, but the results of grep on a binary are
-	      # unspecified generally.
-	      SEC_COUNT=0
-	      grep AIMK_SECURE_OPTION_ENABLED $SGE_BIN/sge_qmaster >/dev/null 2>&1 &&
-	        SEC_COUNT=1
-	  fi
+      else
+          # Do our best, but the results of grep on a binary are
+          # unspecified generally.
+          SEC_COUNT=0
+          grep AIMK_SECURE_OPTION_ENABLED $SGE_BIN/sge_qmaster >/dev/null 2>&1 &&
+          SEC_COUNT=1
+      fi
           ;;
       esac
 
@@ -1218,10 +1218,19 @@ StartQmaster()
       fi
    else
 #      $SGE_STARTUP_FILE -qmaster
-      systemctl start sgemaster
+      if [ "$RC_FILE" = "systemd" ]; then
+         systemctl start sgemaster
+      elif [ "$RC_FILE" = "runit" ]; then
+         for i in `seq 10`; do
+            sleep 1
+            sv status sgemaster && break
+         done
+      else
+         /opt/sge/default/common/sgemaster
+      fi
       if [ $? -ne 0 ]; then
-         $INFOTEXT "sge_qmaster start problem"
-         $INFOTEXT -log "sge_qmaster start problem"
+         $INFOTEXT "sgeqmaster start problem"
+         $INFOTEXT -log "sgeqmaster start problem"
          MoveLog
          exit 1
       fi
@@ -1367,25 +1376,25 @@ AddHosts()
       if [ -f $TMPL -o -f $TMPL2 ]; then
          $INFOTEXT "\nCan't delete template files >%s< or >%s<" "$TMPL" "$TMPL2"
       else
-	 #Issue if old qmaster is running, new installation succeeds, but in fact the old qmaster is still running!
+      #Issue if old qmaster is running, new installation succeeds, but in fact the old qmaster is still running!
          #Reinstall can cause, that these already exist. So we skip them if they already exist.
-	 if [ x`$SGE_BIN/qconf -shgrpl 2>/dev/null | grep '^@allhosts$'` = x ]; then
+      if [ x`$SGE_BIN/qconf -shgrpl 2>/dev/null | grep '^@allhosts$'` = x ]; then
             PrintHostGroup @allhosts > $TMPL
             Execute $SGE_BIN/qconf -Ahgrp $TMPL
-	 else
-	    $INFOTEXT "Skipping creation of <allhosts> hostgroup as it already exists"
-	    $INFOTEXT -log "Skipping creation of <allhosts> hostgroup as it already exists"
-	 fi
-	 if [ x`$SGE_BIN/qconf -sql 2>/dev/null | grep '^all.q$'` = x ]; then
+      else
+            $INFOTEXT "Skipping creation of <allhosts> hostgroup as it already exists"
+            $INFOTEXT -log "Skipping creation of <allhosts> hostgroup as it already exists"
+     fi
+     if [ x`$SGE_BIN/qconf -sql 2>/dev/null | grep '^all.q$'` = x ]; then
             Execute $SGE_BIN/qconf -sq > $TMPL
             Execute sed -e "/qname/s/template/all.q/" \
                         -e "/hostlist/s/NONE/@allhosts/" \
                         -e "/pe_list/s/NONE/make/" $TMPL > $TMPL2
             Execute $SGE_BIN/qconf -Aq $TMPL2
-	 else
-	    $INFOTEXT "Skipping creation of <all.q> queue as it already exists"
-	    $INFOTEXT -log "Skipping creation of <all.q> queue  as it already exists"
-	 fi
+     else
+            $INFOTEXT "Skipping creation of <all.q> queue as it already exists"
+            $INFOTEXT -log "Skipping creation of <all.q> queue  as it already exists"
+     fi
          rm -f $TMPL $TMPL2        
       fi
 

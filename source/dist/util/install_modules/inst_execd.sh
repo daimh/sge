@@ -461,7 +461,22 @@ StartExecd()
       fi
    else
 #      $SGE_STARTUP_FILE
-      systemctl start sgeexecd
+      if [ "$RC_FILE" = "systemd" ]; then
+         systemctl start sgeexecd
+      elif [ "$RC_FILE" = "runit" ]; then
+         for i in `seq 10`; do
+            sleep 1
+            sv status sgeexecd && break
+         done
+      else
+         /opt/sge/default/common/sgeexecd
+      fi
+      if [ $? -ne 0 ]; then
+         $INFOTEXT "sgeexecd start problem"
+         $INFOTEXT -log "sgeexecd start problem"
+         MoveLog
+         exit 1
+      fi
    fi
    $INFOTEXT -wait -auto $AUTO -n "\nHit <RETURN> to continue >> "
    $CLEAR
@@ -824,7 +839,7 @@ CheckWinAdminUser()
          /usr/contrib/win32/bin/net user $win_admin_user < /dev/null > /dev/null 2>&1
          ret=$?
          if [ "$ret" = 127 ]; then
-	         $INFOTEXT "The net binary could not be found!\nPlease, check your $PATH variable or your installation!"
+            $INFOTEXT "The net binary could not be found!\nPlease, check your $PATH variable or your installation!"
             exit 1
          fi
       fi
@@ -885,14 +900,14 @@ InstWinHelperSvc()
       #If stop fails, try start since service might be already registered
       if [ "$ret" -ne 0 ]; then
          eval "net start \"$WIN_SVC\"" < /dev/null > /dev/null 2>&1
-	 ret=$?
+         ret=$?
          #In any case stop the service
          eval "net stop \"$WIN_SVC\"" < /dev/null > /dev/null 2>&1
       fi
       if [ "$ret" -eq 0 ]; then
          $INFOTEXT "   ... a service is already installed!"
          $INFOTEXT -log "   ... a service is already installed!"
-	 $INFOTEXT "   ... uninstalling old service!"
+         $INFOTEXT "   ... uninstalling old service!"
          $INFOTEXT -log "   ... uninstalling old service!"
          $WIN_DIR/SGE_Helper_Service.exe -uninstall
       fi

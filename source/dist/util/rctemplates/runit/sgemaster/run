@@ -1,0 +1,3 @@
+#!/usr/bin/sh
+/opt/sge/default/common/sgemaster
+exec pause

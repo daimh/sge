@@ -83,25 +83,15 @@ case $ARCH in
    # fixme:  Is -e actually necessary?
    ECHO="/bin/echo -e"
    unset POSIXLY_CORRECT        # so we can rely on echo -e
-   if [ -x /usr/lib/lsb/install_initd ]; then
-      # RedHat, CentOS etc.
-      RC_FILE=lsb
-      RC_PREFIX=/etc/init.d
-      RC_DIR=unused
-#   elif [ -x /usr/sbin/update-rc.d ]; then
-#      # Debian uses update-rc.d to add startup scripts
-#      RC_FILE=update-rc.d
-#      RC_PREFIX=/etc/init.d
-#      RC_DIR=unused
-   elif [ -x /sbin/insserv ]; then
-      # SuSe 7.1 and higher uses insserv to add the startup script
-      RC_FILE=insserv-linux
-      RC_PREFIX=/etc/init.d
-      RC_DIR=unused
-   elif [ -x /sbin/rc-update ]; then
+   if [ -x /sbin/rc-update ]; then
       # Gentoo uses rc-update to add startup scripts
       RC_FILE=rc-update
       RC_PREFIX=/etc/init.d
+      RC_DIR=unused
+   elif [ -x /usr/bin/runit ]; then
+      # Void Linux
+      RC_FILE=runit
+      RC_PREFIX=/etc/sv
       RC_DIR=unused
    else
       RC_FILE=systemd

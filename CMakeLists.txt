@@ -39,6 +39,7 @@ install(
 )
 install(
 	DIRECTORY
+		doc/man
 		source/dist/examples
 		source/dist/hadoop
 		source/dist/mpi

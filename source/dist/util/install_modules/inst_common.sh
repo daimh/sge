@@ -2498,6 +2498,12 @@ InstallRcScript()
          fi
          ;;
        esac
+   elif [ "$RC_FILE" = "runit" ]; then
+      $INFOTEXT "Installing startup script %s" "$RC_PREFIX" 
+      Execute rm -rf $RC_PREFIX/sge$hosttype /var/service/sge$hosttype
+      Execute cp -pr util/rctemplates/$RC_FILE/sge$hosttype $RC_PREFIX/sge$hosttype
+      Execute ln -fs $RC_PREFIX/sge$hosttype /var/service/
+      SGE_ARCH=`$SGE_UTIL/arch`
    # If we have SYSTEMD put the startup script to $RC_PREFIX/
    elif [ "$RC_FILE" = "systemd" ]; then
       $INFOTEXT "Installing startup script %s" "$RC_PREFIX/" 

@@ -14,7 +14,7 @@ add_executable(qmake
 	function.c
 	getopt.c
 	getopt1.c
-	hash
+	hash.c
 	implicit.c
 	job.c
 	main.c
