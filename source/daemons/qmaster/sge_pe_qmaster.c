@@ -116,6 +116,9 @@ int pe_mod(sge_gdi_ctx_class_t *ctx, lList **alpp, lListElem *new_pe, lListElem 
    /* ---- PE_job_is_first_task */
    attr_mod_bool(pe, new_pe, PE_job_is_first_task, "job_is_first_task");
 
+   /* ---- PE_enable_cpuquota */
+   attr_mod_bool(pe, new_pe, PE_enable_cpuquota, "enable_cpuquota");
+
    /* ---- PE_user_list */
    if (lGetPosViaElem(pe, PE_user_list, SGE_NO_ABORT) >= 0) {
       DPRINTF(("got new PE_user_list\n"));

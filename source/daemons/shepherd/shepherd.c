@@ -2960,7 +2960,8 @@ static int start_async_command(const char *descr, char *cmd)
       if (tmp_str && strcmp(tmp_str, "yes")) {
          skip_silently = true;
       }
-      {
+      tmp_str = search_conf_val("use_systemd");
+      if(tmp_str && strcmp(tmp_str, "no")){ /* It is not necessary to track processes via addgrpid when using SystemD */
          int min_gid = atoi(get_conf_val("min_gid"));
          int min_uid = atoi(get_conf_val("min_uid"));
          gid_t add_grp_id = 0;

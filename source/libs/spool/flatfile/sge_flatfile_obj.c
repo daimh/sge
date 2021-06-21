@@ -483,6 +483,7 @@ spooling_field CQ_fields[] = {
    {  CQ_h_rss,                  21, "h_rss",              AMEM_sub_fields,     &qconf_sub_name_value_comma_braced_sfi, read_CQ_mem_attr_list,     write_CQ_mem_attr_list},
    {  CQ_s_vmem,                 21, "s_vmem",             AMEM_sub_fields,     &qconf_sub_name_value_comma_braced_sfi, read_CQ_mem_attr_list,     write_CQ_mem_attr_list},
    {  CQ_h_vmem,                 21, "h_vmem",             AMEM_sub_fields,     &qconf_sub_name_value_comma_braced_sfi, read_CQ_mem_attr_list,     write_CQ_mem_attr_list},
+   {  CQ_mem_limit,              21, "mem_limit",          AMEM_sub_fields,     &qconf_sub_name_value_comma_braced_sfi, read_CQ_mem_attr_list,     write_CQ_mem_attr_list},
    {  NoName,                    21, NULL,                 NULL,                NULL,                                   NULL,                      NULL}
 };
 
@@ -575,6 +576,7 @@ spooling_field PE_fields[] = {
    {  PE_xuser_list,      18,   "xuser_lists",       US_sub_fields, NULL, NULL, NULL},
    {  PE_start_proc_args, 18,   "start_proc_args",   NULL, NULL, NULL, NULL},
    {  PE_stop_proc_args,  18,   "stop_proc_args",    NULL, NULL, NULL, NULL},
+   {  PE_enable_cpuquota, 18,   "enable_cpuquota",   NULL, NULL, NULL, NULL},
    {  PE_allocation_rule, 18,   "allocation_rule",   NULL, NULL, NULL, NULL},
    {  PE_control_slaves,  18,   "control_slaves",    NULL, NULL, NULL, NULL},
    {  PE_job_is_first_task, 18,   "job_is_first_task", NULL, NULL, NULL, NULL},
@@ -1081,6 +1083,8 @@ spooling_field *sge_build_QU_field_list(bool to_stdout, bool to_file)
       create_spooling_field (&fields[count++], QU_s_vmem, 21, "s_vmem", NULL,
                              NULL, NULL, NULL);
       create_spooling_field (&fields[count++], QU_h_vmem, 21, "h_vmem", NULL,
+                             NULL, NULL, NULL);
+      create_spooling_field (&fields[count++], QU_mem_limit, 21, "mem_limit", NULL,
                              NULL, NULL, NULL);
    } else if (to_file) {
       /*

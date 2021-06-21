@@ -180,6 +180,7 @@ static int queue_field[] = { QU_qhostname,
                              QU_h_rss,
                              QU_s_vmem,
                              QU_h_vmem,
+                             QU_mem_limit,
                              NoName };
 
 
@@ -334,6 +335,7 @@ send_slave_jobs(sge_gdi_ctx_class_t *ctx, lListElem *jep, lListElem *jatep, lLis
       reduce_queue_limit(master_centry_list, qep, tmpjep, QU_h_fsize, "h_fsize");
       reduce_queue_limit(master_centry_list, qep, tmpjep, QU_s_vmem,  "s_vmem");
       reduce_queue_limit(master_centry_list, qep, tmpjep, QU_h_vmem,  "h_vmem");
+      reduce_queue_limit(master_centry_list, qep, tmpjep, QU_mem_limit,  "mem_limit");
       reduce_queue_limit(master_centry_list, qep, tmpjep, QU_s_rt,    "s_rt");
       reduce_queue_limit(master_centry_list, qep, tmpjep, QU_h_rt,    "h_rt");
 
@@ -603,6 +605,7 @@ send_job(sge_gdi_ctx_class_t *ctx,
       reduce_queue_limit(master_centry_list, qep, tmpjep, QU_h_fsize, "h_fsize");
       reduce_queue_limit(master_centry_list, qep, tmpjep, QU_s_vmem,  "s_vmem");
       reduce_queue_limit(master_centry_list, qep, tmpjep, QU_h_vmem,  "h_vmem");
+      reduce_queue_limit(master_centry_list, qep, tmpjep, QU_mem_limit,  "mem_limit");
       reduce_queue_limit(master_centry_list, qep, tmpjep, QU_s_rt,    "s_rt");
       reduce_queue_limit(master_centry_list, qep, tmpjep, QU_h_rt,    "h_rt");
 

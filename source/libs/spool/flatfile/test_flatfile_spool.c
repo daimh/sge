@@ -179,6 +179,7 @@ static int PE_test(void)
    lSetUlong(ep, PE_slots, 7);
    lSetString(ep, PE_start_proc_args, "start_args");
    lSetString(ep, PE_stop_proc_args, "stop_args");
+   lSetBool(ep, PE_enable_cpuquota, true);
    lSetString(ep, PE_allocation_rule, "allocation_rule");
    lSetBool(ep, PE_control_slaves, true);
    lSetBool(ep, PE_job_is_first_task, true);

@@ -914,7 +914,7 @@ applied per slot, which means that the limit is multiplied by the
 number of slots being used by 
 the job before being applied.
 .PP
-The resource limit parameters \fBs_vmem\fP and \fBh_vmem\fP
+The resource limit parameters \fBs_vmem\fP, \fBh_vmem\fP and \fBmem_limit\fP
 are implemented by xxQS_NAMExx
 as a job limit. 
 They impose a limit on the amount of combined virtual memory consumed
@@ -927,6 +927,9 @@ can be caught by the job.  If you wish to allow a job to be "warned"
 so it can exit gracefully 
 before it is killed, then you should set the \fBs_vmem\fP limit to a lower
 value than \fBh_vmem\fP.
+Parameter \fBmem_limit\fP enforces job memory limitation via SystemD (cgroups) and hence works
+only with USE_CGROUPS=systemd execd parameter. Unlike to \fBh_vmem\fP which controls
+all virtual memory \fBmem_limit\fP enforces limit for RSS/swap only (via kernel Control Groups).
 For parallel processes, the limit is 
 applied per slot which means that the limit is multiplied by the
 number of slots being used by 

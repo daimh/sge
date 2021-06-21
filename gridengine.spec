@@ -61,7 +61,7 @@
 }
 
 Name:    gridengine
-Version: 8.1.9
+Version: 8.1.10
 
 %if 0%{?fedora}
 Epoch:   1
@@ -458,6 +458,9 @@ fi
 
 
 %changelog
+* Fri Aug 30 2019 Ondrej Valousek <ondrej.valousek@adestotech.com> 8.1.10
+- submit jobs in a SystemD friendly manner.
+
 * Sun Feb 28 2016 Dave Love <d.love@liverpool.ac.uk> 8.1.9
 - Fix OpenSuSE build
 - Don't install testsuidroot suid

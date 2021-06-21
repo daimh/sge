@@ -1632,12 +1632,13 @@ void ar_initialize_reserved_queue_list(lListElem *ar)
                                 QU_h_rss,
                                 QU_s_vmem,
                                 QU_h_vmem,
+                                QU_mem_limit,
                                 NoName };
     static char *value = "INFINITY";
     static int attr[] = {
       QU_s_cpu, QU_h_cpu, QU_s_fsize, QU_h_fsize, QU_s_data,
       QU_h_data, QU_s_stack, QU_h_stack, QU_s_core, QU_h_core,
-      QU_s_rss, QU_h_rss, QU_s_vmem, QU_h_vmem, NoName
+      QU_s_rss, QU_h_rss, QU_s_vmem, QU_h_vmem, QU_mem_limit, NoName
     };
 
    lDescr *rdp = NULL;

@@ -66,6 +66,9 @@ extern "C" {
 *     SGE_STRING(PE_stop_proc_args)
 *        cmd line sequence for stopping the pe
 *
+*     SGE_STRING(PE_enable_cpuquota)
+*        cmd line sequence for enforcing NSLOTS with cgroups
+*
 *     SGE_STRING(PE_allocation_rule)
 *        number of processors per machine
 *  
@@ -111,6 +114,7 @@ enum {
    PE_xuser_list,         
    PE_start_proc_args,    
    PE_stop_proc_args,     
+   PE_enable_cpuquota,
    PE_allocation_rule,    
    PE_control_slaves,    
    PE_job_is_first_task,
@@ -132,6 +136,7 @@ LISTDEF(PE_Type)
    SGE_LIST(PE_xuser_list, US_Type, CULL_DEFAULT | CULL_SPOOL | CULL_JGDI_CONF) 
    SGE_STRING_D(PE_start_proc_args, CULL_DEFAULT | CULL_SPOOL | CULL_JGDI_CONF, "NONE")
    SGE_STRING_D(PE_stop_proc_args, CULL_DEFAULT | CULL_SPOOL | CULL_JGDI_CONF, "NONE")
+   SGE_BOOL_D(PE_enable_cpuquota, CULL_DEFAULT | CULL_SPOOL | CULL_JGDI_CONF, "FALSE")
    SGE_STRING_D(PE_allocation_rule, CULL_DEFAULT | CULL_SPOOL | CULL_JGDI_CONF, "$pe_slots")
    SGE_BOOL_D(PE_control_slaves, CULL_DEFAULT | CULL_SPOOL | CULL_JGDI_CONF, "FALSE")
    SGE_BOOL_D(PE_job_is_first_task, CULL_DEFAULT | CULL_SPOOL | CULL_JGDI_CONF, "TRUE")
@@ -150,6 +155,7 @@ NAMEDEF(PEN)
    NAME("PE_xuser_list")
    NAME("PE_start_proc_args")
    NAME("PE_stop_proc_args")
+   NAME("PE_enable_cpuquota")
    NAME("PE_allocation_rule")
    NAME("PE_control_slaves")
    NAME("PE_job_is_first_task")

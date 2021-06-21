@@ -162,7 +162,7 @@ int mconf_get_jsv_timeout(void);
 int mconf_get_jsv_threshold(void);
 bool mconf_get_print_malloc_info(void);
 bool mconf_get_ignore_ngroups_max_limit(void);
-bool mconf_get_use_cgroups(void);
+int mconf_get_use_cgroups(void);
 bool mconf_get_use_smaps(void);
 bool mconf_get_demand_ls(void);
 

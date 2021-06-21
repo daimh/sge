@@ -113,6 +113,7 @@ list_attribute_struct cqueue_attribute_array[] = {
    { CQ_h_rss,                   QU_h_rss,                  AMEM_href,     AMEM_value,       NoName,     SGE_ATTR_H_RSS,             false,  false, cqueue_verify_memory_value},
    { CQ_s_vmem,                  QU_s_vmem,                 AMEM_href,     AMEM_value,       NoName,     SGE_ATTR_S_VMEM,            false,  false, cqueue_verify_memory_value},
    { CQ_h_vmem,                  QU_h_vmem,                 AMEM_href,     AMEM_value,       NoName,     SGE_ATTR_H_VMEM,            false,  false, cqueue_verify_memory_value},
+   { CQ_mem_limit,               QU_mem_limit,              AMEM_href,     AMEM_value,       NoName,     SGE_ATTR_MEM_LIMIT,         false,  false, cqueue_verify_memory_value},
 
    { CQ_s_rt,                    QU_s_rt,                   ATIME_href,    ATIME_value,      NoName,     SGE_ATTR_S_RT,              false,  false, cqueue_verify_time_value},
    { CQ_h_rt,                    QU_h_rt,                   ATIME_href,    ATIME_value,      NoName,     SGE_ATTR_H_RT,              false,  false, cqueue_verify_time_value},
@@ -638,13 +639,13 @@ cqueue_set_template_attributes(lListElem *this_elem, lList **answer_list)
          const char *value[] = {
             "INFINITY", "INFINITY", "INFINITY", "INFINITY",
             "INFINITY", "INFINITY", "INFINITY", "INFINITY",
-            "INFINITY", "INFINITY", "INFINITY", "INFINITY",
+            "INFINITY", "INFINITY", "INFINITY", "INFINITY", "INFINITY",
             NULL
          }; 
          const int attr[] = {
             CQ_s_fsize, CQ_h_fsize, CQ_s_data, CQ_h_data,
             CQ_s_stack, CQ_h_stack, CQ_s_core, CQ_h_core,
-            CQ_s_rss, CQ_h_rss, CQ_s_vmem, CQ_h_vmem,
+            CQ_s_rss, CQ_h_rss, CQ_s_vmem, CQ_h_vmem, CQ_mem_limit,
             NoName
          };
          int index = 0;
