@@ -2659,7 +2659,7 @@ int mconf_get_jsv_timeout(void) {
 }
 
 int mconf_get_use_cgroups(void) {
-   bool ret;
+   int ret;
 
    DENTER(BASIS_LAYER, "mconf_get_use_cgroups");
    SGE_LOCK(LOCK_MASTER_CONF, LOCK_READ);

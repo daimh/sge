@@ -53,6 +53,7 @@
 #include "uti/sge_uidgid.h"
 #include "uti2/sge_execvlp.h"
 #include "uti/sge_parse_num_par.h" // fretn
+#include "uti2/util.h"
 
 #include "setosjobid.h"
 #include "sge_fileio.h"
