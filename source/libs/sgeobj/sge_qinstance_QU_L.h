@@ -86,6 +86,7 @@ enum {
    QU_h_rss,
    QU_s_vmem,
    QU_h_vmem,
+   QU_mem_limit,
 
    QU_suspend_interval,
    QU_min_cpu_interval,
@@ -178,6 +179,7 @@ LISTDEF(QU_Type)
    SGE_STRING(QU_h_rss, CULL_CONFIGURE | CULL_JGDI_RO)
    SGE_STRING(QU_s_vmem, CULL_CONFIGURE | CULL_JGDI_RO)
    SGE_STRING(QU_h_vmem, CULL_CONFIGURE | CULL_JGDI_RO)
+   SGE_STRING(QU_mem_limit, CULL_CONFIGURE | CULL_JGDI_RO)
 
    SGE_STRING(QU_suspend_interval, CULL_CONFIGURE | CULL_JGDI_RO)
    SGE_STRING(QU_min_cpu_interval, CULL_CONFIGURE | CULL_JGDI_RO)
@@ -265,6 +267,7 @@ NAMEDEF(QUN)
    NAME("QU_h_rss")
    NAME("QU_s_vmem")
    NAME("QU_h_vmem")
+   NAME("QU_mem_limit")
 
    NAME("QU_suspend_interval")
    NAME("QU_min_cpu_interval")

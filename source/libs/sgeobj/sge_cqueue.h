@@ -164,6 +164,7 @@ cqueue_sick(lListElem *cqueue, lList **answer_list, lList *hgroup_list, dstring 
 #define SGE_ATTR_S_RSS                 "s_rss"
 #define SGE_ATTR_H_VMEM                "h_vmem"
 #define SGE_ATTR_S_VMEM                "s_vmem"
+#define SGE_ATTR_MEM_LIMIT             "mem_limit"
 
 #define SGE_ATTR_QTYPE                 "qtype"
 #define SGE_ATTR_SEQ_NO                "seq_no"

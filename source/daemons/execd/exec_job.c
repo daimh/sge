@@ -1162,6 +1162,8 @@ int sge_exec_job(sge_gdi_ctx_class_t *ctx, lListElem *jep, lListElem *jatep,
    fprintf(fp, "h_fsize=%s\n", lGetString(master_q, QU_h_fsize));
    fprintf(fp, "s_fsize=%s\n", lGetString(master_q, QU_s_fsize));
 
+/*   fprintf(fp, "cg_memmax=%s\n", lGetString(master_q, QU_sg_memmax)); */
+
    {
       char *s;
 
@@ -1266,6 +1268,12 @@ int sge_exec_job(sge_gdi_ctx_class_t *ctx, lListElem *jep, lListElem *jatep,
                                        lGetString(pep, PE_start_proc_args):"none");
       fprintf(fp, "pe_stop=%s\n",   pep != NULL && lGetString(pep, PE_stop_proc_args)?
                                        lGetString(pep, PE_stop_proc_args):"none");
+      if (pep != NULL && (int)lGetBool(pep, PE_enable_cpuquota)) {
+         fprintf(fp, "pe_enable_cpuquota=yes\n");
+      } else {
+         fprintf(fp, "pe_enable_cpuquota=no\n");
+      }
+
 #ifdef SGE_PQS_API
       fprintf(fp, "pe_qsort=%s\n",   pep != NULL && lGetString(pep, PE_qsort_args)?
                                        lGetString(pep, PE_qsort_args):"none");
@@ -1498,6 +1506,21 @@ int sge_exec_job(sge_gdi_ctx_class_t *ctx, lListElem *jep, lListElem *jatep,
       fprintf(fp, "qsub_gid="sge_u32"\n", lGetUlong(jep, JB_gid));
    } else {
       fprintf(fp, "qsub_gid=%s\n", "no");
+   }
+   if (mconf_get_use_cgroups() == 2) {
+      fprintf(fp, "use_systemd=yes\n");
+   } else {
+      fprintf(fp, "use_systemd=no\n");
+   }
+
+   {
+      const char *s;
+      lListElem  *ep    = job_get_request(jep, "mem_limit");
+
+      if (ep != NULL) {
+         s = lGetString(ep, CE_stringval);
+         fprintf(fp, "mem_limit=%s\n", s);
+      }
    }
 
    /* config for interactive jobs */

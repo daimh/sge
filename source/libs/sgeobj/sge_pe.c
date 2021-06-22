@@ -612,6 +612,7 @@ lListElem* pe_create_template(char *pe_name)
    lSetString(pep, PE_allocation_rule, "$pe_slots");
    lSetString(pep, PE_start_proc_args, "NONE");
    lSetString(pep, PE_stop_proc_args, "NONE");
+   lSetBool(pep, PE_enable_cpuquota, FALSE);
 
    /* Fixme:  This should probably be flipped.  */
    /* PE_control_slaves initialized implicitly to false */

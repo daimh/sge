@@ -1564,11 +1564,18 @@ or
 in the source repository, but it may be better to check the
 the screensaver state.
 .IP \fIUSE_CGROUPS\fP
-[Linux only.]  Use cgroups/cpusets for resource management if the
+[Linux only.]  Set to \fByes\fP to use cgroups/cpusets for resource management if the
 system supports them and the necessary directories exist in the
 relevant filesystems (possibly created by
 .IR util/resources/scripts/setup-cgroups-etc ).
 Makes ENABLE_ADDGRP_KILL irrelevant.
+If this parameter is set to \fBsystemd\fP then jobs are launched via SystemD as scope units
+(i.e OS based on SystemD must be installed on exec nodes). This also enforces following changes:
+.br
+- parameter \fIgid_range\fP is ignored as job processes are tracked via SystemD
+.br
+- it's possible to enforce CPU/memory limits via SystemD unit properties (i.e. mem_limit complexes)
+.br
 This option is experimental, and at least the default is likely to
 change in future.  Default is no.
 .IP \fIUSE_SMAPS\fP

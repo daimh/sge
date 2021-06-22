@@ -93,6 +93,7 @@ static const int cqueue_field_ids[] = {
    CQ_h_rt,
    CQ_h_stack,
    CQ_h_vmem,
+   CQ_mem_limit,
    CQ_min_cpu_interval,
    CQ_rerun,
    CQ_s_core,
@@ -149,6 +150,7 @@ static const int qinstance_field_ids[] = {
    QU_h_rss,
    QU_s_vmem,
    QU_h_vmem,
+   QU_mem_limit,
    QU_min_cpu_interval,
 
    QU_suspended_on_subordinate,

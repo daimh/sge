@@ -101,7 +101,7 @@ const struct queue2cmplx host_resource[] = {
    {"m_topology_inuse",0,0, 0, TYPE_STR}
 };
 
-const int max_queue_resources=24; /* specifies the number of elements in the queue_resource array */
+const int max_queue_resources=25; /* specifies the number of elements in the queue_resource array */
 const struct queue2cmplx queue_resource[] = {
    {"qname",            QU_qname,            0,                   0,            TYPE_STR },
    {"hostname",         QU_qhostname,        0,                   0,            TYPE_HOST},
@@ -126,6 +126,7 @@ const struct queue2cmplx queue_resource[] = {
    {"h_rss",            QU_h_rss,            CQ_h_rss,            AMEM_value,   TYPE_MEM }, /* value is SGE_STRING */
    {"s_vmem",           QU_s_vmem,           CQ_s_vmem,           AMEM_value,   TYPE_MEM }, /* value is SGE_STRING */
    {"h_vmem",           QU_h_vmem,           CQ_h_vmem,           AMEM_value,   TYPE_MEM }, /* value is SGE_STRING */
+   {"mem_limit",        QU_mem_limit,        CQ_mem_limit,        AMEM_value,   TYPE_MEM }, /* value is SGE_STRING */
    {"min_cpu_interval", QU_min_cpu_interval, CQ_min_cpu_interval, AINTER_value, TYPE_TIM }  /* value is SGE_STRING */
 };
 

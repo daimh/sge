@@ -90,6 +90,22 @@ to be filled concurrently under the parallel environment.
 Type is integer, valid values are 0 to 9999999.
 .\"
 .\"
+.SS "\fBenable_cpuquota\fP"
+Parameter \fBenable_cpuquota\fP enforces job cpu limitation via SystemD (cgroups) and hence works
+only with USE_CGROUPS=systemd execd parameter. Unlike core binding (see section -binding of qsub(1))
+which controls the binding of your process, \fBenable_cpuquota\fP only limits the amount of cpu your
+jobs can use based on the number of slots requested during submit time.
+
+example:
+qsub -pe [pe_name] 5 job.sh
+
+This will have the result that a service may never get more CPU time than the
+specified percentage (the 5 is internally multiplied by 100%), even if the machine is otherwise idle.
+
+This requires at least SystemD version 213.
+
+.\"
+.\"
 .SS "\fBuser_lists\fP"
 .SS "\fBxuser_lists\fP" 
 A comma-separated list of user access list names (see

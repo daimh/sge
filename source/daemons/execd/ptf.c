@@ -101,6 +101,7 @@
 #include "exec_ifm.h"
 #include "pdc.h"
 
+#define SYSTEMCTL "/usr/bin/systemctl"
 /*
  *
  * PTF Data Structures
@@ -1102,6 +1103,154 @@ static void ptf_get_usage_from_data_collector(void)
 
 }
 
+
+/****** execd/ptf/ptf_get_usage_from_systemd() *************************
+*  NAME
+*     ptf_get_usage_from_systemd() -- get usage from SystemD
+*
+*  SYNOPSIS
+*     static void ptf_get_usage_from_systemd(void)
+*
+*  FUNCTION
+*     get the usage for all the jobs in the job ticket list and update
+*     the job list
+*
+*     call data collector routine with a list of all the jobs in the job_list
+*     for each job in the job_list
+*        update job.usage with data collector info
+*        update list of process IDs associated with job end
+*     do
+*
+* author: Ondrej Valousek
+******************************************************************************/
+static void ptf_get_usage_from_systemd(void)
+{
+   lListElem *job, *osjob, *proc, *usage;
+   lList *usage_list;
+   lList *pid_list;
+   const char *tid;
+   struct psJob_s *jobs;
+   FILE *fp;
+   char systemctl[256];
+
+   const char cgroupmemroot[] = "/sys/fs/cgroup/memory/system.slice";
+   const char cgroupcpuroot[] = "/sys/fs/cgroup/cpuacct/system.slice";
+
+//   ptf_get_usage_from_data_collector();
+//   return;
+   DENTER(TOP_LAYER, "ptf_get_usage_from_systemd");
+   strcpy(systemctl,SYSTEMCTL);
+   strcat(systemctl," show -p MemoryCurrent");
+
+   for_each(job, ptf_jobs) {
+
+      for_each(osjob, lGetList(job, JL_OS_job_list)) {
+         long mem,himem,cpu;
+         char cmd[256],line[256];
+
+         usage_list = lGetList(osjob, JO_usage_list);
+         if (!usage_list) {
+            usage_list = ptf_build_usage_list("usagelist", NULL);
+            lSetList(osjob, JO_usage_list, usage_list);
+         }
+//         snprintf(cmd,sizeof(cmd),"%s sge-%lu.scope",systemctl,lGetUlong(job, JL_job_ID));
+         snprintf(cmd,sizeof(cmd),"%s/sge-%lu.%lu.scope/memory.usage_in_bytes",cgroupmemroot,lGetUlong(job, JL_job_ID),lGetUlong(osjob, JO_ja_task_ID));
+
+         /* Open the command for reading. */
+         fp = fopen(cmd, "r");
+
+         if (fp == NULL) {
+             DPRINTF(("Failed to open file %s, is the job done?\n",cmd ));
+             lSetUlong(job, JL_state, lGetUlong(job, JL_state)
+                         & JL_JOB_COMPLETE);
+             continue;
+         }
+
+         /* Read the output a line at a time - output it. */
+         if(fgets(line, sizeof(line)-1, fp) != NULL){
+            mem = atol(line);
+            if ((usage = lGetElemStr(usage_list, UA_name, USAGE_ATTR_VMEM))) {
+               lSetDouble(usage, UA_value, mem);
+               if ((usage = lGetElemStr(usage_list, UA_name, USAGE_ATTR_MAXVMEM))) {
+                  if( (himem = lGetDouble(usage, UA_value)) < mem) {
+                     lSetDouble(usage, UA_value, mem);
+				  }
+               }
+
+            }
+         }
+         fclose(fp);
+
+         snprintf(cmd,sizeof(cmd),"%s/sge-%lu.%lu.scope/cpuacct.usage",cgroupcpuroot,lGetUlong(job, JL_job_ID),lGetUlong(osjob, JO_ja_task_ID));
+
+         /* Open the command for reading. */
+         fp = fopen(cmd, "r");
+
+         if (fp == NULL) {
+             DPRINTF(("Failed to open file %s, is the job done?\n",cmd ));
+             lSetUlong(job, JL_state, lGetUlong(job, JL_state)
+                         & JL_JOB_COMPLETE);
+             continue;
+         }
+
+         /* Read the output a line at a time - output it. */
+         if(fgets(line, sizeof(line)-1, fp) != NULL){
+            cpu = atoll(line)/(1000*1000*1000);  /* cpuacct.usage are in nanoseconds */
+            if ((usage = lGetElemStr(usage_list, UA_name, USAGE_ATTR_CPU))) {
+               lSetDouble(usage, UA_value, cpu);
+            }
+         }
+
+/*
+      while (fgets(line, sizeof(line)-1, fp) != NULL) {
+	  char *value,*ptr;
+	  int i;
+	  value = "MemoryCurrent";
+//          DPRINTF(("line is %s\n",line ));
+
+	  if(ptr = strstr(line,value)){
+	     ptr += strlen(value)+1;
+	     i = atoi(ptr);
+             DPRINTF(("returniong %d\n",i ));
+             if ((usage = lGetElemStr(usage_list, UA_name, USAGE_ATTR_VMEM))) {
+               lSetDouble(usage, UA_value, i);
+             }
+	  }
+
+      } */
+         fclose(fp);
+
+
+         lSetList(osjob, JO_pid_list, NULL);
+
+         tid = lGetString(osjob, JO_task_id_str);
+         DPRINTF(("JOB " sge_u32 "." sge_u32 ": %s: ( cpu = %8.3lf / vmem = %10.5f  / himem = %10.5f)\n",
+                     lGetUlong(job, JL_job_ID),
+                     lGetUlong(osjob, JO_ja_task_ID), tid ? tid : "",
+                     (double)cpu, (double)mem, (double) himem));
+
+
+         /* for now, build a fake pid list with the OS job ID as the pid
+            We should probably populate it with what we find in "tasks" controller (see above), but I am not sure what is the benefit
+            */
+         pid_list = lGetList(osjob, JO_pid_list);
+         if (!pid_list) {
+            pid_list = lCreateList("pidlist", JP_Type);
+            lSetList(osjob, JO_pid_list, pid_list);
+            proc = lCreateElem(JP_Type);
+            lSetUlong(proc, JP_pid, lGetUlong(osjob, JO_OS_job_ID));
+            lAppendElem(pid_list, proc);
+         }
+
+      }
+   }
+
+}
+
+
+
+
+
 /*--------------------------------------------------------------------
  * ptf_calc_job_proporiton_pass0
  *--------------------------------------------------------------------*/
@@ -1383,7 +1532,10 @@ int ptf_job_complete(u_long32 job_id, u_long32 ja_task_id, const char *pe_task_i
     */
    if (!(lGetUlong(ptf_job, JL_state) & JL_JOB_COMPLETE)) {
       sge_switch2start_user();
-      ptf_get_usage_from_data_collector();
+      if(mconf_get_use_cgroups() == 2)
+         ptf_get_usage_from_systemd();
+      else
+         ptf_get_usage_from_data_collector();
       sge_switch2admin_user();
    }
 
@@ -1494,8 +1646,11 @@ int ptf_process_job_ticket_list(lList *job_ticket_list)
 void ptf_update_job_usage()
 {
    DENTER(TOP_LAYER, "ptf_update_job_usage");
-
-   ptf_get_usage_from_data_collector();
+   DPRINTF(("here %d\n",mconf_get_use_cgroups()));
+   if(mconf_get_use_cgroups() == 2 )
+     ptf_get_usage_from_systemd();
+   else
+     ptf_get_usage_from_data_collector();
    DEXIT;
 }
 

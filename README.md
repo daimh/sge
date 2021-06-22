@@ -117,25 +117,25 @@ cat STDIN.*
 
 ## <a name=environmet></a>CMake building, tested with all the Linux distributions below, patched up to date
 
-- Arch Linux, 2020-10-18
+- Arch Linux, 2021-06-21
 ```
 pacman -Sy --needed git cmake make gcc openmotif hwloc vi inetutils
 ```
 
-- Debian Buster, 2020-10-18, with "standard system utilities" checked during installation, and cmake 3.18.4 downloaded from cmake.org
+- Debian Buster, 2021-06-21, cmake 3.20.5 downloaded from cmake.org
 ```
 apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev
 ```
 
-- Ubuntu Server 20.04, 2020-10-18
+- Ubuntu Server 20.04, 2021-06-21
 ```
 apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev cmake
 ```
 
-- CentOS 8.2, 2020-10-18, with SELinux set to permissive, and cmake 3.18.4 downloaded from cmake.org
+- CentOS 8.3, 2021-06-21, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
-dnf --enablerepo=PowerTools install hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel
+dnf --enablerepo=powertools install hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake
 ```
 
 - Void Linux, 2021-05-26, x86\_64, Glibc

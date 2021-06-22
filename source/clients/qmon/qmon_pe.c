@@ -82,6 +82,7 @@ static Widget pe_acl_w = 0;
 static Widget pe_xacl_w = 0;
 static Widget pe_start_w = 0;
 static Widget pe_stop_w = 0;
+static Widget pe_enable_cpuquota_w = 0;
 static Widget pe_alloc_w = 0;
 static Widget pe_urgency_w = 0;
 static Widget pe_control_slaves_w = 0;
@@ -259,6 +260,11 @@ lListElem *ep
    sprintf(buf, "%-20.20s %s", "Stop Proc Args", str ? str : "NONE" );
    items[i++] = XmStringCreateLocalized(buf);
 
+   /* enable_cpuquota */
+   sprintf(buf, "%-20.20s %s", "Enable CPUQuota (through cgroups)",
+            (int)lGetBool(ep, PE_enable_cpuquota) ? "true" : "false");
+   items[i++] = XmStringCreateLocalized(buf);
+
    /* allocation_rule */
    str = (StringConst)lGetString(ep, PE_allocation_rule);
    sprintf(buf, "%-20.20s %s", "Allocation Rule", str ? str : "NONE" );
@@ -386,6 +392,7 @@ Widget parent
                            "pe_xusers", &pe_xacl_w,
                            "pe_start_proc_args", &pe_start_w,
                            "pe_stop_proc_args", &pe_stop_w,
+                           "pe_enable_cpuquota", &pe_enable_cpuquota_w,
                            "pe_allocation_rule", &pe_alloc_w,
                            "pe_urgency_slots", &pe_urgency_w,
                            "pe_control_slaves", &pe_control_slaves_w,
@@ -653,6 +660,9 @@ lListElem *pep
    if (stop_args)
       XmtInputFieldSetString(pe_stop_w, stop_args);
 
+   XmToggleButtonSetState(pe_enable_cpuquota_w,
+               lGetBool(pep, PE_enable_cpuquota), False);
+
    alloc_rule = (StringConst)lGetString(pep, PE_allocation_rule);
    if (alloc_rule)
       XmtInputFieldSetString(pe_alloc_w, alloc_rule);
@@ -725,6 +735,7 @@ lListElem *pep
    String pe_name = NULL;
    u_long32 pe_slots = 0;
    u_long32 pe_control_slaves = 0;
+   u_long32 pe_enable_cpuquota = 0;
    u_long32 pe_job_is_first_task = 0;
    u_long32 pe_accounting_summary = 0;
    lList *acl = NULL;
@@ -776,6 +787,9 @@ lListElem *pep
       lSetString(pep, PE_stop_proc_args, NULL);
    else   
       lSetString(pep, PE_stop_proc_args, stop_args);
+
+   pe_enable_cpuquota = XmToggleButtonGetState(pe_enable_cpuquota_w);
+   lSetBool(pep, PE_enable_cpuquota, pe_enable_cpuquota);
 
    alloc_rule = XmtInputFieldGetString(pe_alloc_w);
    lSetString(pep, PE_allocation_rule, alloc_rule);

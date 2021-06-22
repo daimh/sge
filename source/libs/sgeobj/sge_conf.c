@@ -200,7 +200,7 @@ static char s_memorylocked[100];
 static char h_memorylocked[100];
 static char s_locks[100];
 static char h_locks[100];
-static bool use_cgroups = false;
+static int use_cgroups = 0;
 static bool use_smaps = false;
 static bool demand_ls = true;
 
@@ -888,7 +888,7 @@ int merge_configuration(lList **answer_list, u_long32 progid, const char *cell_r
       sharelog_time = 0;
       demand_ls = true;
       log_consumables = false;
-      use_cgroups = false;
+      use_cgroups = 0;
       use_smaps = false;
       strcpy(s_descriptors, "UNDEFINED");
       strcpy(h_descriptors, "UNDEFINED");
@@ -1041,7 +1041,10 @@ int merge_configuration(lList **answer_list, u_long32 progid, const char *cell_r
          if (parse_bool_param(s, "IGNORE_NGROUPS_MAX_LIMIT", &ignore_ngroups_max_limit)) {
             continue;
          } 
-         if (parse_bool_param(s, "USE_CGROUPS", &use_cgroups)) {
+         if (parse_bool_param(s, "USE_CGROUPS", (bool *) &use_cgroups)) {
+            if (!strcasecmp(s, "USE_CGROUPS=systemd")) {
+               use_cgroups = 2;
+            }
             continue;
          }
          if (parse_bool_param(s, "USE_SMAPS", &use_smaps)) {
@@ -2655,8 +2658,8 @@ int mconf_get_jsv_timeout(void) {
    DRETURN(timeout);
 }
 
-bool mconf_get_use_cgroups(void) {
-   bool ret;
+int mconf_get_use_cgroups(void) {
+   int ret;
 
    DENTER(BASIS_LAYER, "mconf_get_use_cgroups");
    SGE_LOCK(LOCK_MASTER_CONF, LOCK_READ);

@@ -52,6 +52,8 @@
 #include "uti/config_file.h"
 #include "uti/sge_uidgid.h"
 #include "uti2/sge_execvlp.h"
+#include "uti/sge_parse_num_par.h" // fretn
+#include "uti2/util.h"
 
 #include "setosjobid.h"
 #include "sge_fileio.h"
@@ -73,10 +75,14 @@
 
 /* The maximum number of env variables we can export. */
 #define MAX_NUMBER_OF_ENV_VARS 1023
+#define SYSTEMD_RUN "/bin/systemd-run"
 
 extern bool g_new_interactive_job_support;
 extern int  g_noshell;
 extern int  g_newpgrp;
+
+static int sge_parse_limit(sge_rlim_t *rlvalp, char *s, char *error_str,
+                           int error_len);
 
 #if defined(INTERIX)
 char job_user[MAX_STRING_SIZE];
@@ -169,6 +175,7 @@ void son(const char *childname, char *script_file, int truncate_stderr_out, size
    int   ret;
    int   is_interactive  = 0;
    bool  is_qlogin  = false;
+   bool  use_systemd = false;
    int   is_rsh = 0;
    int   is_rlogin = 0;
    int   is_qlogin_starter = 0;   /* Caution! There is a function qlogin_starter(), too! */
@@ -458,6 +465,11 @@ void son(const char *childname, char *script_file, int truncate_stderr_out, size
       use_qsub_gid = 0;
       gid = 0;
    }
+   tmp_str = search_conf_val("use_systemd");
+   if (strcmp(tmp_str, "yes") == 0) {
+      use_systemd = true;
+   }
+
    tmp_str = search_conf_val("skip_ngroups_max_silently");
    if (tmp_str != NULL && strcmp(tmp_str, "yes") == 0) {
       skip_silently = true;
@@ -465,7 +477,14 @@ void son(const char *childname, char *script_file, int truncate_stderr_out, size
 
    /* --- switch to intermediate user */
    shepherd_trace("switching to intermediate/target user");
-   if(is_qlogin_starter && g_new_interactive_job_support == false) {
+   if(use_systemd == true){
+      /* --- There is No way to pass supplementary GIDs to systemd-run,.
+            but luckily they get inherited from the calling process..
+                  We are only interested in setting GIDs here --- */
+     ret = sge_set_uid_gid_addgrp(target_user, target_user,
+                                   0, 0, 0, err_str, sizeof(err_str),
+                                  use_qsub_gid, gid, skip_silently);
+   } else if(is_qlogin_starter && g_new_interactive_job_support == false) {
       /* 
        * In the old IJS, we didn't have to set the additional group id,
        * because our custom rshd did it for us.
@@ -930,9 +949,21 @@ void son(const char *childname, char *script_file, int truncate_stderr_out, size
          }
       }
    }
-   start_command(childname, shell_path, script_file, argv0, shell_start_mode, 
-                 is_interactive, is_qlogin, is_rsh, is_rlogin, str_title, 
+
+   // set queue in E state when /bin/systemd-run cannot be found
+   if(use_systemd == true &&  file_exists(SYSTEMD_RUN) == false) {
+      shepherd_error(1, "USE_CGROUPS is configured to use 'systemd' but %s cannot be found", SYSTEMD_RUN);
+   }
+
+   if(use_systemd == false || file_exists(SYSTEMD_RUN) == false) {
+      start_command(childname, shell_path, script_file, argv0, shell_start_mode,
+                 is_interactive, is_qlogin, is_rsh, is_rlogin, str_title,
                  use_starter_method);
+   } else {
+      start_command_via_systemd(childname, shell_path, script_file, argv0, shell_start_mode,
+                 is_interactive, is_qlogin, is_rsh, is_rlogin, str_title,
+                 use_starter_method);
+   }
 
    sge_free(&buffer);
    return;
@@ -1465,8 +1496,8 @@ int use_starter_method /* If this flag is set the shell path contains the
            pre_args_ptr[arg_id++] = shell_path;
          }
          pre_args_ptr[arg_id++] = script_file;
-         pre_args_ptr[arg_id++] = NULL; 
-         
+         pre_args_ptr[arg_id++] = NULL;
+
          args = read_job_args(pre_args, 0);
       } else {
 #if 0
@@ -1658,6 +1689,389 @@ int use_starter_method /* If this flag is set the shell path contains the
       }
    }
 }
+
+/*--------------------------------------------------------------------
+ * set_shepherd_signal_mask
+ * set signal mask that shepherd can handle signals from execd
+ *
+ * Start an sge job through systemd
+ * author: Ondrej Valousek
+ *--------------------------------------------------------------------*/
+void start_command_via_systemd(
+const char *childname,
+char *shell_path,
+char *script_file,
+char *argv0,
+char *shell_start_mode,
+int is_interactive,
+int is_qlogin,
+int is_rsh,
+int is_rlogin,
+char *str_title,
+int use_starter_method /* If this flag is set the shell path contains the
+                        * starter_method */
+) {
+   char **args;
+   char **pstr;
+   char *pc;
+   char *pre_args[20];
+   char **pre_args_ptr;
+   char err_str[2048];
+
+   char unitname[50];
+   char *my_env[8];
+   static char term[8+64]         = "TERM=";
+   char minusname[50];
+   char buf[50];
+   char *mem_limit;
+   char mem_limit_str[256];
+   char enable_cpuquota_str[256];
+   char *tmp_str;
+   int host_slots = 1;
+   bool enable_cpuquota = false;
+
+   // fretn: memory and cpu limitations through cgroups
+   mem_limit = search_conf_val("mem_limit");
+   //shepherd_trace("mem_limit = %s", mem_limit ? mem_limit : "NULL");
+
+   tmp_str = search_conf_val("pe_enable_cpuquota");
+   if (tmp_str && strcmp(tmp_str, "yes") == 0) {
+      enable_cpuquota = true;
+   }
+
+   /* how many slots do we have at this host */
+   if (!(tmp_str=search_nonone_conf_val("host_slots")) || !(host_slots=atoi(tmp_str))) {
+      host_slots = 1;
+   }
+
+   // -fretn
+
+   /* build parameters for SystemD */
+   snprintf(unitname,sizeof(unitname),"sge-%s.%d", get_conf_val("job_id"), MAX(1, atoi(get_conf_val("ja_task_id"))) );
+   pre_args_ptr = &pre_args[1];
+   *pre_args_ptr++ = "--scope";
+   *pre_args_ptr++ = "-p";   		*pre_args_ptr++ = "MemoryAccounting=yes";
+   *pre_args_ptr++ = "-p";   		*pre_args_ptr++ = "CPUAccounting=yes";
+
+   // fretn: memory and cpu limitations through cgroups
+   //  we should use cpuset instead as this is more efficient
+   if (enable_cpuquota == true) {
+	sprintf(enable_cpuquota_str, "CPUQuota=%d%%", host_slots * 100);
+	*pre_args_ptr++ = "-p";   		*pre_args_ptr++ = enable_cpuquota_str;
+   }
+   // TODO: CPUShares
+   // a consumable like mem_limit
+   // and a global setting which lets the admin decide if its cpushares or cpuweight
+   // in the background
+
+   // TODO: use MemoryMax property on cgroupsv2
+
+   if (mem_limit != NULL) {
+	if (strcmp(mem_limit, "INFINITY")) {
+	   sprintf(mem_limit_str, "MemoryLimit=%s", mem_limit);
+	   *pre_args_ptr++ = "-p";   		*pre_args_ptr++ = mem_limit_str;
+	}
+   }
+   // -fretn: end
+
+   *pre_args_ptr++ = "--unit";   	*pre_args_ptr++ = unitname;
+   *pre_args_ptr++ = "--uid";   	*pre_args_ptr++ = get_conf_val("job_owner");
+//   snprintf(execargs[i++],50,"%d",getuid());
+   *pre_args_ptr++ = "--gid";
+   *pre_args_ptr = sge_malloc(50);
+   /* assuming here we are already running correct GID - should be set in son() */
+   snprintf(*pre_args_ptr++,50,"%d",getegid());
+
+#if 0
+   shepherd_trace("childname = %s", childname? childname : "NULL");
+   shepherd_trace("shell_path = %s", shell_path ? shell_path : "NULL");
+   shepherd_trace("script_file = %s", script_file ? script_file : "NULL");
+   shepherd_trace("argv0 = %s", argv0 ? argv0 : "NULL");
+   shepherd_trace("shell_start_mode = %s", shell_start_mode ? shell_start_mode : "NULL");
+   shepherd_trace("is_interactive = %d", is_interactive);
+   shepherd_trace("is_qlogin = %d", is_qlogin);
+   shepherd_trace("is_rsh = %d", is_rsh);
+   shepherd_trace("is_rlogin = %d", is_rlogin);
+   shepherd_trace("str_title = %s", str_title ? str_title : "NULL");
+#endif
+
+   /*
+   ** prepare job arguments
+   */
+   pre_args[0] = argv0; /* universal setting */
+   if ((atoi(get_conf_val("handle_as_binary")) == 1) &&
+       (atoi(get_conf_val("no_shell")) == 0) &&
+       !is_rsh && !is_qlogin && !strcmp(childname, "job") && use_starter_method != 1 ) {
+      int arg_id = 0;
+      dstring arguments = DSTRING_INIT;
+      int n_job_args;
+      char *cp;
+      unsigned long i;
+
+#if 0
+      shepherd_trace("Case 1: handle_as_binary, shell, no rsh, no qlogin, starter_method=none");
+#endif
+
+      *pre_args_ptr++ = shell_path;
+      n_job_args = atoi(get_conf_val("njob_args"));
+      pre_args_ptr[arg_id++] = "-c";
+      sge_dstring_append(&arguments, script_file);
+
+      sge_dstring_append(&arguments, " ");
+      for (i=0; i<n_job_args; i++) {
+         char conf_val[256];
+
+         sprintf(conf_val, "job_arg%lu", i + 1);
+         cp = get_conf_val(conf_val);
+
+         if(cp != NULL) {
+            sge_dstring_append(&arguments, cp);
+            sge_dstring_append(&arguments, " ");
+         } else {
+            sge_dstring_append(&arguments, "\"\"");
+         }
+      }
+
+      pre_args_ptr[arg_id++] = strdup(sge_dstring_get_string(&arguments));
+      pre_args_ptr[arg_id++] = NULL;
+      sge_dstring_free(&arguments);
+      args = pre_args;
+   /* No need to test for binary since this option excludes binary */
+   } else if (!strcasecmp("script_from_stdin", shell_start_mode)) {
+
+#if 0
+      shepherd_trace("Case 2: script_from_stdin");
+#endif
+
+      /*
+      ** -s makes it possible to make the shell read from stdin
+      ** and yet have job arguments
+      ** problem: if arguments are options that shell knows it
+      ** will interpret and eat them
+      */
+      *pre_args_ptr++ = shell_path;
+      pre_args_ptr[0] = "-s";
+      pre_args_ptr[1] = NULL;
+      args = read_job_args(pre_args, 0);
+   /* Binary, noshell jobs have to make it to the else */
+   } else if ( (!strcasecmp("posix_compliant", shell_start_mode) &&
+              (atoi(get_conf_val("handle_as_binary")) == 0)) || (use_starter_method == 1)) {
+
+#if 0
+      shepherd_trace("Case 3: posix_compliant, no binary or starter_method!=none" );
+#endif
+
+      *pre_args_ptr++ = shell_path;
+      pre_args_ptr[0] = script_file;
+      pre_args_ptr[1] = NULL;
+      args = read_job_args(pre_args, 0);
+   /* No need to test for binary since this option excludes binary */
+   } else if (!strcasecmp("start_as_command", shell_start_mode)) {
+
+#if 0
+      shepherd_trace("Case 4: start_as_command" );
+#endif
+
+      *pre_args_ptr++ = shell_path;
+      shepherd_trace("start_as_command: pre_args_ptr[0] = argv0; \"%s\""
+                     " shell_path = \"%s\"", argv0, shell_path);
+      pre_args_ptr[0] = "-c";
+      pre_args_ptr[1] = script_file;
+      pre_args_ptr[2] = NULL;
+      args = pre_args;
+   /* No need to test for binary since this option excludes binary */
+   } else if (is_interactive) {
+      int njob_args;
+
+#if 0
+      shepherd_trace("Case 5: interactive");
+#endif
+      *pre_args_ptr++ = script_file;
+      pre_args[0] = script_file;
+      *pre_args_ptr++ = "-display";
+      *pre_args_ptr++ = get_conf_val("display");
+      *pre_args_ptr++ = "-n";
+      *pre_args_ptr++ = str_title;
+      njob_args = pre_args_ptr - &pre_args[0];
+      *pre_args_ptr++ = NULL;
+      args = read_job_args(pre_args, 2);
+      njob_args += atoi(get_conf_val("njob_args"));
+      args[njob_args++] = "-e";
+      args[njob_args++] = get_conf_val("shell_path");
+      args[njob_args] = NULL;
+   /* No need to test for binary since qlogin handles that itself */
+   } else {
+
+#if 0
+     shepherd_trace("Case 7: unix_behaviour/raw_exec" );
+#endif
+      /*
+      ** unix_behaviour/raw_exec
+      */
+      if(! is_qlogin)
+            *pre_args_ptr++ = use_starter_method ? shell_path : script_file;
+      if (!strcmp(childname, "job")) {
+
+         int arg_id = 0;
+#if 0
+         shepherd_trace("Case 7.1: job" );
+#endif
+         if( use_starter_method ) {
+           pre_args[0] = shell_path;
+           pre_args_ptr[arg_id++] = script_file;
+         } else {
+           pre_args[0] = script_file;
+         }
+
+         pre_args_ptr[arg_id++] = NULL;
+
+         args = read_job_args(pre_args, 0);
+      } else {
+#if 0
+         shepherd_trace("Case 7.2: no job" );
+#endif
+
+         /* the script file also contains procedure arguments
+            need to disassemble the string and put into args vector */
+         if( use_starter_method ) {
+            pre_args[0] = shell_path;
+         } else {
+            pre_args[0] = NULL;
+         }
+         pre_args_ptr[0] = NULL;
+         args = disassemble_proc_args(script_file, pre_args, 0);
+
+         script_file = args[0];
+      }
+   }
+   /* ---- switch to root user */
+
+   /* Need to become root before lauching systemd-run */
+   if (sge_setegid(0) != 0) {
+      shepherd_trace("Cannot change egid due to %s", strerror(errno));
+      return;
+   }
+
+   /* set effective user-id to the user-id of job-owner */
+   if (sge_seteuid(0) != 0) {
+      shepherd_trace("Cannot become root due to %s", strerror(errno));
+      return;
+   }
+
+   if(is_qlogin) { /* qlogin, qrsh (without command), qrsh <command> */
+	 int i;
+	 args = pre_args;
+         if (is_rsh == false) { /* qlogin, qrsh (without command) */
+	    /* generate e.g. "-bash" from the shell path "/bin/bash" */
+	    snprintf(minusname, sizeof(minusname), "-%s", sge_basename(shell_path, '/'));
+
+	    if (getenv("TERM") != NULL) {
+			my_env[0] = strncat(term, getenv("TERM"), 64);
+	    }
+	    my_env[1] = NULL;
+	    args[0] = minusname;
+	    *pre_args_ptr++ = shell_path;
+         } else { /* qrsh <command> */
+            const char *sge_root = NULL;
+            const char *arch = NULL;
+            char *command = NULL;
+            char *buf = NULL;
+            int  nargs;
+
+            args[0] = NULL;
+
+            command = (char*)sge_get_env_value("QRSH_COMMAND");
+            nargs = count_command(command);
+
+            if (nargs > 0) {
+               buf = sge_malloc(strlen(command)+2049);
+
+               sge_root = sge_get_root_dir(0, NULL, 0, 1);
+               if (sge_root == NULL) {
+                   shepherd_trace("reading environment SGE_ROOT failed");
+                   sge_free(&buf);
+                   return;
+               }
+               arch = sge_get_arch();
+               snprintf(buf, SGE_PATH_MAX, "%s/utilbin/%s/qrsh_starter", sge_root, arch);
+
+               args[0] = buf;
+               *pre_args_ptr++ = buf;
+               *pre_args_ptr++ = shepherd_job_dir;
+               if (g_noshell == 1) {
+                   *pre_args_ptr++ = "noshell";
+               }
+            }
+	    my_env[0] = NULL;
+
+        }
+        /* Keep stdin, stdout and stderr open, they are already connected to
+         * the pty and/or the pipes.
+         */
+        close_fds_from(3);
+
+        shepherd_trace("execve(%s, %s, NULL, env)", shell_path, minusname);
+        *pre_args_ptr = (char *) NULL;
+        for (i=0; args[i] != NULL; i++) {
+            shepherd_trace("args[%d] = \"%s\"", i, args[i]);
+        }
+        execve(SYSTEMD_RUN,args,my_env);
+   } else { /* batch job or other command */
+
+      /* build trace string */
+      pc = err_str;
+      snprintf(pc, sizeof(err_str), "execvlp(%s,", args[0]);
+      pc += strlen(pc);
+      for (pstr = args; pstr && *pstr; pstr++) {
+         /* calculate rest length in string - 15 is just laziness for blanks,
+          * "..." string, etc.
+          */
+            if (strlen(*pstr) < ((sizeof(err_str)  - (pc - err_str) - 15))) {
+               sprintf(pc, " \"%s\"", *pstr);
+               pc += strlen(pc);
+            }
+            else {
+               sprintf(pc, " ...");
+               pc += strlen(pc);
+               break;
+            }
+      }
+
+      sprintf(pc, ")");
+      shepherd_trace("%s", err_str);
+
+      /* Bugfix: Issuezilla 1300
+       * Because this fix could break pre-existing installations, it was made
+       * optional. */
+
+      {
+         /* Sanitize the environment in case we're executing prolog
+            etc. as as different user.
+            Also, no need to run via sge_execvlp and systemd-run seems to be doing the same */
+         if (!inherit_env()) {
+            execve(SYSTEMD_RUN, args,
+                        sge_copy_sanitize_env(sge_get_environment()));
+         }
+         else {
+            execve(SYSTEMD_RUN, args, sge_copy_sanitize_env(environ));
+         }
+
+         /* Aaaah - execvp() failed */
+         {
+            char failed_str[2048+128];
+            snprintf(failed_str, sizeof(failed_str), "%s failed: %s",
+                     err_str, strerror(errno));
+
+            /* most of the problems here are related to the shell
+               i.e. -S /etc/passwd */
+            shepherd_state = SSTATE_NO_SHELL;
+            /* EXIT HERE IN CASE IF FAILURE */
+            shepherd_error(1, "%s", failed_str);
+         }
+      }
+   }
+}
+
 
 static int check_configured_method(
 const char *method,

@@ -12,6 +12,14 @@ https://arc.liv.ac.uk/trac/SGE/ticket/<n>.  For historical reasons,
 changes due to Univa/Sun are tagged as "[U]", or "[(U)]" if partially
 due to them or appearing first in this version.
 
+Version 8.1.10
+--------------
+
+* Enhancements
+ * submit jobs in a SystemD friendly manner.
+   Prerequisite:
+     Exec hosts must be running Linux with SystemD (tested on Centos 7)
+     There must be a binary "/bin/systemd-run" located on the exec hosts
 
 Version 8.1.9
 -------------

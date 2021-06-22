@@ -63,6 +63,7 @@ enum {
    CQ_h_rss,
    CQ_s_vmem,
    CQ_h_vmem,
+   CQ_mem_limit,
 
    CQ_s_rt,
    CQ_h_rt,
@@ -132,6 +133,7 @@ LISTDEF(CQ_Type)
    SGE_MAP_D(CQ_h_rss, AMEM_Type, CULL_SPOOL | CULL_JGDI_CONF, "@/", "INFINITY", "hostname", "hRss")  
    SGE_MAP_D(CQ_s_vmem, AMEM_Type, CULL_SPOOL | CULL_JGDI_CONF, "@/", "INFINITY", "hostname", "sVmem") 
    SGE_MAP_D(CQ_h_vmem, AMEM_Type, CULL_SPOOL | CULL_JGDI_CONF, "@/", "INFINITY", "hostname", "hVmem")
+   SGE_MAP_D(CQ_mem_limit, AMEM_Type, CULL_SPOOL | CULL_JGDI_CONF, "@/", "INFINITY", "hostname", "mem_limit")
 
    SGE_MAP_D(CQ_s_rt, ATIME_Type, CULL_SPOOL | CULL_JGDI_CONF, "@/", "INFINITY", "hostname", "sRt")
    SGE_MAP_D(CQ_h_rt, ATIME_Type, CULL_SPOOL | CULL_JGDI_CONF, "@/", "INFINITY", "hostname", "hRt")
@@ -199,6 +201,7 @@ NAMEDEF(CQN)
    NAME("CQ_h_rss")
    NAME("CQ_s_vmem")
    NAME("CQ_h_vmem")
+   NAME("CQ_mem_limit")
 
    NAME("CQ_s_rt")
    NAME("CQ_h_rt")

@@ -205,6 +205,7 @@ qinstance_modify_attribute(sge_gdi_ctx_class_t *ctx,
          case CQ_h_rss:
          case CQ_s_vmem:
          case CQ_h_vmem:
+         case CQ_mem_limit:
             {
                const char *old_value = lGetString(this_elem, attribute_name);
                const char *new_value = NULL;

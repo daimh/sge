@@ -2343,7 +2343,7 @@ showCaLocalTop)
     echo "$CALOCALTOP"
     ;;
 version)
-    echo "sge_ca 8.1.9"
+    echo "sge_ca 8.1.10"
     ;;
 dumpusers)
     DumpUsers
