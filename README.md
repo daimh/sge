@@ -138,7 +138,7 @@ dnf group install "Development Tools"
 dnf --enablerepo=powertools install hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake
 ```
 
-- Void Linux, 2021-05-26, x86\_64, Glibc
+- Void Linux, 2021-06-21, x86\_64, Glibc
 ```
 xbps-install cmake make gcc openssl-devel motif-devel hwloc libhwloc-devel libtirpc-devel ncurses-devel pam-devel
 ```
