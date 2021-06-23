@@ -52,6 +52,10 @@
 #include <limits.h>
 #include <math.h>
 
+#ifdef HAVE_SYSTEMD
+#include <systemd/sd-bus.h>
+#endif
+
 #ifdef __sgi
 #  include <sys/resource.h>
 #  include <sys/systeminfo.h>
@@ -101,7 +105,6 @@
 #include "exec_ifm.h"
 #include "pdc.h"
 
-#define SYSTEMCTL "/usr/bin/systemctl"
 /*
  *
  * PTF Data Structures
@@ -846,7 +849,9 @@ static void ptf_get_usage_from_data_collector(void)
 
    DENTER(TOP_LAYER, "ptf_get_usage_from_data_collector");
 
+
    ojobs = jobs = psGetAllJobs();
+ 
    if (jobs) {
       jobcount = *(uint64 *) jobs;
 
@@ -855,7 +860,6 @@ static void ptf_get_usage_from_data_collector(void)
 #else
       INCJOBPTR(jobs, 8);
 #endif
-
       for (i = 0; i < jobcount; i++) {
          lList *usage_list;
          lListElem *usage;
@@ -882,7 +886,6 @@ static void ptf_get_usage_from_data_collector(void)
                usage_list = ptf_build_usage_list("usagelist", NULL);
                lSetList(osjob, JO_usage_list, usage_list);
             }
-
             /* set CPU usage */
             cpu_usage_value = jobs->jd_utime_c + jobs->jd_utime_a +
                jobs->jd_stime_c + jobs->jd_stime_a;
@@ -947,9 +950,9 @@ static void ptf_get_usage_from_data_collector(void)
 
                jobs = (struct psJob_s *)procs;
                lSetList(osjob, JO_pid_list, pidlist);
-            } else {
+            } else { 
                lSetList(osjob, JO_pid_list, NULL);
-            }
+            } 
 
             tid = lGetString(osjob, JO_task_id_str);
             DPRINTF(("JOB " sge_u32 "." sge_u32 ": %s: (cpu = %8.3lf / mem = "
@@ -1103,25 +1106,67 @@ static void ptf_get_usage_from_data_collector(void)
 
 }
 
+#ifdef HAVE_SYSTEMD
+/****** execd/ptf/systemd_get_property_dbus() *************************
+ *  NAME
+ *     systemd_get_property_dbus() -- get Systemd service property via D-Bus
+ *
+ *  SYNOPSIS
+ *     static void systemd_get_property_dbus(void)
+ *
+ *  FUNCTION
+ *     get a SystemD service property value for a given service and Property
+ *     The Property be defined as long int (does not expect string properties)
+ *     It is an equivalent to "systemctl show <job> -p <Property>"
+ * Author: Ondrej Valousek
+ *
+ **********************************************************************/
+
+long int systemd_get_property_dbus(sd_bus *bus,const char *service, const char *property) {
+        int r;
+        char *path = NULL;
+        sd_bus_error error = SD_BUS_ERROR_NULL;
+        sd_bus_message *reply = NULL;
+        long int val = 0;
+	
+	DENTER(TOP_LAYER, "systemd_get_property_dbus");
+        r = sd_bus_path_encode("/org/freedesktop/systemd1/unit",service,&path);
+        if (r < 0){
+            return -1;
+        }
+
+        r = sd_bus_get_property(bus,"org.freedesktop.systemd1",path,"org.freedesktop.systemd1.Scope",property,&error,&reply,"t");
+
+        free(path);
+        if (r < 0){
+                DPRINTF(("Failed to get state %s\n", error.message));
+                return -2;
+        }
+        r = sd_bus_message_read(reply, "t", &val);
+        sd_bus_message_unref(reply);
+
+        return val;
+}
+
+#endif
 
 /****** execd/ptf/ptf_get_usage_from_systemd() *************************
 *  NAME
-*     ptf_get_usage_from_systemd() -- get usage from SystemD
+*     ptf_get_usage_from_systemd() -- get usage from SystemD 
 *
 *  SYNOPSIS
-*     static void ptf_get_usage_from_systemd(void)
+*     static void ptf_get_usage_from_systemd(void) 
 *
 *  FUNCTION
-*     get the usage for all the jobs in the job ticket list and update
-*     the job list
+*     get the usage for all the jobs in the job ticket list and update 
+*     the job list 
 *
-*     call data collector routine with a list of all the jobs in the job_list
+*     run systemctl show <job> to gather information about all the jobs in the job_list
 *     for each job in the job_list
 *        update job.usage with data collector info
-*        update list of process IDs associated with job end
+*        update list of process IDs associated with job end     
 *     do
-*
-* author: Ondrej Valousek
+* Author: Ondrej Valousek
 ******************************************************************************/
 static void ptf_get_usage_from_systemd(void)
 {
@@ -1130,18 +1175,26 @@ static void ptf_get_usage_from_systemd(void)
    lList *pid_list;
    const char *tid;
    struct psJob_s *jobs;
-   FILE *fp;
-   char systemctl[256];
-
+#ifdef HAVE_SYSTEMD
+   sd_bus* bus;
+   int r;
+#else
    const char cgroupmemroot[] = "/sys/fs/cgroup/memory/system.slice";
    const char cgroupcpuroot[] = "/sys/fs/cgroup/cpuacct/system.slice";
+   FILE *fp;
+#endif
 
 //   ptf_get_usage_from_data_collector();
 //   return;
    DENTER(TOP_LAYER, "ptf_get_usage_from_systemd");
-   strcpy(systemctl,SYSTEMCTL);
-   strcat(systemctl," show -p MemoryCurrent");
+#ifdef HAVE_SYSTEMD
+   r = sd_bus_default_system(&bus);
 
+   if (r < 0) {
+       DPRINTF(("Failed to get D-Bus connection to SystemD: %d",r));
+       return;
+   }
+#endif
    for_each(job, ptf_jobs) {
 
       for_each(osjob, lGetList(job, JL_OS_job_list)) {
@@ -1153,7 +1206,30 @@ static void ptf_get_usage_from_systemd(void)
             usage_list = ptf_build_usage_list("usagelist", NULL);
             lSetList(osjob, JO_usage_list, usage_list);
          }
-//         snprintf(cmd,sizeof(cmd),"%s sge-%lu.scope",systemctl,lGetUlong(job, JL_job_ID));
+
+#ifdef HAVE_SYSTEMD
+#define SD_MEM_USAGE	"MemoryCurrent"
+#define SD_CPU_USAGE	"CPUUsageNSec"
+         /* Use systemd to gather current job usage as this is the most universal
+            Unfortunately depends on SystemD version on how many details
+            we are able to get. We need SystemD version 222 at least so that we can connect via D-Bus */
+         snprintf(cmd,sizeof(cmd),"sge-%lu.%lu.scope",lGetUlong(job, JL_job_ID),lGetUlong(osjob, JO_ja_task_ID));
+	 mem = systemd_get_property_dbus(bus,cmd,SD_MEM_USAGE);
+         if ((usage = lGetElemStr(usage_list, UA_name, USAGE_ATTR_VMEM))) {
+            lSetDouble(usage, UA_value, mem);
+            if ((usage = lGetElemStr(usage_list, UA_name, USAGE_ATTR_MAXVMEM))) {
+               if( (himem = lGetDouble(usage, UA_value)) < mem) 
+                     lSetDouble(usage, UA_value, mem);
+            }
+	 }
+         cpu = systemd_get_property_dbus(bus,cmd,SD_CPU_USAGE)/(1000*1000*1000);  /* cpuacct.usage are in nanoseconds */
+         if ((usage = lGetElemStr(usage_list, UA_name, USAGE_ATTR_CPU))) {
+               lSetDouble(usage, UA_value, cpu);
+         }
+	 /* TODO: Check/save more properties systemctl returns here (like the "IOReadBytes"/"IOWriteBytes") */
+#else
+  /* Get the usage directly from the associated Kernel cgroups, the following code 
+     assumes cgroups v1, i.e. will not work in RHEL-9 */
          snprintf(cmd,sizeof(cmd),"%s/sge-%lu.%lu.scope/memory.usage_in_bytes",cgroupmemroot,lGetUlong(job, JL_job_ID),lGetUlong(osjob, JO_ja_task_ID));
 
          /* Open the command for reading. */
@@ -1161,7 +1237,7 @@ static void ptf_get_usage_from_systemd(void)
 
          if (fp == NULL) {
              DPRINTF(("Failed to open file %s, is the job done?\n",cmd ));
-             lSetUlong(job, JL_state, lGetUlong(job, JL_state)
+             lSetUlong(job, JL_state, lGetUlong(job, JL_state) 
                          & JL_JOB_COMPLETE);
              continue;
          }
@@ -1172,11 +1248,10 @@ static void ptf_get_usage_from_systemd(void)
             if ((usage = lGetElemStr(usage_list, UA_name, USAGE_ATTR_VMEM))) {
                lSetDouble(usage, UA_value, mem);
                if ((usage = lGetElemStr(usage_list, UA_name, USAGE_ATTR_MAXVMEM))) {
-                  if( (himem = lGetDouble(usage, UA_value)) < mem) {
+                  if( (himem = lGetDouble(usage, UA_value)) < mem) 
                      lSetDouble(usage, UA_value, mem);
-				  }
                }
-
+  
             }
          }
          fclose(fp);
@@ -1188,7 +1263,7 @@ static void ptf_get_usage_from_systemd(void)
 
          if (fp == NULL) {
              DPRINTF(("Failed to open file %s, is the job done?\n",cmd ));
-             lSetUlong(job, JL_state, lGetUlong(job, JL_state)
+             lSetUlong(job, JL_state, lGetUlong(job, JL_state) 
                          & JL_JOB_COMPLETE);
              continue;
          }
@@ -1201,31 +1276,14 @@ static void ptf_get_usage_from_systemd(void)
             }
          }
 
-/*
-      while (fgets(line, sizeof(line)-1, fp) != NULL) {
-	  char *value,*ptr;
-	  int i;
-	  value = "MemoryCurrent";
-//          DPRINTF(("line is %s\n",line ));
-
-	  if(ptr = strstr(line,value)){
-	     ptr += strlen(value)+1;
-	     i = atoi(ptr);
-             DPRINTF(("returniong %d\n",i ));
-             if ((usage = lGetElemStr(usage_list, UA_name, USAGE_ATTR_VMEM))) {
-               lSetDouble(usage, UA_value, i);
-             }
-	  }
-
-      } */
          fclose(fp);
-
+#endif
 
          lSetList(osjob, JO_pid_list, NULL);
 
          tid = lGetString(osjob, JO_task_id_str);
          DPRINTF(("JOB " sge_u32 "." sge_u32 ": %s: ( cpu = %8.3lf / vmem = %10.5f  / himem = %10.5f)\n",
-                     lGetUlong(job, JL_job_ID),
+                     lGetUlong(job, JL_job_ID), 
                      lGetUlong(osjob, JO_ja_task_ID), tid ? tid : "",
                      (double)cpu, (double)mem, (double) himem));
 
@@ -1244,7 +1302,9 @@ static void ptf_get_usage_from_systemd(void)
 
       }
    }
-
+#ifdef HAVE_SYSTEMD
+  sd_bus_flush_close_unref(bus);
+#endif
 }
 
 
@@ -1646,7 +1706,6 @@ int ptf_process_job_ticket_list(lList *job_ticket_list)
 void ptf_update_job_usage()
 {
    DENTER(TOP_LAYER, "ptf_update_job_usage");
-   DPRINTF(("here %d\n",mconf_get_use_cgroups()));
    if(mconf_get_use_cgroups() == 2 )
      ptf_get_usage_from_systemd();
    else
@@ -2189,7 +2248,7 @@ int main(int argc, char **argv)
 #if defined(ALPHA)
          os_job_id = pid;
 #endif
-         ptf_job_started(os_job_id, jte, 0);
+         ptf_job_started(os_job_id, jte, 0, fixme);
       }
    }
 

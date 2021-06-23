@@ -233,6 +233,7 @@ usage:
    echo "-purify           -> instrument code with purify (implies -debug)"
    echo "-qmake            -> use qmake instead of make"
    echo "-shared-libs      -> create libraries as shared libs"
+   echo "-systemd	   -> enable job stats directly via SystemD D-BUS (needs SystemD version >=222)"
    echo "-spool-berkeleydb -> use berkeleydb spooling"
    echo "-spool-classic    -> use classic flatfile spooling"
    echo "-spool-targets    -> only create qmaster, spooldefaults and spoolinit"
@@ -842,6 +843,10 @@ while ($#argv >= 1 && $?found)
       set SPOOLING_METHOD = "classic"
       set SPOOLING_LIBS   = "-lspoolloader -lspoolc -lspool"
       set SPOOLING_DEPS   = "spoolloaderlib spoolclib spoollib"
+      breaksw
+   case "-systemd":
+      set DLLIB = "$DLLIB -lsystemd"
+      set CFLAGS = "$CFLAGS -DHAVE_SYSTEMD=1"
       breaksw
    case "-classic-targets":   
       set CORE   = 1
