@@ -7,7 +7,7 @@ Some Grid Engine is a fork of Son of Grid Engine at University of Liverpool, wit
 We have been using and maintaining this software at Michigan Neuroscience Institute, University of Michigan for over a decade. It is stable and good enough for a small HPC cluster. Here we share it on github, hoping more peoples can benefit from it.
 
 ## Improvements
-
+- Support for submitting jobs via SystemD which also allows to enforce memory/cpu limitations via kernel cgroups
 - CMake compiling support. This paved the way for easier maintenance in future. It took 38 seconds to compile in parallel and install on an 8-core old machine, while it took 302 seconds with the legacy SGE way, and 377 seconds with makepkg.
 - Fixed a permission error introduced since systemd 241 in 2019 during installation, if SGE is installed as non-root on production system
 - Compatible with openssl-1.1.1
