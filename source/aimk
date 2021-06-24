@@ -845,8 +845,17 @@ while ($#argv >= 1 && $?found)
       set SPOOLING_DEPS   = "spoolloaderlib spoolclib spoollib"
       breaksw
    case "-systemd":
-      set DLLIB = "$DLLIB -lsystemd"
-      set CFLAGS = "$CFLAGS -DHAVE_SYSTEMD=1"
+      set SYSTEMD_VERSION=`pkg-config --modversion systemd`
+
+      if ($SYSTEMD_VERSION >= 222) then
+        set DLLIB = "$DLLIB -lsystemd"
+        set CFLAGS = "$CFLAGS -DHAVE_SYSTEMD=1"
+      else
+        echo
+        echo "___________W_A_R_N_I_N_G_____________"
+        echo "your SystemD version $SYSTEMD_VERSION is lower than version 222 : using fallback method."
+        echo
+      endif
       breaksw
    case "-classic-targets":   
       set CORE   = 1
