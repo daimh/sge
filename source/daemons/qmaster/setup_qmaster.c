@@ -608,11 +608,7 @@ static void communication_setup(sge_gdi_ctx_class_t *ctx)
 {
    cl_com_handle_t* com_handle = NULL;
    char* qmaster_params = NULL;
-#if defined(IRIX)
-   struct rlimit64 qmaster_rlimits;
-#else
    struct rlimit qmaster_rlimits;
-#endif
 
    const char *qualified_hostname = ctx->get_qualified_hostname(ctx);
    u_long32 qmaster_port = ctx->get_sge_qmaster_port(ctx);
@@ -652,11 +648,7 @@ static void communication_setup(sge_gdi_ctx_class_t *ctx)
       /* 
        * re-check file descriptor limits for qmaster 
        */
-#if defined(IRIX)
-      getrlimit64(RLIMIT_NOFILE, &qmaster_rlimits);
-#else
       getrlimit(RLIMIT_NOFILE, &qmaster_rlimits);
-#endif
 
       /* save old debug log level and set log level to INFO */
       old_ll = log_state_get_log_level();

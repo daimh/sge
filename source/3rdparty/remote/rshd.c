@@ -559,9 +559,7 @@ fail:
    }
 
 	(void) setgid((gid_t)pwd->pw_gid);
-#if !defined(INTERIX) /* EB: TODO: There is no initgroups() in INTERIX */
 	initgroups(pwd->pw_name, old_grp_id);
-#endif
    
 #if (SOLARIS || ALPHA || LINUX || DARWIN)     
    /* add Additional group id to current list of groups */

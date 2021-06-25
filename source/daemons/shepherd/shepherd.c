@@ -79,14 +79,7 @@
 
 #include "binding_support.h"
 
-#if defined(IRIX)
-#  include "sge_processes_irix.h"
-#endif
 
-#if defined(INTERIX)
-#include "../../../utilbin/sge_passwd.h"
-#include "wingrid/windows_gui.h"
-#endif
 
 #if defined(DARWIN)
 #  include <termios.h>
@@ -94,9 +87,6 @@
 #  include <sys/ioctl.h>    
 #elif defined(HP11) || defined(HP1164)
 #  include <termios.h>
-#elif defined(INTERIX)
-#  include <termios.h>
-#  include <sys/ioctl.h>
 #elif defined(FREEBSD) || defined(NETBSD)
 #  include <termios.h>
 #else
@@ -819,9 +809,6 @@ int main(int argc, char **argv)
       config_errfunc = shepherd_error_ptr;
    }
    
-#if defined( INTERIX )
-   wl_set_use_sgepasswd((bool)atoi(get_conf_val("enable_windomacc")));
-#endif
 
    /* init admin user stuff */
    admin_user = get_conf_val("admin_user");
@@ -1127,9 +1114,6 @@ static int start_child(const char *childname, /* prolog, job, epilog */
    dstring err_msg = DSTRING_INIT;
    bool is_interactive = false;
    ckpt_info_t ckpt_info = {0, 0, 0};
-#if defined(IRIX)
-   ash_t ash = 0;
-#endif
 
    ckpt_info.type = ckpt_type;
 
@@ -1167,15 +1151,6 @@ static int start_child(const char *childname, /* prolog, job, epilog */
                                rest_command, sizeof(rest_command) -1);
       shepherd_trace("restarting job from checkpoint arena");
 
-#if defined(IRIX)
-      /* reuse old osjobid for the migrated job and forward this one to ptf */
-      shepherd_write_osjobid_file(get_conf_val("ckpt_osjobid"));
-
-#if defined(IRIX)
-      sscanf(get_conf_val("ckpt_osjobid"), "%lld", &ash);
-      shepherd_trace("reusing old array session handle %lld", ash);
-#endif
-#endif
 
       shepherd_trace("restarting job from checkpoint arena");
       pid = start_async_command("restart", rest_command);
@@ -2339,22 +2314,6 @@ static void handle_signals_and_methods(
             *kill_job_after_checkpoint = 1; 
          }
       } else if (received_signal != 0 || *postponed_signal != 0) { /* received any other signal */
-#if defined(INTERIX)
-         sge_set_environment(true);
-         if(strcmp(childname, "job") == 0 &&
-            wl_get_GUI_mode(get_conf_val("display_win_gui")) == true) {
-            /*
-             * forward SIGKILL, swallow all other signals
-             */
-            int sig = map_signal(received_signal);
-            if(sig == SIGKILL) { 
-               char errormsg[MAX_STRING_SIZE];
-               wl_forward_signal_to_job(get_conf_val("job_id"),
-                                     &sig,
-                                     errormsg, MAX_STRING_SIZE);
-            }
-         } else
-#endif
          {
             forward_signal_to_job(pid, timeout, postponed_signal, 
                                   remaining_alarm, ctrl_pid);
@@ -2553,38 +2512,8 @@ int fd_std_err             /* fd of stderr. -1 if not set */
          alarm(rest_ckpt_interval);
       }
 
-#if defined(INTERIX)
-      npid = waitpid(-1, &status, wait_options);
-#else
       npid = wait3(&status, wait_options, rusage);
-#endif
 
-#if defined(INTERIX)
-      /* <Windows_GUI> */
-      sge_set_environment(true);
-      if (strcmp(childname, "job") == 0 &&
-         wl_get_GUI_mode(get_conf_val("display_win_gui")) == true) {
-         if (npid != -1 && npid != 0) {      
-            char errormsg[MAX_STRING_SIZE];
-
-            memset(&rusage_hp10, 0, sizeof(rusage_hp10));
-
-            shepherd_trace("retrieving remote usage");
-            status = 0;
-            if (wl_getrusage_remote(get_conf_val("job_id"),
-                                   &status, &rusage_hp10, errormsg) != 0) {
-               shepherd_trace(errormsg);
-            }
-            shepherd_trace("retrieved remote usage: %ld %ld %ld %ld %d",
-                           (long) rusage_hp10.ru_stime.tv_sec,
-                           (long) rusage_hp10.ru_stime.tv_usec,
-                           (long) rusage_hp10.ru_utime.tv_sec,
-                           (long) rusage_hp10.ru_utime.tv_usec,
-                           status);
-         }
-      } else 
-      /* </Windows_GUI> */
-#endif
 #if defined(HPUX) || defined(INTERIX)
       {
          /* wait3 doesn't return CPU usage */
@@ -3043,10 +2972,6 @@ static void start_clean_command(char *cmd)
  ****************************************************************/
 void 
 shepherd_signal_job(pid_t pid, int sig) {
-#if defined(IRIX)
-   static int first = 1;
-   static ash_t osjobid = 0;
-# endif
 
 
    /* 
@@ -3116,18 +3041,6 @@ shepherd_signal_job(pid_t pid, int sig) {
                 sge_switch2admin_user();
             }
 #      endif
-#   elif defined(IRIX)
-            if (first == 1) {
-                shepherd_read_osjobid_file(&osjobid, false);
-                first = 0;
-            }
-            if (osjobid == 0) {
-                shepherd_trace("value in \"osjobid\" file = 0, not using kill_ash/killm");
-            } else {
-                sge_switch2start_user();
-                kill_ash(osjobid, sig, sig == 9);
-                sge_switch2admin_user();
-            }
 #   endif
         }
 # endif

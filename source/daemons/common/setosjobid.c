@@ -36,10 +36,6 @@
 #include <pwd.h>
 
 /* for service provider info (SPI) entries and projects */
-#if defined(IRIX)
-#   include <sys/extacct.h>
-#   include <proj.h>
-#endif
 
 #include "uti/config_file.h"
 #include "uti/sge_uidgid.h"
@@ -85,55 +81,8 @@ void setosjobid(pid_t sid _UNUSED, gid_t *add_grp_id_ptr, struct passwd *pw _UNU
       }
 
       if(sge_switch2start_user() == 0) {
-#     if defined(IRIX)
-      {
-         /* The following block contains the operations necessary for
-          * IRIX6.2 (and later) to set array session handles (ASHs) and
-          * service provider info (SPI) records
-          */
-         struct acct_spi spi;
-         int ret;
-         char *cp;
-
-         shepherd_trace("in irix code");
-         /* get _local_ array session id */
-         if ((ret=newarraysess())) {
-            shepherd_error(1, "error: can't create ASH; errno=%d", ret);
-         }
-
-         /* retrieve array session id we just assigned to the process and
-          * write it to the os-jobid file
-          */
-         sprintf(osjobid, "%lld", getash());
-         shepherd_trace(osjobid); 
-         /* set service provider information (spi) record */
-         strncpy(spi.spi_company, "SGE", 8);
-         strncpy(spi.spi_initiator, get_conf_val("spi_initiator"), 8);
-         strncpy(spi.spi_origin, get_conf_val("queue"),16);
-         strcpy(spi.spi_spi, "Job ");
-         strncat(spi.spi_spi, get_conf_val("job_id"),11);
-         if ((ret=setspinfo(&spi))) {
-            shepherd_error(1, "error: can't set SPI; errno=%d", ret);
-         }
-         
-         if ((cp = search_conf_val("acct_project"))) {
-            prid_t proj; 
-            if (strcasecmp(cp, "none") && ((proj = projid(cp)) >= 0)) {
-               shepherd_trace("setting project \"%s\" to id %lld", cp, proj);
-               if (setprid(proj) == -1)
-                  shepherd_trace("failed setting project id");
-            }
-            else {   
-               shepherd_trace("can't get id for project \"%s\"", cp);
-            }
-         } else {
-            shepherd_trace("can't get configuration entry for projects");
-         }
-      }
-#     else
          /* write a default os-jobid to file */
          snprintf(osjobid, sizeof(osjobid), pid_t_fmt, sid);
-#     endif
          sge_switch2admin_user();
       } 
       else /* not running as super user --> we want a default os-jobid */

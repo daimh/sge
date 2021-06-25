@@ -51,15 +51,8 @@
 #include "sge_os.h"
 #include "sgeobj/sge_conf.h"
 
-#if defined(IRIX)
-#   define RLIMIT_STRUCT_TAG rlimit64
-#   define RLIMIT_INFINITY RLIM64_INFINITY
-#   define setrlimit(a, b) setrlimit64(a, b)
-#   define setrlimit(a, b) setrlimit64(a, b)
-#else
 #   define RLIMIT_STRUCT_TAG rlimit
 #   define RLIMIT_INFINITY RLIM_INFINITY
-#endif
 
 static void pushlimit(int, struct RLIMIT_STRUCT_TAG *, int trace_rlimit);
 

@@ -114,13 +114,6 @@ static int sge_domkdir(const char *path_, int fmode, bool exit_on_error, bool ma
          return -1;
       }
    }
-#if defined( INTERIX )
-   /*
-    * mkdir is buggy, chown dir manually
-    */
-   /* Flawfinder: ignore */
-   chown(path_, geteuid(), getegid());
-#endif
  
    DEXIT;
    return 0;

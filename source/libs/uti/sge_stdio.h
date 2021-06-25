@@ -125,22 +125,12 @@
 *  NOTES
 *     Don't forget to define the 'FCLOSE_ERROR'-label
 ******************************************************************************/
-#if defined(IRIX)
-#define FCLOSE(x) \
-   if (x != NULL) { \
-      fsync(fileno(x)); \
-      if (fclose(x) != 0) { \
-         goto FCLOSE_ERROR; \
-      } \
-   }
-#else
 #define FCLOSE(x) \
    if (x != NULL) { \
       if (fclose(x) != 0) { \
          goto FCLOSE_ERROR; \
       } \
    }
-#endif
 
 #define FCLOSE_IGNORE_ERROR(x) fclose(x)
 
@@ -191,8 +181,6 @@ pid_t sge_peopen_r(const char *shell, int login_shell, const char *command,
 
 #if defined(SOLARIS)
 #define SGE_DEFAULT_PATH "/usr/local/bin:/bin:/usr/bin:/usr/ucb"
-#elif defined(IRIX) 
-#define SGE_DEFAULT_PATH "/usr/local/bin:/bin:/usr/bin:/usr/bsd"
 #else
 #define SGE_DEFAULT_PATH "/usr/local/bin:/bin:/usr/bin"
 #endif

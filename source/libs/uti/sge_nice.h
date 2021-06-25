@@ -36,12 +36,7 @@
 #   include <sys/resource.h>
 #endif
 
-#if defined(INTERIX) 
-    /* On Interix the nice range goes from 0 to 2*NZERO-1 */
-#   define SETPRIORITY(niceval) setpriority(PRIO_PROCESS, 0, niceval + NZERO)
-#else
 #   define SETPRIORITY(niceval) setpriority(PRIO_PROCESS, 0, niceval)
-#endif
 
 #endif /* __SGE_NICE_H */
 

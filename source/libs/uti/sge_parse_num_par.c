@@ -48,11 +48,7 @@
 #include "symbols.h"
 
 
-#if defined(IRIX)
-   /* to be independent from irix' compiler options */
-#  undef RLIM_INFINITY
-#  define  RLIM_INFINITY  0x7fffffffffffffffLL
-#elif defined(WIN32NATIVE)
+#if   defined(WIN32NATIVE)
 #	define RLIM_INFINITY 0
 #endif
 

@@ -38,7 +38,7 @@
 #if HAVE_JEMALLOC
 #  include <jemalloc/jemalloc.h>
 #else
-#  if defined(LINUX) || defined(AIX43) || defined(AIX51) || defined(IRIX) || defined(SOLARIS) || defined(HP11)
+#  if defined(LINUX) || defined(AIX43) || defined(AIX51) || defined(SOLARIS) || defined(HP11)
 #    include <malloc.h>           /* mallinfo */
 #  endif
 #endif  /* HAVE_JEMALLOC */
@@ -93,7 +93,7 @@ static dstring Info_Line= DSTRING_INIT;
 
 #if !HAVE_JEMALLOC
 /* mallinfo related data */
-#if defined(LINUX) || defined(AIX43) || defined(AIX51) || defined(IRIX) || defined(SOLARIS) || defined(HP11)
+#if defined(LINUX) || defined(AIX43) || defined(AIX51) || defined(SOLARIS) || defined(HP11)
 static bool mallinfo_initialized = false;
 static void *mallinfo_shlib_handle = NULL;
 static struct mallinfo (*mallinfo_func_pointer)(void) = NULL;
@@ -167,7 +167,7 @@ void sge_monitor_free(monitoring_t *monitor)
    /* fixme: anything to do? */
 #else
    /* fixme: replace by configured value */
-#if defined(LINUX) || defined(AIX43) || defined(AIX51) || defined(IRIX) || defined(SOLARIS) || defined(HP11)
+#if defined(LINUX) || defined(AIX43) || defined(AIX51) || defined(SOLARIS) || defined(HP11)
    sge_mutex_lock("sge_monitor_status", SGE_FUNC, __LINE__, &global_mutex);
    if (mallinfo_shlib_handle != NULL) {  
       dlclose(mallinfo_shlib_handle);
@@ -215,7 +215,7 @@ sge_monitor_init(monitoring_t *monitor, const char *thread_name, extension_t ext
    /*
     * initialize the mallinfo function pointer if it is available
     */
-#if defined(LINUX) || defined(AIX43) || defined(AIX51) || defined(IRIX) || defined(SOLARIS) || defined(HP11)
+#if defined(LINUX) || defined(AIX43) || defined(AIX51) || defined(SOLARIS) || defined(HP11)
    sge_mutex_lock("sge_monitor_status", SGE_FUNC, __LINE__, &global_mutex);
    if (mallinfo_initialized == false) {
       const char *function_name = "mallinfo";
@@ -460,7 +460,7 @@ u_long32 sge_monitor_status(char **info_message, u_long32 monitor_time)
    if (mconf_get_print_malloc_info())
       malloc_stats_print(&write_cb, &Info_Line, "ga");
 #else
-#if defined(LINUX) || defined(AIX43) || defined(AIX51) || defined(IRIX) || defined(SOLARIS) || defined(HP11)
+#if defined(LINUX) || defined(AIX43) || defined(AIX51) || defined(SOLARIS) || defined(HP11)
    if (mallinfo_func_pointer != NULL) {
       struct mallinfo mallinfo_data = mallinfo_func_pointer();
 

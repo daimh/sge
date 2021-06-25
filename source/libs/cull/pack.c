@@ -40,10 +40,6 @@
 #include <rpc/types.h>
 #include <rpc/xdr.h>
 
-#if defined(INTERIX)
-#include <arpa/inet.h>
-#include "wingrid/wingrid.h"
-#endif
 
 #ifdef HPUX
 #include <arpa/inet.h>
@@ -420,23 +416,6 @@ int packdouble(sge_pack_buffer *pb, double d) {
          return PACK_FORMAT;
       }
 #endif/* WIN32 || INTERIX */
-#if defined(INTERIX)
-      wl_xdrmem_create(&xdrs, (caddr_t)buf, sizeof(buf), XDR_ENCODE);
-
-      if (!(wl_xdr_double(&xdrs, &d))) {
-         DPRINTF(("error - XDR of double failed\n"));
-         wl_xdr_destroy(&xdrs);
-         DEXIT;
-         return PACK_FORMAT;
-      }
-
-      if (wl_xdr_getpos(&xdrs) != DOUBLESIZE) {
-         DPRINTF(("error - size of XDRed double is %d\n", wl_xdr_getpos(&xdrs)));
-         wl_xdr_destroy(&xdrs);
-         DEXIT;
-         return PACK_FORMAT;
-      }
-#endif
 
       memcpy(pb->cur_ptr, buf, DOUBLESIZE);
       /* we have to increment the buffer even through WIN32 will not use it */
@@ -444,9 +423,6 @@ int packdouble(sge_pack_buffer *pb, double d) {
 
 #if !(defined(WIN32) || defined(INTERIX)) /* XDR not called */
       xdr_destroy(&xdrs);
-#endif
-#if defined(INTERIX)
-      wl_xdr_destroy(&xdrs);
 #endif
    }
    pb->bytes_used += DOUBLESIZE;
@@ -729,17 +705,6 @@ int unpackdouble(sge_pack_buffer *pb, double *dp)
       return PACK_FORMAT;
    }
 #endif /* WIN32 || INTERIX */
-#if defined(INTERIX)
-   memcpy(buf, pb->cur_ptr, DOUBLESIZE);
-   wl_xdrmem_create(&xdrs, buf, DOUBLESIZE, XDR_DECODE);
-   if (!(wl_xdr_double(&xdrs, dp))) {
-      *dp = 0;
-      DPRINTF(("error unpacking XDRed double\n"));
-      wl_xdr_destroy(&xdrs);
-      DEXIT;
-      return PACK_FORMAT;
-   }
-#endif
 
    /* update cur_ptr & bytes_unpacked */
    pb->cur_ptr = &(pb->cur_ptr[DOUBLESIZE]);

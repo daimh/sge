@@ -42,10 +42,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#if defined(ALPHA)
-   extern void flockfile(FILE *);
-   extern void funlockfile(FILE *);
-#endif
 
 #include <errno.h>
 #include <string.h>

@@ -395,7 +395,7 @@ int cl_com_tcp_open_connection(cl_com_connection_t* connection, int timeout) {
 
       struct timeval now;
       int socket_error = 0;
-#if defined(IRIX65) || defined(INTERIX) || defined(DARWIN6) || defined(ALPHA5) || defined(HPUX)
+#if defined(DARWIN6) || defined(HPUX)
       int socklen = sizeof(socket_error);
 #else
       socklen_t socklen = sizeof(socket_error);
@@ -1037,7 +1037,7 @@ int cl_com_tcp_connection_request_handler_setup(cl_com_connection_t* connection,
    }
 
    if (private->server_port == 0) {
-#if defined(IRIX65) || defined(INTERIX) || defined(DARWIN6) || defined(ALPHA5) || defined(HPUX)
+#if defined(DARWIN6) || defined(HPUX)
       int length;
 #else
       socklen_t length;
@@ -1162,7 +1162,7 @@ int cl_com_tcp_connection_request_handler(cl_com_connection_t* connection, cl_co
    struct sockaddr_in cli_addr;
    int new_sfd = 0;
    int sso;
-#if defined(IRIX65) || defined(INTERIX) || defined(DARWIN6) || defined(ALPHA5) || defined(HPUX)
+#if defined(DARWIN6) || defined(HPUX)
    int fromlen = 0;
 #else
    socklen_t fromlen = 0;
@@ -1364,7 +1364,7 @@ int cl_com_tcp_open_connection_request_handler(cl_com_poll_t* poll_handle, cl_co
    int socket_error = 0;
    int get_sock_opt_error = 0;
 
-#if defined(IRIX65) || defined(INTERIX) || defined(DARWIN6) || defined(ALPHA5) || defined(HPUX)
+#if defined(DARWIN6) || defined(HPUX)
    int socklen = sizeof(socket_error);
 #else
    socklen_t socklen = sizeof(socket_error);

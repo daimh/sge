@@ -1027,51 +1027,6 @@ case AIX51:
    set JAVA_LFLAGS = ""
    breaksw
 
-case ALPHA5:
-   set MAKEWINGRIDLIB   = 0
-   set MAKEWINGRIDAPP   = 0
-   set COMPILE_DC = 1
-   set AUTHLIBS = ""
-   set HWLOC = 1
-
-   if ( $OPTIMIZATION == 1 ) then
-      set OFLAG = "-O3"
-   else
-      set OFLAG = ""
-   endif
-
-   set DLLIB = ""
-
-   # gprof option is superset of debug option
-   # -g3 produces better debugging information than -g1
-   if ( $DEBUGGED == 1) then
-      set DEBUG_FLAG = "-g2 -DSGE_LOCK_DEBUG"
-      set OFLAG      = "-O"
-   endif
-
-   if ( $GPROFFED == 1) then
-      set DEBUG_FLAG = "-g1 -pg -gen_feedback -non_shared"
-   endif
-
-   set NOERR_CFLAG  = "-w"
-   set CFLAGS       = "$OFLAG -w2 -std1 -portable -pthread -warnprotos -DALPHA -D$BUILDARCH $DEBUG_FLAG $CFLAGS -DGETHOSTBYNAME_R3 -DGETHOSTBYADDR_R5 -DUSE_SGE_UNSETENV"
-   set DEPEND_FLAGS = "$CFLAGS $XMTINCD"
-
-   set SHAREDLD      = $CC
-   set SHARED_CFLAGS = ""
-   set SHARED_LFLAGS = "$SHARED_LFLAGS -L. -shared -pthread"
-
-   set LFLAGS   = "-pthread $DEBUG_FLAG $LFLAGS"
-   set XMTDEF   = ""
-   set XINCD    = "$XMTINCD $XINCD"
-   set XCFLAGS  = "-w -DFUNCPROTO=3 -DSMT $XMTDEF $XINCD"
-   set XLIBD    = ""
-   set XLFLAGS  = "-taso $XLIBD"
-   set XLIBS    = "-lXm -lXt -lXext -lX11 -lSM -lICE -lPW -ldnet_stub"
-   set LIBS     = "-lpset -lmach $LIBS"
-   set JAVA_ARCH = "alpha"
-   breaksw
-
 case DARWIN:
 case DARWIN_X86:
 case DARWIN_X64:
@@ -1270,46 +1225,6 @@ case OPENBSD_*:
    set XMLIBS   = "$XLIBS"
    set RM       = "rm -f"
    set JAVA_ARCH = "openbsd"
-   breaksw
-
-case IRIX65:
-   set MAKEWINGRIDLIB   = 0
-   set MAKEWINGRIDAPP   = 0
-   set AUTHLIBS = ""
-   if ( $OPTIMIZATION == 1 ) then
-      set OFLAG = "-O3"
-   else
-      set OFLAG = ""
-   endif
-
-   if ( $DEBUGGED == 1 ) then
-      set OFLAG = ""
-   endif 
-
-   set DLLIB = ""
-
-   set COMPILE_DC = 1
-   set MAKE = gmake
-
-   set CFLAGS   = "$OFLAG -Werror -woff 1035,3201,3496 -n32 -mips3 -mp -DFD_SETSIZE=8192 -DIRIX -D$BUILDARCH -DGETHOSTBYNAME_M -DGETHOSTBYADDR_M $DEBUG_FLAG -DUSE_SGE_UNSETENV $CFLAGS"
-   set NOERR_CFLAG = "-woff 47,1110,1174,1209"
-   set DEPEND_FLAGS = "$CFLAGS $XMTINCD"
-   set LFLAGS   = "-n32 -mips3 $DEBUG_FLAG $LFLAGS"
-   set LIBS     = "$LIBS"
-   set XMTDEF   = ""
-   set XINCD    = "$XMTINCD $XINCD"
-   set XCFLAGS  = "$XMTDEF $XINCD -woff 1174,1498,1506,1185,1552,3496,1209"
-   set XLIBD    = ""
-   set XLFLAGS  = "$XLIBD"
-   set XLIBS    = "-lXm -lXt -lXext -lX11 -lPW -lm"
-   set RANLIB   = echo
-
-   # set SONAME_LFLAG_DRMAA10 = "-W l,-soname,libdrmaa.so.1.0"
-
-   set SHAREDLD = ld
-   set SHARED_CFLAGS = "-KPIC"
-   set SHARED_LFLAGS = "$SHARED_LFLAGS -L. -shared"
-   set JAVA_ARCH = "irix"
    breaksw
 
 case HP11:

@@ -81,11 +81,7 @@ extern int main(int argc, char** argv)
   int com_port = 0;
   char* com_host = NULL;
   int main_return = 0;
-#if defined(IRIX)
-  struct rlimit64 test_issues_limits;
-#else
   struct rlimit test_issues_limits;
-#endif
 
   
   if (argc < 4) {
@@ -135,134 +131,62 @@ extern int main(int argc, char** argv)
   sigaction(SIGPIPE, &sa, NULL);
 
 #if defined(RLIMIT_VMEM) 
-#if defined(IRIX)
-   getrlimit64(RLIMIT_VMEM, &test_issues_limits);
-#else
    getrlimit(RLIMIT_VMEM, &test_issues_limits);
-#endif 
    test_issues_limits.rlim_max = RLIM_INFINITY;
    test_issues_limits.rlim_cur = RLIM_INFINITY;
-#if defined(IRIX)
-   setrlimit64(RLIMIT_VMEM, &test_issues_limits);
-#else
    setrlimit(RLIMIT_VMEM, &test_issues_limits);
-#endif
 
 #else  /* if defined(RLIMIT_VMEM) */
 #if defined(RLIMIT_AS)
-#if defined(IRIX)
-   getrlimit64(RLIMIT_AS, &test_issues_limits);
-#else
    getrlimit(RLIMIT_AS, &test_issues_limits);
-#endif 
    test_issues_limits.rlim_max = RLIM_INFINITY;
    test_issues_limits.rlim_cur = RLIM_INFINITY;
-#if defined(IRIX)
-   setrlimit64(RLIMIT_AS, &test_issues_limits);
-#else
    setrlimit(RLIMIT_AS, &test_issues_limits);
-#endif
 #endif /* if defined(RLIMIT_AS) */
 #endif /* if defined(RLIMIT_VMEM) */
   
 #if defined(RLIMIT_VMEM) 
-#if defined(IRIX)
-   getrlimit64(RLIMIT_VMEM, &test_issues_limits);
-#else
    getrlimit(RLIMIT_VMEM, &test_issues_limits);
-#endif 
    printf("vmem limit is set to %ld\n", (unsigned long) test_issues_limits.rlim_cur);
 #else  /* if defined(RLIMIT_VMEM) */
 #if defined(RLIMIT_AS)
-#if defined(IRIX)
-   getrlimit64(RLIMIT_AS, &test_issues_limits);
-#else
    getrlimit(RLIMIT_AS, &test_issues_limits);
-#endif 
    printf("vmem limit is set to %ld\n", (unsigned long) test_issues_limits.rlim_cur);
 #endif /* if defined(RLIMIT_AS) */
 #endif /* if defined(RLIMIT_VMEM) */
  
 
-#if defined(IRIX)
-   getrlimit64(RLIMIT_STACK, &test_issues_limits);
-#else
    getrlimit(RLIMIT_STACK, &test_issues_limits);
-#endif 
    test_issues_limits.rlim_cur = test_issues_limits.rlim_max;
-#if defined(IRIX)
-   setrlimit64(RLIMIT_STACK, &test_issues_limits);
-#else
    setrlimit(RLIMIT_STACK, &test_issues_limits);
-#endif
 
-#if defined(IRIX)
-   getrlimit64(RLIMIT_STACK, &test_issues_limits);
-#else
    getrlimit(RLIMIT_STACK, &test_issues_limits);
-#endif 
    printf("stacksize limit is set to %ld\n", (unsigned long) test_issues_limits.rlim_cur);
 
-#if defined(IRIX)
-   getrlimit64(RLIMIT_DATA, &test_issues_limits);
-#else
    getrlimit(RLIMIT_DATA, &test_issues_limits);
-#endif 
    test_issues_limits.rlim_max = RLIM_INFINITY;
    test_issues_limits.rlim_cur = RLIM_INFINITY;
-#if defined(IRIX)
-   setrlimit64(RLIMIT_DATA, &test_issues_limits);
-#else
    setrlimit(RLIMIT_DATA, &test_issues_limits);
-#endif
 
-#if defined(IRIX)
-   getrlimit64(RLIMIT_DATA, &test_issues_limits);
-#else
    getrlimit(RLIMIT_DATA, &test_issues_limits);
-#endif 
    printf("data size limit is set to %ld\n", (unsigned long) test_issues_limits.rlim_cur);
 
 
 #if defined(RLIMIT_RSS)
-#if defined(IRIX)
-   getrlimit64(RLIMIT_RSS, &test_issues_limits);
-#else
    getrlimit(RLIMIT_RSS, &test_issues_limits);
-#endif 
    test_issues_limits.rlim_cur = test_issues_limits.rlim_max;
-#if defined(IRIX)
-   setrlimit64(RLIMIT_RSS, &test_issues_limits);
-#else
    setrlimit(RLIMIT_RSS, &test_issues_limits);
-#endif
 
-#if defined(IRIX)
-   getrlimit64(RLIMIT_RSS, &test_issues_limits);
-#else
    getrlimit(RLIMIT_RSS, &test_issues_limits);
-#endif 
    printf("residet set size limit is set to %ld\n", (unsigned long) test_issues_limits.rlim_cur);
 #endif
 
 
-#if defined(IRIX)
-   getrlimit64(RLIMIT_FSIZE, &test_issues_limits);
-#else
    getrlimit(RLIMIT_FSIZE, &test_issues_limits);
-#endif 
    test_issues_limits.rlim_cur = test_issues_limits.rlim_max;
-#if defined(IRIX)
-   setrlimit64(RLIMIT_FSIZE, &test_issues_limits);
-#else
    setrlimit(RLIMIT_FSIZE, &test_issues_limits);
-#endif
 
-#if defined(IRIX)
-   getrlimit64(RLIMIT_FSIZE, &test_issues_limits);
-#else
    getrlimit(RLIMIT_FSIZE, &test_issues_limits);
-#endif 
    printf("file size size limit is set to %ld\n", (unsigned long) test_issues_limits.rlim_cur);
 
 

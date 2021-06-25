@@ -50,10 +50,6 @@
 #elif defined(SOLARIS64) || defined(SOLARIS86) || defined(SOLARISAMD64)
 #  include <stropts.h>
 #  include <termio.h>
-#elif defined(IRIX65)
-#  include <sys/ioctl.h>
-#  include <stropts.h>
-#  include <termio.h>
 #elif defined(FREEBSD) || defined(NETBSD)
 #  include <sys/ioctl.h>
 #  include <termios.h>

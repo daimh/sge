@@ -38,8 +38,6 @@
 
 #if defined(SOLARIS64) || defined(SOLARISAMD64)
 #   include <sys/pset.h>
-#elif defined(ALPHA)
-#   include <sys/processor.h>
 #elif defined(__sgi)
 #   include <sys/sysmp.h>
 #   include <sys/prctl.h>
@@ -65,9 +63,7 @@
 #   define SGE_MPSET_MULTIPLIER   100
 #endif
 
-#if defined(ALPHA)
-typedef long sbv_t;
-#elif defined(__sgi)
+#if   defined(__sgi)
 /* 
  * declaration of sbv_t from sys/runq_private.h
  * including sys/runq_private.h lead to compile errors.
@@ -75,11 +71,6 @@ typedef long sbv_t;
 typedef unsigned long long sbv_t;
 #endif
 
-#if defined(ALPHA)
-int destroy_pset(int pset_id, int number);
-int create_pset(void);
-void print_pset_error(int ret);
-#endif
 
 #if defined(__sgi) || defined(ALPHA) 
 static int range2proc_vec(char *, sbv_t *, char *);
@@ -230,31 +221,7 @@ static int set_processor_range(char *crange, int proc_set_num, char *err_str)
       return ret;
 #endif
 
-#if defined(ALPHA)
-   /* It is not possible to bind processor #0 to other psets than pset #0
-    * So if we get a pset with #0 contained in the range we do nothing. 
-    * The process gets not bound to a processor but it is guaranteed
-    * that no other job will get processor #0 exclusively. It is upon 
-    * the administrator to prevent overlapping of the psets in different
-    * queues 
-    */
-   if (!(proc_vec & 1)) { /* processor #0 not contained */
-      if ((proc_set_num = create_pset())<0) {
-         print_pset_error(proc_set_num); /* prints error to stdout */
-         shepherd_trace("MPPS_CREATE: failed to setup a new processor set");
-         return PROC_SET_ERROR;
-      }
-
-      if (assign_cpu_to_pset(proc_vec, proc_set_num, 0)<0) {
-         print_pset_error(proc_set_num); /* prints error to stdout */
-         shepherd_trace("MPPS_CREATE: failed assigning processors to processor set");
-         return PROC_SET_ERROR;
-      }
-   } else {
-      /* use default pset (id #0) */
-      proc_set_num = 0;
-   }
-#elif defined(SOLARIS64) || defined(SOLARISAMD64)
+#if   defined(SOLARIS64) || defined(SOLARISAMD64)
    /*
     * We do not create a processor set here
     * The system administrator is responsible to do this
@@ -283,18 +250,7 @@ static int set_processor_range(char *crange, int proc_set_num, char *err_str)
       return PROC_SET_ERROR;
    }
 
-#if defined(ALPHA)
-   /* Now let's assign ourselves to the previously created processor set */
-   if (proc_set_num) {
-      pid_t pid_list[1];
-      pid_list[0] = getpid();
-      if (assign_pid_to_pset(pid_list, 1, proc_set_num, PSET_EXCLUSIVE)<0) {
-         print_pset_error(proc_set_num); /* prints error to stdout */
-         shepherd_trace("MPPS_CREATE: failed assigning processors to processor set");
-         return PROC_SET_ERROR;
-      }
-   }
-#elif defined(SOLARIS64) || defined(SOLARISAMD64)
+#if   defined(SOLARIS64) || defined(SOLARISAMD64)
    if (proc_set_num) {
       int local_ret;
 
@@ -377,26 +333,7 @@ static int free_processor_set(char *err_str)
       return PROC_SET_ERROR;
    }
 
-#if defined(ALPHA)
-   if (proc_set_num) {
-      int ret;
-      pid_t pid_list[1];
-      pid_list[0] = getpid();
-
-      /* assign shepherd back to default processor set */
-      if ((ret=assign_pid_to_pset(pid_list, 1, 0, 0))<0) {
-         print_pset_error(ret); /* prints error to stdout */
-         shepherd_trace("MPPS_CREATE: failed assigning processors to processor set");
-         return PROC_SET_ERROR;
-      }
-
-      if ((ret = destroy_pset(proc_set_num, 1))==PROCESSOR_SET_ACTIVE) {
-         print_pset_error(ret);
-         shepherd_trace("MPPS_CREATE: failed assigning processors to processor set");
-         return PROC_SET_ERROR;
-      }
-   }
-#elif defined(SOLARIS64) || defined(SOLARISAMD64)
+#if   defined(SOLARIS64) || defined(SOLARISAMD64)
    /*
     * We do not release a processor set here
     * The system administrator is responsible to do this

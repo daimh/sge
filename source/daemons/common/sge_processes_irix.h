@@ -34,9 +34,6 @@
 
 
 
-#if defined(IRIX)
-int kill_ash(ash_t ash, int sig, int until_vanished);
-#endif
  
 #endif /* __SGE_PROCESSES_IRIX_H */
 

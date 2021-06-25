@@ -217,15 +217,11 @@ int nsrchn = sizeof srchn / sizeof *srchn;
  */
 
 /* We define NUMSIG to avoid changing NSIG or MAXSIG */
-#ifdef INTERIX
-#define NUMSIG NSIG
-#else
 #if defined(POSIX) && !defined(__CYGWIN__)
 # define NUMSIG 65
 #else /* !POSIX */
 # define NUMSIG 33
 #endif /* POSIX */
-#endif
 
 int	nsig = NUMSIG - 1;	/* This should be the number of real signals */
 				/* not counting signal 0 */

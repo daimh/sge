@@ -41,9 +41,7 @@
 #include "cull_list.h"
 
 /* type wrapper */
-#if IRIX
-   typedef rlim64_t sge_rlim_t;
-#elif WIN32NATIVE
+#if   WIN32NATIVE
    typedef long sge_rlim_t;
 #else
    typedef rlim_t sge_rlim_t;

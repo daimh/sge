@@ -243,11 +243,7 @@ tw_cmd_cmd(void)
 #endif /* _UWIN || __CYGWIN__ */
 	    /* the call to executable() may make this a bit slow */
 	    name = str2short(dp->d_name);
-#ifdef INTERIX
-       if (dp->d_ino == 0 || !executable(dir, name, 0))
-#else
 	    if (dp->d_ino == 0 || (recexec && !executable(dir, name, 0)))
-#endif
 		continue;
             len = Strlen(name);
             if (name[0] == '#' ||	/* emacs temp files	*/
@@ -691,11 +687,7 @@ tw_grpname_next(struct Strbuf *res, struct Strbuf *dir, int *flags)
 #if !defined(_VMS_POSIX) && !defined(_OSD_POSIX) && !defined(WINNT_NATIVE)
     errno = 0;
     while ((gr =
-#ifdef INTERIX
-            getgrent_nomembers()
-#else
             getgrent()
-#endif
             ) == NULL && errno == EINTR) {
 	handle_pending_signals();
 	errno = 0;

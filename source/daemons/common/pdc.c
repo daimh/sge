@@ -73,25 +73,7 @@ int main(int argc,char *argv[])
 #include <sys/types.h>
 #include <sys/time.h>
 
-#if defined(IRIX)
-#include <sys/sysmp.h>
-#include <sys/syssgi.h>
-#include <sys/arsess.h>
-#include <sys/procfs.h>
-#include <sys/sysinfo.h>
-#include <sys/tcpipstats.h>
-#include <sys/systeminfo.h>
-#include <sys/swap.h>
-#endif
 
-#if defined(ALPHA)
-#   include <nlist.h>
-#   include <sys/sysinfo.h>
-#   include <machine/hal_sysinfo.h>
-#   include <mach.h>
-#   include </sys/include/vm/vm_perf.h>
-#   include <paths.h>
-#endif
 
 #if defined(AIX)
 #  if defined(_ALL_SOURCE)
@@ -124,18 +106,12 @@ int main(int argc,char *argv[])
 #include <sys/pstat.h>
 #endif
 
-#if defined(LINUX) || defined(ALPHA) || defined(IRIX) || defined(SOLARIS) || defined(DARWIN) || defined (FREEBSD) || defined(NETBSD) || defined(HP1164) || defined(AIX)
+#if defined(LINUX) || defined(SOLARIS) || defined(DARWIN) || defined (FREEBSD) || defined(NETBSD) || defined(HP1164) || defined(AIX)
 
 #include "uti/sge_os.h"
 #endif
 
-#if defined(IRIX)
-#  define F64 "%lld"
-#  define S64 "%lli"
-#elif defined(ALPHA)
-#  define F64 "%ld"
-#  define S64 "%li"
-#elif defined(LINUX) || defined(SOLARIS)
+#if   defined(LINUX) || defined(SOLARIS)
 #  define F64 "%ld"
 #  define S64 "%li"
 #else
@@ -299,160 +275,6 @@ lnk_link_t * find_job(JobID_t jid) {
    return NULL;
 }
 
-#if defined(IRIX)
-
-/*
- * This is a structure containing all the fields that we need
- * out of the arsess_t structure.  It is filled in by the
- * pdc_get_arsess() and pdc_get_arsess64() routines.
- */
-
-typedef struct {
-    ash_t  ash;
-    pid_t  pid;
-    uint64 prid;
-    uint64 start;
-    uint64 refcnt;
-    uint64 utime;
-    uint64 stime;
-    uint64 bwtime;
-    uint64 rwtime;
-    uint64 qwtime;
-    uint64 mem;
-    uint64 chr;
-    uint64 chw;
-} pdc_arsess_t;
-
-int
-pdc_get_arsess(pdc_arsess_t *parse, arsess_t *arse)
-{
-   parse->ash = arse->as_handle;
-   parse->pid = arse->as_pid;
-   parse->prid = arse->as_prid;
-   parse->start = arse->as_start;
-   parse->refcnt = arse->as_refcnt;
-   parse->utime = arse->as_timers.ac_utime;
-   parse->stime = arse->as_timers.ac_stime;
-   parse->bwtime = arse->as_timers.ac_bwtime;
-   parse->rwtime = arse->as_timers.ac_rwtime;
-   parse->qwtime = arse->as_timers.ac_qwtime;
-   parse->mem = arse->as_counts.ac_mem;
-   parse->chr = arse->as_counts.ac_chr;
-   parse->chw = arse->as_counts.ac_chw;
-   return 0;
-}
-
-/*
- * define a 64-bit version of arsess_t for use on 64-bit IRIX
- */
-
-typedef struct arsess64 {
-        ash_t           as_handle;      /* array session handle */
-        prid_t          as_prid;        /* project ID */
-
-        lock_t          as_lock;        /* update lock */
-#ifdef notdef
-        struct arsess   *as_next;       /* next arsess in act/free list */
-        struct arsess   *as_prev;       /* previous arsess in act list */
-#else
-        __uint64_t      as_next;
-        __uint64_t      as_prev;
-#endif
-        int             as_refcnt;      /* reference count */
-        time_t          as_start;       /* start time (secs since 1970) */
-        time_t          as_ticks;       /* lbolt at start */
-        pid_t           as_pid;         /* pid that started this session */
-        ushort_t        as_flag;        /* various flags */
-        char            as_nice;        /* initial nice value of as_pid */
-
-        /* Accounting data */
-        acct_spi_t      as_spi;         /* Service Provider Information */
-        acct_timers_t   as_timers;      /* accounting timers */
-        acct_counts_t   as_counts;      /* accounting counters */
-
-	__uint64_t      as_fill;        /* fill for 64-bit structure */
-} arsess64_t;
-
-
-typedef struct arsess65 {
-        ash_t           as_handle;      /* array session handle */
-        prid_t          as_prid;        /* project ID */
-        int             as_refcnt;      /* reference count */
-        time_t          as_start;       /* start time (secs since 1970) */
-        time_t          as_ticks;       /* lbolt at start */
-        pid_t           as_pid;         /* pid that started this session */
-        int             as_spilen;      /* length of Service Provider Info */
-        ushort_t        as_flag;        /* various flags */
-        char            as_nice;        /* initial nice value of as_pid */
-        char            as_rsrv1[985];  /*   reserved */
-
-        /* Accounting data */
-        char            as_spi[1024];   /* Service Provider Info */
-        acct_timers_t   as_timers;      /* accounting timers */
-        acct_counts_t   as_counts;      /* accounting counters */
-        char            as_rsrv2[1888]; /*   reserved */
-} arsess65_t;
-
-
-int pdc_get_arsess65(pdc_arsess_t *parse, arsess_t *arsein)
-{
-   arsess65_t *arse = (arsess65_t *)arsein;
-
-   parse->ash = arse->as_handle;
-   parse->pid = arse->as_pid;
-   parse->prid = arse->as_prid;
-   parse->start = arse->as_start;
-   parse->refcnt = arse->as_refcnt;
-   parse->utime = arse->as_timers.ac_utime;
-   parse->stime = arse->as_timers.ac_stime;
-   parse->bwtime = arse->as_timers.ac_bwtime;
-   parse->rwtime = arse->as_timers.ac_rwtime;
-   parse->qwtime = arse->as_timers.ac_qwtime;
-   parse->mem = arse->as_counts.ac_mem;
-   parse->chr = arse->as_counts.ac_chr;
-   parse->chw = arse->as_counts.ac_chw;
-   return 0;
-}
-
-
-int pdc_get_arsess64(pdc_arsess_t *parse, arsess_t *arsein)
-{
-   arsess64_t *arse = (arsess64_t *)arsein;
-
-   parse->ash = arse->as_handle;
-   parse->pid = arse->as_pid;
-   parse->prid = arse->as_prid;
-   parse->start = arse->as_start;
-   parse->refcnt = arse->as_refcnt;
-   parse->utime = arse->as_timers.ac_utime;
-   parse->stime = arse->as_timers.ac_stime;
-   parse->bwtime = arse->as_timers.ac_bwtime;
-   parse->rwtime = arse->as_timers.ac_rwtime;
-   parse->qwtime = arse->as_timers.ac_qwtime;
-   parse->mem = arse->as_counts.ac_mem;
-   parse->chr = arse->as_counts.ac_chr;
-   parse->chw = arse->as_counts.ac_chw;
-   return 0;
-}
-#elif defined(ALPHA)
-
-static struct nlist mem_nl[] = {
-   { "vm_perfsum" }, /* PERFSUM */
-   { 0 },
-};
-int kmem_fd = -1;
-
-#define PERFSUM      0
-
-int readk(off_t where, char *addr, int size) {
-   if (lseek(kmem_fd, where, SEEK_SET) == -1)
-      return -1;
-   if (read(kmem_fd, addr, size) == -1)
-      return -1;
-   return 0;
-}
-
-#endif
 
 static int
 get_gmt(void)
@@ -467,17 +289,6 @@ get_gmt(void)
 #ifdef PDC_STANDALONE
 static psSys_t sysdata;
 
-#if defined(IRIX)
-static struct {
-   int initialized;
-   double utime;
-   double stime;
-   double itime;
-   double srtime;
-   double wtime;
-   double ttime;
-} base;
-#endif
 #endif
 
 #ifdef PDC_STANDALONE
@@ -496,23 +307,6 @@ psSetCollectionIntervals(int jobi, int prci, int sysi)
 static
 int psRetrieveSystemData(void)
 {
-#if defined(IRIX)
-   struct sysinfo si;
-   struct rminfo rmi;
-   struct minfo mi;
-#ifdef ever_needed
-   struct dinfo di;
-   struct syserr se;
-   struct kna k;
-#endif
-   off_t swapmax, swapvirt, swaprsrv, swaptot, swapfree;
-   double utime, stime, itime, srtime, wtime, ttime;
-   double period;
-   static uint64 prev_runque, prev_runocc, prev_swpque, prev_swpocc;
-   long clock_tick = sysconf(_SC_CLK_TCK);
-#elif defined(ALPHA)
-   struct vm_statistics vmstats;
-#endif
    time_t time_stamp = get_gmt();
    time_t prev_time_stamp;
    static time_t next;
@@ -527,218 +321,6 @@ int psRetrieveSystemData(void)
    /* Time of last snap */
    sysdata.sys_tstamp = time_stamp;
 
-#if defined(IRIX)
-
-
-   if (sysmp(MP_SAGET, MPSA_SINFO, &si, sizeof(si))<0) {
-      return -1;
-   }
-
-   if (sysmp(MP_SAGET, MPSA_RMINFO, &rmi, sizeof(rmi))<0) {
-      return -1;
-   }
-
-   if (sysmp(MP_SAGET, MPSA_MINFO, &mi, sizeof(mi))<0) {
-      return -1;
-   }
-
-#ifdef ever_needed
-
-   if (sysmp(MP_SAGET, MPSA_SERR, &se, sizeof(se))<0) {
-      return -1;
-   }
-
-   if (sysmp(MP_SAGET, MPSA_DINFO, &di, sizeof(di))<0) {
-      return -1;
-   }
-
-   if (sysmp(MP_SAGET, MPSA_TCPIPSTATS, &k, sizeof(k))<0) {
-      return -1;
-   }
-
-#endif
-
-   if (swapctl(SC_GETFREESWAP, &swapfree)<0) {
-      return -1;
-   }
-   
-   if (swapctl(SC_GETSWAPMAX, &swapmax)<0) {
-      return -1;
-   }
-   
-   if (swapctl(SC_GETSWAPVIRT, &swapvirt)<0) {
-      return -1;
-   }
-   
-   if (swapctl(SC_GETRESVSWAP, &swaprsrv)<0) {
-      return -1;
-   }
-   
-   if (swapctl(SC_GETSWAPTOT, &swaptot)<0) {
-      return -1;
-   }
-
-   /* convert CPU time values to double CPU seconds */
-   utime = (double)si.cpu[CPU_USER] / (double)clock_tick;
-   stime = (double)si.cpu[CPU_KERNEL] / (double)clock_tick;
-   itime = (double)si.cpu[CPU_IDLE] / (double)clock_tick;
-   srtime = 0;
-   wtime = (double)si.cpu[CPU_WAIT] / (double)clock_tick;
-   ttime = ((double)si.cpu[CPU_IDLE] + (double)si.cpu[CPU_USER] +
-            (double)si.cpu[CPU_KERNEL] + (double)si.cpu[CPU_WAIT] +
-            (double)si.cpu[CPU_SXBRK] + (double)si.cpu[CPU_INTR]) /
-            (double)clock_tick;
-
-   /* if this is the first time, intialize base CPU time values */
-
-   if (!base.initialized) {
-      base.initialized = 1;
-      base.utime = utime;
-      base.stime = stime;
-      base.itime = itime;
-      base.srtime = srtime;
-      base.wtime = wtime;
-      base.ttime = ttime;
-      prev_runque = si.runque;
-      prev_runocc = si.runocc;
-      prev_swpque = si.swpque;
-      prev_swpocc = si.swpocc;
-   }
-
-   /* total cpu time avail (this int) */
-   sysdata.sys_ttime = ttime - (base.ttime + sysdata.sys_ttimet);
-
-   /* total cpu time avail (since start) */
-   sysdata.sys_ttimet = ttime - base.ttime;
-
-   /* user time this interval */
-   sysdata.sys_utime = utime - (base.utime + sysdata.sys_utimet);
-
-   /* user time (since start) */
-   sysdata.sys_utimet = utime - base.utime;
-
-   /* system time this interval */
-   sysdata.sys_stime = stime - (base.stime + sysdata.sys_stimet);
-
-   /* system time (since start) */
-   sysdata.sys_stimet = stime - base.stime;
-
-   /* idle time this interval */
-   sysdata.sys_itime = itime - (base.itime + sysdata.sys_itimet);
-
-   /* idle time (since start) */
-   sysdata.sys_itimet = itime - base.itime;
-
-   /* srun wait this interval */
-   sysdata.sys_srtime = srtime - (base.srtime + sysdata.sys_srtimet);
-
-   /* srun wait (since start) */
-   sysdata.sys_srtimet = srtime - base.srtime;
-
-   /* I/O wait time this interval */
-   sysdata.sys_wtime = wtime - (base.wtime + sysdata.sys_wtimet);
-
-   /* I/O wait time (since start) */
-   sysdata.sys_wtimet = wtime - base.wtime;
-
-   /* Total Swap space available */
-   sysdata.sys_swp_total = (uint64)swaptot * 512;
-
-   /* Swap space free */
-   sysdata.sys_swp_free = (uint64)swapfree * 512;
-
-   /* Swap space in use (bytes) */
-   sysdata.sys_swp_used = ((uint64)swaptot - (uint64)swapfree) * 512;
-
-   /* swaprsrv is the amount of space currently reserved by processes 
-      which is not the same as that which is in use by processes 
-      see swapctl(SC_GETRESVSWAP) */
-
-   /* Swap space reserved (bytes) */
-   sysdata.sys_swp_rsvd = (uint64)swaprsrv * 512;
-
-   /* Virtual Swap space avail (bytes) */
-   sysdata.sys_swp_virt = (uint64)swapvirt * 512;
-
-   /* Swap rate in bytes/second */
-   sysdata.sys_swp_rate = 0;
-
-   /* Memory available (unused, free) */
-   sysdata.sys_mem_avail = ((uint64)rmi.freemem + (uint64)rmi.chunkpages) *
-	 pagesize;
-
-   /* Memory in use (bytes) (SVD 10/19/98 - s/rmi.availrmem/rmi.physmem/) */ 
-   sysdata.sys_mem_used = (uint64)rmi.physmem*pagesize - sysdata.sys_mem_avail;
-
-   /* Memory + swap used (bytes) */
-   sysdata.sys_mswp_used = sysdata.sys_swp_used + sysdata.sys_mem_used;
-
-   /* Memory + swap avail (bytes) */
-   sysdata.sys_mswp_avail = sysdata.sys_swp_free + sysdata.sys_mem_avail;
-
-   if ((time_stamp - prev_time_stamp) > 0)
-      period = (time_stamp - prev_time_stamp);
-   else
-      period = 1.0;
-   
-   /* Swap "Occ" delta */
-   sysdata.sys_swpocc = ((double)si.swpocc - prev_swpocc) / period;
-   prev_swpocc = si.swpocc;
-
-   /* Swap Queue delta */
-   sysdata.sys_swpque = ((double)si.swpque - prev_swpque) / period;
-   prev_swpque = si.swpque;
-
-   /* Run "Occ" delta */
-   sysdata.sys_runocc = ((double)si.runocc - prev_runocc) / period;
-   prev_runocc = si.runocc;
-
-   /* Run Queue delta */
-   sysdata.sys_runque = ((double)si.runque - prev_runque) / period;
-   if (sysdata.sys_ncpus > 1) sysdata.sys_runque /= sysdata.sys_ncpus;
-   prev_runque = si.runque;
-
-   /* characters read */
-   sysdata.sys_readch = si.readch;
-
-   /* characters written */
-   sysdata.sys_writech = si.writech;
-
-#elif defined(ALPHA)
-   {
-      struct vm_perf   perf;
-   
-      /* memory information */
-      /* this is possibly bogus - we work out total # pages by */
-      /* adding up the free, active, inactive, wired down, and */
-      /* zero filled. Anyone who knows a better way, TELL ME!  */
-      /* Change: dont use zero filled. */
-
-      if (mem_nl[PERFSUM].n_value) {
-         if (readk((off_t)mem_nl[PERFSUM].n_value,(char *)&perf,sizeof perf))
-         /* Virtual Swap space avail (bytes) */
-         sysdata.sys_swp_free = perf.vpf_swapspace*pagesize;
-      }
-
-      (void) vm_statistics(current_task(),&vmstats);
-
-      /* free mem */
-      sysdata.sys_mem_avail = vmstats.free_count*pagesize; 
-
-      /* Memory in use (bytes) */
-      sysdata.sys_mem_used = (physical_memory*1024) - sysdata.sys_mem_avail;
-
-      /* Swap space reserved (bytes) */
-      sysdata.sys_swp_rsvd = sysdata.sys_swp_used + sysdata.sys_mem_used;
-
-      /* Memory + swap used (bytes) */
-      sysdata.sys_mswp_used = sysdata.sys_swp_used + sysdata.sys_mem_used;
-
-      /* Memory + swap avail (bytes) */
-      sysdata.sys_mswp_avail = sysdata.sys_swp_free + sysdata.sys_mem_avail;
-
-   }
-#endif
    return 0;
 }
 
@@ -755,110 +337,6 @@ get_numjobs(void)
    return count;
 }
 
-#ifdef IRIX
-
-/* only used on IRIX 6 */
-typedef struct {
-   lnk_link_t link;
-   pdc_arsess_t arse;
-} arsess_elem_t;
-
-#define ASHMAXINC 100
-
-/* only used on IRIX 6 */
-static int
-get_arsess_list(lnk_link_t *arsess_list)
-{
-   int num_ashes, i;
-   static ash_t *ashes;
-   static int ash_max;
-   union {
-      arsess_t arse;
-      arsess64_t arse64;
-      arsess65_t arse65;
-   } ar;
-   static int (*get_arsess_p)(pdc_arsess_t *, arsess_t *);
-
-   if (get_arsess_p == NULL) {
-      char irix_release[10];
-      sysinfo(SI_RELEASE, irix_release, sizeof(irix_release));
-      if (strcmp(irix_release, "6.5")>=0)
-         get_arsess_p = &pdc_get_arsess65;
-      else if (sysconf(_SC_KERN_POINTERS) == 64)
-         get_arsess_p = &pdc_get_arsess64;
-      else
-         get_arsess_p = &pdc_get_arsess;
-   }
-
-   if (ashes == NULL) {
-      ash_max = ASHMAXINC;
-      ashes = sge_malloc(sizeof(ash_t)*ash_max);
-      memset(ashes, 0, sizeof(ash_t)*ash_max);
-   }
-
-   LNK_INIT(arsess_list);
-
-   while ((num_ashes = syssgi(SGI_ENUMASHS, ashes, ash_max)) < 0 &&
-          errno == ENOMEM) {
-      ash_max += ASHMAXINC;
-      ashes = (ash_t *)sge_realloc(ashes, sizeof(ash_t)*ash_max, 1);
-   }
-
-   if (num_ashes > 0) {
-      for (i=0; i<num_ashes; i++) {
-         if (syssgi(SGI_GETARSESS, &ashes[i], &ar) >= 0) {
-            arsess_elem_t *arse_elem;
-            arse_elem = malloc(sizeof(arsess_elem_t));
-            memset(arse_elem, 0, sizeof(arsess_elem_t));
-            (*get_arsess_p)(&arse_elem->arse, &ar.arse);
-            LNK_ADD(arsess_list->prev, &arse_elem->link);
-         }
-      }
-   }
-
-   return num_ashes;
-}
-
-
-/* only used on IRIX 6 */
-static void
-free_arsess_list(lnk_link_t *arsess_list)
-{
-   lnk_link_t *curra;
-   while((curra=arsess_list->next) != arsess_list) {
-      arsess_elem_t *ptr;
-
-      LNK_DELETE(curra);
-      ptr = LNK_DATA(curra, arsess_elem_t, link);
-      sge_free(&ptr);
-   }
-}
-
-/* only used on IRIX 6 */
-static arsess_elem_t *
-find_arsess(lnk_link_t *arsess_list, ash_t ash)
-{
-   lnk_link_t *curra;
-   for(curra=arsess_list->next; curra!=arsess_list; curra=curra->next) {
-      arsess_elem_t *arsess_elem = LNK_DATA(curra, arsess_elem_t, link);
-      if (arsess_elem->arse.ash == ash)
-         return arsess_elem;
-   }
-   return NULL;
-}
-
-/* only used on IRIX 6 */
-static int
-in_pidlist(pid_t *pidlist, int max, pid_t pid)
-{
-   int j;
-   for (j=0; pidlist[j] && j<max; j++)
-      if (pidlist[j] == pid)
-         return j+1;
-   return 0;
-}
-
-#endif /* IRIX */
 
 static void
 free_process_list(job_elem_t *job_elem)
@@ -878,22 +356,9 @@ free_process_list(job_elem_t *job_elem)
 static void
 free_job(job_elem_t *job_elem)
 {
-#ifdef IRIX
-   lnk_link_t *currp;
-#endif
 
    free_process_list(job_elem);
 
-#ifdef IRIX
-   /* free arse list */
-   while((currp=job_elem->arses.next) != &job_elem->arses) {
-      arsess_elem_t *ptr;
-   
-      LNK_DELETE(currp);
-      ptr = LNK_DATA(currp, arsess_elem_t, link);
-      sge_free(&ptr);
-   }
-#endif
 
    /* free job element */
    sge_free(&job_elem);
@@ -904,10 +369,6 @@ static int psRetrieveOSJobData(void) {
    time_t time_stamp = get_gmt();
    static time_t next_time, pnext_time;
 
-#if defined(IRIX)
-   lnk_link_t arsess_list;
-   arsess_elem_t *arse_elem;
-#endif
 
    DENTER(TOP_LAYER, "psRetrieveOSJobData");
 
@@ -916,13 +377,7 @@ static int psRetrieveOSJobData(void) {
    }
    next_time = time_stamp + ps_config.job_collection_interval;
 
-#if defined(IRIX)
-
-   /* go get all the array sessions */
-
-   get_arsess_list(&arsess_list);
-
-#elif defined(LINUX) || defined(ALPHA) || defined(SOLARIS)
+#if   defined(LINUX) || defined(ALPHA) || defined(SOLARIS)
    pt_dispatch_procs_to_jobs(&job_list, time_stamp, last_time);
 #elif defined(AIX)
    {
@@ -1312,351 +767,7 @@ static int psRetrieveOSJobData(void) {
          continue;  /* skip precreated jobs */
       }
 
-#if defined(IRIX)
-
-      if ((arse_elem = find_arsess(&arsess_list, job->jd_jid)) == NULL) {
-
-         job->jd_refcnt = 0;
-         job->jd_proccount = 0;
-         free_process_list(job_elem);
-	 job->jd_utime_c += job->jd_utime_a;
-	 job->jd_stime_c += job->jd_stime_a;
-	 job->jd_bwtime_c += job->jd_bwtime_a;
-	 job->jd_rwtime_c += job->jd_rwtime_a;
-	 job->jd_srtime_c += job->jd_srtime_a;
-	 job->jd_utime_a = 0;
-	 job->jd_stime_a = 0;
-	 job->jd_bwtime_a = 0;
-	 job->jd_rwtime_a = 0;
-	 job->jd_srtime_a = 0;
-
-      } else {
-         pid_t pidlist[2048], ses_pidlist[1024];
-         int pidmax = sizeof(pidlist)/sizeof(pid_t);
-         int ses_pidmax = sizeof(ses_pidlist)/sizeof(pid_t);
-         lnk_link_t *curra, *nexta;
-         pdc_arsess_t *arse = &arse_elem->arse;
-         static int pagesize;
-
-         if (!pagesize)
-            pagesize = getpagesize();
-
-         memset(&pidlist, 0, sizeof(pidlist));
-         memset(&ses_pidlist, 0, sizeof(ses_pidlist));
-
-         /* get pids in the array session */
-
-         syssgi(SGI_PIDSINASH, &job->jd_jid, &pidlist, pidmax);
-
-         if (job->jd_tstamp == 0) {
-            job->jd_uid = -1;
-            job->jd_gid = -1;
-         }
-         job->jd_tstamp = time_stamp;
-         job->jd_mem = arse->mem * ((double)pagesize/1024.0/(double)HZ);
-         job->jd_chars = arse->chr + arse->chw;
-         /* Account ID of this job */
-         job->jd_acid = arse->prid;
-         /* total user time used (completed processes) */
-         job->jd_utime_c = arse->utime*1E-9;
-         /* total system time used (completed processes) */
-         job->jd_stime_c = arse->stime*1E-9;
-         /* total block-io-wait time used (completed processes) */
-         job->jd_bwtime_c = arse->bwtime*1E-9;
-         /* total raw-io-wait time used (completed processes) */
-         job->jd_rwtime_c = arse->rwtime*1E-9;
-         /* total srun-wait time used (completed processes) */
-         job->jd_srtime_c = arse->qwtime*1E-9;
-         /* Elapsed time of the job */
-         job->jd_etime = time_stamp - arse->start;
-         /* attached process count (from OS) */
-         job->jd_refcnt = (long)arse->refcnt;
-
-         /* get pids in the POSIX session */
-
-         syssgi(SGI_GETSESPID, arse_elem->arse.pid, &ses_pidlist, ses_pidmax);
-
-         /* search for any array sessions created in the POSIX session 
-            by checking to see if the pid creating the array session
-            is one of the POSIX session pids. */
-           
-         for(curra=arsess_list.next; curra != &arsess_list; curra=nexta) {
-            arsess_elem_t *arsess_elem = LNK_DATA(curra, arsess_elem_t, link);
-            pdc_arsess_t *arse = &arsess_elem->arse;
-            nexta = curra->next;
-
-            if (arse->ash != job->jd_jid &&
-                in_pidlist(ses_pidlist, ses_pidmax, arse->pid)) {
-
-               arsess_elem_t *elem;
-
-               /* remove array session element from main array session list
-                  and chain it onto the job array session list */
-
-               LNK_DELETE(curra);
-               if ((elem=find_arsess(&job_elem->arses, arse->ash))) {
-                  LNK_DELETE(&elem->link);
-                  sge_free(&elem);
-               }
-               LNK_ADD(job_elem->arses.prev, &arsess_elem->link);
-
-               /* attached process count (from OS) */
-               job->jd_refcnt += arse->refcnt;
-
-            }
-         }
-
-	 /* get pids for all of the array sessions associated with the job */
-
-	 for(curra=job_elem->arses.next; curra != &job_elem->arses;
-	     curra=curra->next) {
-
-            arsess_elem_t *arsess_elem = LNK_DATA(curra, arsess_elem_t, link);
-            pdc_arsess_t *arse = &arsess_elem->arse;
-            int j;
-         
-            /* append pids in this array session to the pidlist */
-
-            for(j=0; pidlist[j] && j<pidmax; j++) ;
-
-            syssgi(SGI_PIDSINASH, &arse->ash, &pidlist[j],
-                   pidmax-j);
-         }
-
-         /* if it is not time to collect process data then just
-            add the process usage times to the job data. */
-
-         if (time_stamp <= pnext_time) {
-            lnk_link_t *currp;
-
-            /* initialize active process times */
-            job->jd_utime_a = 0;
-            job->jd_stime_a = 0;
-            job->jd_bwtime_a = 0;
-            job->jd_rwtime_a = 0;
-            job->jd_srtime_a = 0;
-
-            for(currp=job_elem->procs.next; currp != &job_elem->procs;
-                currp=currp->next) {
-
-               proc_elem_t *proc_elem = LNK_DATA(currp, proc_elem_t, link);
-               psProc_t *proc = &proc_elem->proc;
-
-               /* Note: if the process interval is larger than the
-               job interval, then there is a possibility that the
-               usage for a completed job will be counted both in the
-               in the active and complete process usage.  We avoid this by
-               only adding the process's usage to the job usage if the
-               process is in the ASH table active pid list of the job. */
-
-               int j;
-               for (j=0; pidlist[j] && j<sizeof(pidlist)/sizeof(pid_t); j++)
-               if (pidlist[j] == proc->pd_pid) {
-
-                  /* total user time used (active processes) */
-                  job->jd_utime_a += proc->pd_utime;
-
-                  /* total system time used (active processes) */
-                  job->jd_stime_a += proc->pd_stime;
-
-                  /* total block-io-wait time used (active processes) */
-                  job->jd_bwtime_a += proc_elem->bwtime;
-
-                  /* total raw-io-wait time used (active processes) */
-                  job->jd_rwtime_a += proc_elem->rwtime;
-
-                  /* total srun-wait time used (active processes) */
-                  job->jd_srtime_a += proc_elem->qwtime;
-
-                  /* add active process memory usage to job */
-                  job->jd_mem += proc_elem->mem;
-
-                  /* add active process I/O usage to job */
-                  job->jd_chars += proc_elem->chars;
-                  break;
-               }
-
-            }
-
-         } else {
-            proc_elem_t *proc_elem;
-            int j, proccount=0;
-            lnk_link_t old_procs;
-
-            LNK_INIT(&old_procs);
-
-            /* save old process list */
-            if (job_elem->procs.next != &job_elem->procs) {
-               old_procs.next = job_elem->procs.next;
-               old_procs.prev = job_elem->procs.prev;
-               old_procs.next->prev = &old_procs;
-               old_procs.prev->next = &old_procs;
-               LNK_INIT(&job_elem->procs);
-            }
-
-            /* build new process list */
-            
-            /* initialize active process times */
-            job->jd_utime_a = 0;
-            job->jd_stime_a = 0;
-            job->jd_bwtime_a = 0;
-            job->jd_rwtime_a = 0;
-            job->jd_srtime_a = 0;
-            job->jd_vmem = 0;
-            job->jd_rss = 0;
-
-            for (j=0; pidlist[j] && j<sizeof(pidlist)/sizeof(pid_t); j++) {
-
-               if ((proc_elem=(proc_elem_t *)malloc(sizeof(proc_elem_t)))) {
-
-                  prpsinfo_t psinfo;
-                  pracinfo_t prinfo;
-                  char fname[32];
-                  int fd;
-                  psProc_t *proc = &proc_elem->proc;
-                  
-                  memset(proc_elem, 0, sizeof(proc_elem_t));
-                  proc->pd_length = sizeof(psProc_t);
-
-                  /* get data from /proc file system */
-
-                  sprintf(fname, "/proc/%05ld", pidlist[j]);
-                  fd = open(fname, O_RDONLY);
-                  if (fd < 0) continue;
-
-                  if (ioctl(fd, PIOCPSINFO, &psinfo) < 0 ||
-                      ioctl(fd, PIOCACINFO, &prinfo) < 0) {
-                     close(fd);
-                     sge_free(&proc_elem);
-                     pidlist[j] = -pidlist[j]; /* force report of old usage */
-                     continue;
-                  }
-
-                  proc->pd_tstamp = time_stamp;
-                  proc->pd_pid = pidlist[j];
-                  proc->pd_uid = psinfo.pr_uid;
-                  proc->pd_gid = psinfo.pr_gid;
-                  if (job->jd_uid == -1) {
-                     /* user ID of this job */
-                     job->jd_uid = proc->pd_uid;
-                     /* group ID of this job */
-                     job->jd_gid = proc->pd_gid;
-                  }
-                  proc->pd_acid = prinfo.pr_prid;
-                  proc->pd_state = 1;
-                  proc->pd_pstart = psinfo.pr_start.tv_sec +
-                        psinfo.pr_start.tv_nsec*1E-9;
-                  proc->pd_utime = prinfo.pr_timers.ac_utime*1E-9;
-                  proc->pd_stime = prinfo.pr_timers.ac_stime*1E-9;
-                  proc_elem->jid = prinfo.pr_ash;
-                  proc_elem->bwtime = prinfo.pr_timers.ac_bwtime*1E-9;
-                  proc_elem->rwtime = prinfo.pr_timers.ac_rwtime*1E-9;
-                  proc_elem->qwtime = prinfo.pr_timers.ac_qwtime*1E-9;
-                  proc_elem->mem = prinfo.pr_counts.ac_mem *
-                          ((double)pagesize/1024.0/(double)HZ);
-                  proc_elem->chars = prinfo.pr_counts.ac_chr +
-                        prinfo.pr_counts.ac_chw;
-                  proc_elem->vmem = psinfo.pr_size * pagesize;
-                  proc_elem->rss = psinfo.pr_rssize * pagesize;
-
-                  job->jd_vmem += proc_elem->vmem;
-
-                  job->jd_rss += proc_elem->rss;
-
-                  /* total user time used (active processes) */
-                  job->jd_utime_a += proc->pd_utime;
-
-                  /* total system time used (active processes) */
-                  job->jd_stime_a += proc->pd_stime;
-
-                  /* total block-io-wait time used (active processes) */
-                  job->jd_bwtime_a += proc_elem->bwtime;
-
-                  /* total raw-io-wait time used (active processes) */
-                  job->jd_rwtime_a += proc_elem->rwtime;
-
-                  /* total srun-wait time used (active processes) */
-                  job->jd_srtime_a += proc_elem->qwtime;
-
-                  /* add active process memory usage to job */
-                  job->jd_mem += proc_elem->mem;
-
-                  /* add active process I/O usage to job */
-                  job->jd_chars += proc_elem->chars;
-
-                  close(fd);
-
-                  /* add process element to end of process list */
-                  LNK_ADD(job_elem->procs.prev, &proc_elem->link);
-
-                  proccount++;
-               }
-
-            }
-
-            job->jd_proccount = proccount;
-            job->jd_himem = MAX(job->jd_himem, job->jd_vmem);
-
-            /* free old process list. If one of the old processes is not
-               in the new pid list and the old process belongs to a
-               different ASH than the main job ASH, then accumulate its
-               usage. Also if a process is in the pid list but is deleted
-               before we are able to collect its process usage, then report
-               its process usage as completed usage. */
-            {
-               lnk_link_t *currp;
-               while((currp=old_procs.next) != &old_procs) {
-                  proc_elem_t *tproc_elem = LNK_DATA(currp, proc_elem_t, link);
-                  psProc_t *tproc = &tproc_elem->proc;
-                  if (!in_pidlist(pidlist, pidmax, tproc->pd_pid)) {
-                     if (job->jd_jid != tproc_elem->jid) {
-                        job_elem->utime += tproc->pd_utime;
-                        job_elem->stime += tproc->pd_stime;
-                        job_elem->bwtime += tproc_elem->bwtime;
-                        job_elem->rwtime += tproc_elem->rwtime;
-                        job_elem->srtime += tproc_elem->qwtime;
-			job_elem->mem += tproc_elem->mem;
-			job_elem->chars += tproc_elem->chars;
-                     } else if (in_pidlist(pidlist, pidmax, -tproc->pd_pid)) {
-                        job->jd_utime_c += tproc->pd_utime;
-                        job->jd_stime_c += tproc->pd_stime;
-                        job->jd_bwtime_c += tproc_elem->bwtime;
-                        job->jd_rwtime_c += tproc_elem->rwtime;
-                        job->jd_srtime_c += tproc_elem->qwtime;
-			job->jd_mem += tproc_elem->mem;
-			job->jd_chars += tproc_elem->chars;
-                     }
-                  }
-                  LNK_DELETE(currp);
-                  sge_free(&tproc_elem);
-               }
-            }
-         }
-
-         /* add in usage for completed processes from other ASHes */
-         job->jd_utime_c += job_elem->utime;
-         job->jd_stime_c += job_elem->stime;
-         job->jd_bwtime_c += job_elem->bwtime;
-         job->jd_rwtime_c += job_elem->rwtime;
-         job->jd_srtime_c += job_elem->srtime;
-         job->jd_mem += job_elem->mem;
-         job->jd_chars += job_elem->chars;
-
-#ifdef notdef
-         /* add in memory and I/O usage from other ASHes */
-         for(curra=job_elem->arses.next; curra!=&job_elem->arses;
-             curra=curra->next) {
-            arsess_elem_t *arsess_elem = LNK_DATA(curra, arsess_elem_t, link);
-            pdc_arsess_t *arse = &arsess_elem->arse;
-
-            job->jd_mem += arse->mem;
-            job->jd_chars += arse->chr + arse->chw;
-         }
-#endif
-
-      }
-
-#elif defined(ALPHA) || defined(FREEBSD) || defined(LINUX) || defined(SOLARIS) || defined(HP1164) || defined(DARWIN)
+#if  defined(FREEBSD) || defined(LINUX) || defined(SOLARIS) || defined(HP1164) || defined(DARWIN)
       {
          lnk_link_t *currp, *nextp;
 
@@ -1680,7 +791,7 @@ static int psRetrieveOSJobData(void) {
                job->jd_vmem += proc_elem->vmem;    
                job->jd_rss += proc_elem->rss;    
                job->jd_mem += (proc_elem->mem/1024.0);    
-#if defined(ALPHA) || defined(LINUX)
+#if defined(LINUX)
                job->jd_chars += proc_elem->delta_chars;     
 #endif
             } else { 
@@ -1706,9 +817,6 @@ static int psRetrieveOSJobData(void) {
 #endif  /* IRIX */
    }
 
-#ifdef IRIX
-   free_arsess_list(&arsess_list);
-#endif
 
    if (time_stamp > pnext_time)
       pnext_time = time_stamp + ps_config.prc_collection_interval;
@@ -1725,9 +833,6 @@ int psStartCollector(void)
    int ncpus = 0;
 #endif   
 
-#if defined(ALPHA)
-   int start=0;
-#endif
 
    if (initialized)
       return 0;
@@ -1741,39 +846,10 @@ int psStartCollector(void)
    pagesize = getpagesize();
 
    /* retrieve static parameters */
-#if defined(LINUX) || defined(IRIX) || defined(SOLARIS) || defined(DARWIN) || defined(FREEBSD) || defined(NETBSD) || defined(HP1164)
+#if defined(LINUX) || defined(SOLARIS) || defined(DARWIN) || defined(FREEBSD) || defined(NETBSD) || defined(HP1164)
 #  ifdef PDC_STANDALONE
    ncpus = sge_nprocs();
 #  endif
-#elif defined(ALPHA)
-   {
-#ifdef PDC_STANDALONE
-      /* Number of CPUs */
-      ncpus = sge_nprocs();
-      if (getsysinfo(GSI_PHYSMEM, (caddr_t)&physical_memory,sizeof(int),0,NULL)==-1) {
-         return -1;
-      }
-
-      unixname[0] = '/';
-      if ((getsysinfo(GSI_BOOTEDFILE, &unixname[1],
-         sizeof(unixname), NULL, NULL)) <= 0) {
-         sge_strlcpy(unixname, _PATH_UNIX, sizeof(unixname));
-      }
-
-      if (nlist(unixname, mem_nl) == -1) {
-         return -1;
-      }
-      if (mem_nl[PERFSUM].n_value == 0) {
-         return -1;
-      }
-
-      if ((kmem_fd = open(_PATH_KMEM,O_RDONLY,0)) == -1) {
-         return -1;
-      }
-
-#endif  /* PDC_STANDALONE */
-   } 
-
 #endif  /* ALPHA */
 #ifdef PDC_STANDALONE
    /* Length of struct (set@run-time) [not actually used?] */
@@ -1787,9 +863,6 @@ int psStartCollector(void)
 
 int psStopCollector(void)
 {
-#if defined(ALPHA)
-   close(kmem_fd);
-#endif
 
    return 0;
 }
@@ -2058,32 +1131,17 @@ print_job_data(psJob_t *job)
    printf("jd_length=%d\n", job->jd_length);
    printf("jd_uid="uid_t_fmt"\n", job->jd_uid);
    printf("jd_gid="uid_t_fmt"\n", job->jd_gid);
-#if defined(IRIX)
-   printf("jd_acid="F64"\n", job->jd_acid);
-#endif
    printf("jd_tstamp=%s\n", ctime(&job->jd_tstamp));
    printf("jd_proccount=%d\n", (int)job->jd_proccount);
    printf("jd_refcnt=%d\n", (int)job->jd_refcnt);
    printf("jd_etime=%8.3f\n", job->jd_etime);
    printf("jd_utime_a=%8.3f\n", job->jd_utime_a);
    printf("jd_stime_a=%8.3f\n", job->jd_stime_a);
-#if defined(IRIX)
-   printf("jd_bwtime_a=%8.3f\n", job->jd_bwtime_a);
-   printf("jd_rwtime_a=%8.3f\n", job->jd_rwtime_a);
-#endif
    printf("jd_srtime_a=%8.3f\n", job->jd_srtime_a);
    printf("jd_utime_c=%8.3f\n", job->jd_utime_c);
    printf("jd_stime_c=%8.3f\n", job->jd_stime_c);
-#if defined(IRIX)
-   printf("jd_bwtime_c=%8.3f\n", job->jd_bwtime_c);
-   printf("jd_rwtime_c=%8.3f\n", job->jd_rwtime_c);
-#endif
    printf("jd_srtime_c=%8.3f\n", job->jd_srtime_c);
-#if defined(IRIX)
-   printf("jd_mem="F64"\n", job->jd_mem);
-#else
    printf("jd_mem=%lu\n", job->jd_mem);
-#endif
    printf("jd_chars=%8.3fM\n", INTOMEGS(job->jd_chars));
    printf("jd_vmem=%8.3fM\n", INTOMEGS(job->jd_vmem));
    printf("jd_rss=%8.3fM\n", INTOMEGS(job->jd_rss));
@@ -2098,11 +1156,7 @@ print_process_data(psProc_t *proc)
    printf("\tpd_tstamp=%s\n", ctime(&proc->pd_tstamp));
    printf("\tpd_uid="uid_t_fmt"\n", proc->pd_uid);
    printf("\tpd_gid="uid_t_fmt"\n", proc->pd_gid);
-#if defined(IRIX)
-   printf("\tpd_acid="F64"\n", proc->pd_acid);
-#else
    printf("\tpd_acid=%lu\n", proc->pd_acid);
-#endif
    printf("\tpd_state=%d\n", (int)proc->pd_state);
    printf("\tpd_pstart=%8.3f\n", proc->pd_pstart);
    printf("\tpd_utime=%8.3f\n", proc->pd_utime);
