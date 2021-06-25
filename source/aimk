@@ -1421,7 +1421,7 @@ case LINUX*:
    # by an /etc/ld.so.conf rule for the few libraries involved.
    # Actually, this should probably just be conditionalized; see
    # also the enforce_shlib stuff in distinst and the templates.
-   set RUNPATH       = -Wl,-rpath,'\$$ORIGIN'/../../lib/$buildarch
+   set RUNPATH       = -Wl,--as-needed,-rpath,'\$$ORIGIN'/../../lib/$buildarch
    set LFLAGS        = "$LFLAGS $RUNPATH"
    set SHARED_LFLAGS = "$SHARED_LFLAGS $RUNPATH"
 
