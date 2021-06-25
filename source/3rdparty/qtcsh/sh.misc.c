@@ -570,11 +570,7 @@ xgetgrgid(gid_t xgid)
 
     errno = 0;
     while ((res =
-#ifdef INTERIX
-            getgrgid_nomembers(xgid)
-#else
             getgrgid(xgid)
-#endif
             ) == NULL && errno == EINTR) {
 	handle_pending_signals();
 	errno = 0;

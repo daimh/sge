@@ -67,9 +67,6 @@
 #include "err_trace.h"
 #include "qlogin_starter.h"
 
-#if defined(INTERIX)
-#  include "wingrid.h"
-#endif
 
 static FILE *shepherd_error_fp=NULL;
 static FILE *shepherd_exit_status_fp=NULL;
@@ -936,9 +933,6 @@ static bool nfs_mounted(const char *path)
 #if defined(LINUX) || defined(DARWIN) || defined(FREEBSD) || (defined(NETBSD) && !defined(ST_RDONLY))
    struct statfs buf;
    statfs(path, &buf);
-#elif defined(INTERIX)
-   struct statvfs buf;
-   wl_statvfs(path, &buf);
 #else
    struct statvfs buf;
    statvfs(path, &buf);
@@ -948,8 +942,6 @@ static bool nfs_mounted(const char *path)
    ret = (strcmp("nfs", buf.f_fstypename) == 0) ? true : false;
 #elif defined(LINUX)
    ret = (buf.f_type == 0x6969);
-#elif defined(INTERIX)
-   ret = (strncasecmp("nfs", buf.f_fstypename, 3) == 0) ? true : false;
 #else
    ret = (strncmp("nfs", buf.f_basetype, 3) == 0) ? true : false;
 #endif

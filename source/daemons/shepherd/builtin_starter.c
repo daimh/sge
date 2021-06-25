@@ -60,10 +60,6 @@
 
 #include "msg_common.h"
 
-#if defined(INTERIX)
-#  include "wingrid.h"
-#  include "windows_gui.h"
-#endif
 
 #include "builtin_starter.h"
 #include "err_trace.h"
@@ -84,10 +80,6 @@ extern int  g_newpgrp;
 static int sge_parse_limit(sge_rlim_t *rlvalp, char *s, char *error_str,
                            int error_len);
 
-#if defined(INTERIX)
-char job_user[MAX_STRING_SIZE];
-static char user_passwd[MAX_STRING_SIZE];
-#endif
 static char* shepherd_env[MAX_NUMBER_OF_ENV_VARS + 1];
 static int shepherd_env_index = -1;
 static int inherit_environ = -1;
@@ -213,10 +205,6 @@ void son(const char *childname, char *script_file, int truncate_stderr_out, size
    bool skip_silently = false;
    int pty = atoi(get_conf_val("pty"));
 
-#if defined(INTERIX)
-#  define TARGET_USER_BUFFER_SIZE 1024
-   char target_user_buffer[TARGET_USER_BUFFER_SIZE];
-#endif
 
    foreground = 0; /* VX sends SIGTTOU if trace messages go to foreground */
 
@@ -257,13 +245,7 @@ void son(const char *childname, char *script_file, int truncate_stderr_out, size
       /* must force to run the qlogin starter as root, since it needs
          access to /dev/something */
       if (g_new_interactive_job_support == false) {
-#if defined(INTERIX)
-         if(wl_get_superuser_name(target_user_buffer, TARGET_USER_BUFFER_SIZE)==0) {
-            target_user = target_user_buffer;
-         }
-#else
          target_user = "root";
-#endif
       } else { /* g_new_interactive_job_support == true */
          /*
           * Make sure target_user is NULL and will thus be
@@ -336,26 +318,9 @@ void son(const char *childname, char *script_file, int truncate_stderr_out, size
        *  This workaround doesn't work for Interix - we have to find
        *  another solution here!
        */
-#if !defined(INTERIX)
       intermediate_user = get_conf_val("job_owner");
-#endif
    }
 
-#if defined(ALPHA)
-   /* setlogin() stuff */
-   errno = 0;
-   if (sge_switch2start_user()) {
-      shepherd_error(1, "switch2start_user failed: %s", strerror(errno));
-   }
-   if (!geteuid()) {
-      if (setlogin(target_user)) {
-         sge_switch2admin_user();
-         shepherd_error(1, "setlogin(%s) failed: %s", target_user, strerror(errno));
-      }
-      if (sge_switch2admin_user())
-         shepherd_error(1, "switch2admin_user failed: %s", strerror(errno));
-   }
-#endif
 
    shepherd_trace("pid="pid_t_fmt" pgrp="pid_t_fmt" sid="pid_t_fmt" old pgrp="
                   pid_t_fmt" getlogin()=%s", pid, newpgrp, newpgrp, pgrp, 
@@ -397,61 +362,6 @@ void son(const char *childname, char *script_file, int truncate_stderr_out, size
    shepherd_trace("Initializing error file");
    shepherd_error_init( );
 
-#if defined(INTERIX)
-   /*
-    * Try to read password from sgepasswd file only if target_user 
-    * is not superuser
-    * This is the case for all non-interactive jobs, for qrsh
-    * it usually is the superuser.
-    * 'pw' is the pw of the target_user.
-    */
-   if(strcmp(childname, "job") == 0) {
-
-      /* set empty user_password */
-      strcpy(user_passwd, "");
-
-      if (wl_use_sgepasswd() == true) {
-         if (wl_get_GUI_mode(get_conf_val("display_win_gui")) == true) {
-            if (wl_is_user_id_superuser(pw->pw_uid) == false) {
-               char  *pass = NULL;
-               uid_t uid;
-               int   res;
-
-               uid = geteuid();
-               sge_seteuid(SGE_SUPERUSER_UID);
-               res = uidgid_read_passwd(target_user, &pass, err_str,
-                                        sizeof(err_str));
-               sge_seteuid(uid);
-
-               if(res == 0) {
-                  strlcpy(user_passwd, pass, MAX_STRING_SIZE);
-                  sge_free(&pass);
-                  if (strlen(user_passwd) == 0) {
-                     shepherd_trace("uidgid_read_passwd() returned empty password string!");
-                  }
-               } else {
-                  if(res == 1) {
-                     shepherd_state = SSTATE_PASSWD_FILE_ERROR;
-                  } else if (res == 2) {
-                     shepherd_state = SSTATE_PASSWD_MISSING;
-                  } else if (res == 3) {
-                     shepherd_state = SSTATE_PASSWD_WRONG;
-                  }
-                  shepherd_error(1, err_str);
-               }
-            } else {
-               shepherd_trace("target user is superuser!");
-            }
-         } else {
-            shepherd_trace("\"display_win_gui\" configuration value is disabled!");
-         }
-      } else {
-         shepherd_trace("wl_enable_windomacc is false!");
-      }
-   } else {
-      shepherd_trace("childname: %s", childname);
-   }
-#endif
 
    /** 
     ** Set uid and gid and
@@ -882,11 +792,6 @@ void son(const char *childname, char *script_file, int truncate_stderr_out, size
    }
 
 
-#if defined(INTERIX)
-   if (strcmp(childname, "job") == 0) {
-      sge_strlcpy(job_user, target_user, sizeof(job_user));
-   }
-#endif
 /* ---- switch to target user */
    if (intermediate_user) {
       if (is_qlogin_starter) {
@@ -998,20 +903,10 @@ int sge_set_environment(bool user_env)
    FILE *fp;
    char buf[10000], *name, *value, err_str[10000];
    int line=0;
-#if defined(IRIX)
-   char help_str[100] = "";
-   ash_t jobid;
-#endif
    const char *new_value = NULL;
 
    setup_environment();
 
-#if defined(IRIX)
-   if (shepherd_read_osjobid_file(&jobid, false)) {
-      snprintf(help_str, 100, "%lld", jobid);
-      sge_set_env_value("OSJOBID", help_str);
-   }
-#endif
 
    if (!(fp = fopen(filename, "r"))) {
       shepherd_error(1, "can't open environment file: %s", strerror(errno));
@@ -1580,90 +1475,7 @@ int use_starter_method /* If this flag is set the shell path contains the
        * Because this fix could break pre-existing installations, it was made
        * optional. */
 
-#if defined(INTERIX)
-      if(strcmp(childname, "job") == 0 
-         && wl_get_GUI_mode(get_conf_val("display_win_gui")) == true) {
-         int  ret;
-         int  win32_exit_status = 0;
-         char **env;
-         char err_msg[MAX_STRING_SIZE];
-         //char failed_str[MAX_STRING_SIZE+128];
-         enum en_JobStatus job_status;
-         int  failure = -1;
-
-         shepherd_trace("starting GUI job remote: %s", filename);
-
-         env = sge_get_environment();
-
-         if (strlen(user_passwd) == 0) {
-            shepherd_trace("got empty password string!");
-         }
-
-         ret = wl_start_job_remote(filename, args, env, 
-                             job_user, user_passwd, 
-                             &win32_exit_status, &job_status, err_msg);
-
-         shepherd_trace("start_job_remote returned with %d, "
-                        "job_status = %d, win32_exit_status = %d",
-                        ret, job_status, win32_exit_status);
-
-         switch(ret) {
-            case 0:
-               // job was successfully placed into job queue, parse job_status
-               switch(job_status) {
-                  case js_Finished:
-                     // everything ok, exit_status of job is valid.
-                     break;
-
-                  case js_Deleted:
-                     // job was deleted, this is ok, expect exit_status to
-                     // be invalid
-                     break;
-
-                  case js_Failed:
-                     // job start failed, err_msg contains reason
-                     failure = SSTATE_HELPER_SERVICE_BEFORE_JOB;
-                     break;
-
-                  // unexpected job state - set host to error
-                  case js_Invalid:
-                  case js_Received:
-                  case js_ToBeStarted:
-                  case js_Started:
-                  default:
-                     failure = SSTATE_HELPER_SERVICE_ERROR;
-                     break;
-               }
-               shepherd_trace("exit_status: %d", win32_exit_status);
-               break;
-
-            case 254:
-               // job already existed in Helper Services list
-               // could be a scheduler error, set job in error state
-               failure = SSTATE_HELPER_SERVICE_BEFORE_JOB;
-               break;
-
-            case 255:
-               // sending job to service failed
-               failure = SSTATE_HELPER_SERVICE_ERROR;
-               break;
-
-            default:
-               // was not able to contact service
-               failure = SSTATE_HELPER_SERVICE_ERROR;
-               break;
-         }
-         if(failure != -1) {
-            shepherd_state = failure;
-            shepherd_error(1, err_msg);
-         }
-         exit(win32_exit_status);
-      } else 
-#endif
       {
-#if defined(INTERIX)
-         shepherd_trace("not a GUI job, starting directly");
-#endif
          /* Sanitize the environment in case we're executing prolog
             etc. as as different user.  */
          if (!inherit_env()) {

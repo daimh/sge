@@ -65,9 +65,6 @@ static const char rcsid[] =
 #include <string.h>
 #include <unistd.h>
 
-#if defined(INTERIX)
-#  include <arpa/inet.h>
-#endif
 
 #ifdef SOLARIS
 #include <sys/filio.h>

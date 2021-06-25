@@ -39,13 +39,8 @@
 
 #include "sge_unistd.h"
 
-#if defined(INTERIX) && !defined(INTERIX52)
-#  define SGE_SUPERUSER_UID wl_get_superuser_id()
-#  define SGE_SUPERUSER_GID wl_get_superuser_gid() 
-#else
 #  define SGE_SUPERUSER_UID 0
 #  define SGE_SUPERUSER_GID 0
-#endif
 
 #ifndef MAX_NIS_RETRIES
 #  define MAX_NIS_RETRIES 10

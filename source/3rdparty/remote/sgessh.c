@@ -79,9 +79,7 @@ int sgessh_do_setusercontext(struct passwd *pwd)
 
    (void) setgid((gid_t)pwd->pw_gid);
 
-#if !defined(INTERIX) /* EB: TODO: There is no initgroups() in INTERIX */
    initgroups(pwd->pw_name, pwd->pw_gid);
-#endif
 
 #if (SOLARIS || ALPHA || LINUX || DARWIN)
    /* add Additional group id to current list of groups */

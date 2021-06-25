@@ -55,11 +55,6 @@ int verydummyprocfs;
 #include <string.h>
 #include <signal.h>
 
-#if defined(ALPHA) 
-#  include <sys/user.h>
-#  include <sys/table.h>   
-#  include <sys/procfs.h>   
-#endif
 
 #if defined(SOLARIS) 
 #  include <sys/procfs.h>   
@@ -636,20 +631,6 @@ int pt_dispatch_proc_to_job(char *pidname, lnk_link_t *job_list,
          ((proc_elem->proc.pd_stime + proc_elem->proc.pd_utime) - old_time) * 
          (( old_vmem + proc_elem->vmem)/2);
 
-#if defined(ALPHA)
-#define BLOCKSIZE 512
-   {
-      struct user ua;
-      uint64 old_ru_ioblock = proc_elem->ru_ioblock;
-
-      /* need to do a table(2) call for each process to retrieve io usage data */   
-      /* get user area stuff */
-      if (table(TBL_UAREA, proc_elem->proc.pd_pid, (char *)&ua, 1, sizeof ua) == 1) {
-         proc_elem->ru_ioblock = (uint64)(ua.u_ru.ru_inblock + ua.u_ru.ru_oublock);
-         proc_elem->delta_chars = (proc_elem->ru_ioblock - old_ru_ioblock)* BLOCKSIZE;
-      }
-   }
-#endif  /* ALPHA */
  return0:
    if (fd >= 0) close(fd);
    DRETURN(0);

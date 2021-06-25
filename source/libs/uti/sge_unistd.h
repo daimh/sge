@@ -43,26 +43,15 @@
 
 #include "sge_dstring.h"
 
-#if defined(INTERIX)
-#  include "../wingrid/wingrid.h"
-#endif
 
 /* historical reasons */
 #define SGE_OPEN2(filename, oflag)       open(filename, oflag)
 #define SGE_OPEN3(filename, oflag, mode) open(filename, oflag, mode)
 
-#if defined (IRIX)
-#  define SGE_CLOSE(fd) fsync(fd); close(fd)
-#else
 #  define SGE_CLOSE(fd) close(fd);
-#endif
 
 
-#if defined(INTERIX)
-#  define SGE_STAT(filename, buffer) wl_stat(filename, buffer)
-#else
 #  define SGE_STAT(filename, buffer) stat(filename, buffer)
-#endif
 /* historical */
 #define SGE_LSTAT(filename, buffer) lstat(filename, buffer)
 #define SGE_FSTAT(filename, buffer) fstat(filename, buffer)

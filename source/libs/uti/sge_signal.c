@@ -51,10 +51,6 @@
 #   define SIGWINCH 28
 #endif
 
-#if defined(ALPHA)
-#  undef NSIG
-#  define NSIG (SIGUSR2+1)
-#endif
 
 const sig_mapT sig_map[] = 
 {

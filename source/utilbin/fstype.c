@@ -54,9 +54,6 @@
 #include <nfs/nfs_clnt.h>
 #endif
 
-#if defined(INTERIX)
-#  include "wingrid.h"
-#endif
 
 #define BUF_SIZE 8 * 1024
 
@@ -78,9 +75,6 @@ int main(int argc, char *argv[]) {
 #elif defined(DARWIN) || defined(FREEBSD) || (defined(NETBSD) && !defined(ST_RDONLY))
    struct statfs buf;
    ret = statfs(argv[1], &buf);
-#elif defined(INTERIX)
-   struct statvfs buf;
-   ret = wl_statvfs(argv[1], &buf);
 #elif defined(SOLARIS)
    struct statvfs buf;
    struct mntinfo_kstat mnt_info;
@@ -191,8 +185,6 @@ int main(int argc, char *argv[]) {
          printf("%lx\n", (long unsigned int)buf.f_type);
       }
    }
-#elif defined(INTERIX)
-   printf("%s\n", buf.f_fstypename);
 #else
    printf("%s\n", buf.f_basetype);
 #endif

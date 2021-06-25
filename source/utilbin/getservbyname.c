@@ -41,9 +41,6 @@
 
 #include "gdi/version.h"
 
-#if defined(INTERIX)
-#include <arpa/inet.h>
-#endif
 
 void usage(void)
 {

@@ -658,9 +658,6 @@ xgetpass(const char *prm)
 static void
 auto_lock(void)
 {
-#ifdef INTERIX
-   return;
-#else
 
 #ifndef NO_CRYPT
 
@@ -759,7 +756,6 @@ auto_lock(void)
     }
 #endif /* NO_CRYPT */
     auto_logout();
-#endif
 }
 
 

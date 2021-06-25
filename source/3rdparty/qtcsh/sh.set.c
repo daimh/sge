@@ -1117,15 +1117,9 @@ update_dspmbyte_vars(void)
 	    iskcode = 0;
 	}
 	else {
-#ifdef INTERIX
-       xprintf(CGETS(18, 2,
-          "Warning: unknown multibyte display; using default(sjis)\n"));
-       iskcode = 1;
-#else
 	    xprintf(CGETS(18, 2,
 	       "Warning: unknown multibyte display; using default(euc(JP))\n"));
 	    iskcode = 2;
-#endif
 	}
 	if (dstr1 && vp->vec[1] && eq(vp->vec[1], STRls))
 	  dspmbyte_ls = 1;

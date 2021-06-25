@@ -45,10 +45,6 @@
 #   include <sys/sysmp.h>
 #endif
 
-#if defined(ALPHA)
-#   include <sys/sysinfo.h>
-#   include <machine/hal_sysinfo.h>
-#endif
 
 #if defined(__hpux)
     /* needs to be copiled with std C compiler ==> no -Aa switch no gcc */
@@ -114,11 +110,6 @@ int sge_nprocs()
    nprocs = sysmp(MP_NPROCS);
 #endif
 
-#if defined(ALPHA)
-   int start=0;
-
-   getsysinfo(GSI_CPUS_IN_BOX,(char*)&nprocs,sizeof(nprocs),&start);
-#endif
 
 #if defined(__hpux)
    union pstun pstatbuf;
@@ -140,12 +131,6 @@ int sge_nprocs()
    }
 #endif
 
-#if defined(INTERIX)
-/* TODO: HP: don't set nprocs==-1 to 0, overwrite it with value from
- *       external load sensor.
- */
-   nprocs = -1;
-#endif
 
    if (nprocs <= 0) {
       nprocs = 1;

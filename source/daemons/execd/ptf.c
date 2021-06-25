@@ -492,21 +492,9 @@ static void ptf_setpriority_ash(lListElem *job, lListElem *osjob, long pri)
    static int bg_flag;
    lListElem *pid;
 
-#  if defined(IRIX)
-   int nprocs;
-   static int first = 1;
-#  endif
 
    DENTER(TOP_LAYER, "ptf_setpriority_ash");
 
-#  if defined(IRIX)
-   if (first) {
-      nprocs = sysmp(MP_NPROCS);
-      if (nprocs <= 0)
-         nprocs = 1;
-      first = 0;
-   }
-#  endif
 
    if (!got_bg_flag) {
       bg_flag = (getenv("PTF_NO_BACKGROUND_PRI") == NULL);
@@ -2217,50 +2205,20 @@ int main(int argc, char **argv)
    for_each(jte, job_ticket_list) {
       pid_t pid;
 
-#if defined(IRIX)
-
-      if (newarraysess() < 0) {
-         perror("newarraysess");
-         exit(1);
-      }
-
-      os_job_id = getash();
-      printf(MSG_JOB_THEASHFORJOBXISY_DX,
-             sge_u32c(lGetUlong(jte, JB_job_number)), u64c(os_job_id));
-
-#endif
 
       pid = fork();
       if (pid == 0) {
          char *jobname = lGetString(jte, JB_script_file);
 
          /* schedctl(NDPRI, 0, 0); */
-#if defined(ALPHA)
-         if (setsid() < 0) {
-            perror("setsid");
-            exit(1);
-         }
-#endif
          execl(jobname, jobname, (char *) NULL);
          perror("exec");
          exit(1);
       } else {
-#if defined(ALPHA)
-         os_job_id = pid;
-#endif
          ptf_job_started(os_job_id, jte, 0, fixme);
       }
    }
 
-#if defined(IRIX)
-
-   if (newarraysess() < 0) {
-      perror("newarraysess");
-      exit(2);
-   }
-   printf("My ash is "u64"\n", u64c(getash()));
-
-#endif
 
    ptf_process_job_ticket_list(job_ticket_list);
 
@@ -2295,11 +2253,7 @@ int main(int argc, char **argv)
          sum_of_last_usage += lGetDouble(job, JL_last_usage);
       }
 
-#       if defined(ALPHA)
-#         define XFMT "%20d"
-#       else
 #         define XFMT "%20lld"
-#       endif
 
       puts("                                           adj    total     curr"
            "                      last     next     prev");

@@ -54,10 +54,6 @@
 #elif defined(SOLARIS64) || defined(SOLARIS86) || defined(SOLARISAMD64)
 #  include <stropts.h>
 #  include <termio.h>
-#elif defined(IRIX65)
-#  include <sys/ioctl.h>
-#  include <stropts.h>
-#  include <termio.h>
 #elif defined(FREEBSD) || defined(NETBSD)
 #  include <termios.h>
 #else
@@ -682,22 +678,6 @@ sge_gdi_ctx_setup(sge_gdi_ctx_class_t *thiz, int prog_number, const char* compon
    
    es->username = strdup(username);
 
-#if defined( INTERIX )
-   /* Strip Windows domain name from user name */
-   {
-      char *plus_sign;
-
-      plus_sign = strstr(es->username, "+");
-      if (plus_sign!=NULL) {
-         char *to = es->username;
-         plus_sign++;
-         /* Can't use strcpy with overlapping strings.  */
-         while (*plus_sign)
-            *to++ = *plus_sign++;
-         *to = '\0';
-      }
-   }
-#endif
    
    /*
    ** groupname
@@ -1952,27 +1932,11 @@ sge_setup2(sge_gdi_ctx_class_t **context, u_long32 progid, u_long32 thread_id,
       DRETURN(AE_ERROR);
    }
 
-#if defined(INTERIX)
-   {
-      /*
-       * If we are at boot time on Windows Vista, the primary group ID of the
-       * local Administrator is not yet set correctly, so asking for it doesn't
-       * make sense. We build it on our own, which is possible as it's always
-       * built after the same scheme: hostname+None.
-       */
-      const char *group_none = "+None";
-
-      /* Read the hostname into the group string and add "+None" */
-      gethostname(group, sizeof(group)-strlen(group_none)-1);
-      strcat(group, group_none); /* RATS: ignore */
-   }
-#else
    if (sge_gid2group(getegid(), group, sizeof(group), MAX_NIS_RETRIES)) {
       answer_list_add_sprintf(alpp, STATUS_ESEMANTIC, ANSWER_QUALITY_CRITICAL,
                               MSG_GDI_GETGRGIDXFAILEDERRORX_U, (u_long32)getegid());
       DRETURN(AE_ERROR);
    }
-#endif
    /* a dynamic eh handler is created */
    *context = sge_gdi_ctx_class_create(progid, prognames[progid], thread_id, 
                                        threadnames[thread_id], user, group,
@@ -2100,9 +2064,6 @@ bool sge_daemonize_prepare(sge_gdi_ctx_class_t *ctx) {
 #endif
 
 #if defined(__sgi) || defined(ALPHA) || defined(HP1164)
-#  if defined(ALPHA)
-   extern int getdomainname(char *, int);
-#  endif
    char domname[256];
 #endif
 
@@ -2358,9 +2319,6 @@ int sge_daemonize(int *keep_open, unsigned long nr_of_fds, sge_gdi_ctx_class_t *
 #endif
  
 #if defined(__sgi) || defined(ALPHA) || defined(HP1164)
-#  if defined(ALPHA)
-   extern int getdomainname(char *, int);
-#  endif
    char domname[256];
 #endif
    pid_t pid;

@@ -38,10 +38,6 @@ RCSID("$tcsh: sh.func.c,v 3.153 2009/06/25 21:15:37 christos Exp $")
 #include "tw.h"
 #include "tc.h"
 
-#ifdef INTERIX
-#include <interix/interix.h>
-#include <paths.h>
-#endif
 
 #ifdef WINNT_NATIVE
 #include "nt.const.h"

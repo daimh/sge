@@ -33,18 +33,10 @@
 /*___INFO__MARK_END__*/
 
 #ifndef INSTCO_H
-#  ifdef IRIX
-typedef long long uint64;
-#else
 typedef unsigned long uint64;   /* This should work on all current machines */
-#endif
 #endif /* INSTCO_H */
 
-#ifdef IRIX
-#define UINT64_FMT "%lld"
-#else
 #define UINT64_FMT "%ld"
-#endif
 
 /* ?? */
 #if !defined(LINUX) && !defined(__alpha__) && !defined(SOLARIS) && !defined(DARWIN) && !defined(INTERIX6)

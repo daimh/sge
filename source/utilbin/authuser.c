@@ -373,9 +373,7 @@ static auth_result_t do_system_authentication(const char *username,
 #ifdef DEBUG
    printf("    crypted password: %s\n", crypted_password);
 #endif
-#if !defined(INTERIX)
    new_crypted_password = crypt(password, crypted_password);
-#endif
    if (new_crypted_password == NULL) {
       error_handler->error(MSG_AUTHUSER_CRYPT_FAILED_S, strerror(errno));
       ret = JUTI_AUTH_ERROR;
