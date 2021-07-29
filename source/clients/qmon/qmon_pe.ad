@@ -114,6 +114,7 @@ Qmon*pe_ask_shell.pe_ask_layout.xmtChildren: \
    XmToggleButton pe_control_slaves; \
    XmToggleButton pe_job_is_first_task; \
    XmToggleButton pe_accounting_summary; \
+   XmToggleButton pe_enable_cpuquota; \
    XmPushButton   pe_ok, pe_cancel, pe_usersPB, pe_xusersPB;
 
 Qmon*pe_ask_layout.layout: \
@@ -142,6 +143,9 @@ Qmon*pe_ask_layout.layout: \
             Fixed pe_job_is_first_task \
             Fixed pe_accounting_summary \
          } \
+         Row { \
+            Fixed pe_enable_cpuquota \
+         } \
          Fixed Caption tl "@{Qsort Args} " pe_qsort_args \
       } \
       Fixed Shadowed Col { \
@@ -158,6 +162,9 @@ Qmon*pe_ask_layout.pe_job_is_first_task.labelString: @{@fBJob is first task}
 
 Qmon*pe_ask_layout.pe_accounting_summary.alignment: ALIGNMENT_BEGINNING
 Qmon*pe_ask_layout.pe_accounting_summary.labelString: @{@fBAccounting Summary}
+
+Qmon*pe_ask_layout.pe_enable_cpuquota.alignment: ALIGNMENT_BEGINNING
+Qmon*pe_ask_layout.pe_enable_cpuquota.labelString: @{@fBEnable CPU Quota}
 
 Qmon*pe_ask_layout.pe_ok.labelString:     @{Ok}
 Qmon*pe_ask_layout.pe_cancel.labelString: @{Cancel}

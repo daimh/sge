@@ -1524,8 +1524,6 @@ int use_starter_method /* If this flag is set the shell path contains the
                         * starter_method */
 ) {
    char **args;
-   char **pstr;
-   char *pc;
    char *pre_args[20];
    char **pre_args_ptr;
    char err_str[2048];
@@ -1541,6 +1539,8 @@ int use_starter_method /* If this flag is set the shell path contains the
    char *tmp_str;
    int host_slots = 1;
    bool enable_cpuquota = false;
+   char *binding = (char *) getenv("SGE_BINDING");
+
 
    // fretn: memory and cpu limitations through cgroups
    mem_limit = search_conf_val("mem_limit");
@@ -1564,7 +1564,17 @@ int use_starter_method /* If this flag is set the shell path contains the
    *pre_args_ptr++ = "--scope";
    *pre_args_ptr++ = "-p";   		*pre_args_ptr++ = "MemoryAccounting=yes";
    *pre_args_ptr++ = "-p";   		*pre_args_ptr++ = "CPUAccounting=yes";
-
+#ifdef HAVE_SYSTEMD
+   /* Attempt to set up CPUsets via SystemD, this effectively replaces (or should replace as we did not disable
+    * the old code yet) the old CGroup setting code. It only works with a recent versions of SystemD 
+    */
+   if(binding){
+	int sl = strlen(binding)+20;
+   	*pre_args_ptr++ = "-p";		
+   	*pre_args_ptr = sge_malloc(sl);
+	snprintf(*pre_args_ptr++,sl,"AllowedCPUs=%s",binding);
+   }	
+#endif
    // fretn: memory and cpu limitations through cgroups
    //  we should use cpuset instead as this is more efficient
    if (enable_cpuquota == true) {
@@ -1822,7 +1832,7 @@ int use_starter_method /* If this flag is set the shell path contains the
          */
         close_fds_from(3);
 
-        shepherd_trace("execve(%s, %s, NULL, env)", shell_path, minusname);
+        shepherd_trace("execve(%s, args, NULL, env)", SYSTEMD_RUN);
         *pre_args_ptr = (char *) NULL;
         for (i=0; args[i] != NULL; i++) {
             shepherd_trace("args[%d] = \"%s\"", i, args[i]);
@@ -1830,57 +1840,39 @@ int use_starter_method /* If this flag is set the shell path contains the
         execve(SYSTEMD_RUN,args,my_env);
    } else { /* batch job or other command */
 
-      /* build trace string */
-      pc = err_str;
-      snprintf(pc, sizeof(err_str), "execvlp(%s,", args[0]);
-      pc += strlen(pc);
-      for (pstr = args; pstr && *pstr; pstr++) {
-         /* calculate rest length in string - 15 is just laziness for blanks,
-          * "..." string, etc.
-          */
-            if (strlen(*pstr) < ((sizeof(err_str)  - (pc - err_str) - 15))) {
-               sprintf(pc, " \"%s\"", *pstr);
-               pc += strlen(pc);
-            }
-            else {
-               sprintf(pc, " ...");
-               pc += strlen(pc);
-               break;
-            }
-      }
-
-      sprintf(pc, ")");
       shepherd_trace("%s", err_str);
 
       /* Bugfix: Issuezilla 1300
        * Because this fix could break pre-existing installations, it was made
        * optional. */
 
-      {
-         /* Sanitize the environment in case we're executing prolog
-            etc. as as different user.
-            Also, no need to run via sge_execvlp and systemd-run seems to be doing the same */
-         if (!inherit_env()) {
-            execve(SYSTEMD_RUN, args,
-                        sge_copy_sanitize_env(sge_get_environment()));
-         }
-         else {
-            execve(SYSTEMD_RUN, args, sge_copy_sanitize_env(environ));
-         }
+      shepherd_trace("execve(%s, args, NULL, env)", SYSTEMD_RUN);
+      *pre_args_ptr = (char *) NULL;
+      for (int i=0; args[i] != NULL; i++) {
+            shepherd_trace("args[%d] = \"%s\"", i, args[i]);
+      }
 
-         /* Aaaah - execvp() failed */
-         {
-            char failed_str[2048+128];
-            snprintf(failed_str, sizeof(failed_str), "%s failed: %s",
+      /* Sanitize the environment in case we're executing prolog
+         etc. as as different user.
+         Also, no need to run via sge_execvlp and systemd-run seems to be doing the same */
+      if (!inherit_env()) {
+         execve(SYSTEMD_RUN, args,
+                     sge_copy_sanitize_env(sge_get_environment()));
+      } else {
+         execve(SYSTEMD_RUN, args, sge_copy_sanitize_env(environ));
+      }
+   }
+
+   /* Aaaah - execve() failed */
+   {
+      char failed_str[2048+128];
+      snprintf(failed_str, sizeof(failed_str), "%s failed: %s",
                      err_str, strerror(errno));
 
-            /* most of the problems here are related to the shell
-               i.e. -S /etc/passwd */
-            shepherd_state = SSTATE_NO_SHELL;
-            /* EXIT HERE IN CASE IF FAILURE */
-            shepherd_error(1, "%s", failed_str);
-         }
-      }
+      /* most of the problems here are related to the shell i.e. -S /etc/passwd */
+      shepherd_state = SSTATE_NO_SHELL;
+      /* EXIT HERE IN CASE IF FAILURE */
+      shepherd_error(1, "%s", failed_str);
    }
 }
 
