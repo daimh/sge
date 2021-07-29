@@ -721,6 +721,8 @@ static void qmonPEResetAsk(void)
 
    XmToggleButtonSetState(pe_accounting_summary_w, 0, False);
 
+   XmToggleButtonSetState(pe_enable_cpuquota_w, 0, False);
+
 #ifdef SGE_PQS_API
    XmtInputFieldSetString(pe_qsort_args_w, "NONE");
 #endif
