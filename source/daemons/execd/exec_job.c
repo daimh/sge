@@ -1162,6 +1162,8 @@ int sge_exec_job(sge_gdi_ctx_class_t *ctx, lListElem *jep, lListElem *jatep,
    fprintf(fp, "h_fsize=%s\n", lGetString(master_q, QU_h_fsize));
    fprintf(fp, "s_fsize=%s\n", lGetString(master_q, QU_s_fsize));
 
+   fprintf(fp, "h_rt=%s\n", lGetString(master_q, QU_h_rt));
+
 /*   fprintf(fp, "cg_memmax=%s\n", lGetString(master_q, QU_sg_memmax)); */
 
    {

@@ -1128,8 +1128,10 @@ long int systemd_get_property_dbus(sd_bus *bus,const char *service, const char *
         free(path);
         if (r < 0){
                 DPRINTF(("Failed to get state %s\n", error.message));
+		sd_bus_error_free(&error);
                 return -2;
         }
+	sd_bus_error_free(&error);
         r = sd_bus_message_read(reply, "t", &val);
         sd_bus_message_unref(reply);
 
