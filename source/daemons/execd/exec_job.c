@@ -912,11 +912,6 @@ int sge_exec_job(sge_gdi_ctx_class_t *ctx, lListElem *jep, lListElem *jatep,
             }
          }
          var_list_set_sharedlib_path(&environmentList);
-#if defined(HP1164)
-         if (mconf_get_inherit_env() != true) {
-            var_list_delete_string(&environmentList, "SHLIB_PATH");
-         }
-#endif
       }
 
       /* set final of variables whose value shall be replaced */ 

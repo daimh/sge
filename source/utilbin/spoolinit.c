@@ -78,9 +78,6 @@ static int init_framework(const char *method, const char *shlib,
 
    DENTER(TOP_LAYER, "init_framework");
 
-#ifdef HP1164   
-   sge_set_admin_username("none", NULL, 0);
-#endif
    /* create spooling context */
    spooling_context = spool_create_dynamic_context(&answer_list, method, shlib, 
                                                    libargs);

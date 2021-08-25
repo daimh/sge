@@ -1,0 +1,21 @@
+This version of SGE comes with SystemD support, what does it actually mean?
+- Jobs are not launched on the EXEC nodes directly via execve(), but rather via systemd-run (so yes, exec nodes must have installed SystemD)
+- As such, for every job a SystemD unit called "sge-<jobid>.<taskid>.scope" is created where the job is running
+
+That sounds complicated to me, which benefits it brings?
+- Better CGroup integration (as we let SystemD to manage Cgroups for us), the builtin CGroup support (i.e. "USE_CGROUPS=yes" works for Cgroups v1, but definitely breaks on newer systems that use CGroups v2 (Fedora 34).
+  So using SystemD support will actually help to mitigate this problem
+- better job control. We do not rely on the ancient code that use supplementary GIDs to track job processes any longer, instead we let SystemD to do this job.
+- better transparency. On Exec node, you can just execute "systemctl status sge-654.1.scope" to see which processes have been started on behalf of job 654
+- you can use new complex "mem_limit" to enforce job memory limit via Cgroups. Improvement is also for the parallel (PE) jobs
+
+Is there any limitation for jobs started via SystemD?
+- It should be transparent to the end users, tested interactive & batch jobs, job pause/resume, etc, parallel environment etc. Should basically work OK
+- works best with a decent version of SystemD (optimal version is 222 or newer as we rely on it's D-Bus interface).
+- since there is extra layer on submitting jobs, it could be somewhat slower to submit jobs via Systemd, but the difference is really small
+
+Sounds cool, how can I enable it?
+- via execd parameter "execd_params   USE_CGROUPS=systemd", just make sure all your exec nodes are running SystemD
+
+
+Ondrej Valousek, August 2021

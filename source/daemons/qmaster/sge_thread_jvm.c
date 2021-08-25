@@ -482,22 +482,10 @@ static JNIEnv* create_vm(const char *libjvm_path, int argc, char** argv)
       /* build the full name of the shared lib - append architecture dependent
        * shlib postfix 
        */
-#ifdef HP1164
-      /*
-      ** need to switch to start user for HP
-      */
-      sge_switch2start_user();
-#endif   
 
       /* open the shared lib */
       libjvm_handle = sge_dlopen(libjvm_path, NULL);
 
-#ifdef HP1164
-      /*
-      ** switch back to admin user for HP
-      */
-      sge_switch2admin_user();
-#endif
       if (libjvm_handle == NULL) {
          CRITICAL((SGE_EVENT, "could not load libjvm %s", dlerror()));
          ok = false;

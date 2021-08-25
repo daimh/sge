@@ -53,12 +53,6 @@
 #  include <sys/loadavg.h> 
 #elif defined(__linux__) || defined(__CYGWIN__)
 #  include <ctype.h>
-#elif defined(ALPHA4) || defined(ALPHA5)
-#  include <nlist.h>
-#  include <sys/table.h>
-#elif defined(HP11) || defined(HP1164)
-#  include <sys/param.h>
-#  include <sys/pstat.h>
 #elif defined(DARWIN)
 # include <mach/host_info.h>
 # include <mach/mach_host.h>
@@ -104,14 +98,6 @@
 #  define LINUX_LOAD_SOURCE "/proc/loadavg"
 #  define CPUSTATES 4
 #  define PROCFS "/proc" 
-#elif defined(ALPHA4) || defined(ALPHA5)
-#  define MP_KERNADDR 8
-#  define MPKA_AVENRUN 19
-#  define KERNEL_NAME_FILE "/vmunix"
-#  define KERNEL_AVG_NAME "_avenrun"
-#  define SGE_FSCALE 1000.0
-#  define KERNEL_AVG_TYPE long
-#  define CPUSTATES 4
 #elif defined(AIX51)
 #  define KERNEL_NAME_FILE "/unix"
 #  define KERNEL_AVG_NAME "avenrun"
@@ -516,44 +502,6 @@ static double get_cpu_load()
    return cpu_load;
 }                  
 
-#elif defined(ALPHA4) || defined(ALPHA5)
-
-double get_cpu_load() {
-   static long cpu_old_ticks[CPUSTATES];
-   long cpu_new_ticks[CPUSTATES];
-   long cpu_diff_ticks[CPUSTATES];
-   double cpu_states[CPUSTATES];
-   long delta_ticks;
-   double cpu_load;
-   struct tbl_sysinfo sys_info;
-   int i;
-
-   if (table(TBL_SYSINFO,0, &sys_info, 1, sizeof(struct tbl_sysinfo)) < 0) {
-      return -1.0;
-   }  
-   cpu_new_ticks[0] = sys_info.si_user;
-   cpu_new_ticks[1] = sys_info.si_nice;
-   cpu_new_ticks[2] = sys_info.si_sys;
-   cpu_new_ticks[3] = sys_info.si_idle;
-   delta_ticks = 0;
-   for (i=0; i<CPUSTATES; i++) {
-      cpu_diff_ticks[i] = cpu_new_ticks[i] - cpu_old_ticks[i];
-      delta_ticks += cpu_diff_ticks[i];
-      cpu_old_ticks[i] = cpu_new_ticks[i]; 
-   }
-   cpu_load = 0.0;
-   if (delta_ticks) {
-      for(i=0; i<CPUSTATES; i++) {
-         cpu_states[i] = ((double)cpu_diff_ticks[i] / delta_ticks) * 100.0;
-      }
-   }
-   cpu_load += cpu_states[0] + cpu_states[1] + cpu_states[2];
-   if (cpu_load < 0.0) {
-      cpu_load = -1.0;
-   }
-   return cpu_load;
-}
-
 #elif defined(HP10) || defined(FREEBSD)
 
 static double get_cpu_load()
@@ -579,98 +527,6 @@ static double get_cpu_load()
    }
    return cpu_load;
 }    
-
-#elif defined(HP11) || defined(HP1164)
-static long percentages_new(int cnt, double *out, long *new, long *old, long *diffs, bool first)
-{
-   int i;
-   long total_change = 0;
-
-   DENTER(CULL_LAYER, "percentages_new");
-
-   /* 
-    * In the first call of this function, 
-    * we will just remember the values for use in the subsequent calls 
-    */
-   if (first) {
-      for (i = 0; i < cnt; i++) {
-         *old++ = *new++;
-         *out++ = 0.0;
-      }
-   } else {
-      long change;
-      long *dp;
-
-      /* initialization */
-      total_change = 0;
-      dp = diffs;
-
-      /* calculate changes for each state and the overall change */
-      for (i = 0; i < cnt; i++) {
-         change = *new - *old;
-
-         /* when the counter wraps, we get a negative value */
-         if (change < 0) {
-            change = (long)
-            ((unsigned long)*new-(unsigned long)*old);
-         }
-         *dp++ = change;
-         total_change += change;
-         *old++ = *new++;
-      }
-
-      /* 
-       * If total change is 0, then all the diffs are 0,
-       * then the result will be 0.
-       */
-      if (total_change == 0) {
-         for (i = 0; i < cnt; i++) {
-            *out++ = 0.0;
-         }
-      } else {
-         /* calculate percentages based on overall change */
-         for (i = 0; i < cnt; i++) {
-            *out = (*diffs++) * 100.0 / (double)total_change;
-            DPRINTF(("diffs: %lu total_change: %lu -> %f",
-                  *diffs, total_change, *out));
-            out++;
-         }
-      }
-   }
-
-   DRETURN(total_change);
-}       
-
-
-static double get_cpu_load()
-{  
-   struct pst_processor cpu_buffer;
-   struct pst_dynamic dynamic_buffer;
-   int ret, i, cpus;
-   static long cpu_time[PST_MAX_CPUSTATES];
-   static long cpu_old[PST_MAX_CPUSTATES];
-   static long cpu_diff[PST_MAX_CPUSTATES];
-   double cpu_states[PST_MAX_CPUSTATES];
-   double cpu_load;
-   static bool first = true;
-
-   ret = pstat_getdynamic(&dynamic_buffer, sizeof(dynamic_buffer), 1, 0);
-   if (ret != -1) {
-      cpus = dynamic_buffer.psd_max_proc_cnt;
-      for (i = 0; i < cpus; i++) {
-         ret = pstat_getprocessor(&cpu_buffer, sizeof(cpu_buffer), 1, i);
-         if (ret != -1) {
-            percentages_new(PST_MAX_CPUSTATES, cpu_states, 
-               (long *)cpu_buffer.psp_cpu_time, cpu_old, cpu_diff, first);
-            cpu_load = cpu_states[0] + cpu_states[1] + cpu_states[2];
-         }
-      }
-      first = false;
-      return cpu_load;
-   } else {
-      return -1.0;
-   }
-}
 
 #elif defined(DARWIN)
 
@@ -795,41 +651,6 @@ int nelem
       elements = -1;
    }
    return elements;
-}
-
-#elif defined(HP11) || defined(HP1164)
-
-static int get_load_avg(
-double loadavg[],
-int nelem 
-) {
-   struct pst_processor cpu_buffer;
-   struct pst_dynamic dynamic_buffer;
-   int ret, i, cpus;
-
-   ret = pstat_getdynamic(&dynamic_buffer, sizeof(dynamic_buffer), 1, 0);
-   if (ret != -1) {
-      cpus = dynamic_buffer.psd_max_proc_cnt;
-      loadavg[0] = 0.0;
-      loadavg[1] = 0.0;
-      loadavg[2] = 0.0;
-      for (i = 0; i < cpus; i++) {
-         ret = pstat_getprocessor(&cpu_buffer, sizeof(cpu_buffer), 1, i);
-         if (ret != -1) {
-            loadavg[0] += cpu_buffer.psp_avg_1_min;
-            loadavg[1] += cpu_buffer.psp_avg_5_min;
-            loadavg[2] += cpu_buffer.psp_avg_15_min;
-         }
-      }
-
-      loadavg[0] /= (double)cpus;
-      loadavg[1] /= (double)cpus;
-      loadavg[2] /= (double)cpus;
-
-      return 3;
-   } else {
-      return -1;
-   }
 }
 
 #elif defined(HAS_AIX5_PERFLIB)

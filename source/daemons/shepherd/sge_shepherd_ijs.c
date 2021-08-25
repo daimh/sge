@@ -50,8 +50,6 @@
 #  include <termios.h>
 #  include <sys/ttycom.h>
 #  include <sys/ioctl.h>
-#elif defined(HP11) || defined(HP1164)
-#  include <termios.h>
 #elif defined(INTERIX) || defined(__CYGWIN__)
 #  include <termios.h>
 #  include <sys/ioctl.h>

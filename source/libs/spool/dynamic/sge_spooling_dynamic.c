@@ -84,14 +84,7 @@ spool_dynamic_create_context(lList **answer_list, const char *method,
    shlib_fullname = sge_dstring_sprintf(&shlib_dstring, SGE_LD_PATH"%s%s",
                                         shlib_name, sge_shlib_ext());
 
-#if defined(HP1164)   
-   /* need to switch to start user for HP */
-   sge_switch2start_user();
    shlib_handle = sge_dlopen(shlib_fullname, NULL);
-   sge_switch2admin_user();
-#else
-   shlib_handle = sge_dlopen(shlib_fullname, NULL);
-#endif
 
    if (shlib_handle == NULL) {
       answer_list_add_sprintf(answer_list, STATUS_EUNKNOWN, 

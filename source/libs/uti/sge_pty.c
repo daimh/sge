@@ -44,9 +44,6 @@
 #  include <termios.h>
 #  include <sys/ioctl.h>
 #  include <grp.h>
-#elif defined(HP1164) || defined(HP11)
-#  include <termios.h>
-#  include <stropts.h>
 #elif defined(SOLARIS64) || defined(SOLARIS86) || defined(SOLARISAMD64)
 #  include <stropts.h>
 #  include <termio.h>
@@ -233,13 +230,11 @@ int ptys_open(int fdm, char *pts_name)
       close(fds);
       return -7;
    }
-#if !defined(HP11) && !defined(HP1164) && !defined(IRIX65)
    if (ioctl(fds, I_PUSH, "ttcompat") < 0) {
       close(fdm);
       close(fds);
       return -8;
    }
-#endif
 #endif
 
    return fds;
