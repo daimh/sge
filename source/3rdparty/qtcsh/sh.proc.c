@@ -63,11 +63,6 @@ RCSID("$tcsh: sh.proc.c,v 3.109 2009/06/25 21:15:37 christos Exp $")
 # define WSTOPSIG(w)	(((union wait *) &(w))->w_stopsig)
 #endif /* !WSTOPSIG */
 
-#ifdef __osf__
-# ifndef WCOREDUMP
-#  define WCOREDUMP(x) (_W_INT(x) & WCOREFLAG)
-# endif
-#endif
 
 #ifndef WCOREDUMP
 # ifdef BSDWAIT

@@ -44,9 +44,6 @@
 #include <sys/wait.h>
 #include <sys/time.h>
 #include <netinet/in.h>
-#if defined(INTERIX) || defined(HPUX)
-#include <arpa/inet.h>
-#endif
 
 #include "uti/sge_rmon.h"
 #include "uti/sge_hostname.h"

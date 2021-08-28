@@ -2425,9 +2425,6 @@ int fd_std_err             /* fd of stderr. -1 if not set */
    int poll_size = 0;
    struct pollfd* pty_fds = NULL;
 
-#if defined(HPUX) || defined(INTERIX)
-   struct rusage rusage_hp10;
-#endif
 
    /* handle qsub -pty */
    if (fd_pty_master != -1) {
@@ -2516,12 +2513,6 @@ int fd_std_err             /* fd of stderr. -1 if not set */
 
       npid = wait3(&status, wait_options, rusage);
 
-#if defined(HPUX) || defined(INTERIX)
-      {
-         /* wait3 doesn't return CPU usage */
-         getrusage(RUSAGE_CHILDREN, &rusage_hp10);
-      }
-#endif
 
       if (npid == -1) {
          shepherd_trace("wait3 returned -1");
@@ -2697,12 +2688,6 @@ int fd_std_err             /* fd of stderr. -1 if not set */
    } while ((job_pid > 0) || (migr_cmd_pid > 0) || (ckpt_cmd_pid > 0) ||
             (ctrl_pid[0] > 0) || (ctrl_pid[1] > 0) || (ctrl_pid[2] > 0));
 
-#if defined(HPUX) || defined(INTERIX)
-   rusage->ru_utime.tv_sec = rusage_hp10.ru_utime.tv_sec;
-   rusage->ru_utime.tv_usec = rusage_hp10.ru_utime.tv_usec;
-   rusage->ru_stime.tv_sec = rusage_hp10.ru_stime.tv_sec;
-   rusage->ru_stime.tv_usec = rusage_hp10.ru_stime.tv_usec;
-#endif
 
    if (fdout != -1) {
       SGE_CLOSE(fdout);

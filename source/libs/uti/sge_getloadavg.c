@@ -162,9 +162,7 @@ long *address
 
       kernel_nlist[0].n_name = name;
       kernel_nlist[1].n_name = NULL;
-#  if defined(ALPHA4) || defined(ALPHA5) || defined(HPUX)
-      if (nlist(KERNEL_NAME_FILE, kernel_nlist) >= 0)
-#  elif defined(AIX51)
+#  if   defined(AIX51)
       if (nlist64(KERNEL_NAME_FILE, kernel_nlist) >= 0)
 #  else
       if (kernel_initialized && (kvm_nlist(kernel_fd, kernel_nlist) >= 0)) 

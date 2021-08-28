@@ -356,12 +356,6 @@ void sge_set_def_sig_mask(sigset_t* sig_num, err_func_t err_func)
        * on HPUX don't set default handler for
        * _SIGRESERVE and SIGDIL
        */
-#if defined(HPUX)
-      if ((i == _SIGRESERVE) || (i == SIGDIL)) {
-         i++;
-         continue;
-      }
-#endif     
 
       /*
        * never set default handler for signals set
