@@ -6,11 +6,10 @@ After=network-online.target remote-fs.target autofs.service
 Type=forking
 # Modify if the cell isn't "default"
 #PIDFile=/opt/sge/default/spool/qmaster/qmaster.pid
-#EnvironmentFile=-/etc/sysconfig/sgemaster
-# insist on setting ARCH in sysconfig instead of using shell?
-#ExecStart=/bin/sh -c /opt/sge/bin/$($SGE_ROOT/util/arch)/sge_qmaster
 ExecStart=/opt/sge/default/common/sgemaster
 ExecStop=/opt/sge/default/common/sgemaster stop
+#Restart=on-failure
+#RestartSec=30s
 
 [Install]
 WantedBy=multi-user.target

@@ -339,7 +339,7 @@ CheckRunningQmaster()
    masterhost=`cat $SGE_ROOT/$SGE_CELL/common/act_qmaster`
 
    if [ "$SGE_QMASTER_PORT" = "" ]; then
-      ping_port=`$utilbin_dir/getservbyname -number sge-qmaster`
+      ping_port=`$utilbin_dir/getservbyname -number sge_qmaster`
    else
       ping_port=$SGE_QMASTER_PORT
    fi
@@ -591,7 +591,7 @@ if [ "$startup" = true ]; then
        qping_retries=10
        qping_exit_state=0
        if [ "$SGE_QMASTER_PORT" = "" ]; then
-          ping_port=`$utilbin_dir/getservbyname -number sge-qmaster`
+          ping_port=`$utilbin_dir/getservbyname -number sge_qmaster`
        else
           ping_port=$SGE_QMASTER_PORT
        fi

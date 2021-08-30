@@ -165,7 +165,7 @@ ShutdownSMF()
       #We don't have any such SMF service we use normal Shutdown
       return
    fi
-   pid=`/usr/bin/svcs -l -p $service | grep "/sge-execd$" | grep -v "^grep" | awk '{print $2}'`
+   pid=`/usr/bin/svcs -l -p $service | grep "/sge_execd$" | grep -v "^grep" | awk '{print $2}'`
    if [ -n "$pid" ]; then
       usingSMF="true"
       /usr/sbin/svcadm disable -st $service
@@ -385,7 +385,7 @@ if [ $stop = true -o $softstop = true ]; then
       fi
       # execution daemon is started on this host!
       if [ "$SGE_EXECD_PORT" = "" ]; then
-         ping_port=`$utilbin_dir/getservbyname -number sge-execd`
+         ping_port=`$utilbin_dir/getservbyname -number sge_execd`
       else
          ping_port=$SGE_EXECD_PORT
       fi
@@ -428,7 +428,7 @@ if [ "$startup" = true ]; then
       fi
       # execution daemon is started on this host!
       if [ "$SGE_EXECD_PORT" = "" ]; then
-         ping_port=`$utilbin_dir/getservbyname -number sge-execd`
+         ping_port=`$utilbin_dir/getservbyname -number sge_execd`
       else
          ping_port=$SGE_EXECD_PORT
       fi
