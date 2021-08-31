@@ -47,6 +47,10 @@
 #include <sys/resource.h>
 #include <sys/wait.h>
 
+#ifdef HAVE_SYSTEMD
+#include <systemd/sd-bus.h>
+#endif
+
 #include "uti/sge_binding_hlp.h"
 #include "uti/sge_string.h"
 #include "shepherd_binding.h"
@@ -85,8 +89,6 @@
 #  include <termios.h>
 #  include <sys/ttycom.h>
 #  include <sys/ioctl.h>    
-#elif defined(HP11) || defined(HP1164)
-#  include <termios.h>
 #elif defined(FREEBSD) || defined(NETBSD)
 #  include <termios.h>
 #else
@@ -2423,9 +2425,6 @@ int fd_std_err             /* fd of stderr. -1 if not set */
    int poll_size = 0;
    struct pollfd* pty_fds = NULL;
 
-#if defined(HPUX) || defined(INTERIX)
-   struct rusage rusage_hp10;
-#endif
 
    /* handle qsub -pty */
    if (fd_pty_master != -1) {
@@ -2514,12 +2513,6 @@ int fd_std_err             /* fd of stderr. -1 if not set */
 
       npid = wait3(&status, wait_options, rusage);
 
-#if defined(HPUX) || defined(INTERIX)
-      {
-         /* wait3 doesn't return CPU usage */
-         getrusage(RUSAGE_CHILDREN, &rusage_hp10);
-      }
-#endif
 
       if (npid == -1) {
          shepherd_trace("wait3 returned -1");
@@ -2695,12 +2688,6 @@ int fd_std_err             /* fd of stderr. -1 if not set */
    } while ((job_pid > 0) || (migr_cmd_pid > 0) || (ckpt_cmd_pid > 0) ||
             (ctrl_pid[0] > 0) || (ctrl_pid[1] > 0) || (ctrl_pid[2] > 0));
 
-#if defined(HPUX) || defined(INTERIX)
-   rusage->ru_utime.tv_sec = rusage_hp10.ru_utime.tv_sec;
-   rusage->ru_utime.tv_usec = rusage_hp10.ru_utime.tv_usec;
-   rusage->ru_stime.tv_sec = rusage_hp10.ru_stime.tv_sec;
-   rusage->ru_stime.tv_usec = rusage_hp10.ru_stime.tv_usec;
-#endif
 
    if (fdout != -1) {
       SGE_CLOSE(fdout);
@@ -2962,6 +2949,48 @@ static void start_clean_command(char *cmd)
       shepherd_trace("clean command died through signal");
 }     
 
+#ifdef HAVE_SYSTEMD
+/****************************************************************
+ Signal job via SystemD 
+ this is meant to be drop-in replacement for pdc_kill_addgrpid()
+ which we can't use as no addgrp is used 
+ ****************************************************************/
+
+static int systemd_signal_job(sd_bus *bus,const char *unit, int signal) {
+        int r;
+        sd_bus_error error = SD_BUS_ERROR_NULL;
+        long int val = 0;
+        const char *service = "org.freedesktop.systemd1",
+                   *path = "/org/freedesktop/systemd1",
+                   *interface = "org.freedesktop.systemd1.Manager";
+
+        if(signal == SIGKILL){ /* For KILL we use StopUnit which is standard, for everything else, we try our best with KillUnit */
+            r = sd_bus_call_method(bus, service, path, interface,
+                "StopUnit",                         /* <method>    */
+                &error,                             /* object to return error in */
+                NULL,                               /* return message on success */
+                "ss",                               /* <input_signature (string-string)> */
+                unit,  "replace" );                 /* <arguments...> */
+        } else {
+            r = sd_bus_call_method(bus, service, path, interface,
+                "KillUnit",                         /* <method>    */
+                &error,                             /* object to return error in */
+                NULL,                               /* return message on success */
+                "ssi",                              /* <input_signature (string-string)> */
+                unit, "all", (int32_t) signal );    /* <arguments...> */
+        }
+
+        if (r < 0){
+                shepherd_trace("Failed kill SystemD job: %s", error.message);
+                sd_bus_error_free(&error);
+                return -2;
+        }
+        sd_bus_error_free(&error);
+
+        return 0;
+}
+#endif
+
 /****************************************************************
  Special version of signal for the shepherd.
  Should be used to signal the job. 
@@ -3021,11 +3050,32 @@ shepherd_signal_job(pid_t pid, int sig) {
         kill(pid, sig);
         sge_switch2admin_user();
 
-#if defined(SOLARIS) || defined(LINUX) || defined(ALPHA) || defined(IRIX) || defined(FREEBSD) || defined(DARWIN)
+#if defined(SOLARIS) || defined(LINUX) || defined(FREEBSD)
         if (first_kill == 0 || sig != SIGKILL || is_qrsh == false) {
-#   if defined(SOLARIS) || defined(LINUX) || defined(ALPHA) || defined(FREEBSD) || defined(DARWIN)
+	    char *tmp_str = search_conf_val("use_systemd");	
+#   if defined(SOLARIS) || defined(LINUX) || defined(FREEBSD) 
 #      ifdef COMPILE_DC
-            if (atoi(get_conf_val("enable_addgrp_kill")) == 1) {
+            if(tmp_str && !strcmp(tmp_str, "yes")){
+#           ifdef HAVE_SYSTEMD
+		sd_bus* bus;
+   		int r;
+		char unit[256];
+
+   		sge_switch2start_user();
+		r = sd_bus_default_system(&bus);
+		if (r < 0) {
+       			shepherd_trace("Failed to get D-Bus connection to SystemD: %d",r);
+       			return;
+   		}
+		snprintf(unit,256,"sge-%s.%d.scope",get_conf_val("job_id"),MAX(1, atoi(get_conf_val("ja_task_id"))));
+		shepherd_trace("systemd_signal_job: %s %d", unit , sig);
+		systemd_signal_job(bus,unit,sig);
+		sd_bus_flush_close_unref(bus);
+		sge_switch2admin_user();
+#           else
+		shepherd_trace("SystemD is not linked in, can't signal all processes!");
+#           endif		
+	    } else if (atoi(get_conf_val("enable_addgrp_kill")) == 1) {
                 gid_t add_grp_id;
                 char *cp = search_conf_val("add_grp_id");
 

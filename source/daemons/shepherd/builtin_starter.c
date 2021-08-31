@@ -1533,8 +1533,8 @@ int use_starter_method /* If this flag is set the shell path contains the
    static char term[8+64]         = "TERM=";
    char minusname[50];
    char buf[50];
-   char *mem_limit;
-   char mem_limit_str[256];
+   char *mem_limit,*h_rt;
+   char mem_limit_str[256],h_rt_str[256];
    char enable_cpuquota_str[256];
    char *tmp_str;
    int host_slots = 1;
@@ -1595,7 +1595,17 @@ int use_starter_method /* If this flag is set the shell path contains the
 	}
    }
    // -fretn: end
-
+   /* Try to implement h_rt via systemd, too - not really necessary, but won't hurt */
+#if 0
+   /* won't work as --scope units does not accept RunTimeMaxSec property ... too bad :( */
+   h_rt = search_conf_val("h_rt");
+   if (h_rt != NULL) {
+        if (strcmp(h_rt, "INFINITY")) {
+           sprintf(h_rt_str, "RuntimeMaxSec=%s", h_rt);
+           *pre_args_ptr++ = "-p";              *pre_args_ptr++ = h_rt_str;
+        }
+   }
+#endif   
    *pre_args_ptr++ = "--unit";   	*pre_args_ptr++ = unitname;
    *pre_args_ptr++ = "--uid";   	*pre_args_ptr++ = get_conf_val("job_owner");
 //   snprintf(execargs[i++],50,"%d",getuid());

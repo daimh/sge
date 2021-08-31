@@ -50,8 +50,6 @@
 #  include <termios.h>
 #  include <sys/ttycom.h>
 #  include <sys/ioctl.h>
-#elif defined(HP11) || defined(HP1164)
-#  include <termios.h>
 #elif defined(INTERIX) || defined(__CYGWIN__)
 #  include <termios.h>
 #  include <sys/ioctl.h>
@@ -930,9 +928,15 @@ parent_loop(int job_pid, const char *childname, int timeout, ckpt_info_t *p_ckpt
     * some output in the buffers, so wait for the communication threads
     * to give them time to read, transmit and flush the buffers.
     */
+#if 0
+   /* 
+    * We disable this altogether as it seems to block forking interactive jobs
+    * - they hang forever on exit
+    */
    while (g_raised_event == 0) {
-      ret = thread_wait_for_event(&g_thread_main, 0, 0);
+      ret = thread_wait_for_event(&g_thread_main, 0, 500);
    }
+#endif   
    shepherd_trace("parent: received event %d, g_raised_event = %d", 
                   ret, g_raised_event);
 

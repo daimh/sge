@@ -145,27 +145,6 @@ case irix6*:
 	set STATIC   = "-nostartfiles"
    breaksw
 
-case hp:
-   if ( $CC == gcc ) then
-      set CFLAGS = "-Wall -Wstrict-prototypes -DHPUX $DEBUG_FLAG $CFLAGS"
-   else
-      set CFLAGS = "-Aa -D_HPUX_SOURCE -DHPUX $DEBUG_FLAG $CFLAGS"
-   endif
-   set LFLAGS = "$DEBUG_FLAG $LFLAGS"
-   set LIBS = "$LIBS"
-   breaksw
-
-case hp11:
-   if ( $CC == gcc ) then
-      set CFLAGS = "-O -Wall -Wstrict-prototypes -DHP11 $DEBUG_FLAG $CFLAGS"
-   else
-      set CFLAGS = "-Ae -O -DHP11 $DEBUG_FLAG $CFLAGS"
-   endif
-   set LFLAGS = "$DEBUG_FLAG $LFLAGS"
-   set LIBS = "$LIBS"
-   breaksw
-
-
 case *linux:
    set CC = gcc
    set CFLAGS = "-O -Wall -DLINUX $DEBUG_FLAG $CFLAGS"

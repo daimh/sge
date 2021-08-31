@@ -227,10 +227,6 @@ typedef char stringT[MAX_STRING_SIZE];
 /* non-quoted string not limited intentionally */
 #define SN_UNLIMITED  "%s"
 
-#if defined(HPUX)
-#  define seteuid(euid) setresuid(-1, euid, -1)
-#  define setegid(egid) setresgid(-1, egid, -1)
-#endif
 
     
 

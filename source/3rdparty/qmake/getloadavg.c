@@ -177,13 +177,6 @@ extern int errno;
 #  define SUNOS_5
 # endif
 
-# if defined (__osf__) && (defined (__alpha) || defined (__alpha__))
-#  define OSF_ALPHA
-#  include <sys/mbuf.h>
-#  include <sys/socket.h>
-#  include <net/route.h>
-#  include <sys/table.h>
-# endif
 
 # if defined (__osf__) && (defined (mips) || defined (__mips__))
 #  define OSF_MIPS

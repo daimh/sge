@@ -41,9 +41,6 @@
  *	command\0
  *	data
  */
-#if defined(HP11)
-#define _XOPEN_SOURCE_EXTENDED
-#endif
 
 /*#if defined ALPHA5
 #define _POSIX_PII_SOCKET
@@ -146,11 +143,7 @@ main(argc, argv)
 {
 	struct linger linger;
 	int ch, on = 1;
-#if defined(ALPHA5) || defined(INTERIX) || defined(HP1164)
-   int fromlen;
-#else   
    socklen_t fromlen;
-#endif   
 	struct sockaddr_in from;
 
 	openlog("rshd", LOG_PID | LOG_ODELAY, LOG_DAEMON);
@@ -256,11 +249,7 @@ doit(fromp)
       {
 	u_char optbuf[BUFSIZ/3], *cp;
 	char lbuf[BUFSIZ], *lp;
-#if defined(ALPHA5) || defined(INTERIX) || defined(HP1164)
-	int optsize = sizeof(optbuf); 
-#else   
 	socklen_t optsize = sizeof(optbuf); 
-#endif   
    int ipproto;
 	struct protoent *ip;
 
