@@ -1,3 +1,6 @@
+add_compile_options(
+	-Wno-format-truncation
+)
 add_library(admin_mail OBJECT admin_mail.c)
 add_library(binding_support OBJECT binding_support.c)
 add_library(category OBJECT category.c)

@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 project(SGE VERSION 1.0)
 SET(CMAKE_INSTALL_RPATH "\$ORIGIN/../../lib/lx-amd64")
+execute_process(COMMAND pkgconf --modversion systemd OUTPUT_VARIABLE SYSTEMD_VERSION)
 add_compile_definitions(
 	SGE_ARCH_STRING="lx-amd64"
 	LINUX
@@ -29,6 +30,13 @@ add_link_options(
 	-pthread
 	-rdynamic
 )
+if (SYSTEMD) 
+	if (SYSTEMD_VERSION VERSION_GREATER_EQUAL "222")
+		add_compile_options( -DHAVE_SYSTEMD=1 )
+	else()
+		message(FATAL_ERROR "Either your system doesn't have systemd, or its system version is too low, CMake will exit." )
+	endif()
+endif()
 add_subdirectory(source)
 install(
 	PROGRAMS

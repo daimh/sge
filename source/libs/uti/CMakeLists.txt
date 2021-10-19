@@ -1,3 +1,7 @@
+add_compile_options(
+	-Wno-format-overflow
+	-Wno-format-truncation
+)
 add_library(uti STATIC
 	config_file.c
 	setup_path.c

@@ -1203,7 +1203,7 @@ static void ptf_get_usage_from_systemd(void)
          /* Use systemd to gather current job usage as this is the most universal
             Unfortunately depends on SystemD version on how many details
             we are able to get. We need SystemD version 222 at least so that we can connect via D-Bus */
-         snprintf(cmd,sizeof(cmd),"sge-%lu.%lu.scope",lGetUlong(job, JL_job_ID),lGetUlong(osjob, JO_ja_task_ID));
+         snprintf(cmd, sizeof(cmd), "sge-%u.%u.scope", lGetUlong(job, JL_job_ID), lGetUlong(osjob, JO_ja_task_ID));
 	 mem = systemd_get_property_dbus(bus,cmd,SD_MEM_USAGE);
          if ((usage = lGetElemStr(usage_list, UA_name, USAGE_ATTR_VMEM))) {
             lSetDouble(usage, UA_value, mem);
@@ -1220,7 +1220,7 @@ static void ptf_get_usage_from_systemd(void)
 #else
   /* Get the usage directly from the associated Kernel cgroups, the following code 
      assumes cgroups v1, i.e. will not work in RHEL-9 */
-         snprintf(cmd,sizeof(cmd),"%s/sge-%lu.%lu.scope/memory.usage_in_bytes",cgroupmemroot,lGetUlong(job, JL_job_ID),lGetUlong(osjob, JO_ja_task_ID));
+         snprintf(cmd, sizeof(cmd), "%s/sge-%u.%u.scope/memory.usage_in_bytes", cgroupmemroot, lGetUlong(job, JL_job_ID), lGetUlong(osjob, JO_ja_task_ID));
 
          /* Open the command for reading. */
          fp = fopen(cmd, "r");
@@ -1246,7 +1246,7 @@ static void ptf_get_usage_from_systemd(void)
          }
          fclose(fp);
 
-         snprintf(cmd,sizeof(cmd),"%s/sge-%lu.%lu.scope/cpuacct.usage",cgroupcpuroot,lGetUlong(job, JL_job_ID),lGetUlong(osjob, JO_ja_task_ID));
+         snprintf(cmd, sizeof(cmd), "%s/sge-%u.%u.scope/cpuacct.usage", cgroupcpuroot, lGetUlong(job, JL_job_ID), lGetUlong(osjob, JO_ja_task_ID));
 
          /* Open the command for reading. */
          fp = fopen(cmd, "r");

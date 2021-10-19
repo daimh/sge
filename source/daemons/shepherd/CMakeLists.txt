@@ -46,3 +46,8 @@ target_link_libraries(sge_shepherd PRIVATE
 	uti
 	uti2
 )
+if (SYSTEMD AND SYSTEMD_VERSION VERSION_GREATER_EQUAL "222")
+	target_link_libraries(sge_shepherd PRIVATE
+		systemd
+	)
+endif()

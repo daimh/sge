@@ -1,3 +1,6 @@
+add_compile_options(
+    -Wno-format-truncation
+)
 add_executable(sge_execd
 	dispatcher.c
 	exec_job.c
@@ -50,8 +53,14 @@ target_link_libraries(sge_execd PRIVATE
 	sgeobjd
 	shutdown
 	sig_handlers
+	spool
 	startprog
 	usage
 	uti
 	uti2
 )
+if (SYSTEMD AND SYSTEMD_VERSION VERSION_GREATER_EQUAL "222")
+	target_link_libraries(sge_execd PRIVATE
+		systemd
+	)
+endif()

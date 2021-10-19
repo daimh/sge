@@ -1,3 +1,6 @@
+add_compile_options(
+	-Wno-format-truncation
+)
 execute_process(
 	COMMAND git rev-list --count HEAD
 	OUTPUT_VARIABLE GIT_REPO_REV

@@ -86,7 +86,7 @@ int delete_qrsh_pid_file()
    int ret = 1;
 
    if((pid_file_name = search_conf_val("qrsh_pid_file")) == NULL) {
-      shepherd_trace("cannot get variable %s", pid_file_name);
+      shepherd_trace("cannot get variable pid_file_name");
       return 0;
    }
    

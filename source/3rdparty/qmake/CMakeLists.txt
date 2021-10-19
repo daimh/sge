@@ -35,8 +35,9 @@ target_compile_definitions(qmake PRIVATE
 	LIBDIR="/usr/local/lib"
 )
 target_compile_options(qmake PRIVATE
-	-Wno-strict-prototypes
 	-Wno-return-local-addr
+	-Wno-strict-prototypes
+	-Wno-stringop-overflow
 )
 target_include_directories(qmake PRIVATE
 	${CMAKE_CURRENT_BINARY_DIR}

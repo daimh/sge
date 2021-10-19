@@ -102,8 +102,6 @@ static bool linux_read_status(char *proc, int time_stamp, lnk_link_t *job_list,
 static gid_t *list = 0;
 #if defined(LINUX) || defined(ALPHA) || defined(SOLARIS)
 
-#define PROC_DIR "/proc"
-
 static DIR *cwd;
 static struct dirent *dent;
 static u_long32 max_groups;
@@ -218,7 +216,7 @@ void procfs_kill_addgrpid(gid_t add_grp_id, int sig, tShepherd_trace shepherd_tr
          continue;
 
 #if defined(SOLARIS) || defined(ALPHA)
-      snprintf(procnam, sizeof(procnam), "%s/%s", PROC_DIR, dent->d_name);
+      snprintf(procnam, sizeof(procnam), "/proc/%s", dent->d_name);
       if ((fd = open(procnam, O_RDONLY, 0)) == -1) {
          DPRINTF(("open(%s) failed: %s\n", procnam, strerror(errno)));
          continue;
@@ -240,7 +238,7 @@ void procfs_kill_addgrpid(gid_t add_grp_id, int sig, tShepherd_trace shepherd_tr
       if (!strcmp(dent->d_name, "self"))
          continue;
 
-      snprintf(procnam, sizeof(procnam), PROC_DIR "/%s/status", dent->d_name);
+      snprintf(procnam, sizeof(procnam), "/proc/%s/status", dent->d_name);
       if (!(fp = fopen(procnam, "r")))
          continue;
       /* get number of groups and current uids, gids
@@ -331,7 +329,7 @@ FCLOSE_ERROR:
 
 int pt_open(void)
 {
-   cwd = opendir(PROC_DIR);
+   cwd = opendir("/proc");
    return !cwd;
 }
 void pt_close(void)
@@ -410,7 +408,7 @@ int pt_dispatch_proc_to_job(char *pidname, lnk_link_t *job_list,
       char procnam[256];
       lList *groupTable = lGetPosList(pr, pos_groups);
 
-      snprintf(procnam, sizeof(procnam), PROC_DIR "/%s/status", pidname);
+      snprintf(procnam, sizeof(procnam), "/proc/%s/status", pidname);
       if (stat(procnam, &fst) != 0) {
          if (errno != ENOENT) {
             if (monitor_pdc)
@@ -457,7 +455,7 @@ int pt_dispatch_proc_to_job(char *pidname, lnk_link_t *job_list,
 
 #  elif defined(SOLARIS) || defined(ALPHA)
 
-   snprintf(procnam, sizeof(procnam), "%s/%s", PROC_DIR, pidname);
+   snprintf(procnam, sizeof(procnam), "/proc/%s", pidname);
    if ((fd = open(procnam, O_RDONLY, 0)) == -1) {
       if (errno != ENOENT) {
          if (monitor_pdc) {
@@ -666,7 +664,7 @@ static int linux_proc_io(char *proc, uint64 *iochars)
    char procnam[256];
    SGE_STRUCT_STAT fst;
 
-   snprintf(procnam, sizeof(procnam), PROC_DIR "/%s/io", proc);
+   snprintf(procnam, sizeof(procnam), "/proc/%s/io", proc);
    if (stat(procnam, &fst) != 0)
       return 1;
    FILE *fd;
@@ -698,7 +696,7 @@ bool swap_in_status (void)
 
    if (called) return ret;
    called = true;
-   ret = (file_getvalue(buffer, sizeof buffer, PROC_DIR "/self/status",
+   ret = (file_getvalue(buffer, sizeof buffer, "/proc/self/status",
                         "VmSwap:") != NULL);
    return ret;
 }
@@ -713,7 +711,7 @@ bool swap_in_smaps(void)
 
    if (called) return ret;
    called = true;
-   ret = (file_getvalue(buffer, sizeof buffer, PROC_DIR "/self/smaps",
+   ret = (file_getvalue(buffer, sizeof buffer, "/proc/self/smaps",
                         "Swap:") != NULL);
    return ret;
 }
@@ -731,7 +729,7 @@ bool pss_in_smaps(void)
 
    if (called) return ret;
    called = true;
-   ret = (file_getvalue(buffer, sizeof buffer, PROC_DIR "/self/smaps",
+   ret = (file_getvalue(buffer, sizeof buffer, "/proc/self/smaps",
                         "Pss:") != NULL);
    return ret;
 }
@@ -750,7 +748,7 @@ linux_read_status(char *proc, int time_stamp, lnk_link_t *job_list,
    FILE *fp;
 
    DENTER(TOP_LAYER, "linux_read_status");
-   snprintf(procnam, sizeof(procnam), PROC_DIR "/%s/stat", proc);
+   snprintf(procnam, sizeof(procnam), "/proc/%s/stat", proc);
    errno = 0;
    if ((fp = fopen(procnam, "r")) == NULL) {
       if (errno != ENOENT) {
@@ -786,7 +784,7 @@ linux_read_status(char *proc, int time_stamp, lnk_link_t *job_list,
          errno = 0;
          /* Ideally, use PSS for best accuracy.  */
          if (pss_in_smaps() && mconf_get_use_smaps()) {
-            snprintf(procnam, sizeof procnam, PROC_DIR "/%s/smaps", proc);
+            snprintf(procnam, sizeof procnam, "/proc/%s/smaps", proc);
             if ((fp = fopen(procnam, "r"))) {
                while (fgets(buffer, sizeof buffer, fp))
                   /* This is faster than using sscanf, which is
@@ -801,7 +799,7 @@ linux_read_status(char *proc, int time_stamp, lnk_link_t *job_list,
                      strerror(errno)));
          } else if (swap_in_status()) {
             /* Faster than parsing smaps, if we have it.  */
-            snprintf(procnam, sizeof procnam, PROC_DIR "/%s/status", proc);
+            snprintf(procnam, sizeof procnam, "/proc/%s/status", proc);
             if ((fp = fopen(procnam, "r"))) {
                bool gotone = false;
                while (fgets(buffer, sizeof buffer, fp)) {
@@ -820,7 +818,7 @@ linux_read_status(char *proc, int time_stamp, lnk_link_t *job_list,
                      strerror(errno)));
          } else if (swap_in_smaps() && mconf_get_use_smaps()) {
             /* Last resort is to examine all the maps in smaps for RSS.  */
-            snprintf(procnam, sizeof procnam, PROC_DIR "/%s/smaps", proc);
+            snprintf(procnam, sizeof procnam, "/proc/%s/smaps", proc);
             if ((fp = fopen(procnam, "r"))) {
                while (fgets(buffer, sizeof buffer, fp))
                   if (strncmp(buffer, "Swap:", 5) == 0)
