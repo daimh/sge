@@ -140,7 +140,7 @@ xbps-install cmake make gcc openssl-devel motif-devel hwloc libhwloc-devel libti
 - CentOS 8.3, 2021-06-21, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
-dnf --enablerepo=powertools install hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake
+dnf --enablerepo=powertools install hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake systemd-devel
 ```
 
 ## Contribute
