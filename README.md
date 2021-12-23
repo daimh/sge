@@ -137,10 +137,10 @@ apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-de
 xbps-install cmake make gcc openssl-devel motif-devel hwloc libhwloc-devel libtirpc-devel ncurses-devel pam-devel
 ```
 
-- CentOS 8.3, 2021-06-21, with SELinux set to permissive
+- CentOS 8.5.2111, 2021-12-22, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
-dnf --enablerepo=powertools install hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake
+dnf --enablerepo=powertools install hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake systemd-devel
 ```
 
 ## Contribute
