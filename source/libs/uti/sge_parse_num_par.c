@@ -515,3 +515,26 @@ sge_parse_num_val(sge_rlim_t *rlimp, double *dvalp,
       return (u_long32)ldummy;
    }
 }
+
+/******* uti/sd_addprop() **************************************
+ * FUNCTION
+ *   adds a property to the list of arguments provided for systemd-run
+ * INPUTS  
+ *   property - pointer to the last argument
+ *   format   - a property (name=value) to be added to the existing list
+ *   ...      - possible variables referred in format
+ */
+
+void sd_addprop(char ***property, const char *format, ...)
+{
+   va_list     ap;
+   char        buf[256] = "";
+
+   va_start(ap, format);
+   vsnprintf(buf,sizeof(buf), format, ap);
+   va_end(ap);
+   *(*property)++ = "-p";
+   *(*property)++ = strdup(buf);
+   **property = NULL;
+}
+

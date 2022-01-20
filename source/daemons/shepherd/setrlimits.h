@@ -51,5 +51,5 @@ struct resource_table_entry {
    int resource_type[2];
 };
 
-void setrlimits(int trace_limits);
+void setrlimits(int trace_limits, char ***systemd_limit);
 #endif /* __SETRLIMITS_H */

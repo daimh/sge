@@ -205,14 +205,23 @@ void setrlimits(int trace_rlimit, char ***systemd_args) {
    PARSE_IT_UNDEF(&s_locks,        "s_locks");
    PARSE_IT_UNDEF(&h_locks,        "h_locks");
 
+#define CHECK_FOR_CONSUMABLE_JOB(A) \
+   (A##_is_consumable_job) ? (A=mul_infinity(A,1)):(A=mul_infinity(A, host_slots));
+
 #define RL_MAX(r1, r2) ((rlimcmp((r1), (r2))>0)?(r1):(r2))
 #define RL_MIN(r1, r2) ((rlimcmp((r1), (r2))<0)?(r1):(r2))
    /*
     * we have to define some minimum limits to make sure that
     * that the shepherd can run without trouble
     */
-   s_vmem = RL_MAX(s_vmem, LIMIT_VMEM_MIN);
-   h_vmem = RL_MAX(h_vmem, LIMIT_VMEM_MIN);
+   if (s_vmem != RLIM_INFINITY) {
+      s_vmem = RL_MAX(s_vmem, LIMIT_VMEM_MIN);
+      CHECK_FOR_CONSUMABLE_JOB(s_vmem);
+   } 
+   if (h_vmem != RLIM_INFINITY) {
+      h_vmem = RL_MAX(h_vmem, LIMIT_VMEM_MIN);
+      CHECK_FOR_CONSUMABLE_JOB(h_vmem);
+   }
    s_data = RL_MAX(s_data, LIMIT_VMEM_MIN);
    h_data = RL_MAX(h_data, LIMIT_VMEM_MIN);
    s_rss = RL_MAX(s_rss, LIMIT_VMEM_MIN);
@@ -257,7 +266,7 @@ void setrlimits(int trace_rlimit, char ***systemd_args) {
     * causes problems that are difficult to find
     * we try to prevent these problems silently 
     */
-   if (s_vmem > h_vmem) {
+   if (s_vmem != RLIMIT_UNDEFINED && h_vmem != RLIMIT_UNDEFINED && s_vmem > h_vmem) {
       s_vmem = h_vmem;
    }    
    /*s_data = RL_MIN(s_data, s_vmem);
@@ -280,14 +289,8 @@ void setrlimits(int trace_rlimit, char ***systemd_args) {
    /*
     * Scale resource by slots for type other than CONSUMABLE_JOB.
     */
-#define CHECK_FOR_CONSUMABLE_JOB(A) \
-   (A##_is_consumable_job) ? (A=mul_infinity(A,1)):(A=mul_infinity(A, host_slots));
-
    CHECK_FOR_CONSUMABLE_JOB(h_cpu);
    CHECK_FOR_CONSUMABLE_JOB(s_cpu);
-
-   CHECK_FOR_CONSUMABLE_JOB(h_vmem);
-   CHECK_FOR_CONSUMABLE_JOB(s_vmem);
 
    CHECK_FOR_CONSUMABLE_JOB(h_data);
    CHECK_FOR_CONSUMABLE_JOB(s_data);

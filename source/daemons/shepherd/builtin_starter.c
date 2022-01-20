@@ -76,6 +76,7 @@
 extern bool g_new_interactive_job_support;
 extern int  g_noshell;
 extern int  g_newpgrp;
+extern bool g_use_systemd;
 
 static int sge_parse_limit(sge_rlim_t *rlvalp, char *s, char *error_str,
                            int error_len);
@@ -167,7 +168,6 @@ void son(const char *childname, char *script_file, int truncate_stderr_out, size
    int   ret;
    int   is_interactive  = 0;
    bool  is_qlogin  = false;
-   bool  use_systemd = false;
    int   is_rsh = 0;
    int   is_rlogin = 0;
    int   is_qlogin_starter = 0;   /* Caution! There is a function qlogin_starter(), too! */
@@ -344,9 +344,9 @@ void son(const char *childname, char *script_file, int truncate_stderr_out, size
          setosjobid(newpgrp, &add_grp_id, pw);
       }   
    }
-   
+
    shepherd_trace("setting limits");
-   setrlimits(!strcmp(childname, "job"));
+   setrlimits(!strcmp(childname, "job"),NULL);
 
    shepherd_trace("setting environment");
    /* The new IJS needs the environment.  */
@@ -375,10 +375,6 @@ void son(const char *childname, char *script_file, int truncate_stderr_out, size
       use_qsub_gid = 0;
       gid = 0;
    }
-   tmp_str = search_conf_val("use_systemd");
-   if (strcmp(tmp_str, "yes") == 0) {
-      use_systemd = true;
-   }
 
    tmp_str = search_conf_val("skip_ngroups_max_silently");
    if (tmp_str != NULL && strcmp(tmp_str, "yes") == 0) {
@@ -387,7 +383,7 @@ void son(const char *childname, char *script_file, int truncate_stderr_out, size
 
    /* --- switch to intermediate user */
    shepherd_trace("switching to intermediate/target user");
-   if(use_systemd == true){
+   if(g_use_systemd == true){
       /* --- There is No way to pass supplementary GIDs to systemd-run,.
             but luckily they get inherited from the calling process..
                   We are only interested in setting GIDs here --- */
@@ -631,10 +627,6 @@ void son(const char *childname, char *script_file, int truncate_stderr_out, size
    }
 
    cwd = get_conf_val("cwd");
-
-   sge_set_env_value("SGE_STDIN_PATH", stdin_path);
-   sge_set_env_value("SGE_STDOUT_PATH", stdout_path);
-   sge_set_env_value("SGE_STDERR_PATH", merge_stderr?stdout_path:stderr_path);
    sge_set_env_value("SGE_CWD_PATH", cwd);
 
    /*
@@ -856,11 +848,10 @@ void son(const char *childname, char *script_file, int truncate_stderr_out, size
    }
 
    // set queue in E state when /bin/systemd-run cannot be found
-   if(use_systemd == true &&  file_exists(SYSTEMD_RUN) == false) {
+   if(g_use_systemd == true &&  file_exists(SYSTEMD_RUN) == false) {
       shepherd_error(1, "USE_CGROUPS is configured to use 'systemd' but %s cannot be found", SYSTEMD_RUN);
    }
-
-   if(use_systemd == false || file_exists(SYSTEMD_RUN) == false) {
+   if(g_use_systemd == false || file_exists(SYSTEMD_RUN) == false) {
       start_command(childname, shell_path, script_file, argv0, shell_start_mode,
                  is_interactive, is_qlogin, is_rsh, is_rlogin, str_title,
                  use_starter_method);
@@ -915,7 +906,6 @@ int sge_set_environment(bool user_env)
    while (fgets(buf, sizeof(buf), fp)) {
 
       line++;
-
       if (strlen(buf) <= 1)     /* empty line or last line */
          continue;
 
@@ -1524,20 +1514,17 @@ int use_starter_method /* If this flag is set the shell path contains the
                         * starter_method */
 ) {
    char **args;
-   char *pre_args[20];
+   char *pre_args[1024];
    char **pre_args_ptr;
    char err_str[2048];
 
    char unitname[50];
    char *my_env[8];
    static char term[8+64]         = "TERM=";
-   char minusname[50];
    char buf[50];
    char *mem_limit,*h_rt;
-   char mem_limit_str[256],h_rt_str[256];
-   char enable_cpuquota_str[256];
    char *tmp_str;
-   int host_slots = 1;
+   int  host_slots = 1;
    bool enable_cpuquota = false;
    char *binding = (char *) getenv("SGE_BINDING");
 
@@ -1561,26 +1548,57 @@ int use_starter_method /* If this flag is set the shell path contains the
    /* build parameters for SystemD */
    snprintf(unitname,sizeof(unitname),"sge-%s.%d", get_conf_val("job_id"), MAX(1, atoi(get_conf_val("ja_task_id"))) );
    pre_args_ptr = &pre_args[1];
-   *pre_args_ptr++ = "--scope";
+   if(atoi(get_conf_val("enable_addgrp_kill"))){
+       *pre_args_ptr++ = "--scope";
+   } else { /* some of the functionality can be 
+               reused for scope units, too (with SystemD >= 249)
+               since systemD v250 we can use simple units and ExitType=cgroup, but v250 is too new
+               so we still keep using scope units for simple jobs
+               long term we should use only simple units, because it just makes most sense */
+  	char **env_ptr = sge_copy_sanitize_env((!inherit_env() || is_qlogin) ? sge_get_environment() : environ);
+	int  env_cnt=0;
+
+
+#if defined(HAVE_SYSTEMD) && HAVE_SYSTEMD <= 1
+        // set queue in E state when we need to run systemd service but systemd is too old (<250) to support this
+        shepherd_error(1, "JOB_MODE is set to 'forking',USE_CGROUPS is configured to use 'systemd' but SystemD is too old to support forking jobs, need at least version 250");
+        return;
+#endif
+       *pre_args_ptr++ = "--service-type=exec";
+       *pre_args_ptr++ = "-p ExitType=cgroup";
+       *pre_args_ptr++ = "--wait";
+       sd_addprop(&pre_args_ptr,"--working-directory=%s",get_conf_val("cwd"));
+
+       while ((env_ptr != NULL) && (*env_ptr != NULL)) {
+            *pre_args_ptr++ = "-E"; 	*pre_args_ptr++ = *env_ptr++;
+	    if(env_cnt++ == 1000) break;
+       }
+       h_rt = search_conf_val("h_rt");
+       if (h_rt != NULL) {
+           if (strcmp(h_rt, "INFINITY")) {
+              u_long32 clock_val=0;
+              parse_ulong_val(NULL, &clock_val, TYPE_TIM, h_rt, NULL, 0);
+              sd_addprop(&pre_args_ptr, "RuntimeMaxSec=%d", clock_val);
+           }
+       }
+       if (is_qlogin)  *pre_args_ptr++ = "-t"; /* pipe pseudo-tty for qrsh/qlogin jobs */
+       shepherd_trace("setting systemd limits");
+       setrlimits(!strcmp(childname, "job"),&pre_args_ptr);
+   }
+   
    *pre_args_ptr++ = "-p";   		*pre_args_ptr++ = "MemoryAccounting=yes";
    *pre_args_ptr++ = "-p";   		*pre_args_ptr++ = "CPUAccounting=yes";
 #ifdef HAVE_SYSTEMD
    /* Attempt to set up CPUsets via SystemD, this effectively replaces (or should replace as we did not disable
     * the old code yet) the old CGroup setting code. It only works with a recent versions of SystemD 
     */
-   if(binding){
-	int sl = strlen(binding)+20;
-   	*pre_args_ptr++ = "-p";		
-   	*pre_args_ptr = sge_malloc(sl);
-	snprintf(*pre_args_ptr++,sl,"AllowedCPUs=%s",binding);
-   }	
+   if(binding)
+        sd_addprop(&pre_args_ptr,"AllowedCPUs=%s",binding);
 #endif
    // fretn: memory and cpu limitations through cgroups
    //  we should use cpuset instead as this is more efficient
-   if (enable_cpuquota == true) {
-	sprintf(enable_cpuquota_str, "CPUQuota=%d%%", host_slots * 100);
-	*pre_args_ptr++ = "-p";   		*pre_args_ptr++ = enable_cpuquota_str;
-   }
+   if (enable_cpuquota == true) 
+      sd_addprop(&pre_args_ptr,"CPUQuota=%d%%", host_slots * 100);
    // TODO: CPUShares
    // a consumable like mem_limit
    // and a global setting which lets the admin decide if its cpushares or cpuweight
@@ -1589,23 +1607,10 @@ int use_starter_method /* If this flag is set the shell path contains the
    // TODO: use MemoryMax property on cgroupsv2
 
    if (mem_limit != NULL) {
-	if (strcmp(mem_limit, "INFINITY")) {
-	   sprintf(mem_limit_str, "MemoryLimit=%s", mem_limit);
-	   *pre_args_ptr++ = "-p";   		*pre_args_ptr++ = mem_limit_str;
-	}
+	if (strcmp(mem_limit, "INFINITY")) 
+           sd_addprop(&pre_args_ptr, "MemoryLimit=%s", mem_limit);
    }
    // -fretn: end
-   /* Try to implement h_rt via systemd, too - not really necessary, but won't hurt */
-#if 0
-   /* won't work as --scope units does not accept RunTimeMaxSec property ... too bad :( */
-   h_rt = search_conf_val("h_rt");
-   if (h_rt != NULL) {
-        if (strcmp(h_rt, "INFINITY")) {
-           sprintf(h_rt_str, "RuntimeMaxSec=%s", h_rt);
-           *pre_args_ptr++ = "-p";              *pre_args_ptr++ = h_rt_str;
-        }
-   }
-#endif   
    *pre_args_ptr++ = "--unit";   	*pre_args_ptr++ = unitname;
    *pre_args_ptr++ = "--uid";   	*pre_args_ptr++ = get_conf_val("job_owner");
 //   snprintf(execargs[i++],50,"%d",getuid());
@@ -1793,15 +1798,12 @@ int use_starter_method /* If this flag is set the shell path contains the
    if(is_qlogin) { /* qlogin, qrsh (without command), qrsh <command> */
 	 int i;
 	 args = pre_args;
+	 args[0] = SYSTEMD_RUN;   
          if (is_rsh == false) { /* qlogin, qrsh (without command) */
-	    /* generate e.g. "-bash" from the shell path "/bin/bash" */
-	    snprintf(minusname, sizeof(minusname), "-%s", sge_basename(shell_path, '/'));
-
 	    if (getenv("TERM") != NULL) {
 			my_env[0] = strncat(term, getenv("TERM"), 64);
 	    }
 	    my_env[1] = NULL;
-	    args[0] = minusname;
 	    *pre_args_ptr++ = shell_path;
          } else { /* qrsh <command> */
             const char *sge_root = NULL;
@@ -1809,8 +1811,6 @@ int use_starter_method /* If this flag is set the shell path contains the
             char *command = NULL;
             char *buf = NULL;
             int  nargs;
-
-            args[0] = NULL;
 
             command = (char*)sge_get_env_value("QRSH_COMMAND");
             nargs = count_command(command);
@@ -1827,7 +1827,6 @@ int use_starter_method /* If this flag is set the shell path contains the
                arch = sge_get_arch();
                snprintf(buf, SGE_PATH_MAX, "%s/utilbin/%s/qrsh_starter", sge_root, arch);
 
-               args[0] = buf;
                *pre_args_ptr++ = buf;
                *pre_args_ptr++ = shepherd_job_dir;
                if (g_noshell == 1) {
@@ -1848,6 +1847,7 @@ int use_starter_method /* If this flag is set the shell path contains the
             shepherd_trace("args[%d] = \"%s\"", i, args[i]);
         }
         execve(SYSTEMD_RUN,args,my_env);
+        // execv(SYSTEMD_RUN,args);   // we will use this for non-scope units
    } else { /* batch job or other command */
 
       shepherd_trace("%s", err_str);

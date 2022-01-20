@@ -527,7 +527,7 @@ fail:
    sge_switch2admin_user();
    foreground = 0; /* setosjobid shall write to shepherd trace file */
    setosjobid(0, &add_grp_id, pwd);
-   setrlimits(0);
+   setrlimits(0,NULL);
    sge_switch2start_user();
    /* chdir(pwd->pw_dir); */
    
