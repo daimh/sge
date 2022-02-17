@@ -1,5 +1,3 @@
-<img src="mni.png" align="right" />
-
 # Some Grid Engine/Son of Grid Engine/Sun Grid Engine
 
 Some Grid Engine is a fork of Son of Grid Engine at University of Liverpool, with SOME improvement.
@@ -15,6 +13,7 @@ We have been using and maintaining this software at Michigan Neuroscience Instit
 - Underscore in port service name 'sge\_qmaster/sge\_execd' is changed to hyphen in all C files and shell scripts, saving us from modifying /etc/services each time
 - Supports both systemd and runit on Void Linux
 - Version is changed to the commit version of this github repo
+- [5 keystrokes to setup a demo cluster on any Linux machine without root privilege](5-keystrokes-to-setup-a-cluster-without-root-privilege/)
 
 ## Three installation methods
 
@@ -63,7 +62,7 @@ ls STDIN.* #check job output
 
 All SGE services are running under user 'sge' for security reason, as this is production system.
 
-Tested with the latest Arch Linux on Oct 27, 2020, on two nodes created by [daiker](https://github.com/daimh/daiker) with command 'daiker run -PT 22 ...'
+Tested with the latest Arch Linux on Oct 27, 2020, on two nodes created by [daiker](https://github.com/daimh/daiker) with command 'daiker run -eT 22 ...'
 
 Assuming master node hostname is 'master-node', and execution node hostname is 'exec-node'. /etc/hosts on both nodes have these two entries
 ```
@@ -117,7 +116,7 @@ cat STDIN.*
 
 ## <a name=environmet></a>CMake building, tested with all the Linux distributions below, patched up to the specified date
 
-- Arch Linux, 2021-10-19
+- Arch Linux, 2022-02-27
 ```
 pacman -Sy --needed git cmake make gcc openmotif hwloc vi inetutils pkgconf
 ```
