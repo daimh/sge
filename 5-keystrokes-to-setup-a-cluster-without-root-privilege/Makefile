@@ -6,13 +6,13 @@ var/execd : $(addprefix var/execd,$(shell seq $(ExecdCount)))
 ALL=$(addprefix var/,firewall master $(addprefix execd,$(shell seq $(ExecdCount))))
 define ExecdTmpl
 var/execd$1 : var/master-container
-	github/daiker build $(DaikerOpts) -d /dev/null & ps --no-headers -o pgid $$$$! | tr -d ' ' > $$@
+	setsid github/daiker build $(DaikerOpts) -d /dev/null & ps --no-headers -o pgid $$$$! | tr -d ' ' > $$@
 endef
 $(foreach E,$(shell seq $(ExecdCount)),$(eval $(call ExecdTmpl,$E)))
 var/master-container : var/master-image
 	fuser -k $@.qcow2 || :
 	rm -f $@.qcow2
-	setsid github/daiker run $(DaikerOpts) -d -b $<.qcow2 $@.qcow2 &
+	github/daiker run $(DaikerOpts) -d -b $<.qcow2 $@.qcow2 &
 	touch $@
 var/master-image : var/master-autoinstall.iso var/firewall-container
 	fuser -k $@.qcow2 || :
