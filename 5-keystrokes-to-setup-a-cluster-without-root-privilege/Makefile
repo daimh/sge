@@ -1,6 +1,6 @@
 PortFirewall:=12345
 ExecdCount=1
-DaikerOpts=-eD gtk -c 8 -r 3
+DaikerOpts=-e random -D gtk -c 8 -r 3
 
 var/execd : $(addprefix var/execd,$(shell seq $(ExecdCount)))
 ALL=$(addprefix var/,firewall master $(addprefix execd,$(shell seq $(ExecdCount))))
