@@ -2,6 +2,7 @@ PortFirewall:=12345
 ExecdCount=1
 DaikerOpts=-e random -D gtk -c 8 -r 3
 
+Ssh=ssh -i var/id_ed25519 -p $(PortFirewall) -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
 var/execd : $(addprefix var/execd,$(shell seq $(ExecdCount)))
 ALL=$(addprefix var/,firewall master $(addprefix execd,$(shell seq $(ExecdCount))))
 define ExecdTmpl
@@ -23,6 +24,8 @@ var/firewall-container : var/firewall-image
 	fuser -k $@.qcow2 || :
 	rm -f $@.qcow2
 	github/daiker run $(DaikerOpts) -T 12345-$(PortFirewall) -b $<.qcow2 $@.qcow2 &
+	while ! $(Ssh) root@localhost id; do sleep 2; done
+	rsync -ae "$(Ssh)" root@localhost:/var/cache/pacman/pkg/ lib/overlay/var/cache/pacman/pkg/
 	touch $@
 var/firewall-image : var/firewall-autoinstall.iso
 	fuser -k $@.qcow2 || :

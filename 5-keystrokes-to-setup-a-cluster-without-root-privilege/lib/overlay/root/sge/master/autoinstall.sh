@@ -24,10 +24,13 @@ do
 	sleep 4
 done
 echo -e "\n\n\n####################################################\n# Installing $node in systemd service \"sge-auto\".\n# Thanks for your patience!\n####################################################" > /dev/tty1
-####DEBUG only
-#pacstrap -c /mnt base linux linux-firmware
-#rsync -a /var/cache/pacman/pkg/ /mnt/var/cache/pacman/pkg/
-pacstrap /mnt base linux linux-firmware
+if [ -f /var/cache/pacman/pkg/base-*.sig ]
+then
+	pacstrap -c /mnt base linux linux-firmware
+	rsync -a /var/cache/pacman/pkg/ /mnt/var/cache/pacman/pkg/
+else
+	pacstrap /mnt base linux linux-firmware
+fi
 genfstab -U /mnt >> /mnt/etc/fstab
 arch-chroot /mnt << _EOF
 set -ex

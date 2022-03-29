@@ -116,7 +116,7 @@ cat STDIN.*
 
 ## <a name=environmet></a>CMake building, tested with all the Linux distributions below, patched up to the specified date
 
-- Arch Linux, 2022-02-27
+- Arch Linux, 2022-03-28
 ```
 pacman -Sy --needed git cmake make gcc openmotif hwloc vi inetutils pkgconf
 ```
@@ -150,7 +150,7 @@ Contributions are always welcome!
 
 Written by [Manhong Dai](mailto:daimh@umich.edu)
 
-Copyright © 2021 University of Michigan. License [SISSL](https://opensource.org/licenses/sisslpl)
+Copyright © 2002-2022 University of Michigan. License [SISSL](https://opensource.org/licenses/sisslpl)
 
 This is free software: you are free to change and redistribute it.
 
