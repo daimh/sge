@@ -82,7 +82,11 @@ sudo pacman -U sge-r*.pkg.tar.zst
 
 ## Quick test on one node
 - step 1, as root.
+
+First of all, change option **admin_user** in [bootstrapfile](http://gridscheduler.sourceforge.net/htmlman/htmlman5/bootstrap.html)
 ```
+useradd -r -d /opt/sge sge
+chown -R sge /opt/sge
 cd /opt/sge
 yes "" | ./install_qmaster
 yes "" | ./install_execd
@@ -116,10 +120,7 @@ Assuming master node hostname is 'master-node', and execution node hostname is '
 ```
 ping master-node
 ping exec-node
-pacman -Sy --needed git cmake make gcc openmotif hwloc vi inetutils pkgconf
-useradd -r -d /opt/sge sge
 mkdir /opt/sge
-chown sge /opt/sge
 git clone https://github.com/daimh/sge.git
 cd sge
 cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/sge
@@ -128,7 +129,11 @@ cmake --install build
 ```
 
 - step 2, on master-node as root
+
+First of all, change option **admin_user** in [bootstrapfile](http://gridscheduler.sourceforge.net/htmlman/htmlman5/bootstrap.html)
 ```
+useradd -r -d /opt/sge sge
+chown -R sge /opt/sge
 cd /opt/sge
 yes "" | ./install_qmaster
 source /opt/sge/default/common/settings.sh
@@ -145,10 +150,9 @@ cd /opt/sge
 yes "" | ./install_execd
 source /opt/sge/default/common/settings.sh
 qhost -q
-su - sge
 ```
 
-- step 4, on exec-node as sge
+- step 4, on master-node as any non-root user
 ```
 source /opt/sge/default/common/settings.sh
 echo hostname | qsub -cwd
