@@ -60,17 +60,17 @@ dnf --enablerepo=powertools install hwloc-devel openssl-devel libtirpc-devel mot
 
 1) **CMake**
 ```
-cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/sge -DSYSTEMD=OFF #or ON 
+cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/sge -DSYSTEMD=OFF #or ON
 cmake --build build -j
 sudo cmake --install build
-```  
+```
 Please check [the tested environment below](#environmet) in case of any compiling issue.
 
 2) **Legacy SGE installation on modern Linux distributions**
 ```
 make
 sudo make install
-```  
+```
 Please check the original source/README.BUILD for detail
 
 3) **Legacy SGE installation on Arch Linux**
@@ -107,7 +107,7 @@ ls STDIN.* #check job output
 
 All SGE services are running under user **sge** for security reason, as this is production system.
 
-Assuming master node hostname is **master**, and execution nodes hostnames is **node-XX**.  
+Assuming master node hostname is **master**, and execution nodes hostnames is **node-XX**.
 **/etc/hosts** on master and all nodes shoud be like it:
 ```
 10.1.1.1	 master
@@ -115,7 +115,7 @@ Assuming master node hostname is **master**, and execution nodes hostnames is **
 10.1.1.12	 node-02
 ...
 10.1.1.1N	 node-0N
-```  
+```
 All IP addresses are as an example.
 
 #### The first - on all nodes as root
@@ -123,7 +123,7 @@ All IP addresses are as an example.
 ping master
 ping node-XX
 useradd -u <UID> -r -d /opt/sge sge
-```  
+```
 sge UID should be equal on all machines.
 
 #### The second - on master as root
@@ -165,16 +165,23 @@ Contributions are always welcome!
 
 ### Copyright
 
-Written by [Manhong Dai](mailto:daimh@umich.edu)  
-Copyright © 2002-2022 University of Michigan. License [SISSL](https://opensource.org/licenses/sisslpl)  
-This is free software: you are free to change and redistribute it.  
+Written by [Manhong Dai](mailto:daimh@umich.edu)
+Copyright © 2002-2022 University of Michigan. License [SISSL](https://opensource.org/licenses/sisslpl)
+
+This is free software: you are free to change and redistribute it.
+
 There is NO WARRANTY, to the extent permitted by law.
 
 ### Acknowledgment
 
-Thomas Wilson, M.D., Ph.D. Professor of Pathology, UMICH  
-Ruth Freedman, MPH, former administrator of MNI, UMICH  
-Fan Meng, Ph.D., Research Associate Professor, Psychiatry, UMICH  
-Huda Akil, Ph.D., Director of MNI, UMICH  
-Stanley J. Watson, M.D., Ph.D., Director of MNI, UMICH  
+Thomas Wilson, M.D., Ph.D. Professor of Pathology, UMICH
+
+Ruth Freedman, MPH, former administrator of MNI, UMICH
+
+Fan Meng, Ph.D., Research Associate Professor, Psychiatry, UMICH
+
+Huda Akil, Ph.D., Director of MNI, UMICH
+
+Stanley J. Watson, M.D., Ph.D., Director of MNI, UMICH
+
 Also thanks to https://arc.liv.ac.uk/trac/SGE, Sun, and Oracle
