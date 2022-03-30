@@ -140,7 +140,7 @@ xbps-install cmake make gcc openssl-devel motif-devel hwloc libhwloc-devel libti
 - **CentOS 7.9.2009**, 2022-03-30, with SELinux set to permissive
 ```
 sudo yum groupinstall 'Development Tools'
-sudo yum install csh hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake systemd-devel
+sudo yum install wget csh hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake systemd-devel
 ```
 
 - **CentOS 8.5.2111**, 2021-12-22, with SELinux set to permissive
