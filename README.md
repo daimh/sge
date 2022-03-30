@@ -157,30 +157,24 @@ watch qstat
 cat STDIN.*
 ```
 
-## Contribute
+## Addition
+
+### Contribute
 
 Contributions are always welcome!
 
-## Copyright
+### Copyright
 
-Written by [Manhong Dai](mailto:daimh@umich.edu)
-
-Copyright © 2002-2022 University of Michigan. License [SISSL](https://opensource.org/licenses/sisslpl)
-
-This is free software: you are free to change and redistribute it.
-
+Written by [Manhong Dai](mailto:daimh@umich.edu)  
+Copyright © 2002-2022 University of Michigan. License [SISSL](https://opensource.org/licenses/sisslpl)  
+This is free software: you are free to change and redistribute it.  
 There is NO WARRANTY, to the extent permitted by law.
 
-## Acknowledgment
+### Acknowledgment
 
-Thomas Wilson, M.D., Ph.D. Professor of Pathology, UMICH
-
-Ruth Freedman, MPH, former administrator of MNI, UMICH
-
-Fan Meng, Ph.D., Research Associate Professor, Psychiatry, UMICH
-
-Huda Akil, Ph.D., Director of MNI, UMICH
-
-Stanley J. Watson, M.D., Ph.D., Director of MNI, UMICH
-
+Thomas Wilson, M.D., Ph.D. Professor of Pathology, UMICH  
+Ruth Freedman, MPH, former administrator of MNI, UMICH  
+Fan Meng, Ph.D., Research Associate Professor, Psychiatry, UMICH  
+Huda Akil, Ph.D., Director of MNI, UMICH  
+Stanley J. Watson, M.D., Ph.D., Director of MNI, UMICH  
 Also thanks to https://arc.liv.ac.uk/trac/SGE, Sun, and Oracle
