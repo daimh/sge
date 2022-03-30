@@ -15,23 +15,24 @@ We have been using and maintaining this software at Michigan Neuroscience Instit
 - Version is changed to the commit version of this github repo
 - [5 keystrokes to setup a demo cluster on any Linux machine without root privilege](5-keystrokes-to-setup-a-cluster-without-root-privilege/)
 
-## Three installation methods
+## Three different installation methods
 
-- CMake
+1) **CMake**
 ```
 cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/sge -DSYSTEMD=OFF #or ON 
 cmake --build build -j
 sudo cmake --install build
-```
+```  
 Please check [the tested environment below](#environmet) in case of any compiling issue.
 
-- Legacy SGE installation on modern Linux distributions, check the original source/README.BUILD for detail
+2) **Legacy SGE installation on modern Linux distributions**
 ```
 make
 sudo make install
-```
+```  
+Please check the original source/README.BUILD for detail
 
-- Legacy SGE installation on Arch Linux
+3) **Legacy SGE installation on Arch Linux**
 ```
 cp PKGBUILD.in PKGBUILD
 makepkg
