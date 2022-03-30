@@ -141,6 +141,11 @@ xbps-install cmake make gcc openssl-devel motif-devel hwloc libhwloc-devel libti
 ```
 sudo yum groupinstall 'Development Tools'
 sudo yum install wget csh hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake systemd-devel
+wget http://ftp.gnu.org/gnu/automake/automake-1.16.1.tar.gz
+tar xzf automake-1.16.1.tar.gz
+cd automake-1.16.1
+make
+sudo make install
 ```
 
 - **CentOS 8.5.2111**, 2021-12-22, with SELinux set to permissive
