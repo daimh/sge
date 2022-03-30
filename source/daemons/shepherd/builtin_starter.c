@@ -1858,7 +1858,8 @@ int use_starter_method /* If this flag is set the shell path contains the
 
       shepherd_trace("execve(%s, args, NULL, env)", SYSTEMD_RUN);
       *pre_args_ptr = (char *) NULL;
-      for (int i=0; args[i] != NULL; i++) {
+      int i;
+      for (i=0; args[i] != NULL; i++) {
             shepherd_trace("args[%d] = \"%s\"", i, args[i]);
       }
 
