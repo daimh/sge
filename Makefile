@@ -14,3 +14,5 @@ install : build/source/LINUXAMD64/sge_qmaster
 	echo "cp -pr build/source /opt/sge/build" >> install.sh
 	echo post_install >> install.sh
 	sh install.sh
+clean : build/
+	rm -rf build/
