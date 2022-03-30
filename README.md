@@ -80,7 +80,7 @@ makepkg
 sudo pacman -U sge-r*.pkg.tar.zst
 ```
 
-## Quick test on one node
+## Quick test on one machine
 - step 1, as root.
 
 First of all, change option **admin_user** in [bootstrapfile](http://gridscheduler.sourceforge.net/htmlman/htmlman5/bootstrap.html)
@@ -94,7 +94,6 @@ source /opt/sge/default/common/settings.sh
 qhost -q #you should be able to see five lines of output
 qconf -as $HOSTNAME #add this node as submit host
 ```
-please make sure there is no SGE process running with 'ps -ef |grep sge' and directory '/opt/sge/default' is removed if you want to run the commands above again
 
 - step 2, as a regular account
 ```
@@ -104,35 +103,33 @@ watch qstat #check job status
 ls STDIN.* #check job output
 ```
 
-## Production Installation on a share-nothing two-node system
+## Installation
 
-All SGE services are running under user 'sge' for security reason, as this is production system.
+All SGE services are running under user **sge** for security reason, as this is production system.
 
-Tested with the latest Arch Linux on Oct 27, 2020, on two nodes created by [daiker](https://github.com/daimh/daiker) with command 'daiker run -eT 22 ...'
-
-Assuming master node hostname is 'master-node', and execution node hostname is 'exec-node'. /etc/hosts on both nodes have these two entries
+Assuming master node hostname is **master**, and execution nodes hostnames is **node-XX**.  
+**/etc/hosts** on master and all nodes shoud be like it:
 ```
-10.1.1.1	master-node
-10.1.1.2	exec-node
-```
+10.1.1.1	 master
+10.1.1.11	 node-01
+10.1.1.12	 node-02
+...
+10.1.1.1N	 node-0N
+```  
+All IP addresses are as an example.
 
-- step 1, on both nodes as root
+#### The first - on all nodes as root
 ```
-ping master-node
-ping exec-node
-mkdir /opt/sge
-git clone https://github.com/daimh/sge.git
-cd sge
-cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/sge
-cmake --build build -j 
-cmake --install build
-```
+ping master
+ping node-XX
+useradd -u <UID> -r -d /opt/sge sge
+```  
+sge UID should be equal on all machines.
 
-- step 2, on master-node as root
+#### The second - on master as root
 
 First of all, change option **admin_user** in [bootstrapfile](http://gridscheduler.sourceforge.net/htmlman/htmlman5/bootstrap.html)
 ```
-useradd -r -d /opt/sge sge
 chown -R sge /opt/sge
 cd /opt/sge
 yes "" | ./install_qmaster
@@ -141,18 +138,18 @@ qconf -ah exec-node
 qconf -as exec-node
 ```
 
-- step 3, on exec-node as root
+#### The third - on all nodes as root
 ```
 mkdir -p /opt/sge/default
 chown -R sge /opt/sge/default
-scp -pr master-node:/opt/sge/default/common /opt/sge/default/common
+scp -pr master:/opt/sge/default/common /opt/sge/default/common
 cd /opt/sge
 yes "" | ./install_execd
 source /opt/sge/default/common/settings.sh
 qhost -q
 ```
 
-- step 4, on master-node as any non-root user
+#### The fourth - on master as any non-root user
 ```
 source /opt/sge/default/common/settings.sh
 echo hostname | qsub -cwd
