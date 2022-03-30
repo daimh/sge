@@ -15,6 +15,47 @@ We have been using and maintaining this software at Michigan Neuroscience Instit
 - Version is changed to the commit version of this github repo
 - [5 keystrokes to setup a demo cluster on any Linux machine without root privilege](5-keystrokes-to-setup-a-cluster-without-root-privilege/)
 
+
+## Requirements
+### tested with all the Linux distributions below, patched up to the specified date
+
+- **Arch Linux**, 2022-03-28
+```
+pacman -Sy --needed git cmake make gcc openmotif hwloc vi inetutils pkgconf
+```
+
+- **Debian Buster**, 2021-10-19, cmake 3.21.3 downloaded from cmake.org
+```
+apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev
+```
+
+- **Ubuntu Server 20.04**, 2021-10-19
+```
+apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev cmake
+```
+
+- **Void Linux**, 2021-10-19, x86\_64, Glibc
+```
+xbps-install cmake make gcc openssl-devel motif-devel hwloc libhwloc-devel libtirpc-devel ncurses-devel pam-devel
+```
+
+- **CentOS 7.9.2009**, 2022-03-30, with SELinux set to permissive
+```
+sudo yum groupinstall 'Development Tools'
+sudo yum install wget csh hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake systemd-devel
+wget http://ftp.gnu.org/gnu/automake/automake-1.16.1.tar.gz
+tar xzf automake-1.16.1.tar.gz
+cd automake-1.16.1
+make
+sudo make install
+```
+
+- **CentOS 8.5.2111**, 2021-12-22, with SELinux set to permissive
+```
+dnf group install "Development Tools"
+dnf --enablerepo=powertools install hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake systemd-devel
+```
+
 ## Three different installation methods
 
 1) **CMake**
@@ -113,45 +154,6 @@ source /opt/sge/default/common/settings.sh
 echo hostname | qsub -cwd
 watch qstat
 cat STDIN.*
-```
-
-## <a name=environmet></a>CMake building, tested with all the Linux distributions below, patched up to the specified date
-
-- **Arch Linux**, 2022-03-28
-```
-pacman -Sy --needed git cmake make gcc openmotif hwloc vi inetutils pkgconf
-```
-
-- **Debian Buster**, 2021-10-19, cmake 3.21.3 downloaded from cmake.org
-```
-apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev
-```
-
-- **Ubuntu Server 20.04**, 2021-10-19
-```
-apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev cmake
-```
-
-- **Void Linux**, 2021-10-19, x86\_64, Glibc
-```
-xbps-install cmake make gcc openssl-devel motif-devel hwloc libhwloc-devel libtirpc-devel ncurses-devel pam-devel
-```
-
-- **CentOS 7.9.2009**, 2022-03-30, with SELinux set to permissive
-```
-sudo yum groupinstall 'Development Tools'
-sudo yum install wget csh hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake systemd-devel
-wget http://ftp.gnu.org/gnu/automake/automake-1.16.1.tar.gz
-tar xzf automake-1.16.1.tar.gz
-cd automake-1.16.1
-make
-sudo make install
-```
-
-- **CentOS 8.5.2111**, 2021-12-22, with SELinux set to permissive
-```
-dnf group install "Development Tools"
-dnf --enablerepo=powertools install hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake systemd-devel
 ```
 
 ## Contribute
