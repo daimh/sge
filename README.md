@@ -134,8 +134,14 @@ chown -R sge /opt/sge
 cd /opt/sge
 yes "" | ./install_qmaster
 source /opt/sge/default/common/settings.sh
-qconf -ah exec-node
-qconf -as exec-node
+qconf -as master
+```
+Next commands it's necessary to run for each nodes in cluster:
+```
+qconf -ah node-01
+qconf -ah node-02
+...
+qconf -ah node-0N
 ```
 
 #### The third - on all nodes as root
