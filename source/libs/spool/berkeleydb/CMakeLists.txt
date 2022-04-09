@@ -11,3 +11,6 @@ target_include_directories(spoolb PRIVATE
 	../../sgeobj
 	../../uti
 )
+target_link_libraries(spoolb PRIVATE
+db
+)

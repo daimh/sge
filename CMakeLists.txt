@@ -65,7 +65,7 @@ install(
 		qdel
 		qevent
 		qhost
-		qmake
+#		qmake
 		qmod
 		qmon
 		qping

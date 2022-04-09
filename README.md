@@ -39,26 +39,24 @@ apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-de
 xbps-install cmake make gcc openssl-devel motif-devel hwloc libhwloc-devel libtirpc-devel ncurses-devel pam-devel
 ```
 
-- **CentOS 7.9.2009**, 2022-03-30, with SELinux set to permissive
+- **CentOS 7.9.2009**, 2022-04-09, with SELinux set to permissive
 ```
-sudo yum groupinstall 'Development Tools'
-sudo yum install wget csh hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake systemd-devel
-wget http://ftp.gnu.org/gnu/automake/automake-1.16.1.tar.gz
-tar xzf automake-1.16.1.tar.gz
-cd automake-1.16.1
-make
-sudo make install
+yum groupinstall 'Development Tools'
+yum install git hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel systemd-devel
+wget https://github.com/Kitware/CMake/releases/download/v3.23.0/cmake-3.23.0-linux-x86_64.tar.gz
+tar xvfz cmake-3.23.0-linux-x86_64.tar.gz
+export PATH=$(realpath cmake-3.23.0-linux-x86_64)/bin:$PATH
 ```
 
 - **CentOS 8.5.2111**, 2021-12-22, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
-dnf --enablerepo=powertools install hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake systemd-devel
+dnf --enablerepo=powertools install git hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake systemd-devel
 ```
 
 ## Three different installation methods
 
-1) **CMake**
+1) **CMake**, recommended
 ```
 cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/sge -DSYSTEMD=OFF #or ON
 cmake --build build -j
