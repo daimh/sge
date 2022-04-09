@@ -42,23 +42,23 @@ xbps-install cmake make gcc openssl-devel motif-devel hwloc libhwloc-devel libti
 - **CentOS 7.9.2009**, 2022-04-09, with SELinux set to permissive
 ```
 yum groupinstall 'Development Tools'
-yum install git hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel systemd-devel
+yum install git hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel systemd-devel wget
 wget https://github.com/Kitware/CMake/releases/download/v3.23.0/cmake-3.23.0-linux-x86_64.tar.gz
 tar xvfz cmake-3.23.0-linux-x86_64.tar.gz
 export PATH=$(realpath cmake-3.23.0-linux-x86_64)/bin:$PATH
 ```
 
-- **CentOS 8.5.2111**, 2021-12-22, with SELinux set to permissive
+- **Rocky 8.5** and **AlmaLinux 8.5**, 2022-04-09, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
-dnf --enablerepo=powertools install git hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake systemd-devel
+dnf --enablerepo=powertools install git hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake systemd-devel pkgconf
 ```
 
 ## Three different installation methods
 
 1) **CMake**, recommended
 ```
-cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/sge -DSYSTEMD=OFF #or ON
+cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/sge -DSYSTEMD=OFF #or ON if it is not Void Linux or CentOS 7
 cmake --build build -j
 sudo cmake --install build
 ```

@@ -1,5 +1,4 @@
-Port:=22222
-
+Port:=$(shell basename $$PWD |cut -d - -f 1)
 DaikerOpts:=-D $(shell [ -n "$$DISPLAY" ] && echo gtk || echo vnc) -c 8 -r 2 -T 22-$(Port)
 Ssh:=ssh -p $(Port) -i var/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=1
 var/centos7-sge-container : var/centos7-sge-image
@@ -40,4 +39,4 @@ var/daiker :
 	mv $@.tmp $@
 
 clean :
-	rm -f var/centos7-sge* var/id_ed25519* var/daiker
+	rm -rf var/centos7-sge* var/id_ed25519* var/daiker
