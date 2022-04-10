@@ -13,13 +13,13 @@ We have been using and maintaining this software at Michigan Neuroscience Instit
 - Underscore in port service name 'sge\_qmaster/sge\_execd' is changed to hyphen in all C files and shell scripts, saving us from modifying /etc/services each time
 - Supports both systemd and runit on Void Linux
 - Version is changed to the commit version of this github repo
-- [5 keystrokes to setup a demo cluster on any Linux machine without root privilege](5-keystrokes-to-setup-a-cluster-without-root-privilege/)
+- [5 keystrokes to setup a demo cluster on any Linux machine without root privilege](tests/5-keystrokes-to-setup-a-cluster-without-root-privilege/)
 
 
 ## Requirements
 ### tested with all the Linux distributions below, patched up to the specified date
 
-- **Arch Linux**, 2022-03-28
+- **Arch Linux**, 2022-04-10
 ```
 pacman -Sy --needed git cmake make gcc openmotif hwloc vi inetutils pkgconf
 ```

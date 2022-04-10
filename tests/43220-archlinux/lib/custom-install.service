@@ -1,0 +1,12 @@
+[Unit]
+Description=Auto Installation
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/root/custom-install.sh
+StandardOutput=journal+console
+
+[Install]
+WantedBy=multi-user.target

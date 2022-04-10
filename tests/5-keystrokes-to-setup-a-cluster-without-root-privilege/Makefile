@@ -1,38 +1,39 @@
 PortFirewall:=12345
 ExecdCount=1
-DaikerOpts=-e random -D gtk -c 8 -r 3
+DaikerOpts=-e random -D $(shell [ -n "$$DISPLAY" ] && echo gtk || echo vnc) -c 8 -r 3
 
 Ssh=ssh -i var/id_ed25519 -p $(PortFirewall) -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
 var/execd : $(addprefix var/execd,$(shell seq $(ExecdCount)))
 ALL=$(addprefix var/,firewall master $(addprefix execd,$(shell seq $(ExecdCount))))
 define ExecdTmpl
 var/execd$1 : var/master-container
-	setsid github/daiker build $(DaikerOpts) -d /dev/null & ps --no-headers -o pgid $$$$! | tr -d ' ' > $$@
+	setsid var/daiker build $(DaikerOpts) -d /dev/null & ps --no-headers -o pgid $$$$! | tr -d ' ' > $$@
 endef
 $(foreach E,$(shell seq $(ExecdCount)),$(eval $(call ExecdTmpl,$E)))
 var/master-container : var/master-image
 	fuser -k $@.qcow2 || :
 	rm -f $@.qcow2
-	github/daiker run $(DaikerOpts) -d -b $<.qcow2 $@.qcow2 &
+	var/daiker run $(DaikerOpts) -d -b $<.qcow2 $@.qcow2 &
 	touch $@
 var/master-image : var/master-autoinstall.iso var/firewall-container
 	fuser -k $@.qcow2 || :
 	rm -f $@.qcow2
-	github/daiker build $(DaikerOpts) -d -H 20 -i $< $@.qcow2
+	var/daiker build $(DaikerOpts) -d -H 20 -i $< $@.qcow2
 	touch $@
 var/firewall-container : var/firewall-image
 	fuser -k $@.qcow2 || :
 	rm -f $@.qcow2
-	github/daiker run $(DaikerOpts) -T 12345-$(PortFirewall) -b $<.qcow2 $@.qcow2 &
+	var/daiker run $(DaikerOpts) -T 12345-$(PortFirewall) -b $<.qcow2 $@.qcow2 &
 	while ! $(Ssh) root@localhost id; do sleep 2; done
 	rsync -ae "$(Ssh)" root@localhost:/var/cache/pacman/pkg/ lib/overlay/var/cache/pacman/pkg/
 	touch $@
 var/firewall-image : var/firewall-autoinstall.iso
 	fuser -k $@.qcow2 || :
 	rm -f $@.qcow2
-	github/daiker build $(DaikerOpts) -H 20 -T 12345-$(PortFirewall) -i $< $@.qcow2
+	mkdir -p lib/overlay/var/cache/pacman/pkg
+	var/daiker build $(DaikerOpts) -H 20 -T 12345-$(PortFirewall) -i $< $@.qcow2
 	touch $@
-var/%-autoinstall.iso : var/archlinux-latest-x86_64.iso var/id_ed25519 github/daiker
+var/%-autoinstall.iso : var/archlinux-latest-x86_64.iso var/id_ed25519 var/daiker
 	[ ! -d $@.d ] || chmod -R u+wX $@.d && rm -rf $@.d
 	mkdir -p $@.d
 	bsdtar xfp $< -C$@.d
@@ -59,22 +60,20 @@ var/%-autoinstall.iso : var/archlinux-latest-x86_64.iso var/id_ed25519 github/da
 
 var/archlinux-latest-x86_64.iso :
 	mkdir -p $(@D)
-	wget -cO $@.tmp https://repo.miserver.it.umich.edu/archlinux/iso/latest/archlinux-202{2..9}.{01,02,03,04,05,06,07.08.09,10,11,12}.01-x86_64.iso
+	wget -cO $@.tmp http://repo.miserver.it.umich.edu/archlinux/iso/latest/archlinux-2022.04.05-x86_64.iso
 	mv $@.tmp $@
 var/id_ed25519 :
 	mkdir -p $(@D)
 	ssh-keygen -C SGE -f $@ < /dev/null
-github/daiker :
+var/daiker :
 	mkdir -p $(@D)
 	wget -cO $@.tmp https://raw.githubusercontent.com/daimh/daiker/master/daiker
 	chmod +x $@.tmp
 	mv $@.tmp $@
 
-cleanall : clean
-	rm -f var/id_ed25519 var/id_ed25519.pub var/archlinux-latest-x86_64.iso
 clean : killall
 	chmod -R u+wX var/*.d || :
-	rm -rf $(addsuffix *,$(ALL)) 
+	rm -rf var
 killall :
 	fuser -k var/* || :
 	for pg in $(addprefix var/execd,$(shell seq $(ExecdCount))); do [ -f $$pg ] || continue; kill -- -$$(cat $$pg) || :; rm -f $$pg; done 

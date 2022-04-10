@@ -1,6 +1,6 @@
 # Five keystrokes to set up a cluster without root privilege
 
-This directory sets up a demo cluster with one 'make' command on any Linux machine. No root privileges are needed. The default root password is 'somegridengine' on all nodes.
+This directory sets up a demo cluster with one 'make' command on any Linux machine. No root privileges are needed. The default root password is 'SomeGridEngine' on all nodes.
 
 It sets up three nodes. One is a firewall with two NIC devices, one is public-facing, the other is for the internal network only. The master node and all compute nodes connect to the internal network. In addition, the compute nodes boot up via network PXE and memory file system, no local storage is needed. Their maintenance is minimal as all the compute nodes use the same image file stored on the firewall.
 

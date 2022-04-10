@@ -6,9 +6,10 @@ var/centos7-sge-container : var/centos7-sge-image
 	rm -f $@.qcow2
 	var/daiker run $(DaikerOpts) -b $<.qcow2 $@.qcow2 &
 	for ((i=1; ; i++)); do ! $(Ssh) root@localhost id || break; sleep 2; echo "MSG-001: Retrying ssh $$i"; done
-	rsync -ave "$(Ssh)" --exclude tests ../../../sge root@localhost:
+	rsync -ave "$(Ssh)" --exclude tests --exclude .git ../../../sge root@localhost:
 	$(Ssh) root@localhost < lib/centos7.sh
 	touch $@
+	$(Ssh) root@localhost <<< poweroff || :
 var/centos7-sge-image : var/centos7-sge.iso var/daiker 
 	fuser -k $@.qcow2 $(Port)/tcp && sleep 2 || :
 	rm -f $@.qcow2

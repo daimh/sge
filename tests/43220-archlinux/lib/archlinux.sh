@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -ex
-dnf -y update
+pacman -Syu --noconfirm
+pacman -Sy --needed --noconfirm git cmake make gcc openmotif hwloc vi inetutils pkgconf man
+#
 cd sge
 cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/sge -DSYSTEMD=ON
 cmake --build build -j
