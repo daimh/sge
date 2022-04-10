@@ -10,12 +10,12 @@ var/centos7-sge-container : var/centos7-sge-image
 	$(Ssh) root@localhost < lib/centos7.sh
 	touch $@
 	$(Ssh) root@localhost <<< poweroff || :
-var/centos7-sge-image : var/centos7-sge.iso var/daiker 
+var/centos7-sge-image : var/centos7-sge.iso var/daiker
 	fuser -k $@.qcow2 $(Port)/tcp && sleep 2 || :
 	rm -f $@.qcow2
-	var/daiker build $(DaikerOpts) -i $< -H 20 $@.qcow2 
+	var/daiker build $(DaikerOpts) -i $< -H 20 $@.qcow2
 	touch $@
-var/centos7-sge.iso : var/CentOS-7-x86_64-Minimal-2009.iso var/id_ed25519 
+var/centos7-sge.iso : var/CentOS-7-x86_64-Minimal-2009.iso var/id_ed25519
 	[ ! -d $@.d ] || chmod -R u+wX $@.d && rm -rf $@.d
 	mkdir -p $@.d
 	bsdtar xfp $< -C$@.d

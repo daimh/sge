@@ -6,16 +6,16 @@ var/archlinux-sge-container : var/archlinux-sge-image
 	rm -f $@.qcow2
 	var/daiker run $(DaikerOpts) -b $<.qcow2 $@.qcow2 &
 	for ((i=1; ; i++)); do ! $(Ssh) root@localhost id || break; sleep 2; echo "MSG-001: Retrying ssh $$i"; done
-	rsync -ae "$(Ssh)" var/overlay/var/cache/pacman/pkg/ root@localhost:/var/cache/pacman/pkg/ 
+	rsync -ae "$(Ssh)" var/overlay/var/cache/pacman/pkg/ root@localhost:/var/cache/pacman/pkg/
 	rsync -ave "$(Ssh)" --exclude tests --exclude .git ../../../sge root@localhost:
 	$(Ssh) root@localhost < lib/archlinux.sh
 	rsync -ae "$(Ssh)" root@localhost:/var/cache/pacman/pkg/ var/overlay/var/cache/pacman/pkg/
 	touch $@
 	$(Ssh) root@localhost <<< poweroff || :
-var/archlinux-sge-image : var/archlinux-sge.iso var/daiker 
+var/archlinux-sge-image : var/archlinux-sge.iso var/daiker
 	fuser -k $@.qcow2 $(Port)/tcp && sleep 2 || :
 	rm -f $@.qcow2
-	var/daiker build $(DaikerOpts) -i $< -H 20 $@.qcow2 
+	var/daiker build $(DaikerOpts) -i $< -H 20 $@.qcow2
 	touch $@
 var/archlinux-sge.iso : var/archlinux-latest-x86_64.iso var/id_ed25519
 	[ ! -d $@.d ] || chmod -R u+wX $@.d && rm -rf $@.d
@@ -32,12 +32,12 @@ var/archlinux-sge.iso : var/archlinux-latest-x86_64.iso var/id_ed25519
 	cp lib/custom-install.sh $@.d/arch/x86_64/squashfs-root/root/
 	cat var/id_ed25519.pub > $@.d/arch/x86_64/squashfs-root/root/.ssh/authorized_keys
 	cp lib/custom-install.service $@.d/arch/x86_64/squashfs-root/etc/systemd/system/
-	cd $@.d/arch/x86_64/squashfs-root/etc/systemd/system/multi-user.target.wants && ln -s ../custom-install.service . 
+	cd $@.d/arch/x86_64/squashfs-root/etc/systemd/system/multi-user.target.wants && ln -s ../custom-install.service .
 	sed -ie "s#/usr/bin/zsh#/bin/bash#" $@.d/arch/x86_64/squashfs-root/etc/passwd
 	rm $@.d/arch/x86_64/squashfs-root/etc/passwde
 	mkdir -p var/overlay/var/cache/pacman/pkg
 	rsync -a var/overlay/ $@.d/arch/x86_64/squashfs-root/
-	cd $@.d/arch/x86_64 && rm airootfs.sfs && mksquashfs squashfs-root airootfs.sfs 
+	cd $@.d/arch/x86_64 && rm airootfs.sfs && mksquashfs squashfs-root airootfs.sfs
 	chmod -R u+wX $@.d/arch/x86_64/squashfs-root
 	rm -r $@.d/arch/x86_64/squashfs-root
 	cd $(@D) && genisoimage -l -r -J -V "ARCH_AUTO" -no-emul-boot -boot-load-size 4 -boot-info-table -b syslinux/isolinux.bin -c syslinux/boot.cat -o $(@F).tmp $(@F).d

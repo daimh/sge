@@ -23,7 +23,6 @@ while ! systemctl status pacman-init | grep exited
 do
 	sleep 4
 done
-echo -e "\n\n\n####################################################\n# Installing $node in systemd service \"sge-auto\".\n# Thanks for your patience!\n####################################################" > /dev/tty1
 if [ -f /var/cache/pacman/pkg/base-*.sig ]
 then
 	pacstrap -c /mnt base linux linux-firmware
@@ -44,7 +43,7 @@ echo "root:$RootPassword" | chpasswd
 pacman-key --populate archlinux
 pacman -Sy --noconfirm $CommonPackages
 if grep -q Intel /proc/cpuinfo
-then 
+then
 	pacman -S --noconfirm intel-ucode
 elif grep -q AuthenticAMD /proc/cpuinfo
 then
@@ -54,14 +53,14 @@ systemctl enable iptables ntpd sshd systemd-networkd
 grub-install /dev/sda
 _EOF
 cp /etc/systemd/system/sge-auto.service /mnt/etc/systemd/system/
-cd /mnt/etc/systemd/system/multi-user.target.wants && ln -s ../sge-auto.service . 
+cd /mnt/etc/systemd/system/multi-user.target.wants && ln -s ../sge-auto.service .
 rsync -a /root/sge/$node/overlay/ /mnt/
 rsync -a /root/sge /mnt/root
 arch-chroot /mnt <<< "grub-mkconfig -o /boot/grub/grub.cfg"
-if [ "$node" = "firewall" ] 
+if [ "$node" = "firewall" ]
 then
 	networkctl status | grep DNS: |sed -e "s/ *DNS:/nameserver/" > /mnt/etc/resolv.conf
-elif [ "$node" = "master" ] 
+elif [ "$node" = "master" ]
 then
 	cp /run/archiso/bootmnt/arch/x86_64/airootfs.sfs /mnt/root/sge/execd
 fi
@@ -70,5 +69,5 @@ chmod 700 /mnt/root
 cp -pr /root/.ssh /mnt/root/
 cp -pr /root/.bash* /mnt/root/
 chmod go+r /mnt/boot/initramfs-linux*.img
-journalctl -u sge-auto > /mnt/root/sge-$node-autoinstall.log 
+journalctl -u sge-auto > /mnt/root/sge-$node-autoinstall.log
 reboot

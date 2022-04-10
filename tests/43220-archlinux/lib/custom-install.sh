@@ -35,7 +35,7 @@ echo "LANG=en_US.UTF-8" >> /etc/locale.conf
 echo "root:SomeGridEngine" | chpasswd
 pacman-key --populate archlinux
 if grep -q Intel /proc/cpuinfo
-then 
+then
 	pacman -S --noconfirm intel-ucode
 elif grep -q AuthenticAMD /proc/cpuinfo
 then

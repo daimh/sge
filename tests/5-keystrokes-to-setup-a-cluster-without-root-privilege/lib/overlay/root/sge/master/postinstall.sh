@@ -3,7 +3,6 @@ set -ex
 node=$(basename $PWD)
 grep -q "sge-postinstall=$node" /proc/cmdline
 [ ! -f /var/sge-auto/$node ] || exit 0
-wall "# Post-installing $node in systemd service \"sge-auto\". Thanks for your patience!"
 . /root/sge/install.conf
 pacman -S --noconfirm --needed $SGEPackages
 groupadd -g 900 sge
@@ -12,7 +11,7 @@ su - sge bash -c "
 git clone https://github.com/daimh/sge.git github-sge
 cd github-sge
 cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/sge -DSYSTEMD=ON
-cmake --build build -j 
+cmake --build build -j
 cmake --install build
 "
 cd /opt/sge
@@ -46,16 +45,14 @@ useradd -u 900 -g sge -rd /opt/sge sge
 su - sge bash -c "cd github-sge && cmake --install build && rm -rf github-sge"
 cd /opt/sge
 yes "" | ./install_execd
-systemctl disable sgeexecd systemd-resolved 
+systemctl disable sgeexecd systemd-resolved
 rm -rf /etc/systemd/system/getty\@tty1.service.d
 history -c
 _EOF
-pushd squashfs-root/boot
-chmod go+r initramfs-linux.img
+rsync -a /root/sge/execd/squashfs-root/var/cache/pacman/pkg/ /var/cache/pacman/pkg
 ssh-keyscan -t ed25519 -p 12345 firewall >> /root/.ssh/known_hosts
-rsync -ae "ssh -p 12345" initramfs-linux.img vmlinuz-linux firewall:/var/ftpd/tftpboot/pxelinux/files/boot/x86_64/
-rsync -ae "ssh -p 12345" *-ucode.img firewall:/var/ftpd/tftpboot/pxelinux/files/boot/
-popd
+rsync -ae 'ssh -p 12345' /var/cache/pacman/pkg/ firewall:/var/cache/pacman/pkg/
+rsync -ae "ssh -p 12345" /boot/*-ucode.img firewall:/var/ftpd/tftpboot/pxelinux/files/boot/
 rsync -a /root/sge/execd/overlay/ squashfs-root
 rm -r squashfs-root/var/cache/pacman/pkg squashfs-root/root/sge/master squashfs-root/root/sge/firewall airootfs.sfs
 mkdir squashfs-root/var/cache/pacman/pkg

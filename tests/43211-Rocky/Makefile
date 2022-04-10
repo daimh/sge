@@ -11,10 +11,10 @@ var/rhel8-sge-container : var/rhel8-sge-image
 	$(Ssh) root@localhost < lib/rhel8.sh
 	touch $@
 	$(Ssh) root@localhost <<< poweroff || :
-var/rhel8-sge-image : var/rhel8-sge.iso var/daiker 
+var/rhel8-sge-image : var/rhel8-sge.iso var/daiker
 	fuser -k $@.qcow2 $(Port)/tcp && sleep 2 || :
 	rm -f $@.qcow2
-	var/daiker build $(DaikerOpts) -i $< -H 20 $@.qcow2 
+	var/daiker build $(DaikerOpts) -i $< -H 20 $@.qcow2
 	touch $@
 var/rhel8-sge.iso : var/$(Rhel)-8.5-x86_64-minimal.iso var/id_ed25519
 	[ ! -d $@.d ] || chmod -R u+wX $@.d && rm -rf $@.d
