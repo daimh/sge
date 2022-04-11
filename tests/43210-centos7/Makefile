@@ -32,7 +32,7 @@ var/CentOS-7-x86_64-Minimal-2009.iso :
 	mv $@.tmp $@
 var/id_ed25519 :
 	mkdir -p $(@D)
-	ssh-keygen -t ed25519 -C SGeCentOS7 -f $@ -N ""
+	ssh-keygen -t ed25519 -C SGE -f $@ -N ""
 var/daiker :
 	mkdir -p $(@D)
 	wget -cO $@.tmp https://raw.githubusercontent.com/daimh/daiker/master/daiker
