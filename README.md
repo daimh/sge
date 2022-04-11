@@ -29,7 +29,7 @@ pacman -Sy --needed git cmake make gcc openmotif hwloc vi inetutils pkgconf
 apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev
 ```
 
-- **Ubuntu Server 20.04**, 2021-10-19
+- **Ubuntu Server 20.04**, 2022-04-10
 ```
 apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev cmake
 ```
