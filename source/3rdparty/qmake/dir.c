@@ -1215,6 +1215,10 @@ dir_setup_glob (glob_t *gl)
   gl->gl_stat = local_stat;
   /* We don't bother setting gl_lstat, since glob never calls it.
      The slot is only there for compatibility with 4.4 BSD.  */
+  /* qmake works in CentOS 7.9 but we still have to set 
+     gl_lstat, or qmake will have segfault in Arch Linux. 
+     Manhong Dai, 20220416 */
+  gl->gl_lstat = &lstat;
 }
 
 void
