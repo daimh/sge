@@ -7,7 +7,7 @@ var/archlinux-sge-container : var/archlinux-sge-image
 	var/daiker run $(DaikerOpts) -b $<.qcow2 $@.qcow2 &
 	for ((i=1; ; i++)); do ! $(Ssh) root@localhost id || break; sleep 2; echo "MSG-001: Retrying ssh $$i"; done
 	rsync -ae "$(Ssh)" var/overlay/var/cache/pacman/pkg/ root@localhost:/var/cache/pacman/pkg/
-	rsync -ave "$(Ssh)" --exclude tests --exclude .git ../../../sge root@localhost:
+	rsync -ave "$(Ssh)" --exclude tests ../../../sge root@localhost:
 	$(Ssh) root@localhost < lib/archlinux.sh
 	rsync -ae "$(Ssh)" root@localhost:/var/cache/pacman/pkg/ var/overlay/var/cache/pacman/pkg/
 	touch $@
