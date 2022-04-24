@@ -24,6 +24,11 @@ We have been using and maintaining this software at Michigan Neuroscience Instit
 pacman -Sy --needed git cmake make gcc openmotif hwloc vi inetutils pkgconf
 ```
 
+- **Debian Bullseye**, 2022-04-24
+```
+apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev cmake
+```
+
 - **Debian Buster**, 2021-10-19, cmake 3.21.3 downloaded from cmake.org
 ```
 apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev
