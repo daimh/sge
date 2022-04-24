@@ -7,7 +7,7 @@ var/ubuntu-20.04-sge-container : var/ubuntu-20.04-sge-image
 	var/daiker run $(DaikerOpts) -b $<.qcow2 $@.qcow2 &
 	for ((i=1; ; i++)); do ! $(Ssh) root@localhost id || break; sleep 2; echo "MSG-001: Retrying ssh $$i"; done
 	rsync -ave "$(Ssh)" --exclude tests ../../../sge root@localhost:
-	$(Ssh) root@localhost < lib/ubuntu-20.04.sh
+	$(Ssh) root@localhost < lib/ubuntu-20.04.sh 2>&1 | tee $@.log
 	touch $@
 	$(Ssh) root@localhost <<< poweroff || :
 var/ubuntu-20.04-sge-image : var/ubuntu-20.04-sge.iso var/daiker

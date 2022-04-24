@@ -8,7 +8,7 @@ var/rhel8-sge-container : var/rhel8-sge-image
 	var/daiker run $(DaikerOpts) -b $<.qcow2 $@.qcow2 &
 	for ((i=1; ; i++)); do ! $(Ssh) root@localhost id || break; sleep 2; echo "MSG-001: Retrying ssh $$i"; done
 	rsync -ave "$(Ssh)" --exclude tests ../../../sge root@localhost:
-	$(Ssh) root@localhost < lib/rhel8.sh
+	$(Ssh) root@localhost < lib/rhel8.sh 2>&1 | tee $@.log
 	touch $@
 	$(Ssh) root@localhost <<< poweroff || :
 var/rhel8-sge-image : var/rhel8-sge.iso var/daiker

@@ -8,7 +8,7 @@ var/archlinux-sge-container : var/archlinux-sge-image
 	for ((i=1; ; i++)); do ! $(Ssh) root@localhost id || break; sleep 2; echo "MSG-001: Retrying ssh $$i"; done
 	rsync -ae "$(Ssh)" var/overlay/var/cache/pacman/pkg/ root@localhost:/var/cache/pacman/pkg/
 	rsync -ave "$(Ssh)" --exclude tests ../../../sge root@localhost:
-	$(Ssh) root@localhost < lib/archlinux.sh
+	$(Ssh) root@localhost < lib/archlinux.sh 2>&1 | tee $@.log
 	rsync -ae "$(Ssh)" root@localhost:/var/cache/pacman/pkg/ var/overlay/var/cache/pacman/pkg/
 	touch $@
 	$(Ssh) root@localhost <<< poweroff || :

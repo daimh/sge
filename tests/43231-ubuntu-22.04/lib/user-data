@@ -1,0 +1,26 @@
+#cloud-config
+autoinstall:
+  version: 1
+  identity:
+    hostname: ubuntu-22-04-sge
+    password: "<RootPassword>"
+    username: sge
+  ssh:
+    install-server: yes
+    authorized-keys:
+      - <ED25519PUB>
+    allow-pw: yes
+  late-commands:
+#    - curtin in-target --target=/target -- apt-get -qq update
+    - mkdir -p /target/root/.ssh
+    - chmod 700 /target/root/.ssh
+    - echo "<ED25519PUB>" > /target/root/.ssh/authorized_keys
+  user-data:
+    runcmd:
+      - |
+        #!/usr/bin/env bash
+        set -eux
+        apt update --yes
+        apt upgrade --yes
+        apt-get install --yes git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev cmake
+        poweroff

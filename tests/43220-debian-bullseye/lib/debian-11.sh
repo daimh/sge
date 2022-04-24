@@ -6,7 +6,7 @@ apt upgrade --yes
 sed -ie "/^127.0.1.1/d" /etc/hosts
 echo -e "10.0.2.15\tsge-debian" >> /etc/hosts
 cd sge
-cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/sge -DSYSTEMD=OFF
+cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/sge -DSYSTEMD=ON
 cmake --build build -j
 cmake --install build
 useradd -r -d /opt/sge sge

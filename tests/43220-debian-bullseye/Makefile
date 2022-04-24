@@ -8,7 +8,7 @@ var/debian-11-sge-container : var/debian-11-sge-image
 	for ((i=1; ; i++)); do ! $(Ssh) root@localhost id || break; sleep 2; echo "MSG-001: Retrying ssh $$i"; done
 	$(Ssh) root@localhost <<< "apt install rsync"
 	rsync -ave "$(Ssh)" --exclude tests ../../../sge root@localhost:
-	$(Ssh) root@localhost < lib/debian-11.sh
+	$(Ssh) root@localhost < lib/debian-11.sh 2>&1 | tee $@.log
 	touch $@
 	$(Ssh) root@localhost <<< poweroff || :
 var/debian-11-sge-image : var/debian-11-sge.iso var/daiker

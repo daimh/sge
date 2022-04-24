@@ -22,10 +22,8 @@ add_compile_options(
 	-fPIC
 	-O2
 	-Wstrict-prototypes
-	-I/usr/include/tirpc
 )
 add_link_options(
-	-ltirpc
 	-lm
 	-pthread
 	-rdynamic

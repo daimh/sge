@@ -1,3 +1,6 @@
+include_directories(
+	/usr/include/tirpc
+)
 add_library(cull STATIC
 	cull_db.c
 	cull_dump_scan.c
@@ -24,4 +27,5 @@ target_include_directories(cull PRIVATE
 )
 target_link_libraries(cull PRIVATE
 	uti
+	tirpc
 )
