@@ -14,12 +14,13 @@ We have been using and maintaining this software at Michigan Neuroscience Instit
 - Supports both systemd and runit on Void Linux
 - Version is changed to the commit version of this github repo
 - [5 keystrokes to setup a demo cluster on any Linux machine without root privilege](tests/5-keystrokes-to-setup-a-cluster-without-root-privilege/)
+- [Tests for a lot of Linux distros](tests/)
 
 
 ## Requirements
 ### tested with all the Linux distributions below, patched up to the specified date
 
-- **Arch Linux**, 2022-04-24
+- **Arch Linux**, 2022-04-27
 ```
 pacman -Sy --needed git cmake make gcc openmotif hwloc vi inetutils pkgconf
 ```
@@ -45,7 +46,7 @@ apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-de
 apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev cmake
 ```
 
-- **Void Linux**, 2021-10-19, x86\_64, Glibc
+- **Void Linux**, 2022-04-27, x86\_64, Glibc
 ```
 xbps-install cmake make gcc openssl-devel motif-devel hwloc libhwloc-devel libtirpc-devel ncurses-devel pam-devel
 ```

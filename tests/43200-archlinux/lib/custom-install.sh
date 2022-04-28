@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -eux
 set -o pipefail
-node=$(basename $PWD)
 chown -R root:root /root
 chmod 700 /root
 chmod -R go-rwx /root/.ssh
@@ -25,7 +24,7 @@ else
 fi
 genfstab -U /mnt >> /mnt/etc/fstab
 arch-chroot /mnt << _EOF
-set -ex
+set -eux
 set -o pipefail
 hwclock --systohc
 echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
