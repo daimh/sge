@@ -66,6 +66,12 @@ dnf group install "Development Tools"
 dnf --enablerepo=powertools install git hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake systemd-devel pkgconf
 ```
 
+- **openSUSE Leap**, 2022-05-05
+```
+zypper -n addrepo http://download.opensuse.org/distribution/leap/15.3/repo/oss/ oss
+zypper -n install cmake gcc gcc-c++ git hwloc-devel libdb-4_8-devel libtirpc-devel libXext-devel motif-devel ncurses-devel openssl-devel pam-devel pkgconf rsync systemd-devel wget
+```
+
 ## Three different installation methods
 
 1) **CMake**, recommended
