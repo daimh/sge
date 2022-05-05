@@ -73,8 +73,8 @@ target_compile_definitions(qtcsh PRIVATE
 target_link_libraries(qtcsh PRIVATE
 	crypt
 	cull
-	curses
 	gdi
+	ncurses
 	sgeobj
 	sgeobjd
 	uti

@@ -55,4 +55,4 @@ var/daiker :
 	mv $@.tmp $@
 
 clean :
-	rm -rf var/archlinux-sge* var/id_ed25519* var/daiker
+	rm -rf var/voidlinux-sge* var/id_ed25519* var/daiker

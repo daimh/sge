@@ -20,12 +20,12 @@ We have been using and maintaining this software at Michigan Neuroscience Instit
 ## Requirements
 ### tested with all the Linux distributions below, patched up to the specified date
 
-- **Arch Linux**, 2022-04-27
+- **Arch Linux**, 2022-05-05
 ```
 pacman -Sy --needed git cmake make gcc openmotif hwloc vi inetutils pkgconf
 ```
 
-- **Debian Bullseye**, 2022-04-24
+- **Debian Bullseye**, 2022-05-05
 ```
 apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev cmake
 ```
@@ -35,23 +35,23 @@ apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-de
 apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev
 ```
 
-- **Ubuntu Server 22.04**, 2022-04-24
+- **Ubuntu Server 22.04**, 2022-05-05
 ```
 apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev cmake
 ```
 
 
-- **Ubuntu Server 20.04**, 2022-04-24
+- **Ubuntu Server 20.04**, 2022-05-05
 ```
 apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev cmake
 ```
 
-- **Void Linux**, 2022-04-27, x86\_64, Glibc
+- **Void Linux**, 2022-05-05, x86\_64, Glibc
 ```
 xbps-install cmake make gcc openssl-devel motif-devel hwloc libhwloc-devel libtirpc-devel ncurses-devel pam-devel
 ```
 
-- **CentOS 7.9.2009**, 2022-04-24, with SELinux set to permissive
+- **CentOS 7.9.2009**, 2022-05-05, with SELinux set to permissive
 ```
 yum groupinstall 'Development Tools'
 yum install git hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel systemd-devel wget
@@ -60,7 +60,7 @@ tar xvfz cmake-3.23.0-linux-x86_64.tar.gz
 export PATH=$(realpath cmake-3.23.0-linux-x86_64)/bin:$PATH
 ```
 
-- **Rocky 8.5** and **AlmaLinux 8.5**, 2022-04-24, with SELinux set to permissive
+- **Rocky 8.5** and **AlmaLinux 8.5**, 2022-05-05, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
 dnf --enablerepo=powertools install git hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake systemd-devel pkgconf
