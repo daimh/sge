@@ -72,6 +72,12 @@ zypper -n addrepo http://download.opensuse.org/distribution/leap/15.3/repo/oss/ 
 zypper -n install cmake gcc gcc-c++ git hwloc-devel libdb-4_8-devel libtirpc-devel libXext-devel motif-devel ncurses-devel openssl-devel pam-devel pkgconf rsync systemd-devel wget
 ```
 
+- **openSUSE Tumbleweed**, 2022-05-05
+```
+zypper -n addrepo http://download.opensuse.org/tumbleweed/repo/oss/ oss
+zypper -n install cmake gcc gcc-c++ git hwloc-devel libdb-4_8-devel libtirpc-devel libXext-devel motif-devel ncurses-devel openssl-devel pam-devel pkgconf rsync systemd-devel wget
+```
+
 ## Three different installation methods
 
 1) **CMake**, recommended
