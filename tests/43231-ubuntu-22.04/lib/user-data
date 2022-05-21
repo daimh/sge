@@ -2,7 +2,7 @@
 autoinstall:
   version: 1
   identity:
-    hostname: ubuntu-22-04-sge
+    hostname: sge-ubuntu-22-04
     password: "<RootPassword>"
     username: sge
   ssh:

@@ -42,4 +42,5 @@ var/daiker :
 	mv $@.tmp $@
 
 clean :
-	rm -rf var/ubuntu-22.04-sge* var/id_ed25519* var/daiker
+	chmod -R u+w var/ubuntu-22.04-sge* var/id_ed25519* var/daiker || :
+	rm -rf var/ubuntu-22.04-sge* var/id_ed25519* var/daiker || :

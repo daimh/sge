@@ -40,4 +40,5 @@ var/daiker :
 	mv $@.tmp $@
 
 clean :
-	rm -rf var/tumbleweed-sge* var/id_ed25519* var/daiker
+	chmod -R u+w var/tumbleweed-sge* var/id_ed25519* var/daiker || :
+	rm -rf var/tumbleweed-sge* var/id_ed25519* var/daiker || :

@@ -40,4 +40,5 @@ var/daiker :
 	mv $@.tmp $@
 
 clean :
-	rm -rf var/leap-sge* var/id_ed25519* var/daiker
+	chmod -R u+w var/leap-sge* var/id_ed25519* var/daiker || :
+	rm -rf var/leap-sge* var/id_ed25519* var/daiker || :

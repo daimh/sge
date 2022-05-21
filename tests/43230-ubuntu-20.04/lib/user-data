@@ -2,7 +2,7 @@
 autoinstall:
   version: 1
   identity:
-    hostname: ubuntu-20-04-sge
+    hostname: sge-ubuntu-20-04
     password: "<RootPassword>"
     username: sge
   ssh:

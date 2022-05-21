@@ -45,7 +45,7 @@ var/archlinux-sge.iso : var/archlinux-latest-x86_64.iso var/id_ed25519
 	mv $@.tmp $@
 var/archlinux-latest-x86_64.iso :
 	mkdir -p $(@D)
-	wget -cO $@.tmp http://repo.miserver.it.umich.edu/archlinux/iso/latest/archlinux-2022.04.05-x86_64.iso
+	wget -cO $@.tmp http://repo.miserver.it.umich.edu/archlinux/iso/latest/archlinux-2022.05.01-x86_64.iso
 	mv $@.tmp $@
 var/id_ed25519 :
 	mkdir -p $(@D)
@@ -57,4 +57,5 @@ var/daiker :
 	mv $@.tmp $@
 
 clean :
-	rm -rf var/archlinux-sge* var/id_ed25519* var/daiker
+	chmod -R u+w var/archlinux-sge* var/id_ed25519* var/daiker || :
+	rm -rf var/archlinux-sge* var/id_ed25519* var/daiker || :

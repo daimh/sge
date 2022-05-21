@@ -219,62 +219,8 @@ Linux)
       unsupported="UNSUPPORTED-"
       lxmachine=$osmachine
    esac
-
-   # Fixme: Dispense with this stuff and just ignore ancient kernels.
-   # It's most robust to use the glibc API, but this should work on
-   # the supported patforms anyhow.  See section 4.9 in
-   # http://sourceware.org/git/?p=glibc.git;a=blob_plain;f=FAQ;hb=HEAD
-   if [ "$unsupported" != "UNSUPPORTED-" ]; then
-      case $osrelease in
-      2.4.*|2.6.*|[3-9].*)
-         # verify the GNU C lib version
-         # we expect libc version to be
-         # >= 2.3 - this is our supported lx-* platform
-         # == 2.2 - unsupported but known to build and work: ulx-* platform
-         # <= 2.2 - not accepted as build or execution platform
-
-	 # This should account for, say /lib64/x86_64-linux-gnu/libc.so.6
-	 # in Ubuntu 11.04.
-	 libc=`ldd /bin/date 2>/dev/null | awk '/[ \t]+libc\.so/ {print $3}'`
-	 case $libc in
-	 */libc.*) ;;
-	 *)			# fallbacks
-            case $lxmachine in
-            amd64)
-               libc=/lib64/libc.so.6
-               ;;
-            ia64)
-               libc=/lib/libc.so.6.1
-               ;;
-            *)
-               libc=/lib/libc.so.6
-               ;;
-   	    esac ;;
-         esac
-
-         libc_string=`$libc | head -n 1`
-         # retrieving libc version failed
-         if [ $? -ne 0 ]; then
-            unsupported="UNSUPPORTED-"
-         else
-            libc_version=`expr "$libc_string" : ".* version [0-9]*\\.\([0-9]*\)[^0-9]" 2>/dev/null`
-            if expr "$libc_version" : "[0-9][0-9]*$" >/dev/null 2>&1; then
-               if [ $? -ne 0 -o $? -ne 0 -o $libc_version -lt 2 ]; then
-                  unsupported="UNSUPPORTED-GLIBC-2.${libc_version}"
-               else
-                  if [ $libc_version -eq 2 ]; then
-                     unsupported="u"
-                  fi
-               fi
-            fi
-         fi
-         ;;
-      *)
-         unsupported="UNSUPPORTED-$osrelease"
-      esac
-      fi
-      ARCH=${unsupported}lx-${lxmachine}
-      ;;
+   ARCH=${unsupported}lx-${lxmachine}
+   ;;
 OSF1)
    case $osrelease in
    V4*)

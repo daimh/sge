@@ -16,7 +16,7 @@ var/rhel8-sge-image : var/rhel8-sge.iso var/daiker
 	rm -f $@.qcow2
 	var/daiker build $(DaikerOpts) -i $< -H 20 $@.qcow2
 	touch $@
-var/rhel8-sge.iso : var/$(Rhel)-8.5-x86_64-minimal.iso var/id_ed25519
+var/rhel8-sge.iso : var/$(Rhel)-8.6-x86_64-minimal.iso var/id_ed25519
 	[ ! -d $@.d ] || chmod -R u+wX $@.d && rm -rf $@.d
 	mkdir -p $@.d
 	bsdtar xfp $< -C$@.d
@@ -24,12 +24,12 @@ var/rhel8-sge.iso : var/$(Rhel)-8.5-x86_64-minimal.iso var/id_ed25519
 	sed -ie "s#timeout 600#timeout 1#; s#rd.live.check quiet#inst.ks=cdrom:/ks.cfg#" $@.d/isolinux/isolinux.cfg
 	rm $@.d/isolinux/isolinux.cfge
 	sed -e "s#<ED25519PUB>#$$(cat var/id_ed25519.pub )#" lib/ks.cfg > $@.d/ks.cfg
-	cd $(@D) && genisoimage -l -r -J -V "$(Rhel)-8-5-x86_64-dvd" -no-emul-boot -boot-load-size 4 -boot-info-table -b isolinux/isolinux.bin -c isolinux/isolinux.cat -o $(@F).tmp $(@F).d
+	cd $(@D) && genisoimage -l -r -J -V "$(Rhel)-8-6-x86_64-dvd" -no-emul-boot -boot-load-size 4 -boot-info-table -b isolinux/isolinux.bin -c isolinux/isolinux.cat -o $(@F).tmp $(@F).d
 	rm -rf $@.d
 	mv $@.tmp $@
-var/$(Rhel)-8.5-x86_64-minimal.iso :
+var/$(Rhel)-8.6-x86_64-minimal.iso :
 	mkdir -p $(@D)
-	wget -cO $@.tmp -c https://download.rockylinux.org/pub/rocky/8/isos/x86_64/$(@F) || wget -cO $@.tmp -c http://mirror.vtti.vt.edu/almalinux/8.5/isos/x86_64/$(@F)
+	wget -cO $@.tmp -c https://download.rockylinux.org/pub/rocky/8/isos/x86_64/$(@F) || wget -cO $@.tmp -c http://mirror.vtti.vt.edu/almalinux/8.6/isos/x86_64/$(@F)
 	mv $@.tmp $@
 var/id_ed25519 :
 	mkdir -p $(@D)
@@ -41,4 +41,5 @@ var/daiker :
 	mv $@.tmp $@
 
 clean :
-	rm -rf var/rhel8-sge* var/id_ed25519* var/daiker
+	chmod -R u+w var/rhel8-sge* var/id_ed25519* var/daiker || :
+	rm -rf var/rhel8-sge* var/id_ed25519* var/daiker || :

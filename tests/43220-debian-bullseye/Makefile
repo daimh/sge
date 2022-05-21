@@ -42,4 +42,5 @@ var/daiker :
 	mv $@.tmp $@
 
 clean :
-	rm -rf var/debian-11-sge* var/id_ed25519* var/daiker
+	chmod -R u+w var/debian-11-sge* var/id_ed25519* var/daiker || :
+	rm -rf var/debian-11-sge* var/id_ed25519* var/daiker || :
