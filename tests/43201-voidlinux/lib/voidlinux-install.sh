@@ -7,6 +7,7 @@ sleep 1
 [ "$(lsblk | grep sda | wc -l)" = "3" ]
 mkfs -t xfs -f /dev/sda2
 mount /dev/sda2 /mnt
+xbps-install -Syu xbps
 xbps-install -Sy xz
 tar -xJf void-rootfs-latest-x86_64.tar.xz -C /mnt
 echo "/dev/sda2 / xfs defaults 0 1" >> /mnt/etc/fstab
@@ -23,7 +24,7 @@ set -o pipefail
 echo -e "SomeGridEngine\nSomeGridEngine" | passwd
 xbps-install -ySu xbps
 xbps-install -yu
-xbps-install -y base-system grub rsync
+xbps-install -Sy base-system grub rsync
 xbps-remove -y base-voidstrap
 echo sge-voidlinux > /etc/hostname
 echo -e "10.0.2.15\tsge-voidlinux" >> /etc/hosts

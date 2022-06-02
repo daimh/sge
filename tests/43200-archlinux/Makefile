@@ -17,7 +17,7 @@ var/archlinux-sge-image : var/archlinux-sge.iso var/daiker
 	rm -f $@.qcow2
 	var/daiker build $(DaikerOpts) -i $< -H 20 $@.qcow2
 	touch $@
-var/archlinux-sge.iso : var/archlinux-latest-x86_64.iso var/id_ed25519
+var/archlinux-sge.iso : var/archlinux-x86_64.iso var/id_ed25519
 	[ ! -d $@.d ] || chmod -R u+wX $@.d && rm -rf $@.d
 	mkdir -p $@.d
 	bsdtar xfp $< -C$@.d
@@ -43,9 +43,9 @@ var/archlinux-sge.iso : var/archlinux-latest-x86_64.iso var/id_ed25519
 	cd $(@D) && genisoimage -l -r -J -V "ARCH_AUTO" -no-emul-boot -boot-load-size 4 -boot-info-table -b syslinux/isolinux.bin -c syslinux/boot.cat -o $(@F).tmp $(@F).d
 	rm -rf $@.d
 	mv $@.tmp $@
-var/archlinux-latest-x86_64.iso :
+var/archlinux-x86_64.iso :
 	mkdir -p $(@D)
-	wget -cO $@.tmp http://repo.miserver.it.umich.edu/archlinux/iso/latest/archlinux-2022.05.01-x86_64.iso
+	wget -cO $@.tmp http://repo.miserver.it.umich.edu/archlinux/iso/latest/$(@F)
 	mv $@.tmp $@
 var/id_ed25519 :
 	mkdir -p $(@D)
