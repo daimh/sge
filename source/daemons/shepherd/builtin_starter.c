@@ -1557,6 +1557,7 @@ int use_starter_method /* If this flag is set the shell path contains the
                long term we should use only simple units, because it just makes most sense */
   	char **env_ptr = sge_copy_sanitize_env((!inherit_env() || is_qlogin) ? sge_get_environment() : environ);
 	int  env_cnt=0;
+	char wd[256];
 
 
 #if defined(HAVE_SYSTEMD) && HAVE_SYSTEMD <= 1
@@ -1565,9 +1566,10 @@ int use_starter_method /* If this flag is set the shell path contains the
         return;
 #endif
        *pre_args_ptr++ = "--service-type=exec";
-       *pre_args_ptr++ = "-p ExitType=cgroup";
+       *pre_args_ptr++ = "-p";		*pre_args_ptr++ = "ExitType=cgroup";
        *pre_args_ptr++ = "--wait";
-       sd_addprop(&pre_args_ptr,"--working-directory=%s",get_conf_val("cwd"));
+       snprintf(wd,sizeof(wd),"--working-directory=%s", get_conf_val("cwd"));
+       *pre_args_ptr++ = wd;
 
        while ((env_ptr != NULL) && (*env_ptr != NULL)) {
             *pre_args_ptr++ = "-E"; 	*pre_args_ptr++ = *env_ptr++;

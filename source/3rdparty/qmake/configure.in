@@ -41,9 +41,7 @@ AC_CHECK_PROG(PERL, perl, perl, perl)
 
 # Specialized system macros
 AC_CANONICAL_HOST
-AC_AIX
 AC_ISC_POSIX
-AC_MINIX
 
 # This test must come as early as possible after the compiler configuration
 # tests, because the choice of the file model can (in principle) affect

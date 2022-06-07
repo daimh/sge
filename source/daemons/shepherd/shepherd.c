@@ -1403,20 +1403,16 @@ static int start_child(const char *childname, /* prolog, job, epilog */
       }
    }
 
-   if (!pidp) {
+   if (!pidp || exit_status != 0) {
       /* Kill all processes of the process group of the forked child.
          This is to ensure that nothing hangs around. */
-      if ( exit_status != 0 ){   
-        if (!strcmp("job", childname)) {
-           if (ckpt_info.pid != 0)   {
-              shepherd_signal_job(-ckpt_info.pid, SIGKILL);
-           } else {
-              shepherd_signal_job(-pid, SIGKILL);
-           }  
-        }
-      } else {
-	shepherd_trace("Ondrej disabled group kill");
-      }	
+      if (!strcmp("job", childname)) {
+         if (ckpt_info.pid != 0)   {
+            shepherd_signal_job(-ckpt_info.pid, SIGKILL);
+         } else {
+            shepherd_signal_job(-pid, SIGKILL);
+         }
+      }  
    } else {
       *pidp = pid;
    }
@@ -3145,7 +3141,7 @@ shepherd_signal_job(pid_t pid, int sig) {
        			return;
    		}
 		snprintf(unit,256,"sge-%s.%d.%s",get_conf_val("job_id"),MAX(1, atoi(get_conf_val("ja_task_id"))),
-                        mconf_get_enable_addgrp_kill() ? ".scope" : ".service");
+                        atoi(get_conf_val("enable_addgrp_kill")) ? "scope" : "service");
 		shepherd_trace("systemd_signal_job: %s %d", unit , sig);
 		systemd_signal_job(bus,unit,sig);
 		sd_bus_flush_close_unref(bus);
