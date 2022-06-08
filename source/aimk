@@ -849,7 +849,11 @@ while ($#argv >= 1 && $?found)
 
       if ($SYSTEMD_VERSION >= 222) then
         set DLLIB = "$DLLIB -lsystemd"
-        set CFLAGS = "$CFLAGS -DHAVE_SYSTEMD=1"
+        if ($SYSTEMD_VERSION >= 250) then
+           set CFLAGS = "$CFLAGS -DHAVE_SYSTEMD=2"
+	else
+	   set CFLAGS = "$CFLAGS -DHAVE_SYSTEMD=1"
+	endif
       else
         echo
         echo "___________W_A_R_N_I_N_G_____________"

@@ -935,7 +935,7 @@ int merge_configuration(lList **answer_list, u_long32 progid, const char *cell_r
          if (parse_bool_param(s, "ENABLE_BINDING", &enable_binding)) {
             continue;
          }
-         if (parse_bool_param(s, "ENABLE_ADDGRP_KILL", &enable_addgrp_kill)) {
+         if (parse_bool_param(s, "ENABLE_ADDGRP_KILL", &enable_addgrp_kill)) {  /* we keep it here for backward compatibility */
             continue;
          }
          if (parse_bool_param(s, "ACCT_RESERVED_USAGE", &acct_reserved_usage)) {
@@ -947,6 +947,15 @@ int merge_configuration(lList **answer_list, u_long32 progid, const char *cell_r
          if (parse_bool_param(s, "PROF_EXECD", &prof_execd_thrd)) {
             continue;
          } 
+         if (!strncasecmp(s, "JOB_MODE", sizeof("JOB_MODE")-1)) {
+            if (!strcasecmp(s, "JOB_MODE=simple")) {
+               enable_addgrp_kill = true;
+            } else if (!strcasecmp(s, "JOB_MODE=forking")) {
+               enable_addgrp_kill = false;
+            }
+            continue;
+         }
+ 
          if (!strncasecmp(s, "NOTIFY_KILL", sizeof("NOTIFY_KILL")-1)) {
             if (!strcasecmp(s, "NOTIFY_KILL=default")) {
                notify_kill_type = 1;

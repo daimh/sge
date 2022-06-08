@@ -1347,7 +1347,7 @@ then the job will go into an error state when it is started.
 Administrators that want to prevent the system doing so can set this parameter.
 In this case the NGROUPS_MAX limit is ignored and the additional group (see 
 \fIgid_range\fP) is not set. As a result for those jobs no online usage will be 
-available. Also the parameter \fIENABLE_ADDGRP_KILL\fP will have no effect.
+available. Also the parameter \fIJOB_MODE\fP will have no effect unless \fIUSE_CGROUPS=systemd\fP is also used.
 Please note that it is not recommended to use this parameter. Instead the group
 membership of the submit user should be reduced.
 .PP
@@ -1494,16 +1494,35 @@ has set the library path, it may be further altered by the shell in which the
 job is executed, or by the job script itself.  The default value for
 SET_LIB_PATH is false.
 .PP
-.IP "\fIENABLE_ADDGRP_KILL\fP"
-If this parameter is set then xxQS_NAMExx uses the supplementary group ids
-(see \fIgid_range\fP) to identify all processes which are to be terminated
+.IP "\fIJOB_MODE\fP"
+If this parameter is set to "simple" then xxQS_NAMExx uses the supplementary group ids
+(see \fIgid_range\fP) or SystemD to identify all processes which are to be terminated
 when a job is deleted, or when
 .M xxqs_name_sxx_shepherd 8
 cleans up after job termination.
 This currently only works under GNU/Linux, Solaris, Tru64, FreeBSD,
-and Darwin.
-The default value is on.
-Irrelevant with cpuset support (see USE_CGROUPS below).
+and Darwin. This option was previously called ENABLE_ADDGRP_KILL.
+Behaviour depends on \fIUSE_CGROUPS\fP setting this way:
+.TS
+tab(@), allbox;
+lblblb
+ltltlt.
+USE_CGROUPS \\ JOB_MODE@simple@forking
+yes / no@T{
+.na
+Job terminates when the main process finishes. All remaining forks are killed. Default option.
+T}@T{
+.na
+Job terminates when the main process finishes. Remaining forks continue to run unmanaged.
+T}
+systemd@T{
+.na
+Job terminates when the main process finishes. All remaining forks are killed. Default option.
+T}@T{
+.na
+Job terminates when the main process and all its forks finish. Requires SystemD version 240 or newer.
+T}
+.TE
 .PP
 .IP "\fIPDC_INTERVAL\fP"
 This parameter defines the interval (default 1s) between runs of the PDC (Portable
@@ -1567,9 +1586,10 @@ the screensaver state.
 [Linux only.]  Set to \fByes\fP to use cgroups/cpusets for resource management if the
 system supports them and the necessary directories exist in the
 relevant filesystems (possibly created by
-.IR util/resources/scripts/setup-cgroups-etc ).
-Makes ENABLE_ADDGRP_KILL irrelevant.
-If this parameter is set to \fBsystemd\fP then jobs are launched via SystemD as scope units
+.IR util/resources/scripts/setup-cgroups-etc ). 
+Only works with cgroups version 1.
+Set to \fBsystemd\fP to let SystemD to launch jobs and manage cgroups instead.
+Jobs will be launched via SystemD as scope or service units
 (i.e OS based on SystemD must be installed on exec nodes). This also enforces following changes:
 .br
 - parameter \fIgid_range\fP is ignored as job processes are tracked via SystemD

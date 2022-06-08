@@ -85,26 +85,6 @@ support via hwloc may not work.
 
 Support is present for recent versions (10.4+?) on x86 and Power.
 
-=== AIX
-
-Support is present for version 5.1 and above.
-
-=== HP-UX
-
-Support is present for version 11, 32- or 64-bit.
-
-=== Tru64
-
-Support is present for Tru64 5.  It is not known to be tested, and
-will probably be removed with final HP support for Tru64 ceased.
-
-=== Irix
-
-Support is present for Irix 6.5.  It is not known to be tested, and
-may be removed with final SGI support for Irix finishing, although
-the system has some interesting management features for which the
-support code may be kept as an example.
-
 === Others
 
 Support for obsolete NEC SX, (`classic') Cray, and vestigial bits for

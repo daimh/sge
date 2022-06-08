@@ -34,6 +34,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <inttypes.h>
 
 #if defined(DARWIN) || defined(FREEBSD) || defined(NETBSD)
 #   include <sys/time.h>
@@ -111,7 +112,7 @@ static int sge_parse_limit(sge_rlim_t *rlvalp, char *s, char *error_str,
    return 1;
 }
 
-void setrlimits(int trace_rlimit) {
+void setrlimits(int trace_rlimit, char ***systemd_args) {
    sge_rlim_t s_cpu, s_cpu_is_consumable_job;
    sge_rlim_t h_cpu, h_cpu_is_consumable_job;
 
@@ -318,98 +319,105 @@ void setrlimits(int trace_rlimit) {
    if (h_locks != RLIMIT_UNDEFINED) {
       h_locks = mul_infinity(h_locks, host_slots);
    }
-
-   rlp.rlim_cur = s_cpu;
-   rlp.rlim_max = h_cpu;
-   pushlimit(RLIMIT_CPU, &rlp, trace_rlimit);
-
-   rlp.rlim_cur = s_fsize;
-   rlp.rlim_max = h_fsize;
-   pushlimit(RLIMIT_FSIZE, &rlp, trace_rlimit);
-
-   rlp.rlim_cur = s_data;
-   rlp.rlim_max = h_data;
-   pushlimit(RLIMIT_DATA, &rlp, trace_rlimit);
-
-   rlp.rlim_cur = s_stack;
-   rlp.rlim_max = h_stack;
-   pushlimit(RLIMIT_STACK, &rlp, trace_rlimit);
-
-   rlp.rlim_cur = s_core;
-   rlp.rlim_max = h_core;
-   pushlimit(RLIMIT_CORE, &rlp, trace_rlimit);
-
-#  if defined(RLIMIT_NOFILE)
    if (s_descriptors != RLIMIT_UNDEFINED && h_descriptors == RLIMIT_UNDEFINED) {
       h_descriptors = s_descriptors;
    }
    if (h_descriptors != RLIMIT_UNDEFINED && s_descriptors == RLIMIT_UNDEFINED) {
       s_descriptors = h_descriptors;
    }
-   if (s_descriptors != RLIMIT_UNDEFINED && h_descriptors != RLIMIT_UNDEFINED) {
-      rlp.rlim_cur = s_descriptors;
-      rlp.rlim_max = h_descriptors;
-      pushlimit(RLIMIT_NOFILE, &rlp, trace_rlimit);
-   }
-#  endif
-
-#  if defined(RLIMIT_NPROC)
-   if (s_maxproc != RLIMIT_UNDEFINED && h_maxproc == RLIMIT_UNDEFINED) {
-      h_maxproc = s_maxproc;
-   }
-   if (h_maxproc != RLIMIT_UNDEFINED && s_maxproc == RLIMIT_UNDEFINED) {
-      s_maxproc = h_maxproc;
-   }
-   if (s_maxproc != RLIMIT_UNDEFINED && h_maxproc != RLIMIT_UNDEFINED) {
-      rlp.rlim_cur = s_maxproc;
-      rlp.rlim_max = h_maxproc;
-      pushlimit(RLIMIT_NPROC, &rlp, trace_rlimit);
-   }
-#  endif
-
-#  if defined(RLIMIT_MEMLOCK)
    if (s_memorylocked != RLIMIT_UNDEFINED && h_memorylocked == RLIMIT_UNDEFINED) {
       h_memorylocked = s_memorylocked;
    }
    if (h_memorylocked != RLIMIT_UNDEFINED && s_memorylocked == RLIMIT_UNDEFINED) {
       s_memorylocked = h_memorylocked;
    }
-   if (s_memorylocked != RLIMIT_UNDEFINED && h_memorylocked != RLIMIT_UNDEFINED) {
-      rlp.rlim_cur = s_memorylocked;
-      rlp.rlim_max = h_memorylocked;
-      pushlimit(RLIMIT_MEMLOCK, &rlp, trace_rlimit);
+   if (s_maxproc != RLIMIT_UNDEFINED && h_maxproc == RLIMIT_UNDEFINED) {
+      h_maxproc = s_maxproc;
    }
-# endif
-
-#  if defined(RLIMIT_LOCKS)
+   if (h_maxproc != RLIMIT_UNDEFINED && s_maxproc == RLIMIT_UNDEFINED) {
+      s_maxproc = h_maxproc;
+   }
    if (s_locks != RLIMIT_UNDEFINED && h_locks == RLIMIT_UNDEFINED) {
       h_locks = s_locks;
    }
    if (h_locks != RLIMIT_UNDEFINED && s_locks == RLIMIT_UNDEFINED) {
       s_locks = h_locks;
    }
-   if (s_locks != RLIMIT_UNDEFINED && h_locks != RLIMIT_UNDEFINED) {
-      rlp.rlim_cur = s_locks;
-      rlp.rlim_max = h_locks;
-      pushlimit(RLIMIT_LOCKS, &rlp, trace_rlimit);
-   }
+
+   if (systemd_args == NULL){ /* we set limits traditionally */
+      rlp.rlim_cur = s_cpu;
+      rlp.rlim_max = h_cpu;
+      pushlimit(RLIMIT_CPU, &rlp, trace_rlimit);
+
+      rlp.rlim_cur = s_fsize;
+      rlp.rlim_max = h_fsize;
+      pushlimit(RLIMIT_FSIZE, &rlp, trace_rlimit);
+
+      rlp.rlim_cur = s_data;
+      rlp.rlim_max = h_data;
+      pushlimit(RLIMIT_DATA, &rlp, trace_rlimit);
+
+      rlp.rlim_cur = s_stack;
+      rlp.rlim_max = h_stack;
+      pushlimit(RLIMIT_STACK, &rlp, trace_rlimit);
+
+      rlp.rlim_cur = s_core;
+      rlp.rlim_max = h_core;
+      pushlimit(RLIMIT_CORE, &rlp, trace_rlimit);
+
+#  if defined(RLIMIT_NOFILE)
+      if (s_descriptors != RLIMIT_UNDEFINED && h_descriptors != RLIMIT_UNDEFINED) {
+         rlp.rlim_cur = s_descriptors;
+         rlp.rlim_max = h_descriptors;
+         pushlimit(RLIMIT_NOFILE, &rlp, trace_rlimit);
+      }
+#  endif
+
+#  if defined(RLIMIT_NPROC)
+      if (s_maxproc != RLIMIT_UNDEFINED && h_maxproc != RLIMIT_UNDEFINED) {
+         rlp.rlim_cur = s_maxproc;
+         rlp.rlim_max = h_maxproc;
+         pushlimit(RLIMIT_NPROC, &rlp, trace_rlimit);
+      }
+#  endif
+
+#  if defined(RLIMIT_MEMLOCK)
+      if (s_memorylocked != RLIMIT_UNDEFINED && h_memorylocked != RLIMIT_UNDEFINED) {
+         rlp.rlim_cur = s_memorylocked;
+         rlp.rlim_max = h_memorylocked;
+         pushlimit(RLIMIT_MEMLOCK, &rlp, trace_rlimit);
+      }
+# endif
+
+#  if defined(RLIMIT_LOCKS)
+      if (s_locks != RLIMIT_UNDEFINED && h_locks != RLIMIT_UNDEFINED) {
+         rlp.rlim_cur = s_locks;
+         rlp.rlim_max = h_locks;
+         pushlimit(RLIMIT_LOCKS, &rlp, trace_rlimit);
+      }
 #  endif
 
 #  if defined(RLIMIT_VMEM)
-   rlp.rlim_cur = s_vmem;
-   rlp.rlim_max = h_vmem;
-   pushlimit(RLIMIT_VMEM, &rlp, trace_rlimit);
+      rlp.rlim_cur = s_vmem;
+      rlp.rlim_max = h_vmem;
+      pushlimit(RLIMIT_VMEM, &rlp, trace_rlimit);
 #  elif defined(RLIMIT_AS)
-   rlp.rlim_cur = s_vmem;
-   rlp.rlim_max = h_vmem;
-   pushlimit(RLIMIT_AS, &rlp, trace_rlimit);
+      rlp.rlim_cur = s_vmem;
+      rlp.rlim_max = h_vmem;
+      pushlimit(RLIMIT_AS, &rlp, trace_rlimit);
 #  endif
 
 #  if defined(RLIMIT_RSS)
-   rlp.rlim_cur = s_rss;
-   rlp.rlim_max = h_rss;
-   pushlimit(RLIMIT_RSS, &rlp, trace_rlimit);
+      rlp.rlim_cur = s_rss;
+      rlp.rlim_max = h_rss;
+      pushlimit(RLIMIT_RSS, &rlp, trace_rlimit);
 #  endif
+   } else { /* prepare arguments for SystemD only - fill in few most important ones */
+      if(h_maxproc != RLIMIT_UNDEFINED)     sd_addprop(systemd_args,"LimitNPROC=%" PRIuMAX,(uintmax_t)h_maxproc);
+      if(h_vmem != RLIM_INFINITY)           sd_addprop(systemd_args,"LimitAS=%" PRIuMAX,(uintmax_t)h_vmem);
+      if(h_core != RLIM_INFINITY)           sd_addprop(systemd_args,"LimitCORE=%" PRIuMAX,(uintmax_t)h_core);
+      if(h_descriptors != RLIMIT_UNDEFINED) sd_addprop(systemd_args,"LimitNOFILE=%" PRIuMAX,(uintmax_t)h_descriptors);
+   }
 
 }
 
@@ -518,14 +526,6 @@ static void pushlimit(int resource, struct RLIMIT_STRUCT_TAG *rlp,
 
    /* Process limit */
    if ((resource_type & RES_PROC)) {
-#if defined(IRIX6)
-      getrlimit64(resource,&dlp);
-      if (rlp->rlim_cur>dlp.rlim_max)
-         rlp->rlim_cur=dlp.rlim_max;
-      if (rlp->rlim_max>dlp.rlim_max)
-         rlp->rlim_max=dlp.rlim_max;
-#endif
-
       /* hard limit must be greater or equal to soft limit */
       if (rlp->rlim_max < rlp->rlim_cur)
          rlp->rlim_cur = rlp->rlim_max;

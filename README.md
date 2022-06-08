@@ -194,7 +194,33 @@ cat STDIN.*
 
 ## Addition
 
-### Contribute
+- Arch Linux, 2021-10-19
+```
+pacman -Sy --needed git cmake make gcc openmotif hwloc vi inetutils pkgconf
+```
+
+- Debian Buster, 2021-10-19, cmake 3.21.3 downloaded from cmake.org
+```
+apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev
+```
+
+- Ubuntu Server 20.04, 2021-10-19
+```
+apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev cmake
+```
+
+- Void Linux, 2021-10-19, x86\_64, Glibc
+```
+xbps-install cmake make gcc openssl-devel motif-devel hwloc libhwloc-devel libtirpc-devel ncurses-devel pam-devel
+```
+
+- CentOS 8.3, 2021-06-21, with SELinux set to permissive
+```
+dnf group install "Development Tools"
+dnf --enablerepo=powertools install hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake systemd-devel
+```
+
+## Contribute
 
 Contributions are always welcome!
 

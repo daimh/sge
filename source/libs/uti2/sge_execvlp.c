@@ -192,6 +192,17 @@ var_unsafe(char *var, regex_t lc_regex)
    return false;
 }
 
+static bool
+var_invalid(char *var)    /* searches for invalid characters in the name of the env */
+{
+   char *ptr_c,*ptr = strchr(var,'=');
+
+   if(ptr == NULL) return true;
+   ptr_c = strpbrk(var,"%^");
+   if( ptr_c == NULL || ptr_c > ptr ) return false;
+   return true;
+}
+
 /****** uti/sanitize_environment() *****************************************
 *  NAME
 *     sanitize_environment() -- remove sensitive variables from the environment before calling programs
@@ -252,7 +263,8 @@ sanitize_environment (char *env[])
 	  || (strncmp (env[i], "_HP_DLD", 7) == 0)
 #endif
           || (strncmp (env[i], sharedlib, strlen (sharedlib)) == 0)
-          || var_unsafe (env[i], lc_regex)) {
+          || var_unsafe (env[i], lc_regex)
+          || var_invalid (env[i])) {
          /* Shuffle env elements down over the unsafe one.  */
          for (j=i; env[j]; j++)
             env[j] = env[j+1];

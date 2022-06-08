@@ -138,6 +138,7 @@
 /* global variables */
 bool g_new_interactive_job_support = false;
 int  g_noshell = 0;
+bool g_use_systemd = false;
 
 char shepherd_job_dir[SGE_PATH_MAX];
 int  received_signal=0;  /* set by signalhandler, when a signal arrives */
@@ -770,8 +771,11 @@ int main(int argc, char **argv)
    {
       char *tmp_rsh_daemon;
       char *tmp_rlogin_daemon;
-      char *tmp_qlogin_daemon;
-      
+      char *tmp_qlogin_daemon,*tmp_str;
+
+      tmp_str = search_conf_val("use_systemd");
+      g_use_systemd = (tmp_str != NULL) && (strcmp(tmp_str, "yes") == 0);
+
       /*
        * Check if we have to use the old or the new (builtin)
        * interactive job support.
@@ -1313,6 +1317,14 @@ static int start_child(const char *childname, /* prolog, job, epilog */
       status = wait_my_builtin_ijs_child(pid, childname, timeout,
                   &ckpt_info, &ijs_fds, &rusage, &err_msg);
    }
+#if 0
+   if (g_use_systemd && (atoi(get_conf_val("enable_addgrp_kill")) == 0)) {
+      char unit[256];
+      snprintf(unit,256,"sge-%s.%d.%s",get_conf_val("job_id"),MAX(1, atoi(get_conf_val("ja_task_id"))),"scope");
+      shepherd_trace("PID %d finished, waiting for SystemD unit %s to finish", pid, unit);
+      systemd_wait_unit(unit);
+   } 
+#endif
    alarm(0);
    end_time = sge_get_gmt();
 
@@ -1400,7 +1412,7 @@ static int start_child(const char *childname, /* prolog, job, epilog */
          } else {
             shepherd_signal_job(-pid, SIGKILL);
          }
-      }
+      }  
    } else {
       *pidp = pid;
    }
@@ -2861,7 +2873,7 @@ static int start_async_command(const char *descr, char *cmd)
       shepherd_trace("starting %s command: %s", descr, cmd);
       pid = getpid();
       setpgid(pid, pid);
-      setrlimits(0);
+      setrlimits(0,NULL);
       sge_set_environment(true);
       umask(022);
       tmp_str = search_conf_val("qsub_gid");
@@ -2876,8 +2888,7 @@ static int start_async_command(const char *descr, char *cmd)
       if (tmp_str && strcmp(tmp_str, "yes")) {
          skip_silently = true;
       }
-      tmp_str = search_conf_val("use_systemd");
-      if(tmp_str && strcmp(tmp_str, "no")){ /* It is not necessary to track processes via addgrpid when using SystemD */
+      if(!g_use_systemd){ /* It is not necessary to track processes via addgrpid when using SystemD */
          int min_gid = atoi(get_conf_val("min_gid"));
          int min_uid = atoi(get_conf_val("min_uid"));
          gid_t add_grp_id = 0;
@@ -2989,6 +3000,69 @@ static int systemd_signal_job(sd_bus *bus,const char *unit, int signal) {
 
         return 0;
 }
+
+/********************************************************
+ * systemd_wait_unit()
+ * this is meant to replace the wait_my_child() function (which just waits for a single PID)
+ * it blocks until the unit becomes the "inactive" state - i.e. all processes finished
+ * currently unused function
+ */
+
+int systemd_wait_unit(const char *unit) {
+        sd_bus* bus = NULL;
+        sd_bus_error err = SD_BUS_ERROR_NULL;
+        char* msg = NULL, *path = NULL;
+        void* userdata = NULL;
+        int   r;
+
+        r = sd_bus_path_encode("/org/freedesktop/systemd1/unit",unit,&path);
+        if (r < 0){
+            return -1;
+        }
+
+        sd_bus_default_system(&bus);
+
+        sd_bus_match_signal(
+                bus,                                             /* bus */
+                NULL,                                            /* slot */
+                NULL,                                            /* sender */
+                path,  /* path */
+                "org.freedesktop.DBus.Properties",               /* interface */
+                "PropertiesChanged",                             /* member */
+                NULL /*message_callback*/ ,                      /* callback */
+                userdata
+        );
+
+        for (int i=0; i<=1; i++) {                              /* just need to cycle twice max (assuming unit won't change but it's state) */
+                sd_bus_wait(bus, UINT64_MAX);
+                while ( sd_bus_process(bus, NULL) ) {  }
+                
+                sd_bus_get_property_string(
+                        bus,                                             /* bus */
+                        "org.freedesktop.systemd1",                      /* destination */
+                        path, /* path */
+                        "org.freedesktop.systemd1.Unit",                 /* interface */
+                        "ActiveState",                                   /* member */
+                        &err, 
+                        &msg);
+
+                if(i == 0){
+		    if(strcmp(msg,"active") && strcmp(msg,"activating")){
+		    	break;			/* unit is not active anymore */
+		    } else {
+			shepherd_trace("Main PID has exited, waiting for %s unit to stop (JOB_MODE is set to forking)",unit);
+		    }
+		} else {
+		    shepherd_trace("Unit %s has become new state %s, assuming job is done",unit,msg); /* new state expected is inactive */
+		}
+                free(msg);
+        }
+
+        sd_bus_error_free(&err);
+//        sd_bus_message_unref(ret);
+        sd_bus_unref(bus);
+        return 0;
+}
 #endif
 
 /****************************************************************
@@ -3052,10 +3126,9 @@ shepherd_signal_job(pid_t pid, int sig) {
 
 #if defined(SOLARIS) || defined(LINUX) || defined(FREEBSD)
         if (first_kill == 0 || sig != SIGKILL || is_qrsh == false) {
-	    char *tmp_str = search_conf_val("use_systemd");	
 #   if defined(SOLARIS) || defined(LINUX) || defined(FREEBSD) 
 #      ifdef COMPILE_DC
-            if(tmp_str && !strcmp(tmp_str, "yes")){
+            if(g_use_systemd){
 #           ifdef HAVE_SYSTEMD
 		sd_bus* bus;
    		int r;
@@ -3067,7 +3140,8 @@ shepherd_signal_job(pid_t pid, int sig) {
        			shepherd_trace("Failed to get D-Bus connection to SystemD: %d",r);
        			return;
    		}
-		snprintf(unit,256,"sge-%s.%d.scope",get_conf_val("job_id"),MAX(1, atoi(get_conf_val("ja_task_id"))));
+		snprintf(unit,256,"sge-%s.%d.%s",get_conf_val("job_id"),MAX(1, atoi(get_conf_val("ja_task_id"))),
+                        atoi(get_conf_val("enable_addgrp_kill")) ? "scope" : "service");
 		shepherd_trace("systemd_signal_job: %s %d", unit , sig);
 		systemd_signal_job(bus,unit,sig);
 		sd_bus_flush_close_unref(bus);

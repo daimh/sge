@@ -52,5 +52,6 @@ wait_my_child(int pid, const char *childname, int timeout, ckpt_info_t *p_ckpt_i
 
 void 
 shepherd_signal_job(pid_t pid, int sig);
-
+int 
+systemd_wait_unit(const char *unit);
 #endif /* __SHEPHERD_H */
