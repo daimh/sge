@@ -10,7 +10,6 @@ AC_PROG_CC
 dnl These aren't generally useful without including sge_config.h, i.e. don't
 dnl replace ones in aimk CFLAGS, but should agree with those, and
 dnl may affect feature tests.
-AC_AIX
 AC_USE_SYSTEM_EXTENSIONS
 AC_DEFINE(_NETBSD_SOURCE, 1, [Define to activate all NetBSD features])
 AC_DEFINE(__BSD_VISIBLE, 1, [Define to activate all FreeBSD features])

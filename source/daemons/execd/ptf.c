@@ -1112,18 +1112,24 @@ static void ptf_get_usage_from_data_collector(void)
 
 long int systemd_get_property_dbus(sd_bus *bus,const char *service, const char *property) {
         int r;
-        char *path = NULL;
+        char *path = NULL,buf[255],unit[50];
         sd_bus_error error = SD_BUS_ERROR_NULL;
         sd_bus_message *reply = NULL;
         long int val = 0;
 	
 	DENTER(TOP_LAYER, "systemd_get_property_dbus");
-        r = sd_bus_path_encode("/org/freedesktop/systemd1/unit",service,&path);
+	strncpy(buf,service,255);
+	strncpy(unit,mconf_get_enable_addgrp_kill() ? ".scope" : ".service",50);
+	strcat(buf,unit);
+        r = sd_bus_path_encode("/org/freedesktop/systemd1/unit",buf,&path);
         if (r < 0){
             return -1;
         }
+	strncpy(buf,"org.freedesktop.systemd1",255);
+	unit[1] = 'S';      // need to use Service / Scope	
+	strcat(buf,unit);
 
-        r = sd_bus_get_property(bus,"org.freedesktop.systemd1",path,"org.freedesktop.systemd1.Scope",property,&error,&reply,"t");
+        r = sd_bus_get_property(bus,"org.freedesktop.systemd1",path,buf,property,&error,&reply,"t");
 
         free(path);
         if (r < 0){
@@ -1203,7 +1209,7 @@ static void ptf_get_usage_from_systemd(void)
          /* Use systemd to gather current job usage as this is the most universal
             Unfortunately depends on SystemD version on how many details
             we are able to get. We need SystemD version 222 at least so that we can connect via D-Bus */
-         snprintf(cmd, sizeof(cmd), "sge-%u.%u.scope", lGetUlong(job, JL_job_ID), lGetUlong(osjob, JO_ja_task_ID));
+         snprintf(cmd, sizeof(cmd), "sge-%u.%u", lGetUlong(job, JL_job_ID), lGetUlong(osjob, JO_ja_task_ID));
 	 mem = systemd_get_property_dbus(bus,cmd,SD_MEM_USAGE);
          if ((usage = lGetElemStr(usage_list, UA_name, USAGE_ATTR_VMEM))) {
             lSetDouble(usage, UA_value, mem);
