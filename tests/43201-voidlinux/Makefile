@@ -6,7 +6,7 @@ var/voidlinux-sge-container : var/voidlinux-sge-image
 	rm -f $@.qcow2
 	var/daiker run $(DaikerOpts) -b $<.qcow2 $@.qcow2 &
 	for ((i=1; ; i++)); do ! $(Ssh) root@localhost id || break; sleep 2; echo "MSG-002: Retrying ssh $$i"; done
-	rsync -ave "$(Ssh)" --exclude tests ../../../sge root@localhost:
+	rsync -ave "$(Ssh)" --exclude tests --exclude .git ../../ root@localhost:sge
 	$(Ssh) root@localhost < lib/voidlinux.sh 2>&1 | tee $@.log
 	touch $@
 	$(Ssh) root@localhost <<< poweroff || :
@@ -34,7 +34,7 @@ var/voidlinux-sge.iso : var/void-live-latest-x86_64.iso var/id_ed25519
 	sudo umount $@.m
 	cd $@.d/LiveOS && rm squashfs.img && mksquashfs squashfs-root squashfs.img
 	rm -r $@.d/LiveOS/squashfs-root
-	cd $(@D) && genisoimage -l -r -J -V "VOID_LIVE" -no-emul-boot -boot-load-size 4 -boot-info-table -b boot/isolinux/isolinux.bin -c boot/isolinux/boot.cat -o $(@F).tmp $(@F).d
+	cd $(@D) && genisoimage -quiet -l -r -J -V "VOID_LIVE" -no-emul-boot -boot-load-size 4 -boot-info-table -b boot/isolinux/isolinux.bin -c boot/isolinux/boot.cat -o $(@F).tmp $(@F).d
 #	rm -rf $@.d
 	mv $@.tmp $@
 var/void-rootfs-latest-x86_64.tar.xz :

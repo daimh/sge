@@ -6,7 +6,7 @@ var/ubuntu-22.04-sge-container : var/ubuntu-22.04-sge-image
 	rm -f $@.qcow2
 	var/daiker run $(DaikerOpts) -b $<.qcow2 $@.qcow2 &
 	for ((i=1; ; i++)); do ! $(Ssh) root@localhost id || break; sleep 2; echo "MSG-001: Retrying ssh $$i"; done
-	rsync -ave "$(Ssh)" --exclude tests ../../../sge root@localhost:
+	rsync -ave "$(Ssh)" --exclude tests --exclude .git ../../ root@localhost:sge
 	$(Ssh) root@localhost < lib/ubuntu-22.04.sh 2>&1 | tee $@.log
 	touch $@
 	$(Ssh) root@localhost <<< poweroff || :
@@ -25,7 +25,7 @@ var/ubuntu-22.04-sge.iso : var/ubuntu-22.04-live-server-amd64.iso var/id_ed25519
 	mkdir $@.d/autoinstall
 	sed -e "s#<ED25519PUB>#$$(cat var/id_ed25519.pub )#; s#<RootPassword>#$$(echo SomeGridEngine | openssl passwd -6 -stdin)#" lib/user-data > $@.d/autoinstall/user-data
 	touch $@.d/autoinstall/vendor-data $@.d/autoinstall/meta-data
-	cd $(@D) && genisoimage -l -r -J -V "Ubuntu-Server 22.04 LTS amd64" -no-emul-boot -boot-load-size 4 -boot-info-table -b boot/grub/i386-pc/eltorito.img -c boot.catalog -o $(@F).tmp $(@F).d
+	cd $(@D) && genisoimage -quiet -l -r -J -V "Ubuntu-Server 22.04 LTS amd64" -no-emul-boot -boot-load-size 4 -boot-info-table -b boot/grub/i386-pc/eltorito.img -c boot.catalog -o $(@F).tmp $(@F).d
 	rm -rf $@.d
 	mv $@.tmp $@
 var/ubuntu-22.04-live-server-amd64.iso :

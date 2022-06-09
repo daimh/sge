@@ -7,7 +7,7 @@ var/rhel8-sge-container : var/rhel8-sge-image
 	rm -f $@.qcow2
 	var/daiker run $(DaikerOpts) -b $<.qcow2 $@.qcow2 &
 	for ((i=1; ; i++)); do ! $(Ssh) root@localhost id || break; sleep 2; echo "MSG-001: Retrying ssh $$i"; done
-	rsync -ave "$(Ssh)" --exclude tests ../../../sge root@localhost:
+	rsync -ave "$(Ssh)" --exclude tests --exclude .git ../../ root@localhost:sge
 	$(Ssh) root@localhost < lib/rhel8.sh 2>&1 | tee $@.log
 	touch $@
 	$(Ssh) root@localhost <<< poweroff || :
@@ -24,7 +24,7 @@ var/rhel8-sge.iso : var/$(Rhel)-8.6-x86_64-minimal.iso var/id_ed25519
 	sed -ie "s#timeout 600#timeout 1#; s#rd.live.check quiet#inst.ks=cdrom:/ks.cfg#" $@.d/isolinux/isolinux.cfg
 	rm $@.d/isolinux/isolinux.cfge
 	sed -e "s#<ED25519PUB>#$$(cat var/id_ed25519.pub )#" lib/ks.cfg > $@.d/ks.cfg
-	cd $(@D) && genisoimage -l -r -J -V "$(Rhel)-8-6-x86_64-dvd" -no-emul-boot -boot-load-size 4 -boot-info-table -b isolinux/isolinux.bin -c isolinux/isolinux.cat -o $(@F).tmp $(@F).d
+	cd $(@D) && genisoimage -quiet -l -r -J -V "$(Rhel)-8-6-x86_64-dvd" -no-emul-boot -boot-load-size 4 -boot-info-table -b isolinux/isolinux.bin -c isolinux/isolinux.cat -o $(@F).tmp $(@F).d
 	rm -rf $@.d
 	mv $@.tmp $@
 var/$(Rhel)-8.6-x86_64-minimal.iso :

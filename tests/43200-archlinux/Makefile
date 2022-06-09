@@ -7,7 +7,7 @@ var/archlinux-sge-container : var/archlinux-sge-image
 	var/daiker run $(DaikerOpts) -b $<.qcow2 $@.qcow2 &
 	for ((i=1; ; i++)); do ! $(Ssh) root@localhost id || break; sleep 2; echo "MSG-001: Retrying ssh $$i"; done
 	rsync -ae "$(Ssh)" var/overlay/var/cache/pacman/pkg/ root@localhost:/var/cache/pacman/pkg/
-	rsync -ave "$(Ssh)" --exclude tests ../../../sge root@localhost:
+	rsync -ave "$(Ssh)" --exclude tests --exclude .git ../../ root@localhost:sge
 	$(Ssh) root@localhost < lib/archlinux.sh 2>&1 | tee $@.log
 	rsync -ae "$(Ssh)" root@localhost:/var/cache/pacman/pkg/ var/overlay/var/cache/pacman/pkg/
 	touch $@
@@ -40,7 +40,7 @@ var/archlinux-sge.iso : var/archlinux-x86_64.iso var/id_ed25519
 	cd $@.d/arch/x86_64 && rm airootfs.sfs && mksquashfs squashfs-root airootfs.sfs
 	chmod -R u+wX $@.d/arch/x86_64/squashfs-root
 	rm -r $@.d/arch/x86_64/squashfs-root
-	cd $(@D) && genisoimage -l -r -J -V "ARCH_AUTO" -no-emul-boot -boot-load-size 4 -boot-info-table -b syslinux/isolinux.bin -c syslinux/boot.cat -o $(@F).tmp $(@F).d
+	cd $(@D) && genisoimage -quiet -l -r -J -V "ARCH_AUTO" -no-emul-boot -boot-load-size 4 -boot-info-table -b syslinux/isolinux.bin -c syslinux/boot.cat -o $(@F).tmp $(@F).d
 	rm -rf $@.d
 	mv $@.tmp $@
 var/archlinux-x86_64.iso :

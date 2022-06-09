@@ -6,7 +6,7 @@ var/leap-sge-container : var/leap-sge-image
 	rm -f $@.qcow2
 	var/daiker run $(DaikerOpts) -b $<.qcow2 $@.qcow2 &
 	for ((i=1; ; i++)); do ! $(Ssh) root@localhost id || break; sleep 2; echo "MSG-001: Retrying ssh $$i"; done
-	rsync -ave "$(Ssh)" --exclude tests ../../../sge root@localhost:
+	rsync -ave "$(Ssh)" --exclude tests --exclude .git ../../ root@localhost:sge
 	$(Ssh) root@localhost < lib/leap.sh 2>&1 | tee $@.log
 	touch $@
 	$(Ssh) root@localhost <<< poweroff || :
@@ -23,7 +23,7 @@ var/leap-sge.iso : var/Leap-15.3-DVD-x86_64.iso var/id_ed25519
 	sed -ie "s/timeout\t\t600/timeout\t\t1/; s/default harddisk/default linux/; s/splash=silent showopts$$//" $@.d/boot/x86_64/loader/isolinux.cfg
 	rm $@.d/boot/x86_64/loader/isolinux.cfge
 	sed -e "s|AUTHORIZED_KEYS|$$(cat var/id_ed25519.pub)|" lib/autoinst.xml > $@.d/autoinst.xml
-	cd $(@D) && genisoimage -l -r -J -V "openSUSE-Leap-15.3-3-DVD-x86_643" -no-emul-boot -boot-load-size 4 -boot-info-table -b boot/x86_64/loader/isolinux.bin -o $(@F).tmp $(@F).d
+	cd $(@D) && genisoimage -quiet -l -r -J -V "openSUSE-Leap-15.3-3-DVD-x86_643" -no-emul-boot -boot-load-size 4 -boot-info-table -b boot/x86_64/loader/isolinux.bin -o $(@F).tmp $(@F).d
 	rm -rf $@.d
 	mv $@.tmp $@
 var/Leap-15.3-DVD-x86_64.iso :

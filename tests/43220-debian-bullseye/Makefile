@@ -7,7 +7,7 @@ var/debian-11-sge-container : var/debian-11-sge-image
 	var/daiker run $(DaikerOpts) -b $<.qcow2 $@.qcow2 &
 	for ((i=1; ; i++)); do ! $(Ssh) root@localhost id || break; sleep 2; echo "MSG-001: Retrying ssh $$i"; done
 	$(Ssh) root@localhost <<< "apt install rsync"
-	rsync -ave "$(Ssh)" --exclude tests ../../../sge root@localhost:
+	rsync -ave "$(Ssh)" --exclude tests --exclude .git ../../ root@localhost:sge
 	$(Ssh) root@localhost < lib/debian-11.sh 2>&1 | tee $@.log
 	touch $@
 	$(Ssh) root@localhost <<< poweroff || :
@@ -25,7 +25,7 @@ var/debian-11-sge.iso : var/debian-11.3.0-amd64-DVD-1.iso var/id_ed25519
 	rm -f $@.d/isolinux/*.cfge
 	sed -e "s#<ED25519PUB>#$$(cat var/id_ed25519.pub )#; s#<RootPassword>#$$(echo SomeGridEngine | openssl passwd -6 -stdin)#" lib/preseed.cfg > $@.d/preseed.cfg
 	sed -ie "s# quiet# preseed/file=/cdrom/preseed.cfg preseed/file/checksum=$$(md5sum $@.d/preseed.cfg | cut -d ' ' -f 1) debian-installer/locale=en_US keyboard-configuration/xkb-keymap=us#" $@.d/isolinux/gtk.cfg
-	cd $(@D) && genisoimage -l -r -J -V "Debian 11.3.0 amd64 1" -no-emul-boot -boot-load-size 4 -boot-info-table -b isolinux/isolinux.bin -c isolinux/isolinux.cat -o $(@F).tmp $(@F).d
+	cd $(@D) && genisoimage -quiet -l -r -J -V "Debian 11.3.0 amd64 1" -no-emul-boot -boot-load-size 4 -boot-info-table -b isolinux/isolinux.bin -c isolinux/isolinux.cat -o $(@F).tmp $(@F).d
 #	rm -rf $@.d
 	mv $@.tmp $@
 var/debian-11.3.0-amd64-DVD-1.iso :
