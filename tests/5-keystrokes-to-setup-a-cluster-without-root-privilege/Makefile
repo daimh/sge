@@ -34,7 +34,7 @@ var/firewall-image : var/firewall-autoinstall.iso
 	rm -f $@.qcow2
 	var/daiker build $(DaikerOpts) -H 20 -T 12345-54321 -i $< $@.qcow2
 	touch $@
-var/%-autoinstall.iso : var/archlinux-latest-x86_64.iso var/id_ed25519 var/daiker
+var/%-autoinstall.iso : var/archlinux-x86_64.iso var/id_ed25519 var/daiker
 	[ ! -d $@.d ] || chmod -R u+wX $@.d && rm -rf $@.d
 	mkdir -p $@.d
 	bsdtar xfp $< -C$@.d
@@ -62,9 +62,9 @@ var/%-autoinstall.iso : var/archlinux-latest-x86_64.iso var/id_ed25519 var/daike
 	rm -rf $@.d
 	mv $@.tmp $@
 
-var/archlinux-latest-x86_64.iso :
+var/archlinux-x86_64.iso :
 	mkdir -p $(@D)
-	wget -cO $@.tmp http://repo.miserver.it.umich.edu/archlinux/iso/latest/archlinux-2022.05.01-x86_64.iso
+	wget -cO $@.tmp http://repo.miserver.it.umich.edu/archlinux/iso/latest/archlinux-x86_64.iso
 	mv $@.tmp $@
 var/id_ed25519 :
 	mkdir -p $(@D)

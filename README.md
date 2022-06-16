@@ -1,17 +1,32 @@
 # Some Grid Engine/Son of Grid Engine/Sun Grid Engine
+<details>
+<summary>Table of contents</summary>
+<ol>
+	<li><a href='#about-sge'>About SGE</a></li>
+	<li><a href='#requirements'>Requirements</a></li>
+	<li><a href='#three-different-installation-methods'>Three different installation methods</a></li>
+	<li><a href='#quick-test-on-one-machine'>Quick test on one machine</a></li>
+	<li><a href='#installation'>Installation</a></li>
+	<li><a href='#contribute'>Contribute</a></li>
+	<li><a href='#license'>License</a></li>
+	<li><a href='#acknowledgments'>Acknowledgments</a></li>
+<ol>
+</details>
+
+## About SGE
 
 Some Grid Engine is a fork of Son of Grid Engine at University of Liverpool, with SOME improvement.
 
 We have been using and maintaining this software at Michigan Neuroscience Institute, University of Michigan for over a decade. It is stable and good enough for a small HPC cluster. Here we share it on github, hoping more peoples can benefit from it.
 
-## Improvements
-- Support for submitting jobs via SystemD which also allows to enforce memory/cpu limitations via kernel cgroups. Many thanks to [fretn:master](https://github.com/fretn/sge) and [ondrejv2:master](https://github.com/ondrejv2/sge)!
+### Improvements
+- Support for submitting jobs via SystemD which also allows to enforce memory/cpu limitations via kernel cgroups. Many thanks to [fretn](https://github.com/fretn/sge) and [ondrejv2](https://github.com/ondrejv2/sge)!
 - CMake compiling support. This paved the way for easier maintenance in future. It took 38 seconds to compile in parallel and install on an 8-core old machine, while it took 302 seconds with the legacy SGE way, and 377 seconds with makepkg.
 - Fixed a permission error introduced since systemd 241 in 2019 during installation, if SGE is installed as non-root on production system
 - Compatible with openssl-1.1.1
 - All C compling warning are fixed on Arch Linux and Void Linux. Most of them were caused by 'smarter' gcc, new SSL, new GLIBC, obsolete function such 'sigignore', depreciated function such as 'readdir\_r', etc.
 - Underscore in port service name 'sge\_qmaster/sge\_execd' is changed to hyphen in all C files and shell scripts, saving us from modifying /etc/services each time
-- Supports both systemd and runit on Void Linux
+- Supports both runit on Void Linux and systemd on other distros
 - Version is changed to the commit version of this github repo
 - [5 keystrokes to setup a demo cluster on any Linux machine without root privilege](tests/5-keystrokes-to-setup-a-cluster-without-root-privilege/)
 - [Tests for a lot of Linux distros](tests/)
@@ -192,54 +207,27 @@ watch qstat
 cat STDIN.*
 ```
 
-## Addition
-
-- Arch Linux, 2021-10-19
-```
-pacman -Sy --needed git cmake make gcc openmotif hwloc vi inetutils pkgconf
-```
-
-- Debian Buster, 2021-10-19, cmake 3.21.3 downloaded from cmake.org
-```
-apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev
-```
-
-- Ubuntu Server 20.04, 2021-10-19
-```
-apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev cmake
-```
-
-- Void Linux, 2021-10-19, x86\_64, Glibc
-```
-xbps-install cmake make gcc openssl-devel motif-devel hwloc libhwloc-devel libtirpc-devel ncurses-devel pam-devel
-```
-
-- CentOS 8.3, 2021-06-21, with SELinux set to permissive
-```
-dnf group install "Development Tools"
-dnf --enablerepo=powertools install hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake systemd-devel
-```
-
 ## Contribute
 
 Contributions are always welcome!
 
-### Copyright
+## License
 
 Written by [Manhong Dai](mailto:daimh@umich.edu)
-Copyright © 2002-2022 University of Michigan. License [SISSL](https://opensource.org/licenses/sisslpl)
+Copyright © 2002-2022 University of Michigan.
+License [SISSL](https://opensource.org/licenses/sisslpl)
 
 This is free software: you are free to change and redistribute it.
 
 There is NO WARRANTY, to the extent permitted by law.
 
-### Acknowledgment
+## Acknowledgments
 
-Thomas Wilson, M.D., Ph.D. Professor of Pathology, UMICH
+Fan Meng, Ph.D., Research Associate Professor, Psychiatry, UMICH
 
 Ruth Freedman, MPH, former administrator of MNI, UMICH
 
-Fan Meng, Ph.D., Research Associate Professor, Psychiatry, UMICH
+Thomas Wilson, M.D., Ph.D. Professor of Pathology, UMICH
 
 Huda Akil, Ph.D., Director of MNI, UMICH
 
