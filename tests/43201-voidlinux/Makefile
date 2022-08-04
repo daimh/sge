@@ -34,7 +34,7 @@ var/voidlinux-sge.iso : var/void-live-latest-x86_64.iso var/id_ed25519
 	sudo umount $@.m
 	cd $@.d/LiveOS && rm squashfs.img && mksquashfs squashfs-root squashfs.img
 	rm -r $@.d/LiveOS/squashfs-root
-	cd $(@D) && genisoimage -quiet -l -r -J -V "VOID_LIVE" -no-emul-boot -boot-load-size 4 -boot-info-table -b boot/isolinux/isolinux.bin -c boot/isolinux/boot.cat -o $(@F).tmp $(@F).d
+	genisoimage -quiet -l -r -J -V "$$(isoinfo -d -i $< | grep 'Volume id: ' |cut -c 12-)" -no-emul-boot -boot-load-size 4 -boot-info-table -b boot/isolinux/isolinux.bin -c boot/isolinux/boot.cat -o $@.tmp $@.d
 #	rm -rf $@.d
 	mv $@.tmp $@
 var/void-rootfs-latest-x86_64.tar.xz :

@@ -15,6 +15,7 @@ while ! systemctl status pacman-init | grep exited
 do
 	sleep 4
 done
+pacman -Sy --noconfirm archlinux-keyring
 if [ -f /var/cache/pacman/pkg/base-*.sig ]
 then
 	pacstrap -c /mnt base linux linux-firmware

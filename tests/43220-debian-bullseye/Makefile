@@ -16,7 +16,7 @@ var/debian-11-sge-image : var/debian-11-sge.iso var/daiker
 	rm -f $@.qcow2
 	var/daiker build $(DaikerOpts) -i $< -H 20 $@.qcow2
 	touch $@
-var/debian-11-sge.iso : var/debian-11.3.0-amd64-DVD-1.iso var/id_ed25519
+var/debian-11-sge.iso : var/debian-11.4.0-amd64-DVD-1.iso var/id_ed25519
 	[ ! -d $@.d ] || chmod -R u+wX $@.d && rm -rf $@.d
 	mkdir -p $@.d
 	bsdtar xfp $< -C$@.d
@@ -25,10 +25,10 @@ var/debian-11-sge.iso : var/debian-11.3.0-amd64-DVD-1.iso var/id_ed25519
 	rm -f $@.d/isolinux/*.cfge
 	sed -e "s#<ED25519PUB>#$$(cat var/id_ed25519.pub )#; s#<RootPassword>#$$(echo SomeGridEngine | openssl passwd -6 -stdin)#" lib/preseed.cfg > $@.d/preseed.cfg
 	sed -ie "s# quiet# preseed/file=/cdrom/preseed.cfg preseed/file/checksum=$$(md5sum $@.d/preseed.cfg | cut -d ' ' -f 1) debian-installer/locale=en_US keyboard-configuration/xkb-keymap=us#" $@.d/isolinux/gtk.cfg
-	cd $(@D) && genisoimage -quiet -l -r -J -V "Debian 11.3.0 amd64 1" -no-emul-boot -boot-load-size 4 -boot-info-table -b isolinux/isolinux.bin -c isolinux/isolinux.cat -o $(@F).tmp $(@F).d
+	genisoimage -quiet -l -r -J -V "$$(isoinfo -d -i $< | grep 'Volume id: ' |cut -c 12-)" -no-emul-boot -boot-load-size 4 -boot-info-table -b isolinux/isolinux.bin -c isolinux/isolinux.cat -o $@.tmp $@.d
 #	rm -rf $@.d
 	mv $@.tmp $@
-var/debian-11.3.0-amd64-DVD-1.iso :
+var/debian-11.4.0-amd64-DVD-1.iso :
 	mkdir -p $(@D)
 	wget -cO $@.tmp -c https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/$(@F)
 	mv $@.tmp $@

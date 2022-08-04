@@ -40,7 +40,7 @@ var/archlinux-sge.iso : var/archlinux-x86_64.iso var/id_ed25519
 	cd $@.d/arch/x86_64 && rm airootfs.sfs && mksquashfs squashfs-root airootfs.sfs
 	chmod -R u+wX $@.d/arch/x86_64/squashfs-root
 	rm -r $@.d/arch/x86_64/squashfs-root
-	cd $(@D) && genisoimage -quiet -l -r -J -V "ARCH_AUTO" -no-emul-boot -boot-load-size 4 -boot-info-table -b syslinux/isolinux.bin -c syslinux/boot.cat -o $(@F).tmp $(@F).d
+	genisoimage -quiet -l -r -J -V "ARCH_AUTO" -no-emul-boot -boot-load-size 4 -boot-info-table -b syslinux/isolinux.bin -c syslinux/boot.cat -o $@.tmp $@.d
 	rm -rf $@.d
 	mv $@.tmp $@
 var/archlinux-x86_64.iso :

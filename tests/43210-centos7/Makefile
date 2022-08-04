@@ -23,7 +23,7 @@ var/centos7-sge.iso : var/CentOS-7-x86_64-Minimal-2009.iso var/id_ed25519
 	sed -ie "s#timeout 600#timeout 1#; s#rd.live.check quiet#inst.ks=cdrom:/ks.cfg#" $@.d/isolinux/isolinux.cfg
 	rm $@.d/isolinux/isolinux.cfge
 	sed -e "s#<ED25519PUB>#$$(cat var/id_ed25519.pub )#" lib/ks.cfg > $@.d/ks.cfg
-	cd $(@D) && genisoimage -quiet -l -r -J -V "CentOS 7 x86_64" -no-emul-boot -boot-load-size 4 -boot-info-table -b isolinux/isolinux.bin -c isolinux/isolinux.cat -o $(@F).tmp $(@F).d
+	genisoimage -quiet -l -r -J -V "$$(isoinfo -d -i $< | grep 'Volume id: ' |cut -c 12-)" -no-emul-boot -boot-load-size 4 -boot-info-table -b isolinux/isolinux.bin -c isolinux/isolinux.cat -o $@.tmp $@.d
 	rm -rf $@.d
 	mv $@.tmp $@
 var/CentOS-7-x86_64-Minimal-2009.iso :

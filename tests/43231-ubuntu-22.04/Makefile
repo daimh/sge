@@ -25,7 +25,7 @@ var/ubuntu-22.04-sge.iso : var/ubuntu-22.04-live-server-amd64.iso var/id_ed25519
 	mkdir $@.d/autoinstall
 	sed -e "s#<ED25519PUB>#$$(cat var/id_ed25519.pub )#; s#<RootPassword>#$$(echo SomeGridEngine | openssl passwd -6 -stdin)#" lib/user-data > $@.d/autoinstall/user-data
 	touch $@.d/autoinstall/vendor-data $@.d/autoinstall/meta-data
-	cd $(@D) && genisoimage -quiet -l -r -J -V "Ubuntu-Server 22.04 LTS amd64" -no-emul-boot -boot-load-size 4 -boot-info-table -b boot/grub/i386-pc/eltorito.img -c boot.catalog -o $(@F).tmp $(@F).d
+	genisoimage -quiet -l -r -J -V "$$(isoinfo -d -i $< | grep 'Volume id: ' |cut -c 12-)" -no-emul-boot -boot-load-size 4 -boot-info-table -b boot/grub/i386-pc/eltorito.img -c boot.catalog -o $@.tmp $@.d
 	rm -rf $@.d
 	mv $@.tmp $@
 var/ubuntu-22.04-live-server-amd64.iso :
