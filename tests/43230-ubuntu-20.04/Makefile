@@ -15,7 +15,7 @@ var/ubuntu-20.04-sge-image : var/ubuntu-20.04-sge.iso var/daiker
 	rm -f $@.qcow2
 	var/daiker build $(DaikerOpts) -i $< -H 20 $@.qcow2
 	touch $@
-var/ubuntu-20.04-sge.iso : var/ubuntu-20.04.4-live-server-amd64.iso var/id_ed25519
+var/ubuntu-20.04-sge.iso : var/ubuntu-20.04-live-server-amd64.iso var/id_ed25519
 	[ ! -d $@.d ] || chmod -R u+wX $@.d && rm -rf $@.d
 	mkdir -p $@.d
 	bsdtar xfp $< -C$@.d
@@ -29,9 +29,9 @@ var/ubuntu-20.04-sge.iso : var/ubuntu-20.04.4-live-server-amd64.iso var/id_ed255
 	genisoimage -quiet -l -r -J -V "$$(isoinfo -d -i $< | grep 'Volume id: ' |cut -c 12-)" -no-emul-boot -boot-load-size 4 -boot-info-table -b isolinux/isolinux.bin -c isolinux/isolinux.cat -o $@.tmp $@.d
 	rm -rf $@.d
 	mv $@.tmp $@
-var/ubuntu-20.04.4-live-server-amd64.iso :
+var/ubuntu-20.04-live-server-amd64.iso :
 	mkdir -p $(@D)
-	wget -cO $@.tmp -c https://mirrors.lug.mtu.edu/ubuntu-releases/20.04.4/$(@F)
+	wget -cO $@.tmp -c https://mirrors.lug.mtu.edu/ubuntu-releases/20.04.5/ubuntu-20.04.5-live-server-amd64.iso
 	mv $@.tmp $@
 var/id_ed25519 :
 	mkdir -p $(@D)

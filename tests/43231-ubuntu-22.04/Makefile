@@ -30,7 +30,7 @@ var/ubuntu-22.04-sge.iso : var/ubuntu-22.04-live-server-amd64.iso var/id_ed25519
 	mv $@.tmp $@
 var/ubuntu-22.04-live-server-amd64.iso :
 	mkdir -p $(@D)
-	wget -cO $@.tmp -c https://mirror.umd.edu/ubuntu-iso/22.04/ubuntu-22.04-live-server-amd64.iso
+	wget -cO $@.tmp -c https://mirror.umd.edu/ubuntu-iso/22.04.1/ubuntu-22.04.1-live-server-amd64.iso
 	mv $@.tmp $@
 var/id_ed25519 :
 	mkdir -p $(@D)
