@@ -16,7 +16,7 @@ var/debian-11-sge-image : var/debian-11-sge.iso var/daiker
 	rm -f $@.qcow2
 	var/daiker build $(DaikerOpts) -i $< -H 20 $@.qcow2
 	touch $@
-var/debian-11-sge.iso : var/debian-11.4.0-amd64-DVD-1.iso var/id_ed25519
+var/debian-11-sge.iso : var/debian-11.5.0-amd64-DVD-1.iso var/id_ed25519
 	[ ! -d $@.d ] || chmod -R u+wX $@.d && rm -rf $@.d
 	mkdir -p $@.d
 	bsdtar xfp $< -C$@.d
@@ -28,7 +28,7 @@ var/debian-11-sge.iso : var/debian-11.4.0-amd64-DVD-1.iso var/id_ed25519
 	genisoimage -quiet -l -r -J -V "$$(isoinfo -d -i $< | grep 'Volume id: ' |cut -c 12-)" -no-emul-boot -boot-load-size 4 -boot-info-table -b isolinux/isolinux.bin -c isolinux/isolinux.cat -o $@.tmp $@.d
 #	rm -rf $@.d
 	mv $@.tmp $@
-var/debian-11.4.0-amd64-DVD-1.iso :
+var/debian-11.5.0-amd64-DVD-1.iso :
 	mkdir -p $(@D)
 	wget -cO $@.tmp -c https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/$(@F)
 	mv $@.tmp $@
