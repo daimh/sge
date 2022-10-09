@@ -6,7 +6,7 @@
 
 AWK=/usr/bin/nawk	# Must be nawk or gawk cause of 2D arrays
 WC=/usr/ucb/wc		
-GREP=/usr/bin/egrep
+GREP=/usr/bin/grep
 SORT=/usr/bin/sort
 SH=/bin/sh
 

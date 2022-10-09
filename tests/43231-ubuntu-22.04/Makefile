@@ -1,21 +1,6 @@
-Port:=$(shell basename $$PWD |cut -d - -f 1)
-DaikerOpts:=-D $(shell [ -n "$$DISPLAY" ] && echo gtk || echo vnc) -c 8 -r 2 -T 22-$(Port)
-Ssh:=ssh -p $(Port) -i var/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=1
-var/ubuntu-22.04-sge-container : var/ubuntu-22.04-sge-image
-	fuser -k $@.qcow2 $(Port)/tcp && sleep 2 || :
-	rm -f $@.qcow2
-	var/daiker run $(DaikerOpts) -b $<.qcow2 $@.qcow2 &
-	for ((i=1; ; i++)); do ! $(Ssh) root@localhost id || break; sleep 2; echo "MSG-001: Retrying ssh $$i"; done
-	rsync -ave "$(Ssh)" --exclude tests --exclude .git ../../ root@localhost:sge
-	$(Ssh) root@localhost < lib/ubuntu-22.04.sh 2>&1 | tee $@.log
-	touch $@
-	$(Ssh) root@localhost <<< poweroff || :
-var/ubuntu-22.04-sge-image : var/ubuntu-22.04-sge.iso var/daiker
-	fuser -k $@.qcow2 $(Port)/tcp && sleep 2 || :
-	rm -f $@.qcow2
-	var/daiker build $(DaikerOpts) -i $< -H 20 $@.qcow2
-	touch $@
-var/ubuntu-22.04-sge.iso : var/ubuntu-22.04-live-server-amd64.iso var/id_ed25519
+include ../common/include.mk
+$(eval $(CommonSgeImage))
+var/sge.iso : var/ubuntu-22.04-live-server-amd64.iso var/id_ed25519
 	[ ! -d $@.d ] || chmod -R u+wX $@.d && rm -rf $@.d
 	mkdir -p $@.d
 	bsdtar xfp $< -C$@.d
@@ -32,15 +17,3 @@ var/ubuntu-22.04-live-server-amd64.iso :
 	mkdir -p $(@D)
 	wget -cO $@.tmp -c https://mirror.umd.edu/ubuntu-iso/22.04.1/ubuntu-22.04.1-live-server-amd64.iso
 	mv $@.tmp $@
-var/id_ed25519 :
-	mkdir -p $(@D)
-	ssh-keygen -t ed25519 -C SGE -f $@ -N ""
-var/daiker :
-	mkdir -p $(@D)
-	wget -cO $@.tmp https://raw.githubusercontent.com/daimh/daiker/master/daiker
-	chmod +x $@.tmp
-	mv $@.tmp $@
-
-clean :
-	chmod -R u+w var/ubuntu-22.04-sge* var/id_ed25519* var/daiker || :
-	rm -rf var/ubuntu-22.04-sge* var/id_ed25519* var/daiker || :

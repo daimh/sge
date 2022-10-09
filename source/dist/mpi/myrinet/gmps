@@ -95,7 +95,7 @@ if [ $allhosts -eq 1 ]; then
    exit 0
 fi
 
-pids="$($gm_board_info | egrep "$gmport: *BUSY" | awk '{ echo $3; }')"
+pids="$($gm_board_info | grep "$gmport: *BUSY" | awk '{ echo $3; }')"
 
 if [ $kill -eq 1 ]; then
    for a in $pids; do
@@ -106,7 +106,7 @@ fi
 if [ "$pids" != "" ]; then
    if [ $verbose -eq 1 ]; then
       echo "   PID PORT"
-      $gm_board_info | egrep "$gmport: *BUSY" | awk '{ printf("%6d %s\n", $3, substr($1, 0, 1)); }'
+      $gm_board_info | grep "$gmport: *BUSY" | awk '{ printf("%6d %s\n", $3, substr($1, 0, 1)); }'
    else
       echo -- "$pids"
    fi

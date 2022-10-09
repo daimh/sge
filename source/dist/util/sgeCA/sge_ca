@@ -2156,7 +2156,7 @@ while [ $ARGC != 0 ]; do
          ErrUsage
       fi
       WHICH="renew"
-      if echo "$1" | egrep '^-rr' >/dev/null; then revoke="true"; fi
+      if echo "$1" | grep '^-rr' >/dev/null; then revoke="true"; fi
       user=$2
       shift
       ARGC=`expr $ARGC - 1`
@@ -2167,14 +2167,14 @@ while [ $ARGC != 0 ]; do
          ErrUsage
       fi
       WHICH="renew_sdm"
-      if echo "$1" | egrep '^-rr' >/dev/null; then revoke="true"; fi
+      if echo "$1" | grep '^-rr' >/dev/null; then revoke="true"; fi
       user=$2
       shift
       ARGC=`expr $ARGC - 1`
       ;;
    -renew_sys|-rrenew_sys)
       WHICH="renew_sys"
-      if echo "$1" | egrep '^-rr' >/dev/null; then revoke="true"; fi
+      if echo "$1" | grep '^-rr' >/dev/null; then revoke="true"; fi
       ;;
    -renew_ca)
       WHICH="renew_ca"

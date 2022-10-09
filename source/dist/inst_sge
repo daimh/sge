@@ -1367,7 +1367,7 @@ if [ $SHADOW = "install" ]; then
             exit 1
          elif [ `echo $db_home | cut -d":" -f2` = "$db_home" ]; then
             if [ "$spooling_method" = "berkeleydb" ]; then
-               if [ `echo $fstype | egrep "nfs|afs|smb" | wc -l` -gt 0 ]; then
+               if [ `echo $fstype | grep "nfs|afs|smb" | wc -l` -gt 0 ]; then
                   if [ "$fstype" != "nfs4" ]; then
                      # Fixme:  Offer a choice of private spooling in this case
                      # (with warning).

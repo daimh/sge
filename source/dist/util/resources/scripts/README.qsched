@@ -26,7 +26,7 @@ INSTALLATION
   If you are beginning from the default configuration, the you should see
   the specific output from the following command:
 
-  $ qconf -ssconf | egrep ^params
+  $ qconf -ssconf | grep ^params
   params                            MONITOR=1
 
   This will create a file called $SGE_ROOT/$SGE_CELL/common/schedule

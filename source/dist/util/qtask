@@ -44,7 +44,7 @@
 #    
 #cat -l file_srv=true -cwd
 #grep -l file_srv=true -cwd
-#egrep -l file_srv=true -cwd
+#grep -l file_srv=true -cwd
 #
 #
 #

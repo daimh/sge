@@ -295,7 +295,7 @@ CheckHostNameResolving()
             exit 1
          fi
       else
-         ignore_fqdn=`cat "$SGE_ROOT/$SGE_CELL/common/bootstrap" | grep "^ignore_fqdn" | awk '{print $2}'| egrep -i "true|1"`
+         ignore_fqdn=`cat "$SGE_ROOT/$SGE_CELL/common/bootstrap" | grep "^ignore_fqdn" | awk '{print $2}'| grep -i "true|1"`
 
          if [ "$ignore_fqdn" != "" ]; then
             ignore_fqdn=true
@@ -494,7 +494,7 @@ AddQueue()
 
    #exechost=`$SGE_UTILBIN/gethostname -aname | cut -f1 -d.`
 
-   ignore_fqdn=`cat "$SGE_ROOT/$SGE_CELL/common/bootstrap" | grep "^ignore_fqdn" | awk '{print $2}'| egrep -i "true|1"`
+   ignore_fqdn=`cat "$SGE_ROOT/$SGE_CELL/common/bootstrap" | grep "^ignore_fqdn" | awk '{print $2}'| grep -i "true|1"`
    if [ "$ignore_fqdn" != "" ]; then
       ignore_fqdn=true
    else

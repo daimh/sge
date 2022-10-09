@@ -1,22 +1,7 @@
-Port:=$(shell basename $$PWD |cut -d - -f 1)
+include ../common/include.mk
+$(eval $(CommonSgeImage))
 Rhel:=$(shell basename $$PWD |cut -d - -f 2)
-DaikerOpts:=-D $(shell [ -n "$$DISPLAY" ] && echo gtk || echo vnc) -c 8 -r 2 -T 22-$(Port)
-Ssh:=ssh -p $(Port) -i var/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=1
-var/$(Rhel)-sge-container : var/$(Rhel)-sge-image
-	fuser -k $@.qcow2 $(Port)/tcp && sleep 2 || :
-	rm -f $@.qcow2
-	var/daiker run $(DaikerOpts) -b $<.qcow2 $@.qcow2 &
-	for ((i=1; ; i++)); do ! $(Ssh) root@localhost id || break; sleep 2; echo "MSG-001: Retrying ssh $$i"; done
-	rsync -ave "$(Ssh)" --exclude tests --exclude .git ../../ root@localhost:sge
-	$(Ssh) root@localhost < lib/rhel9.sh 2>&1 | tee $@.log
-	touch $@
-	$(Ssh) root@localhost <<< poweroff || :
-var/$(Rhel)-sge-image : var/$(Rhel)-sge.iso var/daiker
-	fuser -k $@.qcow2 $(Port)/tcp && sleep 2 || :
-	rm -f $@.qcow2
-	var/daiker build $(DaikerOpts) -i $< -H 20 $@.qcow2
-	touch $@
-var/$(Rhel)-sge.iso : var/$(Rhel)-x86_64-minimal.iso var/id_ed25519
+var/sge.iso : var/$(Rhel)-x86_64-minimal.iso var/id_ed25519
 	[ ! -d $@.d ] || chmod -R u+wX $@.d && rm -rf $@.d
 	mkdir -p $@.d
 	bsdtar xfp $< -C$@.d
@@ -30,15 +15,3 @@ var/$(Rhel)-x86_64-minimal.iso :
 	mkdir -p $(@D)
 	wget -cO $@.tmp -c http://mirror.vtti.vt.edu/almalinux/9.0/isos/x86_64/AlmaLinux-9.0-x86_64-minimal.iso || wget -cO $@.tmp -c http://download.rockylinux.org/pub/rocky/9.0/isos/x86_64/Rocky-9.0-x86_64-minimal.iso
 	mv $@.tmp $@
-var/id_ed25519 :
-	mkdir -p $(@D)
-	ssh-keygen -t ed25519 -C SGE -f $@ -N ""
-var/daiker :
-	mkdir -p $(@D)
-	wget -cO $@.tmp https://raw.githubusercontent.com/daimh/daiker/master/daiker
-	chmod +x $@.tmp
-	mv $@.tmp $@
-
-clean :
-	chmod -R u+w var/$(Rhel)-sge* var/id_ed25519* var/daiker || :
-	rm -rf var/$(Rhel)-sge* var/id_ed25519* var/daiker || :

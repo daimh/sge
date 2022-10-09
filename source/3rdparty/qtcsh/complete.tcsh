@@ -908,18 +908,6 @@ n@public@'`[ -r /usr/man/manp ]&& \ls -1 /usr/man/manp | sed s%\\.p.\*\$%%`'@ \
 				v w x)"/ \
 			p/1/x:'<limited_regular_expression>'/ N/-*e/f/ \
 			n/-*e/x:'<limited_regular_expression>'/ n/-*f/f/ n/*/f/
-    complete egrep	c/-*A/x:'<#_lines_after>'/ c/-*B/x:'<#_lines_before>'/\
-			c/--/"(extended-regexp fixed-regexp basic-regexp \
-			regexp file ignore-case word-regexp line-regexp \
-			no-messages revert-match version help byte-offset \
-			line-number with-filename no-filename quiet silent \
-			text directories recursive files-without-match \
-			files-with-matches count before-context after-context \
-			context binary unix-byte-offsets)"/ \
-			c/-/"(A a B b C c d E e F f G H h i L l n q r s U u V \
-				v w x)"/ \
-			p/1/x:'<full_regular_expression>'/ N/-*e/f/ \
-			n/-*e/x:'<full_regular_expression>'/ n/-*f/f/ n/*/f/
     complete fgrep	c/-*A/x:'<#_lines_after>'/ c/-*B/x:'<#_lines_before>'/\
 			c/--/"(extended-regexp fixed-regexp basic-regexp \
 			regexp file ignore-case word-regexp line-regexp \

@@ -3779,8 +3779,8 @@ $as_echo "$ac_cv_path_GREP" >&6; }
  GREP="$ac_cv_path_GREP"
 
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for egrep" >&5
-$as_echo_n "checking for egrep... " >&6; }
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for grep" >&5
+$as_echo_n "checking for grep... " >&6; }
 if test "${ac_cv_path_EGREP+set}" = set; then :
   $as_echo_n "(cached) " >&6
 else
@@ -3795,7 +3795,7 @@ for as_dir in $PATH$PATH_SEPARATOR/usr/xpg4/bin
 do
   IFS=$as_save_IFS
   test -z "$as_dir" && as_dir=.
-    for ac_prog in egrep; do
+    for ac_prog in grep; do
     for ac_exec_ext in '' $ac_executable_extensions; do
       ac_path_EGREP="$as_dir/$ac_prog$ac_exec_ext"
       { test -f "$ac_path_EGREP" && $as_test_x "$ac_path_EGREP"; } || continue
@@ -3833,7 +3833,7 @@ esac
   done
 IFS=$as_save_IFS
   if test -z "$ac_cv_path_EGREP"; then
-    as_fn_error "no acceptable egrep could be found in $PATH$PATH_SEPARATOR/usr/xpg4/bin" "$LINENO" 5
+    as_fn_error "no acceptable grep could be found in $PATH$PATH_SEPARATOR/usr/xpg4/bin" "$LINENO" 5
   fi
 else
   ac_cv_path_EGREP=$EGREP

@@ -86,9 +86,9 @@ get_all_hosts()
    spooling=`grep spooling_method $SGE_ROOT/$SGE_CELL/common/bootstrap | awk '{ print $2 }'`
    if [ "$spooling" = "classic" ]; then
       qma_spool_dir=`grep qmaster_spool_dir $SGE_ROOT/$SGE_CELL/common/bootstrap | awk '{ print $2 }'`
-      hosts=`ls $qma_spool_dir/exec_hosts | egrep -v "template|global"`
+      hosts=`ls $qma_spool_dir/exec_hosts | grep -v "template|global"`
    else
-      hosts=`$SGE_ROOT/utilbin/$ARCH/spooledit list | grep "EXECHOST" | cut -d : -f 2 | egrep -v "template|global"`
+      hosts=`$SGE_ROOT/utilbin/$ARCH/spooledit list | grep "EXECHOST" | cut -d : -f 2 | grep -v "template|global"`
    fi
 }
 
