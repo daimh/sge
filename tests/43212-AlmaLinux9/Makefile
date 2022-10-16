@@ -13,5 +13,5 @@ var/sge.iso : var/$(Rhel)-x86_64-minimal.iso var/id_ed25519
 	mv $@.tmp $@
 var/$(Rhel)-x86_64-minimal.iso :
 	mkdir -p $(@D)
-	wget -cO $@.tmp -c http://mirror.vtti.vt.edu/almalinux/9.0/isos/x86_64/AlmaLinux-9.0-x86_64-minimal.iso || wget -cO $@.tmp -c http://download.rockylinux.org/pub/rocky/9.0/isos/x86_64/Rocky-9.0-x86_64-minimal.iso
+	wget -qcO $@.tmp -c http://mirror.vtti.vt.edu/almalinux/9.0/isos/x86_64/AlmaLinux-9.0-x86_64-minimal.iso || wget -qcO $@.tmp -c http://download.rockylinux.org/pub/rocky/9.0/isos/x86_64/Rocky-9.0-x86_64-minimal.iso
 	mv $@.tmp $@

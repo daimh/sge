@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-set -eux
-set -o pipefail
+set -Eeuo pipefail
 ls /dev/sda* | tac | while read SD; do wipefs --all $SD; done
 echo -e "g\nn\n1\n\n+1M\nt\n4\nn\n2\n\n\nw" | fdisk /dev/sda
 sleep 1

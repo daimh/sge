@@ -13,5 +13,5 @@ var/sge.iso : var/debian-11.5.0-amd64-DVD-1.iso var/id_ed25519
 	mv $@.tmp $@
 var/debian-11.5.0-amd64-DVD-1.iso :
 	mkdir -p $(@D)
-	wget -cO $@.tmp -c https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/$(@F)
+	wget -qcO $@.tmp -c https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/$(@F)
 	mv $@.tmp $@

@@ -59,7 +59,7 @@ target_link_libraries(sge_execd PRIVATE
 	uti
 	uti2
 )
-if (SYSTEMD AND SYSTEMD_VERSION VERSION_GREATER_EQUAL "222")
+if (SYSTEMD EQUAL "0" AND SYSTEMD_VERSION VERSION_GREATER_EQUAL "222")
 	target_link_libraries(sge_execd PRIVATE
 		systemd
 	)

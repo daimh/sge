@@ -13,5 +13,5 @@ var/sge.iso : var/Leap-15.4-DVD-x86_64.iso var/id_ed25519
 	mv $@.tmp $@
 var/Leap-15.4-DVD-x86_64.iso :
 	mkdir -p $(@D)
-	wget -cO $@.tmp -c https://mirror.math.princeton.edu/pub/opensuse-full/opensuse/distribution/leap/15.4/iso/openSUSE-Leap-15.4-DVD-x86_64-Media.iso
+	wget -qcO $@.tmp -c https://mirror.math.princeton.edu/pub/opensuse-full/opensuse/distribution/leap/15.4/iso/openSUSE-Leap-15.4-DVD-x86_64-Media.iso
 	mv $@.tmp $@

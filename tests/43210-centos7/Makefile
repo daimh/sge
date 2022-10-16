@@ -13,5 +13,5 @@ var/sge.iso : var/CentOS-7-x86_64-Minimal-2009.iso var/id_ed25519
 	mv $@.tmp $@
 var/CentOS-7-x86_64-Minimal-2009.iso :
 	mkdir -p $(@D)
-	wget -cO $@.tmp -c http://repo.miserver.it.umich.edu/centos/7/isos/x86_64/$(@F)
+	wget -qcO $@.tmp -c http://repo.miserver.it.umich.edu/centos/7/isos/x86_64/$(@F)
 	mv $@.tmp $@

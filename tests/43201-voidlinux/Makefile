@@ -27,9 +27,9 @@ var/sge.iso : var/void-live-latest-x86_64.iso var/id_ed25519
 	mv $@.tmp $@
 var/void-rootfs-latest-x86_64.tar.xz :
 	mkdir -p $(@D)
-	wget -cO $@.tmp https://alpha.de.repo.voidlinux.org/live/current/void-x86_64-ROOTFS-20210930.tar.xz
+	wget -qcO $@.tmp https://alpha.de.repo.voidlinux.org/live/current/void-x86_64-ROOTFS-20210930.tar.xz
 	mv $@.tmp $@
 var/void-live-latest-x86_64.iso :
 	mkdir -p $(@D)
-	wget -cO $@.tmp https://alpha.de.repo.voidlinux.org/live/current/void-live-x86_64-20210930.iso
+	wget -qcO $@.tmp https://alpha.de.repo.voidlinux.org/live/current/void-live-x86_64-20210930.iso
 	mv $@.tmp $@

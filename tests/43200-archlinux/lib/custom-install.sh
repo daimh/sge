@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-set -eux
-set -o pipefail
+set -Eeuo pipefail
 chown -R root:root /root
 chmod 700 /root
 chmod -R go-rwx /root/.ssh

@@ -16,5 +16,5 @@ var/sge.iso : var/ubuntu-20.04-live-server-amd64.iso var/id_ed25519
 	mv $@.tmp $@
 var/ubuntu-20.04-live-server-amd64.iso :
 	mkdir -p $(@D)
-	wget -cO $@.tmp -c https://mirrors.lug.mtu.edu/ubuntu-releases/20.04.5/ubuntu-20.04.5-live-server-amd64.iso
+	wget -qcO $@.tmp -c https://mirrors.lug.mtu.edu/ubuntu-releases/20.04.5/ubuntu-20.04.5-live-server-amd64.iso
 	mv $@.tmp $@

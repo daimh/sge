@@ -63,14 +63,14 @@ var/%-autoinstall.iso : var/archlinux-x86_64.iso var/id_ed25519 var/daiker
 
 var/archlinux-x86_64.iso :
 	mkdir -p $(@D)
-	wget -cO $@.tmp http://repo.miserver.it.umich.edu/archlinux/iso/latest/archlinux-x86_64.iso
+	wget -qcO $@.tmp http://repo.miserver.it.umich.edu/archlinux/iso/latest/archlinux-x86_64.iso
 	mv $@.tmp $@
 var/id_ed25519 :
 	mkdir -p $(@D)
 	ssh-keygen -C SGE -f $@ < /dev/null
 var/daiker :
 	mkdir -p $(@D)
-	wget -cO $@.tmp https://raw.githubusercontent.com/daimh/daiker/master/daiker
+	wget -qcO $@.tmp https://raw.githubusercontent.com/daimh/daiker/master/daiker
 	chmod +x $@.tmp
 	mv $@.tmp $@
 clean : reset

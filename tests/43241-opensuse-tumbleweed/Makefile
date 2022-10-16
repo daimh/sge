@@ -13,5 +13,5 @@ var/sge.iso : var/Tumbleweed-DVD-x86_64.iso var/id_ed25519
 	mv $@.tmp $@
 var/Tumbleweed-DVD-x86_64.iso :
 	mkdir -p $(@D)
-	wget -cO $@.tmp -c https://mirrors.acm.wpi.edu/opensuse/tumbleweed/iso/openSUSE-Tumbleweed-DVD-x86_64-Current.iso
+	wget -qcO $@.tmp -c https://mirrors.acm.wpi.edu/opensuse/tumbleweed/iso/openSUSE-Tumbleweed-DVD-x86_64-Current.iso
 	mv $@.tmp $@

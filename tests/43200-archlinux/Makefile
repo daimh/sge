@@ -28,5 +28,5 @@ var/sge.iso : var/archlinux-x86_64.iso var/id_ed25519
 	mv $@.tmp $@
 var/archlinux-x86_64.iso :
 	mkdir -p $(@D)
-	wget -cO $@.tmp http://repo.miserver.it.umich.edu/archlinux/iso/latest/$(@F)
+	wget -qcO $@.tmp http://repo.miserver.it.umich.edu/archlinux/iso/latest/$(@F)
 	mv $@.tmp $@
