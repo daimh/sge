@@ -1,8 +1,8 @@
-SHELL=/bin/bash -Eeuo pipefail
-Port:=$(shell basename $$PWD |cut -d - -f 1)
-Distro:=$(shell basename $$PWD |cut -d - -f 2-)
-DaikerOpts:=-D $(shell [[ -v DISPLAY ]] && echo gtk || echo vnc) -c 8 -r 2 -T 22-$(Port)
-Ssh:=ssh -Tp $(Port) -i var/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=1
+SHELL = /bin/bash -Eeuo pipefail
+Port != basename $$PWD |cut -d - -f 1
+Distro != basename $$PWD |cut -d - -f 2-
+DaikerOpts :=-D $(shell [[ -v DISPLAY ]] && echo gtk || echo vnc) -c 8 -r 2 -T 22-$(Port)
+Ssh = ssh -Tp $(Port) -i var/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=1
 var/test : var/sge-container
 	for T in ../common/*.sh; do $(Ssh) root@localhost < $$T || exit 1; done 2>&1 | tee $@.log
 	-$(Ssh) root@localhost <<< poweroff
@@ -38,6 +38,6 @@ var/daiker :
 	mv $@.tmp $@
 clean : crash
 	rm -f var/sge.iso
-	-chmod -R u+w var && find var/* ! -name *.iso ! -name void-rootfs-latest-x86_64.tar.xz -delete
+	-chmod -R u+w var && find var/* ! -name *.iso ! -name void-rootfs-x86_64*.tar.xz -delete
 crash :
 	-fuser -k var/*

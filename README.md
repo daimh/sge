@@ -20,6 +20,7 @@ Some Grid Engine is a fork of Son of Grid Engine at University of Liverpool, wit
 We have been using and maintaining this software at Michigan Neuroscience Institute, University of Michigan for over a decade. It is stable and good enough for a small HPC cluster. Here we share it on github, hoping more peoples can benefit from it.
 
 ### Improvements
+- Support [musl libc](https://musl.libc.org/), tested with [Void Linux musl](https://voidlinux.org/)
 - Support for submitting jobs via SystemD which also allows to enforce memory/cpu limitations via kernel cgroups. Many thanks to [fretn](https://github.com/fretn/sge) and [ondrejv2](https://github.com/ondrejv2/sge)!
 - CMake compiling support. This paved the way for easier maintenance in future. It took 38 seconds to compile in parallel and install on an 8-core old machine, while it took 302 seconds with the legacy SGE way, and 377 seconds with makepkg.
 - Fixed a permission error introduced since systemd 241 in 2019 during installation, if SGE is installed as non-root on production system
@@ -61,7 +62,7 @@ apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-de
 apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev cmake
 ```
 
-- **Void Linux**, 2022-10-16, x86\_64, Glibc
+- **Void Linux**, 2022-10-16, x86\_64, glibc/musl
 ```
 xbps-install cmake make gcc openssl-devel motif-devel hwloc libhwloc-devel libtirpc-devel ncurses-devel pam-devel
 ```

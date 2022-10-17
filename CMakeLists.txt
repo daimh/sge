@@ -17,6 +17,19 @@ add_compile_definitions(
 	__SGE_COMPILE_WITH_GETTEXT__
 	__SGE_NO_USERMAPPING__
 )
+execute_process(COMMAND realpath /sbin/init COMMAND grep -q systemd RESULT_VARIABLE SYSTEMD)
+if (SYSTEMD EQUAL "0") 
+	execute_process(COMMAND pkgconf --modversion systemd OUTPUT_VARIABLE SYSTEMD_VERSION)
+	if (SYSTEMD_VERSION VERSION_GREATER_EQUAL "250")
+		add_compile_definitions(HAVE_SYSTEMD=2)
+	elseif (SYSTEMD_VERSION VERSION_GREATER_EQUAL "222")
+		add_compile_definitions(HAVE_SYSTEMD=1)
+	endif()
+endif()
+execute_process(COMMAND ldd /bin/ls COMMAND grep -q musl RESULT_VARIABLE MUSL)
+if (MUSL EQUAL "0") 
+	add_compile_definitions(MUSL)
+endif()
 add_compile_options(
 	-fPIC
 	-O2
@@ -27,15 +40,6 @@ add_link_options(
 	-pthread
 	-rdynamic
 )
-execute_process(COMMAND realpath /sbin/init COMMAND grep -q systemd RESULT_VARIABLE SYSTEMD)
-if (SYSTEMD EQUAL "0") 
-	execute_process(COMMAND pkgconf --modversion systemd OUTPUT_VARIABLE SYSTEMD_VERSION)
-	if (SYSTEMD_VERSION VERSION_GREATER_EQUAL "250")
-		add_compile_definitions(HAVE_SYSTEMD=2)
-	elseif (SYSTEMD_VERSION VERSION_GREATER_EQUAL "222")
-		add_compile_definitions(HAVE_SYSTEMD=1)
-	endif()
-endif()
 add_subdirectory(source)
 install(
 	PROGRAMS
@@ -64,7 +68,6 @@ install(
 		qdel
 		qevent
 		qhost
-		qmake
 		qmod
 		qmon
 		qping
@@ -84,6 +87,9 @@ install(
 		sgepasswd
 	DESTINATION bin/lx-amd64
 )
+if (NOT MUSL EQUAL "0") 
+	install(TARGETS qmake DESTINATION bin/lx-amd64)
+endif()
 install(
 	TARGETS
 		adminrun

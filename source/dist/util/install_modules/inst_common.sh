@@ -378,9 +378,12 @@ CheckBinaries()
              sge_execd sge_qmaster  \
              sge_shadowd \
              sge_shepherd qacct qalter qconf qdel qhold \
-             qhost qlogin qmake qmod qmon qresub qrls qrsh qselect qsh \
+             qhost qlogin qmod qmon qresub qrls qrsh qselect qsh \
              qstat qsub qtcsh qping qquota sgepasswd"
-
+   if ! /bin/ldd /bin/ls | grep -q musl
+   then
+      BINFILES="$BINFILES qmake"
+   fi
    WINBINFILES="sge_coshepherd sge_execd sge_shepherd  \
                 qacct qalter qconf qdel qhold qhost qlogin \
                 qmake qmod qresub qrls qrsh qselect qsh \

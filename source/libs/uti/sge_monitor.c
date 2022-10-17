@@ -37,7 +37,7 @@
 
 #if HAVE_JEMALLOC
 #  include <jemalloc/jemalloc.h>
-#else
+#elif !defined(MUSL)
 #  if defined(LINUX) || defined(AIX43) || defined(AIX51) || defined(SOLARIS) || defined(HP11)
 #    include <malloc.h>           /* mallinfo */
 #  endif
@@ -459,7 +459,7 @@ u_long32 sge_monitor_status(char **info_message, u_long32 monitor_time)
 #if HAVE_JEMALLOC
    if (mconf_get_print_malloc_info())
       malloc_stats_print(&write_cb, &Info_Line, "ga");
-#else
+#elif !defined(MUSL)
 #if defined(LINUX) || defined(AIX43) || defined(AIX51) || defined(SOLARIS) || defined(HP11)
    if (mallinfo_func_pointer != NULL) {
       struct mallinfo mallinfo_data = mallinfo_func_pointer();

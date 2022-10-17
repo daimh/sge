@@ -1,4 +1,6 @@
-add_subdirectory(qmake)
+if (NOT MUSL EQUAL "0") 
+	add_subdirectory(qmake)
+endif()
 add_subdirectory(qmon/Xbae)
 add_subdirectory(qmon/Xmt310/Xmt)
 add_subdirectory(qmon/iconlist)

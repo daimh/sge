@@ -108,7 +108,7 @@ int main(int argc, char *argv[]) {
       }
       return 2;
    }
-
+#if !defined(MUSL)
    if((sock = rresvport(&res_port)) == -1) {
       if(!quiet) {
          fprintf(stderr, MSG_SUIDROOT_BIND_PRIV_SOCK_FAILED, argv[0]);
@@ -116,6 +116,7 @@ int main(int argc, char *argv[]) {
       }
       return 3;
    }
+#endif
 
    shutdown(sock, 0);
    close(sock);

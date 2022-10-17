@@ -8,7 +8,7 @@ mkfs -t xfs -f /dev/sda2
 mount /dev/sda2 /mnt
 xbps-install -Syu xbps
 xbps-install -Sy xz
-tar -xJf void-rootfs-latest-x86_64.tar.xz -C /mnt
+tar -xJf void-rootfs-x86_64.tar.xz -C /mnt
 echo "/dev/sda2 / xfs defaults 0 1" >> /mnt/etc/fstab
 cp /etc/resolv.conf /mnt/etc
 cp -pr /root/.ssh /mnt/root/

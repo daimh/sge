@@ -269,6 +269,7 @@ int cl_com_tcp_open_connection(cl_com_connection_t* connection, int timeout) {
             }
             break;
          }
+#if !defined(MUSL)
          case CL_TCP_RESERVED_PORT: {
             /* create reserved port socket */
             if ((private->sockfd = rresvport(&res_port)) < 0) {
@@ -279,6 +280,7 @@ int cl_com_tcp_open_connection(cl_com_connection_t* connection, int timeout) {
             }
             break;
          }
+#endif
       }
 
       if (private->sockfd < 3) {
