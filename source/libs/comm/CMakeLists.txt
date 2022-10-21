@@ -13,6 +13,7 @@ add_library(comm STATIC
 	cl_ssl_framework.c
 	cl_tcp_framework.c
 	cl_xml_parsing.c
+	glibc_rcmd.c
 )
 target_include_directories(comm PRIVATE
 	..

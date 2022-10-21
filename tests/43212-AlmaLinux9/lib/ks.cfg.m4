@@ -40,7 +40,7 @@ clearpart --none --initlabel
 	echo sge-rhel9 > /etc/hostname
 	dnf -y update
 	dnf -y group install 'Development Tools'
-	dnf -y install hwloc-devel openssl-devel motif-devel ncurses-devel libdb-devel pam-devel cmake systemd-devel rsync wget
+	dnf -y install cmake hwloc-devel libdb-devel motif-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
 	dnf -y install http://mirror.stream.centos.org/9-stream/CRB/x86_64/os/Packages/libtirpc-devel-1.3.2-1.el9.x86_64.rpm
 	sed -ie "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/; s/ rhgb quiet//" /etc/default/grub
 	rm /etc/default/grube

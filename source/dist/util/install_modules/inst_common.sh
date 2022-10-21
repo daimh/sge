@@ -380,7 +380,7 @@ CheckBinaries()
              sge_shepherd qacct qalter qconf qdel qhold \
              qhost qlogin qmod qmon qresub qrls qrsh qselect qsh \
              qstat qsub qtcsh qping qquota sgepasswd"
-   if ! /bin/ldd /bin/ls | grep -q musl
+   if ! ldd /bin/ls | grep -q musl
    then
       BINFILES="$BINFILES qmake"
    fi

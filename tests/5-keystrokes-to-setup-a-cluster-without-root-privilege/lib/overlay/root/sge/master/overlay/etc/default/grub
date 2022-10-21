@@ -37,8 +37,8 @@ GRUB_GFXPAYLOAD_LINUX=keep
 # Uncomment to disable generation of recovery mode menu entries
 GRUB_DISABLE_RECOVERY=true
 
-# Uncomment and set to the desired menu colors.  Used by normal and wallpaper
-# modes only.  Entries specified as foreground/background.
+# Uncomment and set to the desired menu colors. Used by normal and wallpaper
+# modes only. Entries specified as foreground/background.
 #GRUB_COLOR_NORMAL="light-blue/black"
 #GRUB_COLOR_HIGHLIGHT="light-cyan/blue"
 

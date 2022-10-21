@@ -2,7 +2,8 @@ SHELL = /bin/bash -Eeuo pipefail
 Port != basename $$PWD |cut -d - -f 1
 Distro != basename $$PWD |cut -d - -f 2-
 DaikerOpts :=-D $(shell [[ -v DISPLAY ]] && echo gtk || echo vnc) -c 8 -r 2 -T 22-$(Port)
-Ssh = ssh -Tp $(Port) -i var/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=1
+Ssh = ssh -Tp $(Port) -i var/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=1 -o BatchMode=yes
+Wait = function wt { touch $@.w && while ! $(SHELL) -c "$$*"; do echo -e "Waiting for '$@'. $$(( $$(date +%s) - $$(stat -c %Y $@.w) )) seconds." && sleep 4; done && rm -f $@.w; } && wt
 var/test : var/sge-container
 	for T in ../common/*.sh; do $(Ssh) root@localhost < $$T || exit 1; done 2>&1 | tee $@.log
 	-$(Ssh) root@localhost <<< poweroff
@@ -15,7 +16,7 @@ var/sge-container : var/sge-image
 ifeq ($(Distro),archlinux)
 	rsync -ae "$(Ssh)" var/overlay/var/cache/pacman/pkg/ root@localhost:/var/cache/pacman/pkg/
 endif
-	rsync -ave "$(Ssh)" --exclude tests --exclude .git ../../ root@localhost:sge
+	rsync -ave "$(Ssh)" --exclude tests ../../ root@localhost:sge
 	$(Ssh) root@localhost < lib/os-packages.sh 2>&1 | tee $@.log
 ifeq ($(Distro),archlinux)
 	rsync -ae "$(Ssh)" root@localhost:/var/cache/pacman/pkg/ var/overlay/var/cache/pacman/pkg/

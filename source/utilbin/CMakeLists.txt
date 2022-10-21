@@ -276,6 +276,7 @@ target_include_directories(testsuidroot PRIVATE
 	../libs/uti
 )
 target_link_libraries(testsuidroot PRIVATE
+	comm
 	commlists
 	uti
 )

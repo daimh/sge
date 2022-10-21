@@ -4,10 +4,10 @@ var/sge-image : var/sge.iso var/daiker var/void-rootfs-x86_64.tar.xz
 	fuser -k $@.qcow2 $(Port)/tcp && sleep 2 || :
 	rm -f $@.qcow2
 	var/daiker build $(DaikerOpts) -i $< -H 20 $@.qcow2 &
-	for ((i=1; ; i++)); do ! $(Ssh) root@localhost id || break; sleep 2; echo "MSG-001: Retrying ssh $$i"; done
+	$(Wait) $(Ssh) root@localhost id
 	scp -P $(Port) -i var/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=1 var/void-rootfs-x86_64.tar.xz root@localhost:
 	$(Ssh) root@localhost < lib/voidlinux-install.sh
-	while fuser $@.qcow2 $(Port)/tcp; do sleep 2; done
+	$(Wait) ! fuser $@.qcow2 $(Port)/tcp
 	touch $@
 var/sge.iso : var/void-live-x86_64$(Libc).iso var/id_ed25519
 	[ ! -d $@.d ] || chmod -R u+wX $@.d && rm -rf $@.d
@@ -28,9 +28,9 @@ var/sge.iso : var/void-live-x86_64$(Libc).iso var/id_ed25519
 	mv $@.tmp $@
 var/void-rootfs-x86_64.tar.xz :
 	mkdir -p $(@D)
-	wget -qcO $@.tmp https://repo-default.voidlinux.org/live/current/void-x86_64$(Libc)-ROOTFS-20210930.tar.xz
+	wget -qcO $@.tmp https://repo-default.voidlinux.org/live/current/void-x86_64$(Libc)-ROOTFS-20221001.tar.xz
 	mv $@.tmp $@
 var/void-live-x86_64$(Libc).iso :
 	mkdir -p $(@D)
-	wget -qcO $@.tmp https://repo-default.voidlinux.org/live/current/void-live-x86_64$(Libc)-20210930.iso
+	wget -qcO $@.tmp https://repo-default.voidlinux.org/live/current/void-live-x86_64$(Libc)-20221001-base.iso
 	mv $@.tmp $@

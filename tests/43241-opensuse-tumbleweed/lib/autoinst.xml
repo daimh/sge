@@ -32,7 +32,7 @@ set -ex
 systemctl stop sshd
 mkdir /root/.ssh
 chmod 700 /root/.ssh
-echo "AUTHORIZED_KEYS" > /root/.ssh/authorized_keys 
+echo "AUTHORIZED_KEYS" > /root/.ssh/authorized_keys
 echo sge-tumbleweed > /etc/hostname
 hostname sge-tumbleweed
 echo -e "10.0.2.15\tsge-tumbleweed" >> /etc/hosts

@@ -29,5 +29,5 @@ do
 	sleep 1
 done
 ls -l STDIN*$Job
-diff <(cat STDIN*$Job)  <(seq 9)
+diff <(cat STDIN*$Job) <(seq 9)
 '
