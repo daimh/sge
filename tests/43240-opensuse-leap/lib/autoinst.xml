@@ -48,6 +48,7 @@ systemctl enable sshd
 		<packages config:type="list">
 			<package>openssh</package>
 			<package>rsync</package>
+			<package>vim</package>
 		</packages>
 		<do_online_update config:type="boolean">true</do_online_update>
 	</software>

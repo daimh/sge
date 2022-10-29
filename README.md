@@ -36,56 +36,51 @@ We have been using and maintaining this software at Michigan Neuroscience Instit
 ## Requirements
 ### tested with all the Linux distributions below, patched up to the specified date
 
-- **Arch Linux**, 2022-10-21
+- **Arch Linux**, 2022-10-30
 ```
 pacman -Sy --needed git cmake make gcc openmotif hwloc vi inetutils pkgconf
 ```
 
-- **Debian Bullseye**, 2022-10-21
+- **Debian Bullseye**, 2022-10-30
 ```
 apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev cmake
 ```
 
-- **Debian Buster**, 2021-10-19, cmake 3.21.3 downloaded from cmake.org
-```
-apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev
-```
-
-- **Ubuntu Server 22.04**, 2022-10-21
+- **Ubuntu Server 22.04**, 2022-10-30
 ```
 apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev cmake
 ```
 
-- **Ubuntu Server 20.04**, 2022-10-21
+- **Ubuntu Server 20.04**, 2022-10-30
 ```
 apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev cmake
 ```
 
-- **Void Linux**, 2022-10-21, x86\_64, glibc/musl
+- **Void Linux**, 2022-10-30, x86\_64, glibc/musl
 ```
 xbps-install -y cmake gcc git hwloc libhwloc-devel libtirpc-devel make motif-devel ncurses-devel openssl-devel pam-devel
 ```
 
-- **Alpine Linux**, 2022-10-21, x86\_64, Edge
+- **Alpine Linux**, 2022-10-30, x86\_64, Edge
 ```
 apk add musl-libintl 
 apk add cmake db-dev g++ gcc git hwloc-dev libtirpc-dev libxt-dev linux-pam-dev make motif-dev ncurses-dev openssl-dev procps || echo 'Due to the conflict about usr/include/libintl.h owned by both gettext-dev and musl-libintl, musl-libintl must be installed at first'
 ```
 
-- **AlmaLinux 9.0** and **Rocky 9.0**, 2022-10-21, with SELinux set to permissive
+- **AlmaLinux 9.0** and **Rocky 9.0**, 2022-10-30, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
 dnf install git hwloc-devel openssl-devel motif-devel ncurses-devel libdb-devel pam-devel cmake systemd-devel pkgconf
 dnf install http://mirror.stream.centos.org/9-stream/CRB/x86_64/os/Packages/libtirpc-devel-1.3.2-1.el9.x86_64.rpm
 ```
 
-- **AlmaLinux 8.6** and **Rocky 8.6**, 2022-10-21, with SELinux set to permissive
+- **AlmaLinux 8.6** and **Rocky 8.6**, 2022-10-30, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
 dnf --enablerepo=powertools install git hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel cmake systemd-devel pkgconf
 ```
 
-- **CentOS 7.9.2009**, 2022-10-21, with SELinux set to permissive
+- **CentOS 7.9.2009**, 2022-10-30, with SELinux set to permissive
 ```
 yum groupinstall 'Development Tools'
 yum install git hwloc-devel openssl-devel libtirpc-devel motif-devel ncurses-devel libdb-devel pam-devel systemd-devel wget
@@ -94,9 +89,9 @@ tar xvfz cmake-3.23.0-linux-x86_64.tar.gz
 export PATH=$(realpath cmake-3.23.0-linux-x86_64)/bin:$PATH
 ```
 
-- **openSUSE Leap**, 2022-10-21
+- **openSUSE Leap**, 2022-10-30
 ```
-zypper -n addrepo http://download.opensuse.org/distribution/leap/15.4/repo/oss/ oss
+zypper -n addrepo http://download.opensuse.org/distribution/leap/15.5/repo/oss/ oss
 zypper -n install cmake gcc gcc-c++ git hwloc-devel libdb-4_8-devel libtirpc-devel libXext-devel motif-devel ncurses-devel openssl-devel pam-devel pkgconf rsync systemd-devel wget
 ```
 
@@ -104,6 +99,13 @@ zypper -n install cmake gcc gcc-c++ git hwloc-devel libdb-4_8-devel libtirpc-dev
 ```
 zypper -n addrepo http://download.opensuse.org/tumbleweed/repo/oss/ oss
 zypper -n install cmake gcc gcc-c++ git hwloc-devel libdb-4_8-devel libtirpc-devel libXext-devel motif-devel ncurses-devel openssl-devel pam-devel pkgconf rsync systemd-devel wget
+```
+
+### Last test date for EOL Linux distributions
+
+- **Debian Buster**, 2021-10-19, cmake 3.21.3 downloaded from cmake.org
+```
+apt install git build-essential libhwloc-dev libssl-dev libtirpc-dev libmotif-dev libxext-dev libncurses-dev libdb5.3-dev libpam0g-dev pkgconf libsystemd-dev
 ```
 
 ## Three different installation methods

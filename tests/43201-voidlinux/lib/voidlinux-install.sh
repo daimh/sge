@@ -32,9 +32,7 @@ xbps-reconfigure -fa
 sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/" /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 usermod -s /bin/bash root
-mv /etc/sv/dhcpcd-eth0 /etc/sv/dhcpcd-ens3
-sed -i 's/eth0/ens3/' /etc/sv/dhcpcd-ens3/run
-ln -s /etc/sv/dhcpcd-ens3 /etc/runit/runsvdir/default/
+ln -s /etc/sv/dhcpcd-eth0 /etc/runit/runsvdir/default/
 ln -s /etc/sv/sshd /etc/runit/runsvdir/default/
 _EOF
 poweroff

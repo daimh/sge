@@ -1,4 +1,4 @@
-include ../common/include.mk
+include ../include/include.mk
 $(eval $(CommonSgeImage))
 var/sge.iso : var/archlinux-x86_64.iso var/id_ed25519
 	[ ! -d $@.d ] || chmod -R u+wX $@.d && rm -rf $@.d

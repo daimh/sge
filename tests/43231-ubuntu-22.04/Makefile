@@ -1,4 +1,4 @@
-include ../common/include.mk
+include ../include/include.mk
 $(eval $(CommonSgeImage))
 var/sge.iso : var/ubuntu-22.04-live-server-amd64.iso var/id_ed25519
 	[ ! -d $@.d ] || chmod -R u+wX $@.d && rm -rf $@.d
@@ -15,5 +15,5 @@ var/sge.iso : var/ubuntu-22.04-live-server-amd64.iso var/id_ed25519
 	mv $@.tmp $@
 var/ubuntu-22.04-live-server-amd64.iso :
 	mkdir -p $(@D)
-	wget -qcO $@.tmp -c https://mirror.umd.edu/ubuntu-iso/22.04.1/ubuntu-22.04.1-live-server-amd64.iso
+	wget -qcO $@.tmp -c https://mirror.umd.edu/ubuntu-iso/22.04/ubuntu-22.04.1-live-server-amd64.iso
 	mv $@.tmp $@

@@ -1,9 +1,9 @@
-include ../common/include.mk
+include ../include/include.mk
 Libc != basename $$PWD | awk -F voidlinux '{ print $$2}'
 var/sge-image : var/sge.iso var/daiker var/void-rootfs-x86_64.tar.xz
 	fuser -k $@.qcow2 $(Port)/tcp && sleep 2 || :
 	rm -f $@.qcow2
-	var/daiker build $(DaikerOpts) -i $< -H 20 $@.qcow2 &
+	var/daiker build $(DaikerOpts) -i $< -H 20 $$PWD/$@.qcow2 &
 	$(Wait) $(Ssh) root@localhost id
 	scp -P $(Port) -i var/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=1 var/void-rootfs-x86_64.tar.xz root@localhost:
 	$(Ssh) root@localhost < lib/voidlinux-install.sh

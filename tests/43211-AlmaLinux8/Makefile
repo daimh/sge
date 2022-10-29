@@ -1,4 +1,4 @@
-include ../common/include.mk
+include ../include/include.mk
 $(eval $(CommonSgeImage))
 Rhel:=$(shell basename $$PWD |cut -d - -f 2)
 var/sge.iso : var/$(Rhel)-x86_64-minimal.iso var/id_ed25519
@@ -14,5 +14,5 @@ var/sge.iso : var/$(Rhel)-x86_64-minimal.iso var/id_ed25519
 	mv $@.tmp $@
 var/$(Rhel)-x86_64-minimal.iso :
 	mkdir -p $(@D)
-	wget -qcO $@.tmp -c https://download.rockylinux.org/pub/rocky/8/isos/x86_64/Rocky-8.6-x86_64-minimal.iso || wget -qcO $@.tmp -c http://mirror.vtti.vt.edu/almalinux/8.6/isos/x86_64/AlmaLinux-8.6-x86_64-minimal.iso
+	wget -qcO $@.tmp -c https://download.rockylinux.org/pub/rocky/8/isos/x86_64/Rocky-8.6-x86_64-minimal.iso || wget -qcO $@.tmp -c http://mirror.vtti.vt.edu/almalinux/8/isos/x86_64/AlmaLinux-8.6-x86_64-minimal.iso
 	mv $@.tmp $@

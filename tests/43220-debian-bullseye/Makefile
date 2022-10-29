@@ -1,4 +1,4 @@
-include ../common/include.mk
+include ../include/include.mk
 $(eval $(CommonSgeImage))
 var/sge.iso : var/debian-11.5.0-amd64-DVD-1.iso var/id_ed25519
 	[ ! -d $@.d ] || chmod -R u+wX $@.d && rm -rf $@.d
