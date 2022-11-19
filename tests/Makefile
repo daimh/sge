@@ -11,6 +11,5 @@ endef
 $(foreach D,$(Distros),$(eval $(call TmplDistro,$D)))
 /tmp/sge-cron : clean
 	date -Isecond > $@.log
-	git pull &>> $@.log
 	git clean -xdf &>> $@.log
 	timeout 9h make -kj 5 test &>> $@.log; echo $$? | tee -a $@.log

@@ -17,6 +17,6 @@ var/$(Rhel)-x86_64-minimal.iso :
 ifeq ($(Rhel),AlmaLinux8)
 	wget -qcO $@.tmp -c http://mirror.vtti.vt.edu/almalinux/8/isos/x86_64/AlmaLinux-8.7-x86_64-minimal.iso
 else
-	wget -qcO $@.tmp -c https://download.rockylinux.org/pub/rocky/8/isos/x86_64/Rocky-8.6-x86_64-minimal.iso
+	wget -qcO $@.tmp -c https://download.rockylinux.org/pub/rocky/8/isos/x86_64/Rocky-8.7-x86_64-minimal.iso
 endif
 	mv $@.tmp $@
