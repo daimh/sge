@@ -5,9 +5,9 @@ After=network-online.target remote-fs.target autofs.service
 [Service]
 Type=forking
 # Modify if the cell isn't "default"
-#PIDFile=/opt/sge/default/spool/qmaster/qmaster.pid
-ExecStart=/opt/sge/default/common/sgemaster
-ExecStop=/opt/sge/default/common/sgemaster stop
+#PIDFile=SGE_ROOT/default/spool/qmaster/qmaster.pid
+ExecStart=SGE_ROOT/default/common/sgemaster
+ExecStop=SGE_ROOT/default/common/sgemaster stop
 #Restart=on-failure
 #RestartSec=30s
 

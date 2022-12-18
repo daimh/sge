@@ -6,7 +6,7 @@ After=network-online.target network-fs.target
 Type=forking
 EnvironmentFile=-/etc/sysconfig/sgemaster
 # insist on setting ARCH in sysconfig instead of using shell?
-ExecStart=/bin/sh -c /opt/sge/bin/$($SGE_ROOT/util/arch)/sge_shadowd
+ExecStart=/bin/sh -c SGE_ROOT/bin/$($SGE_ROOT/util/arch)/sge_shadowd
 
 [Install]
 WantedBy=multi-user.target

@@ -1226,7 +1226,7 @@ StartQmaster()
             sv status sgemaster && break
          done
       else
-         /opt/sge/default/common/sgemaster
+		$SGE_ROOT/default/common/sgemaster
       fi
       if [ $? -ne 0 ]; then
          $INFOTEXT "sgeqmaster start problem"

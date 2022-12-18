@@ -1,3 +1,0 @@
-#!/usr/bin/sh
-/opt/sge/default/common/sgeexecd
-exec pause

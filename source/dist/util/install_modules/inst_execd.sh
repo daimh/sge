@@ -469,7 +469,7 @@ StartExecd()
             sv status sgeexecd && break
          done
       else
-         /opt/sge/default/common/sgeexecd
+         $SGE_ROOT/default/common/sgeexecd
       fi
       if [ $? -ne 0 ]; then
          $INFOTEXT "sgeexecd start problem"

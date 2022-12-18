@@ -4,8 +4,8 @@ After=network-online.target remote-fs.target
 
 [Service]
 Type=forking
-ExecStart=/opt/sge/default/common/sgeexecd
-ExecStop=/opt/sge/default/common/sgeexecd stop
+ExecStart=SGE_ROOT/default/common/sgeexecd
+ExecStop=SGE_ROOT/default/common/sgeexecd stop
 #Restart=on-failure
 #RestartSec=30s
 
