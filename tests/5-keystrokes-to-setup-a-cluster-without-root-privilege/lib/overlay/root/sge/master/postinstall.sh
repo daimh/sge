@@ -45,8 +45,7 @@ useradd -u 900 -g sge -rd /opt/sge sge
 su - sge bash -c "cd github-sge && cmake --install build && rm -rf github-sge"
 cd /opt/sge
 yes "" | ./install_execd
-systemctl disable sgeexecd systemd-resolved
-rm -rf /etc/systemd/system/getty\@tty1.service.d
+sed -i "s/ resolve//" /etc/nsswitch.conf
 history -c
 _EOF
 rsync -a /root/sge/execd/squashfs-root/var/cache/pacman/pkg/ /var/cache/pacman/pkg
