@@ -41,8 +41,7 @@ then
 	pacman -S --noconfirm amd-ucode
 fi
 pacman -S --noconfirm grub openssh rsync
-sed -ie "s/GRUB_TIMEOUT=.*/GRUB_TIMEOUT=0/" /etc/default/grub
-rm /etc/default/grube
+sed -i "s/GRUB_TIMEOUT=.*/GRUB_TIMEOUT=0/" /etc/default/grub
 systemctl enable sshd systemd-networkd
 echo -e "[Match]\nName=ens3\n[Network]\nDHCP=yes" > /etc/systemd/network/ens3.network
 grub-install /dev/sda

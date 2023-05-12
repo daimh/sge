@@ -32,17 +32,15 @@ clearpart --none --initlabel
 %post --interpreter=/bin/bash --logfile=/root/ks-post.log
 (
 	set -eux
-	sed -ie "s/SELINUX=enforcing/SELINUX=permissive/" /etc/selinux/config
-	rm /etc/selinux/confige
-	mkdir /root/.ssh
+	sed -i "s/SELINUX=enforcing/SELINUX=permissive/" /etc/selinux/config
+	mkdir -p /root/.ssh
 	chmod 700 /root/.ssh
 	echo "m4SshPubKey" > /root/.ssh/authorized_keys
 	echo sge-rhel9 > /etc/hostname
 	dnf -y update
 	dnf -y group install 'Development Tools'
 	dnf -y install cmake hwloc-devel libdb-devel motif-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
-	sed -ie "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/; s/ rhgb quiet//" /etc/default/grub
-	rm /etc/default/grube
+	sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/; s/ rhgb quiet//" /etc/default/grub
 	grub2-mkconfig --output=/boot/grub2/grub.cfg
 ) 2>&1
 %end

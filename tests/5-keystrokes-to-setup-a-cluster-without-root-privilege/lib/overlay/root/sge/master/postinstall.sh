@@ -33,7 +33,7 @@ chown -R sge:sge squashfs-root/opt/sge
 arch-chroot squashfs-root << _EOF
 set -ex
 echo -e "root:$RootPassword" | chpasswd
-sed -ie "s/^CheckSpace/#CheckSpace/" /etc/pacman.conf
+sed -i "s/^CheckSpace/#CheckSpace/" /etc/pacman.conf
 pacman-key --init
 pacman-key --populate archlinux
 pacman -Sy --noconfirm --needed archlinux-keyring

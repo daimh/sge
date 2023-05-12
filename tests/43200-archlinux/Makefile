@@ -16,8 +16,7 @@ var/sge.iso : var/archlinux-x86_64.iso var/id_ed25519
 	cat var/id_ed25519.pub > $@.d/arch/x86_64/squashfs-root/root/.ssh/authorized_keys
 	cp lib/custom-install.service $@.d/arch/x86_64/squashfs-root/etc/systemd/system/
 	cd $@.d/arch/x86_64/squashfs-root/etc/systemd/system/multi-user.target.wants && ln -s ../custom-install.service .
-	sed -ie "s#/usr/bin/zsh#/bin/bash#" $@.d/arch/x86_64/squashfs-root/etc/passwd
-	rm $@.d/arch/x86_64/squashfs-root/etc/passwde
+	sed -i "s#/usr/bin/zsh#/bin/bash#" $@.d/arch/x86_64/squashfs-root/etc/passwd
 	mkdir -p var/overlay/var/cache/pacman/pkg
 	rsync -a var/overlay/ $@.d/arch/x86_64/squashfs-root/
 	cd $@.d/arch/x86_64 && rm airootfs.sfs && mksquashfs squashfs-root airootfs.sfs

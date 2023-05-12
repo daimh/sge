@@ -19,8 +19,7 @@ var/sge.iso : var/void-live-x86_64$(Libc).iso var/id_ed25519
 	sudo mkdir $@.m/root/.ssh
 	cat var/id_ed25519.pub | sudo tee $@.m/root/.ssh/authorized_keys
 	sudo chmod -R go-rwx $@.m/root/.ssh
-	sudo sed -ie "s#/root:/bin/sh#/root:/bin/bash#" $@.m/etc/passwd
-	sudo rm $@.m/etc/passwde
+	sudo sed -i "s#/root:/bin/sh#/root:/bin/bash#" $@.m/etc/passwd
 	sudo umount $@.m
 	cd $@.d/LiveOS && rm squashfs.img && mksquashfs squashfs-root squashfs.img
 	rm -r $@.d/LiveOS/squashfs-root

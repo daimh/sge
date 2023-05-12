@@ -5,8 +5,7 @@ var/sge.iso : var/ubuntu-22.04-live-server-amd64.iso var/id_ed25519
 	mkdir -p $@.d
 	bsdtar xfp $< -C$@.d
 	chmod -R u+wX $@.d
-	sed -ie "s/timeout=30/timeout=1/; s# ---#autoinstall ds='nocloud-net;s=/cdrom/autoinstall/'#" $@.d/boot/grub/grub.cfg
-	rm $@.d/boot/grub/grub.cfge
+	sed -i "s/timeout=30/timeout=1/; s# ---#autoinstall ds='nocloud-net;s=/cdrom/autoinstall/'#" $@.d/boot/grub/grub.cfg
 	mkdir $@.d/autoinstall
 	sed -e "s#<ED25519PUB>#$$(cat var/id_ed25519.pub )#; s#<RootPassword>#$$(echo SomeGridEngine | openssl passwd -6 -stdin)#" lib/user-data > $@.d/autoinstall/user-data
 	touch $@.d/autoinstall/vendor-data $@.d/autoinstall/meta-data

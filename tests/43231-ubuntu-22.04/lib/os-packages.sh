@@ -2,4 +2,4 @@
 set -Eeuo pipefail
 apt update --yes
 apt upgrade --yes
-sed -ie "/^127.0.1.1/d" /etc/hosts
+sed -i "/^127.0.1.1/d" /etc/hosts
