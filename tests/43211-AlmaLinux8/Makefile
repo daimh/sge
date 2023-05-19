@@ -14,8 +14,8 @@ var/sge.iso : var/$(Rhel)-x86_64-minimal.iso var/id_ed25519
 var/$(Rhel)-x86_64-minimal.iso :
 	mkdir -p $(@D)
 ifeq ($(Rhel),AlmaLinux8)
-	wget -qcO $@.tmp -c http://mirror.vtti.vt.edu/almalinux/8/isos/x86_64/AlmaLinux-8.7-x86_64-minimal.iso
+	wget -qcO $@.tmp -c http://mirror.vtti.vt.edu/almalinux/8/isos/x86_64/AlmaLinux-8.8-x86_64-minimal.iso
 else
-	wget -qcO $@.tmp -c https://download.rockylinux.org/pub/rocky/8/isos/x86_64/Rocky-8.7-x86_64-minimal.iso
+	wget -qcO $@.tmp -c https://download.rockylinux.org/pub/rocky/8/isos/x86_64/Rocky-8.8-x86_64-minimal.iso
 endif
 	mv $@.tmp $@
