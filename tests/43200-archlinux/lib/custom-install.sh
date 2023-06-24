@@ -8,7 +8,7 @@ ls /dev/sda* | tac | while read SD; do wipefs --all $SD; done
 echo -e "g\nn\n1\n\n+1M\nt\n4\nn\n2\n\n\nw" | fdisk /dev/sda
 sleep 1
 [ "$(lsblk | grep sda | wc -l)" = "3" ]
-mkfs -t xfs -f /dev/sda2
+mkfs -t ext4 /dev/sda2
 mount /dev/sda2 /mnt
 while ! systemctl status pacman-init | grep exited
 do
