@@ -27,9 +27,9 @@ var/sge.iso : var/void-live-x86_64$(Libc).iso var/id_ed25519
 	mv $@.tmp $@
 var/void-rootfs-x86_64.tar.xz :
 	mkdir -p $(@D)
-	wget -qcO $@.tmp https://repo-default.voidlinux.org/live/current/void-x86_64$(Libc)-ROOTFS-20221001.tar.xz
+	wget -qcO $@.tmp https://repo-default.voidlinux.org/live/current/void-x86_64$(Libc)-ROOTFS-20230628.tar.xz
 	mv $@.tmp $@
 var/void-live-x86_64$(Libc).iso :
 	mkdir -p $(@D)
-	wget -qcO $@.tmp https://repo-default.voidlinux.org/live/current/void-live-x86_64$(Libc)-20221001-base.iso
+	wget -qcO $@.tmp https://repo-default.voidlinux.org/live/current/void-live-x86_64$(Libc)-20230628-base.iso
 	mv $@.tmp $@
