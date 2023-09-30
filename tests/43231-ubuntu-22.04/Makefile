@@ -1,6 +1,7 @@
 include ../include/include.mk
+include iso.mk
 $(eval $(CommonSgeImage))
-var/sge.iso : var/ubuntu-22.04-live-server-amd64.iso var/id_ed25519
+var/sge.iso : var/$(Iso) var/id_ed25519
 	[ ! -d $@.d ] || chmod -R u+wX $@.d && rm -rf $@.d
 	mkdir -p $@.d
 	bsdtar xfp $< -C$@.d
@@ -12,7 +13,7 @@ var/sge.iso : var/ubuntu-22.04-live-server-amd64.iso var/id_ed25519
 	genisoimage -quiet -l -r -J -V "$$(isoinfo -d -i $< | grep 'Volume id: ' |cut -c 12-)" -no-emul-boot -boot-load-size 4 -boot-info-table -b boot/grub/i386-pc/eltorito.img -c boot.catalog -o $@.tmp -joliet-long $@.d
 	rm -rf $@.d
 	mv $@.tmp $@
-var/ubuntu-22.04-live-server-amd64.iso :
+var/$(Iso) :
 	mkdir -p $(@D)
-	wget -qcO $@.tmp -c https://mirror.cs.jmu.edu/pub/ubuntu-iso/23.04/ubuntu-23.04-live-server-amd64.iso
+	wget -qcO $@.tmp -c https://mirror.cs.jmu.edu/pub/ubuntu-iso/$(Iso)
 	mv $@.tmp $@

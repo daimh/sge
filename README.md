@@ -36,33 +36,28 @@ We have been using, maintaining this famous software at Michigan Neuroscience In
 ## Requirements
 ### tested with all the Linux distributions below, patched up to the specified date
 
-- **Arch Linux**, 2023-09-23
+- **Arch Linux**, 2023-09-30
 ```
 pacman -Sy --needed cmake db gcc git hwloc inetutils m4 make man openmotif pkgconf vi
 ```
 
-- **Debian Bookworm/Bullseye**, 2023-09-23
+- **Debian Bookworm/Bullseye**, 2023-09-30
 ```
 apt install build-essential cmake git libdb5.3-dev libhwloc-dev libmotif-dev libncurses-dev libpam0g-dev libssl-dev libsystemd-dev libtirpc-dev libxext-dev pkgconf rsync
 ```
 
-- **Ubuntu Server 22.04**, 2023-09-23
+- **Ubuntu Server 23.04, 22.04, 20.04**, 2023-09-30
 ```
 apt-get install build-essential cmake git libdb5.3-dev libhwloc-dev libmotif-dev libncurses-dev libpam0g-dev libssl-dev libsystemd-dev libtirpc-dev libxext-dev pkgconf
 
 ```
 
-- **Ubuntu Server 20.04**, 2023-09-23
-```
-apt-get install build-essential cmake git libdb5.3-dev libhwloc-dev libmotif-dev libncurses-dev libpam0g-dev libssl-dev libsystemd-dev libtirpc-dev libxext-dev pkgconf
-```
-
-- **Void Linux**, 2023-09-23, x86\_64, glibc/musl
+- **Void Linux**, 2023-09-30, x86\_64, glibc/musl
 ```
 xbps-install cmake gcc git hwloc libhwloc-devel libtirpc-devel m4 make motif-devel ncurses-devel openssl-devel pam-devel
 ```
 
-- **Alpine Linux**, 2023-09-23, x86\_64, Edge
+- **Alpine Linux**, 2023-09-30, x86\_64, Edge
 ```
 apk add cmake db-dev g++ gcc git hwloc-dev libtirpc-dev libxt-dev linux-pam-dev m4 make motif-dev ncurses-dev openssl-dev procps
 #Due to the conflict with usr/include/libintl.h owned by both gettext-dev and musl-libintl
@@ -70,27 +65,20 @@ apk fetch musl-libintl
 tar -C / -xf musl-libintl*.apk usr/include/libintl.h
 ```
 
-- **AlmaLinux 9.2**, 2023-09-23, with SELinux set to permissive
+- **AlmaLinux 9.2**, 2023-09-30, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
 dnf install cmake hwloc-devel libdb-devel motif-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
 dnf install https://repo.almalinux.org/almalinux/9/CRB/x86_64/os/Packages/libtirpc-devel-1.3.3-1.el9.x86_64.rpm
 ```
 
-- **Rocky 9.1**, 2023-09-23, with SELinux set to permissive
-```
-dnf group install "Development Tools"
-dnf install cmake hwloc-devel libdb-devel motif-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
-dnf install https://dl.rockylinux.org/pub/rocky/9/CRB/x86_64/os/Packages/l/libtirpc-devel-1.3.3-0.el9.x86_64.rpm
-```
-
-- **AlmaLinux 8.8** and **Rocky 8.8**, 2023-09-23, with SELinux set to permissive
+- **AlmaLinux 8.8** and **Rocky 8.8**, 2023-09-30, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
 dnf --enablerepo=powertools install cmake hwloc-devel libdb-devel libtirpc-devel motif-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
 ```
 
-- **CentOS 7.9.2009**, 2023-09-23, with SELinux set to permissive
+- **CentOS 7.9.2009**, 2023-09-30, with SELinux set to permissive
 ```
 yum groupinstall 'Development Tools'
 yum install hwloc-devel libdb-devel libtirpc-devel motif-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
@@ -99,7 +87,7 @@ tar xvfz cmake-3.23.0-linux-x86_64.tar.gz
 export PATH=$(realpath cmake-3.23.0-linux-x86_64)/bin:$PATH
 ```
 
-- **openSUSE Leap**, 2023-09-23
+- **openSUSE Leap**, 2023-09-30
 ```
 zypper -n addrepo http://download.opensuse.org/distribution/leap/15.5/repo/oss/ oss
 zypper -n install cmake gcc gcc-c++ git hwloc-devel libdb-4_8-devel libtirpc-devel libXext-devel motif-devel ncurses-devel openssl-devel pam-devel pkgconf rsync systemd-devel wget
@@ -112,6 +100,13 @@ zypper -n install cmake gcc gcc-c++ git hwloc-devel libdb-4_8-devel libtirpc-dev
 ```
 
 ### Last test date for EOL Linux distributions
+
+- **Rocky 9.1**, 2023-05-06, with SELinux set to permissive
+```
+dnf group install "Development Tools"
+dnf install cmake hwloc-devel libdb-devel motif-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
+dnf install https://dl.rockylinux.org/pub/rocky/9/CRB/x86_64/os/Packages/l/libtirpc-devel-1.3.3-0.el9.x86_64.rpm
+```
 
 - **Debian Buster**, 2021-10-19, cmake 3.21.3 downloaded from cmake.org
 ```
@@ -231,24 +226,19 @@ Contributions are always welcome!
 
 ## License
 
-Written by [Manhong Dai](mailto:daimh@umich.edu)
-Copyright © 2002 University of Michigan.
-License [SISSL](https://opensource.org/licenses/sisslpl)
-
-This is free software: you are free to change and redistribute it.
-
-There is NO WARRANTY, to the extent permitted by law.
+Written by [Manhong Dai](mailto:daimh@umich.edu)<br>
+Copyright © 2002 University of Michigan.<br>
+License [SISSL](https://opensource.org/licenses/sisslpl)<br>
+This is free software: you are free to change and redistribute it.<br>
+There is NO WARRANTY, to the extent permitted by law.<br>
 
 ## Acknowledgments
 
-Fan Meng, Ph.D., Research Associate Professor, Psychiatry, UMICH
-
-Ruth Freedman, MPH, former administrator of MNI, UMICH
-
-Thomas Wilson, M.D., Ph.D. Professor of Pathology, UMICH
-
-Huda Akil, Ph.D., Director of MNI, UMICH
-
-Stanley J. Watson, M.D., Ph.D., Director of MNI, UMICH
-
-Also thanks to https://arc.liv.ac.uk/trac/SGE, Sun, and Oracle
+https://arc.liv.ac.uk/trac/SGE, Sun, and Oracle<br>
+[fretn](https://github.com/fretn/sge)<br>
+[ondrejv2](https://github.com/ondrejv2/sge)<br>
+Ruth Freedman, MPH, former administrator of MNI, UMICH<br>
+Thomas Wilson, M.D., Ph.D. Professor of Pathology, UMICH<br>
+Huda Akil, Ph.D., Director of MNI, UMICH<br>
+Stanley J. Watson, M.D., Ph.D., Director of MNI, UMICH<br>
+Fan Meng, Ph.D., Research Associate Professor, Psychiatry, UMICH<br>
