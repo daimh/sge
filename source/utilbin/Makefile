@@ -283,8 +283,8 @@ sge_share_mon.o: $(UTILBIN_DIR)/sge_share_mon.c
 		$(CC) $(CFLAGS) -c $(UTILBIN_DIR)/sge_share_mon.c
 
 #---------------------------------------------------------------------
-valid_jvmlib: valid_jvmlib.o
-		$(CC) $(CFLAGS) -o $@ $(LFLAGS) valid_jvmlib.o $(DLLIB)
+valid_jvmlib: valid_jvmlib.o $(UTILIB)
+		$(CC) $(CFLAGS) -o $@ $(LFLAGS) valid_jvmlib.o $(UTILIB) $(DLLIB)
 
 valid_jvmlib.o:		$(UTILBIN_DIR)/valid_jvmlib.c
 		$(CC) $(CFLAGS) -c $(UTILBIN_DIR)/valid_jvmlib.c
