@@ -3,7 +3,7 @@ pkgname=sge
 pkgver=SKIP
 pkgver() {
 	cd ..
-	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git describe  --always --dirty=.dirty)"
+	printf "r%s.%s" "$(git rev-list --count HEAD)" "$(git describe  --always --dirty=.dirty | sed 's/-/./g')"
 }
 pkgrel=1
 pkgdesc="Son of Grid Engine/Sun Grid Engine"
