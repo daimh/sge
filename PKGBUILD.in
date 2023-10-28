@@ -37,7 +37,7 @@ build() {
 	install -d MANSBUILD_sge/SEDMAN/man/man5
 	install -d MANSBUILD_sge/SEDMAN/man/man8
 	sh scripts/bootstrap.sh -no-java -no-jni
-	./aimk -DGIT_REPO_VERSION=\\\"$pkgver\\\" -no-java -no-jni -with-arch-linux -systemd
+	./aimk -DGIT_REPO_VERSION=\\\"$pkgver\\\" -no-java -no-jni -with-arch-linux -systemd -parallel 8
 	install -d clients/gui-installer/dist
 	touch clients/gui-installer/dist/installer.jar
 	rm -f LINUXAMD64/config.status
