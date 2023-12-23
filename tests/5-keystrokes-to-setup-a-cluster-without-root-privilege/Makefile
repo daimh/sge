@@ -3,6 +3,7 @@ DaikerOpts =-e random -c 8 -r 3
 SshOpts = -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=2
 Ssh = ssh -i var/id_ed25519 -p 54321 $(SshOpts)
 var/execd : $(addprefix var/execd,$(shell seq $(ExecdCount)))
+	touch $@
 ALL := $(addprefix var/,firewall master $(addprefix execd,$(shell seq $(ExecdCount))))
 define ExecdTmpl
 var/execd$1 : var/master-container

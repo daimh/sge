@@ -1,4 +1,4 @@
-Distros := $(shell ls -d 432??-*)
+Distros := $(shell ls -d [45]*)
 .PHONY : test clean cron $(addprefix test-,$(Distros)) $(addprefix clean-,$(Distros))
 test : $(addprefix test-,$(Distros))
 clean : $(addprefix clean-,$(Distros))

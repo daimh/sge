@@ -36,17 +36,17 @@ We have been using, maintaining this famous software at Michigan Neuroscience In
 ## Requirements
 ### tested with all the Linux distributions below, patched up to the specified date
 
-- **Arch Linux**, 2023-12-16
+- **Arch Linux**, 2023-12-23
 ```
 pacman -Sy --needed cmake db gcc git hwloc inetutils m4 make man openmotif pkgconf vi
 ```
 
-- **Void Linux**, 2023-12-16, x86\_64, glibc/musl
+- **Void Linux**, 2023-12-23, x86\_64, glibc/musl
 ```
 xbps-install cmake gcc git hwloc libhwloc-devel libtirpc-devel m4 make motif-devel ncurses-devel openssl-devel pam-devel
 ```
 
-- **Alpine Linux**, 2023-12-16, x86\_64, Edge
+- **Alpine Linux**, 2023-12-23, x86\_64, Edge
 ```
 apk add cmake db-dev g++ gcc git hwloc-dev libtirpc-dev libxt-dev linux-pam-dev m4 make motif-dev ncurses-dev openssl-dev procps
 #Due to the conflict with usr/include/libintl.h owned by both gettext-dev and musl-libintl
@@ -54,7 +54,7 @@ apk fetch musl-libintl
 tar -C / -xf musl-libintl*.apk usr/include/libintl.h
 ```
 
-- **CentOS 7.9.2009**, 2023-12-16, with SELinux set to permissive
+- **CentOS 7.9.2009**, 2023-12-23, with SELinux set to permissive
 ```
 yum groupinstall 'Development Tools'
 yum install hwloc-devel libdb-devel libtirpc-devel motif-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
@@ -63,38 +63,38 @@ tar xvfz cmake-3.23.0-linux-x86_64.tar.gz
 export PATH=$(realpath cmake-3.23.0-linux-x86_64)/bin:$PATH
 ```
 
-- **AlmaLinux 8.9** and **Rocky 8.9**, 2023-12-16, with SELinux set to permissive
+- **AlmaLinux 8.9** and **Rocky 8.9**, 2023-12-23, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
 dnf --enablerepo=powertools install cmake hwloc-devel libdb-devel libtirpc-devel motif-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
 ```
 
-- **AlmaLinux 9.3**, 2023-12-16, with SELinux set to permissive
+- **AlmaLinux 9.3**, 2023-12-23, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
 dnf install cmake hwloc-devel libdb-devel motif-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
 dnf install https://repo.almalinux.org/almalinux/9/CRB/x86_64/os/Packages/libtirpc-devel-1.3.3-2.el9.x86_64.rpm
 ```
 
-- **Rocky 9.3**, 2023-12-16, with SELinux set to permissive
+- **Rocky 9.3**, 2023-12-23, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
 dnf install cmake hwloc-devel libdb-devel motif-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
 dnf install https://dl.rockylinux.org/pub/rocky/9/CRB/x86_64/os/Packages/l/libtirpc-devel-1.3.3-2.el9.x86_64.rpm
 ```
 
-- **Debian Bookworm/Bullseye**, 2023-12-16
+- **Debian Bookworm/Bullseye**, 2023-12-23
 ```
 apt install build-essential cmake git libdb5.3-dev libhwloc-dev libmotif-dev libncurses-dev libpam0g-dev libssl-dev libsystemd-dev libtirpc-dev libxext-dev pkgconf rsync
 ```
 
-- **Ubuntu Server 23.04, 22.04, 20.04**, 2023-12-16
+- **Ubuntu Server 23.04, 22.04, 20.04**, 2023-12-23
 ```
 apt-get install build-essential cmake git libdb5.3-dev libhwloc-dev libmotif-dev libncurses-dev libpam0g-dev libssl-dev libsystemd-dev libtirpc-dev libxext-dev pkgconf
 
 ```
 
-- **openSUSE Leap**, 2023-12-16
+- **openSUSE Leap**, 2023-12-23
 ```
 zypper -n addrepo http://download.opensuse.org/distribution/leap/15.5/repo/oss/ oss
 zypper -n install cmake gcc gcc-c++ git hwloc-devel libdb-4_8-devel libtirpc-devel libXext-devel motif-devel ncurses-devel openssl-devel pam-devel pkgconf rsync systemd-devel wget
