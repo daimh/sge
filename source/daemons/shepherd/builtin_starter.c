@@ -848,10 +848,13 @@ void son(const char *childname, char *script_file, int truncate_stderr_out, size
    }
 
    // set queue in E state when /bin/systemd-run cannot be found
-   if(g_use_systemd == true &&  file_exists(SYSTEMD_RUN) == false) {
+   if(g_use_systemd == true && file_exists(SYSTEMD_RUN) == false) {
       shepherd_error(1, "USE_CGROUPS is configured to use 'systemd' but %s cannot be found", SYSTEMD_RUN);
    }
-   if(g_use_systemd == false || file_exists(SYSTEMD_RUN) == false) {
+   if(g_use_systemd == false ||
+      file_exists(SYSTEMD_RUN) == false ||
+      use_login_shell == 1
+   ) {
       start_command(childname, shell_path, script_file, argv0, shell_start_mode,
                  is_interactive, is_qlogin, is_rsh, is_rlogin, str_title,
                  use_starter_method);
