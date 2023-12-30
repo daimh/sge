@@ -2505,7 +2505,7 @@ InstallRcScript()
       $INFOTEXT "Installing startup script %s" "$RC_PREFIX" 
       Execute rm -rf $RC_PREFIX/sge$hosttype /var/service/sge$hosttype
       Execute mkdir $RC_PREFIX/sge$hosttype
-      Execute m4 -D SGE_ROOT=$SGE_ROOT util/rctemplates/$RC_FILE/sge$hosttype/run.m4 | sed "s/default/$SGE_CELL/" > $RC_PREFIX/sge$hosttype/run
+      Execute m4 -D SGE_ROOT=$SGE_ROOT -D SGE_CELL=$SGE_CELL util/rctemplates/$RC_FILE/sge$hosttype/run.m4 > $RC_PREFIX/sge$hosttype/run
       Execute chmod +x $RC_PREFIX/sge$hosttype/run
       Execute ln -fs $RC_PREFIX/sge$hosttype /var/service/
       SGE_ARCH=`$SGE_UTIL/arch`
@@ -2514,7 +2514,7 @@ InstallRcScript()
       $INFOTEXT "Installing startup script %s" "$RC_PREFIX/" 
       SYSTEMD_FILE=sge$hosttype.service
       Execute rm -f $RC_PREFIX/$SYSTEMD_FILE
-      Execute m4 -D SGE_ROOT=$SGE_ROOT util/rctemplates/systemd/$SYSTEMD_FILE.m4 | sed "s/default/$SGE_CELL/" > $RC_PREFIX/$SYSTEMD_FILE
+      Execute m4 -D SGE_ROOT=$SGE_ROOT -D SGE_CELL=$SGE_CELL util/rctemplates/systemd/$SYSTEMD_FILE.m4 > $RC_PREFIX/$SYSTEMD_FILE
       Execute chmod a+x $RC_PREFIX/$SYSTEMD_FILE
       Execute systemctl enable $SYSTEMD_FILE
       SGE_ARCH=`$SGE_UTIL/arch`

@@ -1,3 +1,3 @@
 #!/usr/bin/sh
-SGE_ROOT/default/common/sgemaster
+SGE_ROOT/SGE_CELL/common/sgemaster
 exec pause

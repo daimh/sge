@@ -1,3 +1,3 @@
 #!/usr/bin/sh
-SGE_ROOT/default/common/sgeexecd
+SGE_ROOT/SGE_CELL/common/sgeexecd
 exec pause
