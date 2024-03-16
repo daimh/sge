@@ -4,12 +4,12 @@ ls /dev/sda* | tac | while read SD; do wipefs --all $SD; done
 echo -e "g\nn\n1\n\n+1M\nt\n4\nn\n2\n\n\nw" | fdisk /dev/sda
 sleep 1
 [ "$(lsblk | grep sda | wc -l)" = "3" ]
-mkfs -t xfs -f /dev/sda2
+mkfs -t ext4 /dev/sda2
 mount /dev/sda2 /mnt
 xbps-install -Syu xbps
 xbps-install -Sy xz
 tar -xJf void-rootfs-x86_64.tar.xz -C /mnt
-echo "/dev/sda2 / xfs defaults 0 1" >> /mnt/etc/fstab
+echo "/dev/sda2 / ext4 defaults 0 1" >> /mnt/etc/fstab
 cp /etc/resolv.conf /mnt/etc
 cp -pr /root/.ssh /mnt/root/
 for mp in dev proc sys
@@ -24,7 +24,6 @@ echo -e "SomeGridEngine\nSomeGridEngine" | passwd
 xbps-install -ySu xbps
 xbps-install -yu
 xbps-install -Sy base-system grub rsync
-xbps-remove -y base-voidstrap
 echo sge-voidlinux > /etc/hostname
 echo -e "10.0.2.15\tsge-voidlinux" >> /etc/hosts
 /usr/bin/grub-install /dev/sda
