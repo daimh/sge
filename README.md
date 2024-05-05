@@ -127,7 +127,6 @@ sudo pacman -U sge-r*.pkg.tar.zst
 ## Quick test on one machine
 - step 1, as root.
 
-First of all, change option **admin_user** in [bootstrapfile](http://gridscheduler.sourceforge.net/htmlman/htmlman5/bootstrap.html)
 ```
 useradd -r -d /opt/sge sge
 chown -R sge /opt/sge
@@ -160,7 +159,6 @@ Assuming master node hostname is **master**, and execution nodes hostnames is **
 ...
 10.1.1.1N	 node-0N
 ```
-All IP addresses are as an example.
 
 #### The first - on all nodes as root
 ```
@@ -168,7 +166,7 @@ ping master
 ping node-XX
 useradd -u <UID> -r -d /opt/sge sge
 ```
-sge UID should be equal on all machines.
+sge UID should be idential on all machines.
 
 #### The second - on master as root
 
@@ -188,7 +186,7 @@ qconf -ah node-02
 qconf -ah node-0N
 ```
 
-#### The third - on all nodes as root
+#### The third - on all execution nodes as root
 ```
 mkdir -p /opt/sge/default
 chown -R sge /opt/sge/default
