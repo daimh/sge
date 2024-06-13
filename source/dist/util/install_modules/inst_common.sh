@@ -1480,9 +1480,9 @@ CheckWhoInstallsSGE()
              "   - Grid Engine still has to be started by user >root<\n\n" \
              "   - this directory should be owned by the Grid Engine administrator\n"
 
-   $INFOTEXT -auto $AUTO -ask "y" "n" -def "n" -n \
+   $INFOTEXT -auto $AUTO -ask "y" "n" -def "y" -n \
              "Do you want to install Grid Engine\n" \
-             "under a user ID other than >root< (y/n) [n] >> "
+             "under a user ID other than >root< (y/n) [y] >> "
 
    if [ $? = 0 ]; then
       done=false
