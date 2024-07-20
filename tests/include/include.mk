@@ -7,7 +7,7 @@ Wait = function wt { touch $@.w && while ! $(SHELL) -c "$$*"; do echo -e "Waitin
 var/test : var/sge-container
 	for T in ../include/*.sh; do $(Ssh) root@localhost < $$T || exit 1; done 2>&1 | tee $@.log
 	-$(Ssh) root@localhost <<< poweroff
-	mv $@.log $@
+	touch $@
 var/sge-container : var/sge-image
 	fuser -k $@.qcow2 $(Port)/tcp && sleep 2 || :
 	rm -f $@.qcow2
