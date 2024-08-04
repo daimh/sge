@@ -71,6 +71,7 @@
 #include "comm/cl_communication.h"
 #include "comm/cl_commlib.h"
 #include "comm/msg_commlib.h"
+#include "comm/glibc_rcmd.h"
 #include "uti/sge_unistd.h"
 #include "uti/sge_os.h"
 #include "uti/sge_string.h"

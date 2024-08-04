@@ -53,6 +53,7 @@
 #include "comm/cl_connection_list.h"
 #include "comm/cl_fd_list.h"
 #include "comm/msg_commlib.h"
+#include "comm/glibc_rcmd.h"
 
 #include "uti/sge_unistd.h"
 #include "uti/sge_os.h"

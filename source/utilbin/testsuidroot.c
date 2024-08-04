@@ -40,6 +40,7 @@
 
 #include "msg_utilbin.h"
 #include "uti/sge_uidgid.h"
+#include "comm/glibc_rcmd.h"
 
 /****** testsuidroot ***************************************
 *

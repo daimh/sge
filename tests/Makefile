@@ -13,3 +13,4 @@ $(foreach D,$(Distros),$(eval $(call TmplDistro,$D)))
 	date -Isecond > $@.log
 	git clean -xdf &>> $@.log
 	timeout 9h make -kj 2 test &>> $@.log; echo $$? | tee -a $@.log
+	grep ^SUCCESS $@.log  | wc -l |grep -qw 14

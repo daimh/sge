@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -Ee
+set -xEe
 cd sge
 cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/sge
 cmake --build build -j

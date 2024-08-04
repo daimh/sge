@@ -157,7 +157,7 @@ ping master
 ping node-XX
 useradd -u <UID> -r -d /opt/sge sge
 ```
-sge UID should be idential on all machines.
+sge UID should be identical on all machines.
 
 #### The second - on master as root
 
