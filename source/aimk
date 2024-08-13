@@ -1809,6 +1809,9 @@ if ( $JNI == 1 ) then
          case lx-ia64: # debian squeeze; no openjdk in wheezy, but has gcj
          case lx-s390: # debian squeeze; wheezy has s390/cacao/libjvm.so
          case lx-s390x:         # no openjdk in debian wheezy; has gcj
+         case lx-loong64:
+	     set JAVA_LIB_ARCH = loong64
+             breaksw
          case lx-mips:
          case lx-mipsel:
          case lx-ppc:
