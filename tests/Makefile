@@ -12,5 +12,5 @@ $(foreach D,$(Distros),$(eval $(call TmplDistro,$D)))
 /tmp/sge-cron : clean
 	date -Isecond > $@.log
 	git clean -xdf &>> $@.log
-	timeout 9h make -kj 2 test &>> $@.log; echo $$? | tee -a $@.log
+	timeout 3h make -kj 8 test &>> $@.log; echo $$? | tee -a $@.log
 	grep ^SUCCESS $@.log  | wc -l |grep -qw 14
