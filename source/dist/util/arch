@@ -202,6 +202,9 @@ Linux)
    x86_64)
       lxmachine=amd64
       ;;
+   loongarch64)
+      lxmachine=loong64
+      ;;
    mips)
       lxmachine=mips
       maybe_el
