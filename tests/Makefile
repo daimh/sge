@@ -9,8 +9,9 @@ clean-$1 :
 	$$(MAKE) -C $1 clean 2>&1
 endef
 $(foreach D,$(Distros),$(eval $(call TmplDistro,$D)))
-/tmp/sge-cron : clean
+sge-cron-test : clean
+	-mv $@.log $@.log.prev
 	date -Isecond > $@.log
-	git clean -xdf &>> $@.log
-	timeout 3h make -kj 8 test &>> $@.log; echo $$? | tee -a $@.log
+	git clean -xdf [45]* &>> $@.log
+	timeout 3h make -kj 8 test &>> $@.log
 	grep ^SUCCESS $@.log  | wc -l |grep -qw 14
