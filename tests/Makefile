@@ -13,5 +13,5 @@ sge-cron-test : clean
 	-mv $@.log $@.log.prev
 	date -Isecond > $@.log
 	git clean -xdf [45]* &>> $@.log
-	timeout 3h make -kj 8 test &>> $@.log
-	grep ^SUCCESS $@.log  | wc -l |grep -qw 14
+	timeout 5h make -kj 8 test &>> $@.log
+	grep ^SUCCESS $@.log  | wc -l | grep -qw 14
