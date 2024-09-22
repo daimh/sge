@@ -668,10 +668,6 @@ char* cl_com_get_unresolvable_hosts(void) {
 bool cl_com_is_valid_fd (int fd) {
 
    if (fd >= 0){
-      if(fd >= FD_SETSIZE){
-         CL_LOG_INT(CL_LOG_WARNING, "filedescriptor is >= FD_SETSIZE: ", fd);
-         return false;
-      }
    } else {
       CL_LOG_INT(CL_LOG_WARNING, "filedescriptor is < 0: ", fd);
       return false;
@@ -1271,9 +1267,9 @@ cl_com_handle_t* cl_com_create_handle(int* commlib_error,
 
    new_handle->max_open_connections = (unsigned long) application_rlimits.rlim_cur;
 
-   if (FD_SETSIZE < new_handle->max_open_connections) {
+   if (INT_MAX-3 < new_handle->max_open_connections) { // ACX: need stderr,stdout,stdin, so limit cannot be that high.
       CL_LOG(CL_LOG_ERROR,"FD_SETSIZE < file descriptor limit");
-      new_handle->max_open_connections = FD_SETSIZE - 1;
+      new_handle->max_open_connections = INT_MAX-3; // FD_SETSIZE - 1;
    }
 
    if ( new_handle->max_open_connections < 32 ) {

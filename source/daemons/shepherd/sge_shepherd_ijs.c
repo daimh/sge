@@ -40,6 +40,7 @@
 #include <signal.h>
 #include <string.h>
 #include <unistd.h>
+#include <poll.h>
 
 #include <sys/wait.h>
 #include <sys/time.h>
@@ -292,8 +293,8 @@ static void* pty_to_commlib(void *t_conf)
    int                  do_exit = 0;
    int                  fd_max = 0;
    int                  ret;
-   fd_set               read_fds;
-   struct timeval       timeout;
+   struct pollfd        read_fds[4];
+   struct timespec      timeout;
    char                 *stdout_buf = NULL;
    char                 *stderr_buf = NULL;
    int                  stdout_bytes = 0;
@@ -310,22 +311,33 @@ static void* pty_to_commlib(void *t_conf)
 
    /* The main loop of this thread */
    while (do_exit == 0) {
+       int nfds = 0;
+       int nmaster = -1;
+       int npipe_out = -1;
+       int npipe_err = -1;
       /* Fill fd_set for select */
-      FD_ZERO(&read_fds);
-
       if (g_p_ijs_fds->pty_master != -1) {
-         FD_SET(g_p_ijs_fds->pty_master, &read_fds);
+          read_fds[nfds].fd = g_p_ijs_fds->pty_master;
+          read_fds[nfds].events = POLLIN;
+          nmaster = nfds;
+          ++nfds;
       }
       if (g_p_ijs_fds->pipe_out != -1) {
-         FD_SET(g_p_ijs_fds->pipe_out, &read_fds);
+          read_fds[nfds].fd = g_p_ijs_fds->pipe_out;
+          read_fds[nfds].events = POLLIN;
+          npipe_out = nfds;
+          ++nfds;
       }
       if (g_p_ijs_fds->pipe_err != -1) {
-         FD_SET(g_p_ijs_fds->pipe_err, &read_fds);
+          read_fds[nfds].fd = g_p_ijs_fds->pipe_err;
+          read_fds[nfds].events = POLLIN;
+          npipe_err = nfds;
+          ++nfds;
       }
-      fd_max = MAX(g_p_ijs_fds->pty_master, g_p_ijs_fds->pipe_out);
-      fd_max = MAX(fd_max, g_p_ijs_fds->pipe_err);
 
 #ifdef EXTENSIVE_TRACING
+      fd_max = MAX(g_p_ijs_fds->pty_master, g_p_ijs_fds->pipe_out);
+      fd_max = MAX(fd_max, g_p_ijs_fds->pipe_err);
       shepherd_trace("pty_to_commlib: g_p_ijs_fds->pty_master = %d, "
                      "g_p_ijs_fds->pipe_out = %d, "
                      "g_p_ijs_fds->pipe_err = %d, fd_max = %d",
@@ -338,7 +350,7 @@ static void* pty_to_commlib(void *t_conf)
          /* If we know that we have to exit, don't wait for data,
           * just peek into the fds and read all data available from the buffers. */
          timeout.tv_sec  = 0;
-         timeout.tv_usec = 0;
+         timeout.tv_nsec = 0;
       } else {
          if ((stdout_bytes > 0 && stdout_bytes < 256)
              || cl_com_messages_in_send_queue(g_comm_handle) > 0) {
@@ -348,11 +360,11 @@ static void* pty_to_commlib(void *t_conf)
              * Also retry to send the messages that are still in the queue ASAP.
              */
             timeout.tv_sec  = 0;
-            timeout.tv_usec = 10000;
+            timeout.tv_nsec = 10000000;
          } else {
             /* Standard timeout is one second */
             timeout.tv_sec = 1;
-            timeout.tv_usec = 0;
+            timeout.tv_nsec = 0;
          }
       }
 #ifdef EXTENSIVE_TRACING
@@ -361,7 +373,7 @@ static void* pty_to_commlib(void *t_conf)
 #endif
       /* Wait blocking for data from pty or pipe */
       errno = 0;
-      ret = select(fd_max+1, &read_fds, NULL, NULL, &timeout);
+      ret = ppoll( read_fds, nfds, &timeout, NULL);
       thread_testcancel(t_conf);
 /* This is a workaround for Darwin and HP11, where thread_testcancel() doesn't work.
  * TODO: Find the reason why it doesn't work and remove the workaround
@@ -405,7 +417,7 @@ static void* pty_to_commlib(void *t_conf)
          /* now we can be sure that our child has started the job,
           * we can close the pipe_to_child now
           */
-         if (g_p_ijs_fds->pty_master != -1 && FD_ISSET(g_p_ijs_fds->pty_master, &read_fds)) {
+         if (g_p_ijs_fds->pty_master != -1 && (read_fds[nmaster].revents & POLLIN)) {
 #ifdef EXTENSIVE_TRACING
             shepherd_trace("pty_to_commlib: reading from ptym");
 #endif
@@ -416,7 +428,7 @@ static void* pty_to_commlib(void *t_conf)
 #endif
          }
          if (ret >= 0 && g_p_ijs_fds->pipe_out != -1
-             && FD_ISSET(g_p_ijs_fds->pipe_out, &read_fds)) {
+             && (read_fds[npipe_out].revents & POLLIN)) {
 #ifdef EXTENSIVE_TRACING
             shepherd_trace("pty_to_commlib: reading from pipe_out");
 #endif
@@ -432,7 +444,7 @@ static void* pty_to_commlib(void *t_conf)
             do_exit = 1;
          }
          if (g_p_ijs_fds->pipe_err != -1
-             && FD_ISSET(g_p_ijs_fds->pipe_err, &read_fds)) {
+             && (read_fds[npipe_err].revents & POLLIN)) {
 #ifdef EXTENSIVE_TRACING
             shepherd_trace("pty_to_commlib: reading from pipe_err");
 #endif

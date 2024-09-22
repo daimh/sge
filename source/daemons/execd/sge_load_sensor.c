@@ -34,6 +34,7 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <poll.h>
 
 #include "uti/sge_rmon.h"
 #include "uti/sge_bootstrap.h"
@@ -165,7 +166,7 @@ static void sge_ls_set_pid(lListElem *this_ls, pid_t pid)
 ******************************************************************************/
 static int sge_ls_status(lListElem *this_ls)
 {
-   fd_set writefds;
+   struct pollfd writefds;
    int ret;
    int highest_fd;
 
@@ -176,12 +177,12 @@ static int sge_ls_status(lListElem *this_ls)
    }
 
    /* build writefds */
-   FD_ZERO(&writefds);
    highest_fd = fileno((FILE *) lGetRef(this_ls, LS_in));
-   FD_SET(highest_fd, &writefds);
+   writefds.fd = highest_fd;
+   writefds.events = POLLOUT;
 
    /* is load sensor ready to read ? */
-   ret = select(highest_fd + 1, NULL, &writefds, NULL, NULL);
+   ret = ppoll(&writefds,1, NULL, NULL);
 
    if (ret <= 0) {
       DRETURN(LS_BROKEN_PIPE);
@@ -436,8 +437,8 @@ static int read_ls(void)
    char value[1000];
    lListElem *ls_elem;
    bool flag = true;
-   fd_set readfds;
-   struct timeval timeleft;
+   struct pollfd readfds;
+   struct timespec timeleft;
    int wait = 1;
    int highest_fd;
    int ret;
@@ -461,13 +462,13 @@ static int read_ls(void)
       while (flag) {
          if (fscanf(file, "%[^\n]\n", input) != 1) {
             if (demand) {
-               FD_ZERO(&readfds);
-               FD_SET(highest_fd, &readfds);
+                readfds.fd = highest_fd;
+                readfds.events = POLLIN;
       
                /* wait up to 1 second per line for reading report */
                timeleft.tv_sec = wait;
-               timeleft.tv_usec = 0;
-               ret = select(highest_fd + 1, &readfds, NULL, NULL, &timeleft);
+               timeleft.tv_nsec = 0;
+               ret = ppoll(&readfds, 1, &timeleft, NULL);
                if (ret == -1) {
                   switch (errno) {
                   case EINTR:
@@ -561,23 +562,24 @@ static int read_ls(void)
 ******************************************************************************/
 static int ls_send_command(lListElem *this_ls, const char *command)
 {
-   fd_set writefds;
-   struct timeval timeleft;
+   struct pollfd writefds;
+   struct timespec timeleft;
    int ret;
    FILE *file;
    int highest_fd;
 
    DENTER(TOP_LAYER, "ls_send_command");
 
-   FD_ZERO(&writefds);
+   
    highest_fd = fileno((FILE *) lGetRef(this_ls, LS_in));
-   FD_SET(highest_fd, &writefds);
+   writefds.fd = highest_fd;
+   writefds.events = POLLOUT;
 
    timeleft.tv_sec = 0;
-   timeleft.tv_usec = 0;
+   timeleft.tv_nsec = 0;
 
    /* wait for writing on fd_in */
-   ret = select(highest_fd + 1, NULL, &writefds, NULL, &timeleft);
+   ret = ppoll(&writefds, 1, &timeleft,NULL);
    if (ret == -1) {
       switch (errno) {
       case EINTR:
@@ -599,7 +601,7 @@ static int ls_send_command(lListElem *this_ls, const char *command)
       DRETURN(-1);
    }
 
-   if (!FD_ISSET(fileno((FILE *) lGetRef(this_ls, LS_in)), &writefds)) {
+   if (!writefds.revents & POLLOUT) {
       DPRINTF(("received: cannot read\n"));
       WARNING((SGE_EVENT, "[load_sensor %s] received: cannot read", lGetString(this_ls, LS_pid)));
       DRETURN(-1);

@@ -186,7 +186,7 @@ static bool malloc_info = false;
 
 static long ptf_max_priority = -999;
 static long ptf_min_priority = -999;
-static int max_dynamic_event_clients = 1000;
+static int max_dynamic_event_clients = 100000;
 static bool keep_active = false;
 static bool enable_windomacc = false;
 static bool enable_binding = false;
@@ -693,7 +693,7 @@ int merge_configuration(lList **answer_list, u_long32 progid, const char *cell_r
       prof_tevent_thrd = false;
       monitor_time = 0;
       scheduler_timeout = 0;
-      max_dynamic_event_clients = 950;
+      max_dynamic_event_clients = 95000;
       max_job_deletion_time = 3;
       enable_reschedule_kill = false;
       enable_reschedule_slave = false;

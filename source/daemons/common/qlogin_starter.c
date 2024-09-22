@@ -48,6 +48,7 @@
 #include <string.h>
 #include <netdb.h>
 #include <grp.h>
+#include <poll.h>
 
 #include "uti/sge_stdio.h"
 #include "uti/sge_uidgid.h"
@@ -434,9 +435,9 @@ int qlogin_starter(const char *cwd, char *daemon, char** env)
    int on = 1;
    int sso = 1;
    int newsfd;
-   fd_set fds;
+   struct pollfd fds;
    struct sockaddr_in serv_addr;
-   struct timeval timeout;
+   struct timespec timeout;
    char buffer[2048];
    char *args[20]; /* JG: TODO: should be dynamically allocated */
    int argc = 0;
@@ -534,11 +535,11 @@ int qlogin_starter(const char *cwd, char *daemon, char** env)
    /* wait for connection */
    shepherd_trace("waiting for connection.");
    /* use a reasonable timeout (60 seconds) to prevent hanging here forever */
-   FD_ZERO(&fds);
-   FD_SET(sockfd, &fds);
+   fds.fd = sockfd;
+   fds.events = POLLIN;
    timeout.tv_sec = 60;
-   timeout.tv_usec = 0;
-   if (select(sockfd+1, &fds, NULL, NULL, &timeout) < 1) {
+   timeout.tv_nsec = 0;
+   if (ppoll(&fds,1,&timeout,NULL) != 1) {
       shepherd_trace("nobody connected to the socket");
       shutdown(sockfd, 2);
       close(sockfd);
