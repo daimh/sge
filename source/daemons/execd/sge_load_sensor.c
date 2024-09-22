@@ -30,6 +30,7 @@
  * 
  ************************************************************************/
 /*___INFO__MARK_END__*/
+#define _GNU_SOURCE
 #include <fcntl.h>
 #include <errno.h>
 #include <stdlib.h>

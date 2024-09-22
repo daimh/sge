@@ -29,6 +29,7 @@
  * 
  ************************************************************************/
 /*___INFO__MARK_END__*/
+#define _GNU_SOURCE
 #include <unistd.h>
 #include <stdio.h>
 #include <sys/types.h>
