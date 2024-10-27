@@ -30,7 +30,7 @@
 #!/bin/bash
 set -ex
 systemctl stop sshd
-mkdir /root/.ssh
+mkdir -p /root/.ssh
 chmod 700 /root/.ssh
 echo "AUTHORIZED_KEYS" > /root/.ssh/authorized_keys
 echo sge-leap > /etc/hostname
