@@ -539,7 +539,7 @@ int modality, type;
 va_list args;
 #endif
 {
-    _XmtDisplayMessage(w, name, class, message, &args, title, help, icon,
+    _XmtDisplayMessage(w, name, class, message, (va_list *)&args, title, help, icon,
 		       type, modality);
 }
 
@@ -600,7 +600,7 @@ va_list args;
 	modality = XmDIALOG_PRIMARY_APPLICATION_MODAL;
     }
     
-    block = _XmtDisplayMessage(w, name, class, message, &args,
+    block = _XmtDisplayMessage(w, name, class, message, (va_list *)&args,
 			       title, help, icon, type, modality);
     XmtBlock(w, block);
 }
@@ -674,7 +674,7 @@ va_dcl
 
     Va_start(args, help_default);
     (void)_XmtDisplayMessage(w, name, XmtCWarningDialog,
-			     msg_default, &args,
+			     msg_default, (va_list *)&args,
 			     title_default, help_default, None, 
 			     XmDIALOG_WARNING,
 			     XmDIALOG_PRIMARY_APPLICATION_MODAL);
