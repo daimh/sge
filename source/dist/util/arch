@@ -218,6 +218,9 @@ Linux)
    powerpc64le | powerpc64el)
       lxmachine=ppc64el
       ;;
+   riscv64)
+      lxmachine=riscv64
+      ;;
    *)
       unsupported="UNSUPPORTED-"
       lxmachine=$osmachine
