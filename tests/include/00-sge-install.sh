@@ -33,5 +33,6 @@ do
 	! diff -q STDIN.o$Job <(seq 9) || break
 	sleep 30
 done
+set +x
 [ $i -lt $Wait ] && echo SUCCESS
 '
