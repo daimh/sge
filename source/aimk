@@ -1826,6 +1826,9 @@ if ( $JNI == 1 ) then
                 set JAVA_LIB_ARCH = ppc64
              endif
              breaksw
+         case lx-riscv64:
+             set JAVA_LIB_ARCH = riscv64
+             breaksw
          case lx-arm64:
              if ($FORCE_32BIT == 1) then
                 set JAVA_LIB_ARCH = arm
