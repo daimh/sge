@@ -14,7 +14,7 @@ qhost -q #you should be able to see five lines of output
 qconf -as $HOSTNAME #add this node as submit host
 su - sge -c '
 set -Eex
-Wait=20
+Wait=10
 source /opt/sge/default/common/settings.sh
 echo seq 9 | qsub -j y | tee 00.job
 Job=$(cat 00.job | cut -d " " -f 3)
@@ -26,12 +26,13 @@ done
 for ((i=0; i<$Wait; i++))
 do
 	qacct -j $Job && break
-	sleep 1
+	sleep 10
 done
+[ $i -lt $Wait ] || false FAILED
 for ((i=0; i<$Wait; i++))
 do
 	! diff -q STDIN.o$Job <(seq 9) || break
-	sleep 30
+	sleep 10
 done
 set +x
 [ $i -lt $Wait ] && echo SUCCESS

@@ -12,4 +12,9 @@ $(foreach D,$(Distros),$(eval $(call TmplDistro,$D)))
 test-weekly : clean
 	git clean -xdf 4*
 	-timeout 5h make -kj 8 test
-	grep ^SUCCESS 4*/var/test.log  | wc -l | grep -qw 14
+	make check
+
+check :
+	ls -d 4* > /tmp/1
+	grep ^SUCCESS 4*/var/test.log | cut -d / -f 1 > /tmp/2
+	diff -q /tmp/1 /tmp/2 || ( join -v 1 /tmp/1 /tmp/2; false)
