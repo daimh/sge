@@ -35,5 +35,6 @@ do
 	sleep 10
 done
 set +x
+sleep 1
 [ $i -lt $Wait ] && echo SUCCESS
 '
