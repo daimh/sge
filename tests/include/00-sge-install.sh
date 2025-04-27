@@ -14,7 +14,7 @@ qhost -q #you should be able to see five lines of output
 qconf -as $HOSTNAME #add this node as submit host
 su - sge -c '
 set -Eex
-Wait=10
+Wait=30
 source /opt/sge/default/common/settings.sh
 echo seq 9 | qsub -j y | tee 00.job
 Job=$(cat 00.job | cut -d " " -f 3)
