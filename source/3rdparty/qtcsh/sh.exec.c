@@ -162,9 +162,7 @@ static	int 	iscommand	(Char *);
 
 /*ARGSUSED*/
 void
-doqrshmode(v, c)
-    register Char **v;
-    struct command *c;
+doqrshmode(register Char **v, struct command *c)
 {
     Char   *cp;
 

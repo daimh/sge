@@ -2760,7 +2760,7 @@ tilde_expand (const char *name)
 #ifndef VMS
   if (name[1] == '/' || name[1] == '\0')
     {
-      extern char *getenv ();
+      extern char *getenv (const char*);
       char *home_dir;
       int is_variable;
 

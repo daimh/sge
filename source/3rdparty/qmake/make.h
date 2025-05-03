@@ -477,7 +477,7 @@ long int lseek ();
 
 #ifdef  HAVE_GETCWD
 # if !defined(VMS) && !defined(__DECC)
-char *getcwd ();
+char *getcwd (char*, size_t);
 # endif
 #else
 char *getwd ();

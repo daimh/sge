@@ -55,7 +55,7 @@ install(
 		source/dist/hadoop
 		source/dist/mpi
 		source/dist/pvm
-		source/dist/qmon
+		#source/dist/qmon
 		source/dist/util
 	DESTINATION .
 	USE_SOURCE_PERMISSIONS
@@ -69,7 +69,7 @@ install(
 		qevent
 		qhost
 		qmod
-		qmon
+		#qmon
 		qping
 		qquota
 		qrdel
