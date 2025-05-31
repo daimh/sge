@@ -5,7 +5,9 @@ var/sge-image : var/sge.iso var/daiker var/void-rootfs-x86_64.tar.xz
 	rm -f $@.qcow2
 	var/daiker build $(DaikerOpts) -i $< -H 20 $$PWD/$@.qcow2 &
 	$(Wait) $(Ssh) root@localhost id
-	scp -P $(Port) -i var/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=1 var/void-rootfs-x86_64.tar.xz root@localhost:
+	scp -P $(Port) -i var/id_ed25519 -o StrictHostKeyChecking=no \
+		-o UserKnownHostsFile=/dev/null -o ConnectTimeout=1 \
+		var/void-rootfs-x86_64.tar.xz root@localhost:
 	$(Ssh) root@localhost < lib/voidlinux-install.sh
 	$(Wait) ! fuser $@.qcow2 $(Port)/tcp
 	touch $@
@@ -23,7 +25,11 @@ var/sge.iso : var/void-live-x86_64$(Libc).iso var/id_ed25519
 	sudo umount $@.m
 	cd $@.d/LiveOS && rm squashfs.img && mksquashfs squashfs-root squashfs.img
 	rm -r $@.d/LiveOS/squashfs-root
-	genisoimage -quiet -l -r -J -V "$$(isoinfo -d -i $< | grep 'Volume id: ' |cut -c 12-)" -no-emul-boot -boot-load-size 4 -boot-info-table -b boot/isolinux/isolinux.bin -c boot/isolinux/boot.cat -o $@.tmp $@.d
+	genisoimage -quiet -l -r -J -V \
+		"$$(isoinfo -d -i $< | grep 'Volume id: ' |cut -c 12-)" \
+		-no-emul-boot -boot-load-size 4 -boot-info-table \
+		-b boot/isolinux/isolinux.bin -c boot/isolinux/boot.cat \
+		-o $@.tmp $@.d
 	mv $@.tmp $@
 var/void-rootfs-x86_64.tar.xz :
 	mkdir -p $(@D)
