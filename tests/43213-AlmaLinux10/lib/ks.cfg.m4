@@ -1,6 +1,6 @@
 #version=RHEL10
 cmdline
-repo --name="Minimal" --baseurl=file:///run/install/ifelse(m4Rhel, `AlmaLinux10', `repo/Minimal', `repo/minimal')
+repo --name="Minimal" --baseurl=file:///run/install/repo/Minimal
 
 %addon com_redhat_kdump --enable --reserve-mb='auto'
 %end
