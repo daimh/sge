@@ -7,5 +7,3 @@ ln -fs qalter qrls
 ln -fs qsh qlogin
 ln -fs qsh qrsh
 ln -fs qstat qselect
-cd $1/qmon/PIXMAPS/small
-mv *.xpm ../

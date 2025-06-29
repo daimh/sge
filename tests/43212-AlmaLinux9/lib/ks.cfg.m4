@@ -39,7 +39,7 @@ clearpart --none --initlabel
 	echo sge-rhel9 > /etc/hostname
 	dnf -y update
 	dnf -y group install 'Development Tools'
-	dnf -y install cmake hwloc-devel libdb-devel motif-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
+	dnf -y install cmake hwloc-devel libdb-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
 	sed -i "s/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/; s/ rhgb quiet//" /etc/default/grub
 	grub2-mkconfig --output=/boot/grub2/grub.cfg
 ) 2>&1

@@ -36,25 +36,25 @@ We have been using, maintaining this famous software at Michigan Neuroscience In
 ## Requirements
 ### tested with all the Linux distributions below, patched up to the specified date
 
-- **Arch Linux**, 2025-06-21
+- **Arch Linux**, 2025-06-28
 ```
-pacman -Sy --needed cmake db gcc git hwloc inetutils m4 make man openmotif pkgconf vi
-```
-
-- **Void Linux**, 2025-06-21, x86\_64, glibc/musl
-```
-xbps-install cmake gcc git hwloc libhwloc-devel libtirpc-devel m4 make motif-devel ncurses-devel openssl-devel pam-devel
+pacman -Sy --needed cmake db gcc git hwloc inetutils m4 make man pkgconf vi
 ```
 
-- **Alpine Linux**, 2025-06-21, x86\_64, Edge
+- **Void Linux**, 2025-06-28, x86\_64, glibc/musl
 ```
-apk add cmake db-dev g++ gcc git hwloc-dev libtirpc-dev libxt-dev linux-pam-dev m4 make motif-dev ncurses-dev openssl-dev procps
+xbps-install cmake gcc git hwloc libhwloc-devel libtirpc-devel m4 make ncurses-devel openssl-devel pam-devel
+```
+
+- **Alpine Linux**, 2025-06-28, x86\_64, Edge
+```
+apk add cmake db-dev g++ gcc git hwloc-dev libtirpc-dev libxt-dev linux-pam-dev m4 make ncurses-dev openssl-dev procps
 #Due to the conflict with usr/include/libintl.h owned by both gettext-dev and musl-libintl
 apk fetch musl-libintl
 tar -C / -xf musl-libintl*.apk usr/include/libintl.h
 ```
 
-- **AlmaLinux 10.0**, 2025-06-21, with SELinux set to permissive
+- **AlmaLinux 10.0**, 2025-06-28, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
 dnf install cmake hwloc-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
@@ -63,7 +63,7 @@ dnf install https://dl.fedoraproject.org/pub/epel/10/Everything/x86_64/Packages/
 dnf install https://repo.almalinux.org/almalinux/10/CRB/x86_64/os/Packages/libtirpc-devel-1.3.5-1.el10.x86_64.rpm
 ```
 
-- **Rocky 10.0**, 2025-06-21, with SELinux set to permissive
+- **Rocky 10.0**, 2025-06-28, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
 dnf install cmake hwloc-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
@@ -72,41 +72,41 @@ dnf install https://dl.fedoraproject.org/pub/epel/10/Everything/x86_64/Packages/
 dnf install https://dl.rockylinux.org/pub/rocky/10/CRB/x86_64/os/Packages/l/libtirpc-devel-1.3.5-1.el10.x86_64.rpm
 ```
 
-- **AlmaLinux 9.6**, 2025-06-21, with SELinux set to permissive
+- **AlmaLinux 9.6**, 2025-06-28, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
-dnf install cmake hwloc-devel libdb-devel motif-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
+dnf install cmake hwloc-devel libdb-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
 dnf install https://repo.almalinux.org/almalinux/9/CRB/x86_64/os/Packages/libtirpc-devel-1.3.3-9.el9.x86_64.rpm
 ```
 
-- **Rocky 9.6**, 2025-06-21, with SELinux set to permissive
+- **Rocky 9.6**, 2025-06-28, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
-dnf install cmake hwloc-devel libdb-devel motif-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
+dnf install cmake hwloc-devel libdb-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
 dnf install https://dl.rockylinux.org/pub/rocky/9/CRB/x86_64/os/Packages/l/libtirpc-devel-1.3.3-9.el9.x86_64.rpm
 ```
 
-- **AlmaLinux 8.10** and **Rocky 8.10**, 2025-06-21, with SELinux set to permissive
+- **AlmaLinux 8.10** and **Rocky 8.10**, 2025-06-28, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
-dnf --enablerepo=powertools install cmake hwloc-devel libdb-devel libtirpc-devel motif-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
+dnf --enablerepo=powertools install cmake hwloc-devel libdb-devel libtirpc-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
 ```
 
-- **Debian Bookworm/Bullseye**, 2025-06-21
+- **Debian Bookworm/Bullseye**, 2025-06-28
 ```
-apt install build-essential cmake git libdb5.3-dev libhwloc-dev libmotif-dev libncurses-dev libpam0g-dev libssl-dev libsystemd-dev libtirpc-dev libxext-dev pkgconf rsync
-```
-
-- **Ubuntu Server 24.04, 22.04, 20.04**, 2025-06-21
-```
-apt-get install build-essential cmake git libdb5.3-dev libhwloc-dev libmotif-dev libncurses-dev libpam0g-dev libssl-dev libsystemd-dev libtirpc-dev libxext-dev pkgconf
-
+apt install build-essential cmake git libdb5.3-dev libhwloc-dev libncurses-dev libpam0g-dev libssl-dev libsystemd-dev libtirpc-dev libxext-dev pkgconf rsync
 ```
 
-- **openSUSE Leap**, 2025-06-21
+- **Ubuntu Server 24.04, 22.04, 20.04**, 2025-06-28
 ```
-zypper -n addrepo http://download.opensuse.org/distribution/leap/15.5/repo/oss/ oss
-zypper -n install cmake gcc gcc-c++ git hwloc-devel libdb-4_8-devel libtirpc-devel libXext-devel motif-devel ncurses-devel openssl-devel pam-devel pkgconf rsync systemd-devel wget
+apt-get install build-essential cmake git libdb5.3-dev libhwloc-dev libncurses-dev libpam0g-dev libssl-dev libsystemd-dev libtirpc-dev libxext-dev pkgconf
+
+```
+
+- **openSUSE Leap**, 2025-06-28
+```
+zypper -n addrepo http://download.opensuse.org/distribution/leap/15.6/repo/oss/ oss
+zypper -n install cmake gcc gcc-c++ git hwloc-devel libdb-4_8-devel libtirpc-devel libXext-devel m4 ncurses-devel openssl-devel pam-devel pkgconf rsync systemd-devel wget
 ```
 
 ## Three different installation methods

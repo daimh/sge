@@ -22,5 +22,5 @@ autoinstall:
         set -eux
         apt update --yes
         apt upgrade --yes
-        apt-get install --yes build-essential cmake git libdb5.3-dev libhwloc-dev libmotif-dev libncurses-dev libpam0g-dev libssl-dev libsystemd-dev libtirpc-dev libxext-dev pkgconf
+        apt-get install --yes build-essential cmake git libdb5.3-dev libhwloc-dev libncurses-dev libpam0g-dev libssl-dev libsystemd-dev libtirpc-dev libxext-dev pkgconf
         poweroff

@@ -24,7 +24,6 @@ depends=(
 	'libtirpc'
 	'libxt'
 	'make'
-	'openmotif'
 	'tcsh'
 )
 prepare() {
