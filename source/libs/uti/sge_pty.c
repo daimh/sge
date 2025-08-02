@@ -50,11 +50,9 @@
 #elif defined(FREEBSD) || defined(NETBSD)
 #  include <sys/ioctl.h>
 #  include <termios.h>
-#elif defined(MUSL)
+#else
 #  include <sys/ioctl.h>
 #  include <termios.h>
-#else
-#  include <termio.h>
 #endif
 
 #include "uti/sge_rmon.h"

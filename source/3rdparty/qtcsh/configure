@@ -3870,7 +3870,8 @@ rm -f conftest*
   if test $ac_cv_prog_gcc_traditional = no; then
     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
-#include <termio.h>
+#include <termios.h>
+#include <sys/ioctl.h>
 Autoconf TCGETA
 _ACEOF
 if (eval "$ac_cpp conftest.$ac_ext") 2>&5 |

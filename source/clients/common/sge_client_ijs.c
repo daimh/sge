@@ -47,11 +47,9 @@
 #elif defined(FREEBSD) || defined(NETBSD)
 #  include <termios.h>
 #  include <sys/ioctl.h>
-#elif defined(MUSL)
+#else
 #  include <termios.h>
 #  include <sys/ioctl.h>
-#else
-#  include <termio.h>
 #endif
 
 #include <sys/timeb.h>

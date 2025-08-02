@@ -1,7 +1,8 @@
 SHELL = /bin/bash -Eeuo pipefail
 Port != basename $$PWD |cut -d - -f 1
+Vnc != echo $$(( $(Port) - 43200 ))
 Distro != basename $$PWD |cut -d - -f 2-
-DaikerOpts :=-D $(shell [[ -v DISPLAY ]] && echo gtk || echo vnc) -c 8 -r 2 -T 22-$(Port)
+DaikerOpts :=-D $(Vnc) -c 8 -r 2 -T 22-$(Port)
 Ssh = ssh -Tp $(Port) -i var/id_ed25519 -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=1 -o BatchMode=yes
 Wait = function wt { touch $@.w && while ! $(SHELL) -c "$$*"; do echo -e "Waiting for '$@'. $$(( $$(date +%s) - $$(stat -c %Y $@.w) )) seconds." && sleep 20; done && rm -f $@.w; } && wt
 var/test : var/sge-container

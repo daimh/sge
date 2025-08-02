@@ -2,7 +2,7 @@
 set -xEe
 cd sge
 cmake -S . -B build -DCMAKE_INSTALL_PREFIX=/opt/sge
-cmake --build build -j
+cmake --build build
 cmake --install build
 id sge || useradd -r -s /bin/bash -d /opt/sge sge
 chown -R sge /opt/sge
