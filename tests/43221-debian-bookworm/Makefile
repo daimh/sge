@@ -1,6 +1,7 @@
 include ../include/include.mk
+include iso.mk
 $(eval $(CommonSgeImage))
-var/sge.iso : var/debian-12.11.0-amd64-DVD-1.iso var/id_ed25519
+var/sge.iso : var/$(Iso) var/id_ed25519
 	[ ! -d $@.d ] || chmod -R u+wX $@.d && rm -rf $@.d
 	mkdir -p $@.d
 	bsdtar xfp $< -C$@.d
@@ -17,7 +18,7 @@ var/sge.iso : var/debian-12.11.0-amd64-DVD-1.iso var/id_ed25519
 		-b isolinux/isolinux.bin -c isolinux/boot.cat \
 		-o $@.tmp $@.d
 	mv $@.tmp $@
-var/debian-12.11.0-amd64-DVD-1.iso :
+var/$(Iso) :
 	mkdir -p $(@D)
-	wget -qcO $@.tmp -c https://cdimage.debian.org/debian-cd/current/amd64/iso-dvd/$(@F)
+	wget -qcO $@.tmp -c $(Url)
 	mv $@.tmp $@
