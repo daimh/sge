@@ -19,8 +19,8 @@ var/sge.iso : var/$(Rhel)-x86_64-minimal.iso var/id_ed25519
 var/$(Rhel)-x86_64-minimal.iso :
 	mkdir -p $(@D)
 ifeq ($(Rhel),AlmaLinux10)
-	wget -qcO $@.tmp -c http://mirror.vtti.vt.edu/almalinux/10/isos/x86_64/AlmaLinux-10.0-x86_64-minimal.iso
+	wget -qcO $@.tmp -c http://mirror.vtti.vt.edu/almalinux/10/isos/x86_64/AlmaLinux-10.1-x86_64-minimal.iso
 else
-	wget -qcO $@.tmp -c http://download.rockylinux.org/pub/rocky/10/isos/x86_64/Rocky-10.0-x86_64-minimal.iso
+	wget -qcO $@.tmp -c http://download.rockylinux.org/pub/rocky/10/isos/x86_64/Rocky-10.1-x86_64-minimal.iso
 endif
 	mv $@.tmp $@
