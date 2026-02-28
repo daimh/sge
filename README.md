@@ -15,52 +15,55 @@
 
 ## About SGE
 
-Some Grid Engine is a fork of [Son of Grid Engine](https://en.wikipedia.org/wiki/Oracle_Grid_Engine) from the University of Liverpool, with several improvements.  
-Many thanks to the Wikipedia editor who included this repository in the [Comparison of cluster software](https://en.wikipedia.org/wiki/Comparison_of_cluster_software).  
+**Some Grid Engine (SGE)** is a fork of [Son of Grid Engine](https://en.wikipedia.org/wiki/Oracle_Grid_Engine) from the University of Liverpool, with several improvements.
 
-We have been using and maintaining this software at the **Michigan Neuroscience Institute, University of Michigan** for over a decade.  We also have been testing it weekly against the latest versions of all major Linux distributions.  
-It has proven to be stable and well-suited for small HPC clusters.  
+We would like to thank the Wikipedia and Grokipedia contributors to the following pages for preserving the history and context of the project:
 
-We are sharing it here on GitHub in the hope that more people can benefit from it.  
+- [Comparison of cluster software](https://en.wikipedia.org/wiki/Comparison_of_cluster_software)
+- [Oracle Grid Engine](https://grokipedia.com/page/Oracle_Grid_Engine)
+
+This software has been actively used and maintained at the **Michigan Neuroscience Institute, University of Michigan** for over a decade. It is continuously tested on a weekly basis against the latest major Linux distributions to ensure stability and compatibility.
+
+SGE has proven to be stable, reliable, and well-suited for small to medium-sized HPC clusters.
 
 ---
 
 ### Improvements
 
-- **musl libc compatibility**  
-  Ported `glibc rresvport` to work with [musl libc](https://musl.libc.org/).  
-  Tested on [Void Linux (musl)](https://voidlinux.org/) and [Alpine Linux](https://www.alpinelinux.org/).  
+- **musl libc compatibility**
+  Ported `glibc rresvport` to work with [musl libc](https://musl.libc.org/).
+  Tested on [Void Linux (musl)](https://voidlinux.org/) and [Alpine Linux](https://www.alpinelinux.org/).
 
-- **SystemD job submission support**  
-  Jobs can now be submitted via SystemD, allowing enforcement of memory and CPU limits via kernel cgroups.  
-  Thanks to [fretn](https://github.com/fretn/sge) and [ondrejv2](https://github.com/ondrejv2/sge)!  
+- **SystemD job submission support**
+  Jobs can now be submitted via SystemD, allowing enforcement of memory and CPU limits via kernel cgroups.
+  Thanks to [fretn](https://github.com/fretn/sge) and [ondrejv2](https://github.com/ondrejv2/sge)!
 
-- **CMake build support**  
-  Added CMake for easier long-term maintenance.  
-  On an 15-year old 8-core machine:  
-  - 38 seconds with CMake (parallel compile & install)  
-  - 302 seconds with legacy SGE build  
-  - 377 seconds with `makepkg`  
+- **CMake build support**
+  Added CMake for easier long-term maintenance.
+  On an 15-year old 8-core machine:
+  - 38 seconds with CMake (parallel compile & install)
+  - 302 seconds with legacy SGE build
+  - 377 seconds with `makepkg`
 
-- **Systemd installation fix**  
-  Fixed a permission error (introduced with systemd 241 in 2019) when installing SGE as a non-root user.  
+- **Systemd installation fix**
+  Fixed a permission error (introduced with systemd 241 in 2019) when installing SGE as a non-root user.
 
-- **OpenSSL compatibility**  
-  Updated for the latest OpenSSL versions.  
+- **OpenSSL compatibility**
+  Updated for the latest OpenSSL versions.
 
-- **Compiler warnings resolved**  
-  All C compilation warnings fixed on Arch Linux and Void Linux.  
-  Issues were caused by stricter GCC, new SSL/GLIBC, and obsolete/deprecated functions (`sigignore`, `readdir_r`, etc.).  
+- **Compiler warnings resolved**
+  All C compilation warnings fixed on Arch Linux and Void Linux.
+  Issues were caused by stricter GCC, new SSL/GLIBC, and obsolete/deprecated functions (`sigignore`, `readdir_r`, etc.).
 
-- **Service name cleanup**  
-  Changed underscores to hyphens in service names (`sge_qmaster/sge_execd` → `sge-qmaster/sge-execd`).  
-  This avoids modifying `/etc/services` manually.  
+- **Service name cleanup**
+  Changed underscores to hyphens in service names (`sge_qmaster/sge_execd` → `sge-qmaster/sge-execd`).
+  This avoids modifying `/etc/services` manually.
 
-- **Init system support**  
-  Supports both `runit` (Void Linux) and `systemd` (other distros).  
+- **Init system support**
+  Supports both `runit` (Void Linux) and `systemd` (other distros).
 
-- **Versioning**  
-  Version numbers now correspond to the commit hash of this GitHub repository.  
+- **Versioning**
+  Version numbers now correspond to the commit hash of this GitHub repository.
 
 - **[5 keystrokes to setup a demo cluster on any Linux machine without root privilege](tests/5-keystrokes-to-setup-a-cluster-without-root-privilege/)**
 
@@ -70,17 +73,17 @@ We are sharing it here on GitHub in the hope that more people can benefit from i
 ## Requirements
 ### tested with all the Linux distributions below, patched up to the specified date
 
-- **Arch Linux**, 2026-02-21
+- **Arch Linux**, 2026-02-28
 ```
 pacman -Sy --needed cmake db gcc git hwloc inetutils m4 make man pkgconf vi
 ```
 
-- **Void Linux**, 2026-02-21, x86\_64, glibc/musl
+- **Void Linux**, 2026-02-28, x86\_64, glibc/musl
 ```
 xbps-install cmake gcc git hwloc libhwloc-devel libtirpc-devel m4 make ncurses-devel openssl-devel pam-devel
 ```
 
-- **Alpine Linux**, 2026-02-21, x86\_64, Edge
+- **Alpine Linux**, 2026-02-28, x86\_64, Edge
 ```
 apk add cmake db-dev g++ gcc git hwloc-dev libtirpc-dev libxt-dev linux-pam-dev m4 make ncurses-dev openssl-dev procps
 #Due to the conflict with usr/include/libintl.h owned by both gettext-dev and musl-libintl
@@ -88,56 +91,56 @@ apk fetch musl-libintl
 tar -C / -xf musl-libintl*.apk usr/include/libintl.h
 ```
 
-- **AlmaLinux 10.0**, 2026-02-21, with SELinux set to permissive
+- **AlmaLinux 10.1**, 2026-02-28, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
 dnf install cmake hwloc-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
-dnf install https://dl.fedoraproject.org/pub/epel/10/Everything/x86_64/Packages/l/libdb-5.3.28-64.el10_0.x86_64.rpm
-dnf install https://dl.fedoraproject.org/pub/epel/10/Everything/x86_64/Packages/l/libdb-devel-5.3.28-64.el10_0.x86_64.rpm
+dnf install https://dl.fedoraproject.org/pub/epel/10/Everything/x86_64/Packages/l/libdb-5.3.28-64.el10_1.x86_64.rpm
+dnf install https://dl.fedoraproject.org/pub/epel/10/Everything/x86_64/Packages/l/libdb-devel-5.3.28-64.el10_1.x86_64.rpm
 dnf install https://repo.almalinux.org/almalinux/10/CRB/x86_64/os/Packages/libtirpc-devel-1.3.5-1.el10.x86_64.rpm
 ```
 
-- **Rocky 10.0**, 2026-02-21, with SELinux set to permissive
+- **Rocky 10.1**, 2026-02-28, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
 dnf install cmake hwloc-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
-dnf install https://dl.fedoraproject.org/pub/epel/10/Everything/x86_64/Packages/l/libdb-5.3.28-64.el10_0.x86_64.rpm
-dnf install https://dl.fedoraproject.org/pub/epel/10/Everything/x86_64/Packages/l/libdb-devel-5.3.28-64.el10_0.x86_64.rpm
+dnf install https://dl.fedoraproject.org/pub/epel/10/Everything/x86_64/Packages/l/libdb-5.3.28-64.el10_1.x86_64.rpm
+dnf install https://dl.fedoraproject.org/pub/epel/10/Everything/x86_64/Packages/l/libdb-devel-5.3.28-64.el10_1.x86_64.rpm
 dnf install https://dl.rockylinux.org/pub/rocky/10/CRB/x86_64/os/Packages/l/libtirpc-devel-1.3.5-1.el10.x86_64.rpm
 ```
 
-- **AlmaLinux 9.7**, 2026-02-21, with SELinux set to permissive
+- **AlmaLinux 9.7**, 2026-02-28, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
 dnf install cmake hwloc-devel libdb-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
 dnf install https://repo.almalinux.org/almalinux/9/CRB/x86_64/os/Packages/libtirpc-devel-1.3.3-9.el9.x86_64.rpm
 ```
 
-- **Rocky 9.7**, 2026-02-21, with SELinux set to permissive
+- **Rocky 9.7**, 2026-02-28, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
 dnf install cmake hwloc-devel libdb-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
 dnf install https://dl.rockylinux.org/pub/rocky/9/CRB/x86_64/os/Packages/l/libtirpc-devel-1.3.3-9.el9.x86_64.rpm
 ```
 
-- **AlmaLinux 8.10** and **Rocky 8.10**, 2026-02-21, with SELinux set to permissive
+- **AlmaLinux 8.10** and **Rocky 8.10**, 2026-02-28, with SELinux set to permissive
 ```
 dnf group install "Development Tools"
 dnf --enablerepo=powertools install cmake hwloc-devel libdb-devel libtirpc-devel ncurses-devel openssl-devel pam-devel rsync systemd-devel wget
 ```
 
-- **Debian Trixie/Bookworm/Bullseye**, 2026-02-21
+- **Debian Trixie/Bookworm/Bullseye**, 2026-02-28
 ```
 apt install build-essential cmake git libdb5.3-dev libhwloc-dev libncurses-dev libpam0g-dev libssl-dev libsystemd-dev libtirpc-dev libxext-dev pkgconf rsync
 ```
 
-- **Ubuntu Server 24.04, 22.04, 20.04**, 2026-02-21
+- **Ubuntu Server 24.04, 22.04, 20.04**, 2026-02-28
 ```
 apt-get install build-essential cmake git libdb5.3-dev libhwloc-dev libncurses-dev libpam0g-dev libssl-dev libsystemd-dev libtirpc-dev libxext-dev pkgconf
 
 ```
 
-- **openSUSE Leap**, 2026-02-21
+- **openSUSE Leap**, 2026-02-28
 ```
 zypper -n addrepo http://download.opensuse.org/distribution/leap/15.6/repo/oss/ oss
 zypper -n install cmake gcc gcc-c++ git hwloc-devel libdb-4_8-devel libtirpc-devel libXext-devel m4 ncurses-devel openssl-devel pam-devel pkgconf rsync systemd-devel wget
@@ -267,11 +270,11 @@ For other active forks that have commercial support, please look into
 
 ## Acknowledgments
 
-https://arc.liv.ac.uk/trac/SGE, Sun, and Oracle  
-[fretn](https://github.com/fretn/sge)  
-[ondrejv2](https://github.com/ondrejv2/sge)  
-Ruth Freedman, MPH, former administrator of MNI, UMICH  
-Thomas Wilson, M.D., Ph.D. Professor of Pathology, UMICH  
-Huda Akil, Ph.D., Director of MNI, UMICH  
-Stanley J. Watson, M.D., Ph.D., Director of MNI, UMICH  
-Fan Meng, Ph.D., Research Associate Professor, Psychiatry, UMICH  
+https://arc.liv.ac.uk/trac/SGE, Sun, and Oracle
+[fretn](https://github.com/fretn/sge)
+[ondrejv2](https://github.com/ondrejv2/sge)
+Ruth Freedman, MPH, former administrator of MNI, UMICH
+Thomas Wilson, M.D., Ph.D. Professor of Pathology, UMICH
+Huda Akil, Ph.D., Director of MNI, UMICH
+Stanley J. Watson, M.D., Ph.D., Director of MNI, UMICH
+Fan Meng, Ph.D., Research Associate Professor, Psychiatry, UMICH
