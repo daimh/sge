@@ -8,7 +8,7 @@ var/sge-image : var/daiker var/http var/netboot/initramfs-virt var/netboot/modlo
 	$(Wait) $(Ssh) root@localhost id
 	$(Ssh) root@localhost < lib/alpine-install-1.sh
 	$(Wait) ! fuser $@.qcow2 $(Port)/tcp
-	$< run -v $(DaikerOpts) -F $@.qcow2 &
+	$< run -v $(DaikerOpts) $@.qcow2 &
 	$(Wait) $(Ssh) root@localhost id
 	$(Ssh) root@localhost < lib/alpine-install-2.sh
 	$(Wait) ! fuser $@.qcow2 $(Port)/tcp
