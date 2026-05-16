@@ -14,7 +14,7 @@ var/test : var/sge-container
 var/sge-container : var/sge-image
 	fuser -k $@.qcow2 $(Port)/tcp && sleep 2 || :
 	rm -f $@.qcow2
-	var/daiker run $(DaikerOpts) -b $<.qcow2 $$PWD/$@.qcow2 &
+	var/daiker run $(DaikerOpts) $$PWD/$@.qcow2:$<.qcow2 &
 	for ((i=1; ; i++)); do ! $(Ssh) root@localhost id || break; sleep 2; echo "MSG-001: Retrying ssh $$i"; done
 ifeq ($(Distro),archlinux)
 	rsync -ae "$(Ssh)" var/overlay/var/cache/pacman/pkg/ root@localhost:/var/cache/pacman/pkg/
@@ -28,7 +28,7 @@ define CommonSgeImage
 var/sge-image : var/sge.iso var/daiker
 	fuser -k $$@.qcow2 $(Port)/tcp && sleep 2 || :
 	rm -f $$@.qcow2
-	var/daiker build $(DaikerOpts) -i $$< -H 20 $$$$PWD/$$@.qcow2
+	var/daiker run $(DaikerOpts) -i $$< $$$$PWD/$$@.qcow2=20G
 	touch $$@
 endef
 var/id_ed25519 :

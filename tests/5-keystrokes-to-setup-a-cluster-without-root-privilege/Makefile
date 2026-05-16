@@ -7,32 +7,33 @@ var/execd : $(addprefix var/execd,$(shell seq $(ExecdCount)))
 ALL := $(addprefix var/,firewall master $(addprefix execd,$(shell seq $(ExecdCount))))
 define ExecdTmpl
 var/execd$1 : var/master-container
-	setsid var/daiker build $(DaikerOpts) -d /dev/null & ps --no-headers -o pgid $$$$! | tr -d ' ' > $$@
+	setsid var/daiker run $(DaikerOpts) -d & \
+		ps --no-headers -o pgid $$$$! | tr -d ' ' > $$@
 endef
 $(foreach E,$(shell seq $(ExecdCount)),$(eval $(call ExecdTmpl,$E)))
 var/master-container : var/master-image
 	fuser -k $@.qcow2 || :
 	rm -f $@.qcow2
-	var/daiker run $(DaikerOpts) -d -b $<.qcow2 $@.qcow2 &
+	var/daiker run $(DaikerOpts) -d $@.qcow2:$<.qcow2 &
 	while ! $(Ssh) root@localhost ssh $(SshOpts) master id; do sleep 2; done
 	rsync -ae "$(Ssh)" root@localhost:/var/cache/pacman/pkg/ var/overlay/var/cache/pacman/pkg
 	touch $@
 var/master-image : var/master-autoinstall.iso var/firewall-container
 	fuser -k $@.qcow2 || :
 	rm -f $@.qcow2
-	var/daiker build $(DaikerOpts) -d -H 20 -i $< $@.qcow2
+	var/daiker run $(DaikerOpts) -d -i $< $@.qcow2:20G
 	touch $@
 var/firewall-container : var/firewall-image
 	fuser -k $@.qcow2 || :
 	rm -f $@.qcow2
-	var/daiker run $(DaikerOpts) -T 12345-54321 -b $<.qcow2 $@.qcow2 &
+	var/daiker run $(DaikerOpts) -T 12345-54321 $@.qcow2:$<.qcow2 &
 	while ! $(Ssh) root@localhost id; do sleep 2; done
 	rsync -ae "$(Ssh)" root@localhost:/var/cache/pacman/pkg/ var/overlay/var/cache/pacman/pkg
 	touch $@
 var/firewall-image : var/firewall-autoinstall.iso
 	fuser -k $@.qcow2 || :
 	rm -f $@.qcow2
-	var/daiker build $(DaikerOpts) -H 20 -T 12345-54321 -i $< $@.qcow2
+	var/daiker run $(DaikerOpts) -T 12345-54321 -i $< $@.qcow2:20G
 	touch $@
 var/%-autoinstall.iso : var/archlinux-x86_64.iso var/id_ed25519 var/daiker
 	[ ! -d $@.d ] || chmod -R u+rwX $@.d && rm -rf $@.d
