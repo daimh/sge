@@ -1,6 +1,7 @@
 add_custom_command(
 	OUTPUT qmon_diares.c
 	COMMAND cp ${CMAKE_CURRENT_SOURCE_DIR}/qmon_diares.c.LINUXAMD64 qmon_diares.c
+	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/qmon_diares.c.LINUXAMD64
 )
 add_executable(qmon
 	AskForItems.c

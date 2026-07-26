@@ -8426,58 +8426,77 @@ char* qmon_fallbacks[] = {
 /*! export the predefined fonts. xset +fp <server>:<portnumber>/ makes */
 /*! them visible to your Xserver. */
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
-"Qmon*FontList: $interface",
+"Qmon*fontList: fixed,fixed=R,fixed=B,fixed=I,fixed=BI,fixed=BIG,fixed=HUGE,fixed=SMALL,fixed=LIST,fixed=LISTBOLD,fixed=LISTSMALL,fixed=QUEUEICON,fixed=H,fixed=HB,fixed=HI,fixed=CW",
+"Qmon*tabFontList: fixed,fixed=R,fixed=B,fixed=I,fixed=BI,fixed=BIG,fixed=HUGE,fixed=SMALL,fixed=LIST,fixed=LISTBOLD,fixed=LISTSMALL,fixed=QUEUEICON,fixed=H,fixed=HB,fixed=HI,fixed=CW",
 
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
 /*! default fonts */
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
 "_FontLists_.small.*.interface: \
--adobe-helvetica-medium-r-*-*-12-*-*-*-p-*-*-*=R,\
--adobe-helvetica-bold-r-*-*-12-*-*-*-p-*-*-*=B,\
--adobe-helvetica-medium-r-*-*-18-*-*-*-p-*-*-*=BIG,\
--adobe-helvetica-medium-r-*-*-10-*-*-*-p-*-*-*=SMALL,\
--adobe-helvetica-medium-r-*-*-20-*-*-*-p-*-*-*=HUGE,\
--adobe-courier-medium-r-*-*-12-*-*-*-m-*-*-*=LIST,\
--adobe-courier-bold-r-*-*-12-*-*-*-m-*-*-*=LISTBOLD,\
--adobe-courier-medium-r-*-*-10-*-*-*-m-*-*-*=LISTSMALL,\
--adobe-helvetica-medium-r-*-*-9-*-*-*-p-*-*-*=QUEUEICON",
+fixed=R,\
+fixed=B,\
+fixed=I,\
+fixed=BI,\
+fixed=BIG,\
+fixed=SMALL,\
+fixed=HUGE,\
+fixed=LIST,\
+fixed=LISTBOLD,\
+fixed=LISTSMALL,\
+fixed=QUEUEICON,\
+fixed=H,\
+fixed=HB,\
+fixed=HI,\
+fixed=CW",
 
-"_FontLists_.small.*.dialog_font:  -adobe-courier-medium-r-*-*-12-*-*-*-m-*-*-*",
-"_FontLists_.small.*.matrix_font:  -adobe-helvetica-medium-r-*-*-12-*-*-*-p-*-*-*",
-"_FontLists_.small.*.browser_font: -adobe-courier-medium-r-*-*-10-*-*-*-m-*-*-*",
-"_FontLists_.small.*.fixed_font:  -adobe-courier-medium-r-*-*-12-*-*-*-m-*-*-*",
+"_FontLists_.small.*.dialog_font:  fixed,fixed=R,fixed=B,fixed=I,fixed=BI,fixed=BIG,fixed=HUGE,fixed=SMALL,fixed=LIST,fixed=LISTBOLD,fixed=LISTSMALL,fixed=QUEUEICON,fixed=H,fixed=HB,fixed=HI,fixed=CW",
+"_FontLists_.small.*.matrix_font:  fixed,fixed=R,fixed=B,fixed=I,fixed=BI,fixed=BIG,fixed=HUGE,fixed=SMALL,fixed=LIST,fixed=LISTBOLD,fixed=LISTSMALL,fixed=QUEUEICON,fixed=H,fixed=HB,fixed=HI,fixed=CW",
+"_FontLists_.small.*.browser_font: fixed,fixed=R,fixed=B,fixed=I,fixed=BI,fixed=BIG,fixed=HUGE,fixed=SMALL,fixed=LIST,fixed=LISTBOLD,fixed=LISTSMALL,fixed=QUEUEICON,fixed=H,fixed=HB,fixed=HI,fixed=CW",
+"_FontLists_.small.*.fixed_font:   fixed,fixed=R,fixed=B,fixed=I,fixed=BI,fixed=BIG,fixed=HUGE,fixed=SMALL,fixed=LIST,fixed=LISTBOLD,fixed=LISTSMALL,fixed=QUEUEICON,fixed=H,fixed=HB,fixed=HI,fixed=CW",
 
 "_FontLists_.big.*.interface: \
--adobe-helvetica-medium-r-*-*-18-*-*-*-p-*-*-*=R,\
--adobe-helvetica-bold-r-*-*-18-*-*-*-p-*-*-*=B,\
--adobe-helvetica-medium-r-*-*-24-*-*-*-p-*-*-*=BIG,\
--adobe-helvetica-medium-r-*-*-14-*-*-*-p-*-*-*=SMALL,\
--adobe-helvetica-medium-r-*-*-34-*-*-*-p-*-*-*=HUGE,\
--adobe-courier-medium-r-*-*-18-*-*-*-m-*-*-*=LIST,\
--adobe-courier-bold-r-*-*-18-*-*-*-m-*-*-*=LISTBOLD,\
--adobe-courier-medium-r-*-*-14-*-*-*-m-*-*-*=LISTSMALL,\
--adobe-helvetica-medium-r-*-*-10-*-*-*-p-*-*-*=QUEUEICON",
+fixed=R,\
+fixed=B,\
+fixed=I,\
+fixed=BI,\
+fixed=BIG,\
+fixed=SMALL,\
+fixed=HUGE,\
+fixed=LIST,\
+fixed=LISTBOLD,\
+fixed=LISTSMALL,\
+fixed=QUEUEICON,\
+fixed=H,\
+fixed=HB,\
+fixed=HI,\
+fixed=CW",
 
-"_FontLists_.big.*.dialog_font:  -adobe-courier-medium-r-*-*-17-*-*-*-m-*-*-*",
-"_FontLists_.big.*.matrix_font:  -adobe-helvetica-medium-r-*-*-17-*-*-*-p-*-*-*",
-"_FontLists_.big.*.browser_font: -adobe-courier-medium-r-*-*-14-*-*-*-m-*-*-*",
-"_FontLists_.big.*.fixed_font:  -adobe-courier-medium-r-*-*-17-*-*-*-m-*-*-*",
+"_FontLists_.big.*.dialog_font:  fixed,fixed=R,fixed=B,fixed=I,fixed=BI,fixed=BIG,fixed=HUGE,fixed=SMALL,fixed=LIST,fixed=LISTBOLD,fixed=LISTSMALL,fixed=QUEUEICON,fixed=H,fixed=HB,fixed=HI,fixed=CW",
+"_FontLists_.big.*.matrix_font:  fixed,fixed=R,fixed=B,fixed=I,fixed=BI,fixed=BIG,fixed=HUGE,fixed=SMALL,fixed=LIST,fixed=LISTBOLD,fixed=LISTSMALL,fixed=QUEUEICON,fixed=H,fixed=HB,fixed=HI,fixed=CW",
+"_FontLists_.big.*.browser_font: fixed,fixed=R,fixed=B,fixed=I,fixed=BI,fixed=BIG,fixed=HUGE,fixed=SMALL,fixed=LIST,fixed=LISTBOLD,fixed=LISTSMALL,fixed=QUEUEICON,fixed=H,fixed=HB,fixed=HI,fixed=CW",
+"_FontLists_.big.*.fixed_font:   fixed,fixed=R,fixed=B,fixed=I,fixed=BI,fixed=BIG,fixed=HUGE,fixed=SMALL,fixed=LIST,fixed=LISTBOLD,fixed=LISTSMALL,fixed=QUEUEICON,fixed=H,fixed=HB,fixed=HI,fixed=CW",
 
 "_FontLists_.*.interface: \
--adobe-helvetica-medium-r-*--14-*-*-*-p-*-*-*=R,\
--adobe-helvetica-bold-r-*--14-*-*-*-p-*-*-*=B,\
--adobe-helvetica-medium-r-*--20-*-*-*-p-*-*-*=BIG,\
--adobe-helvetica-medium-r-*--12-*-*-*-p-*-*-*=SMALL,\
--adobe-helvetica-medium-r-*--24-*-*-*-p-*-*-*=HUGE,\
--adobe-courier-medium-r-*--14-*-*-*-m-*-*-*=LIST,\
--adobe-courier-bold-r-*--14-*-*-*-m-*-*-*=LISTBOLD,\
--adobe-courier-medium-r-*--12-*-*-*-m-*-*-*=LISTSMALL,\
--adobe-helvetica-medium-r-*--10-*-*-*-p-*-*-*=QUEUEICON",
+fixed=R,\
+fixed=B,\
+fixed=I,\
+fixed=BI,\
+fixed=BIG,\
+fixed=SMALL,\
+fixed=HUGE,\
+fixed=LIST,\
+fixed=LISTBOLD,\
+fixed=LISTSMALL,\
+fixed=QUEUEICON,\
+fixed=H,\
+fixed=HB,\
+fixed=HI,\
+fixed=CW",
 
-"_FontLists_.*.dialog_font:  -adobe-courier-medium-r-*--14-*-*-*-m-*-*-*",
-"_FontLists_.*.matrix_font:  -adobe-helvetica-medium-r-*--14-*-*-*-p-*-*-*",
-"_FontLists_.*.browser_font: -adobe-courier-medium-r-*--12-*-*-*-m-*-*-*",
-"_FontLists_.*.fixed_font:  -adobe-courier-medium-r-*--14-*-*-*-m-*-*-*",
+"_FontLists_.*.dialog_font:  fixed,fixed=R,fixed=B,fixed=I,fixed=BI,fixed=BIG,fixed=HUGE,fixed=SMALL,fixed=LIST,fixed=LISTBOLD,fixed=LISTSMALL,fixed=QUEUEICON,fixed=H,fixed=HB,fixed=HI,fixed=CW",
+"_FontLists_.*.matrix_font:  fixed,fixed=R,fixed=B,fixed=I,fixed=BI,fixed=BIG,fixed=HUGE,fixed=SMALL,fixed=LIST,fixed=LISTBOLD,fixed=LISTSMALL,fixed=QUEUEICON,fixed=H,fixed=HB,fixed=HI,fixed=CW",
+"_FontLists_.*.browser_font: fixed,fixed=R,fixed=B,fixed=I,fixed=BI,fixed=BIG,fixed=HUGE,fixed=SMALL,fixed=LIST,fixed=LISTBOLD,fixed=LISTSMALL,fixed=QUEUEICON,fixed=H,fixed=HB,fixed=HI,fixed=CW",
+"_FontLists_.*.fixed_font:   fixed,fixed=R,fixed=B,fixed=I,fixed=BI,fixed=BIG,fixed=HUGE,fixed=SMALL,fixed=LIST,fixed=LISTBOLD,fixed=LISTSMALL,fixed=QUEUEICON,fixed=H,fixed=HB,fixed=HI,fixed=CW",
 
 /*!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
 /*! japanese fonts */

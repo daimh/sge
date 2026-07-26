@@ -55,10 +55,25 @@ install(
 		source/dist/hadoop
 		source/dist/mpi
 		source/dist/pvm
-		#source/dist/qmon
 		source/dist/util
 	DESTINATION .
 	USE_SOURCE_PERMISSIONS
+)
+install(
+	FILES
+		source/dist/qmon/Qmon
+		source/dist/qmon/qmon_help.ad
+	DESTINATION qmon
+)
+install(
+	DIRECTORY source/dist/qmon/PIXMAPS/small/
+	DESTINATION qmon/PIXMAPS
+	FILES_MATCHING PATTERN "*.xpm"
+)
+install(
+	DIRECTORY source/dist/qmon/PIXMAPS/big
+	DESTINATION qmon/PIXMAPS
+	FILES_MATCHING PATTERN "*.xpm"
 )
 install(
 	TARGETS
@@ -69,7 +84,7 @@ install(
 		qevent
 		qhost
 		qmod
-		#qmon
+		qmon
 		qping
 		qquota
 		qrdel

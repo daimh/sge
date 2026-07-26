@@ -81,6 +81,32 @@ sge_gdi_ctx_class_t *ctx = NULL;
 
 static void qmonUsage(Widget w);
 
+#define QMON_FIXED_FONT_LIST \
+   "fixed,fixed=R,fixed=B,fixed=I,fixed=BI,fixed=BIG,fixed=HUGE," \
+   "fixed=SMALL,fixed=LIST,fixed=LISTBOLD,fixed=LISTSMALL," \
+   "fixed=QUEUEICON,fixed=H,fixed=HB,fixed=HI,fixed=CW"
+
+static const char *const qmon_font_resources[] = {
+   "Qmon*fontList: " QMON_FIXED_FONT_LIST,
+   "Qmon*FontList: " QMON_FIXED_FONT_LIST,
+   "Qmon*tabFontList: " QMON_FIXED_FONT_LIST,
+   "Qmon*labelFont: " QMON_FIXED_FONT_LIST,
+   "Qmon*labelFontList: " QMON_FIXED_FONT_LIST,
+   "Qmon*buttonFontList: " QMON_FIXED_FONT_LIST,
+   "Qmon*textFontList: " QMON_FIXED_FONT_LIST,
+   "Qmon*defaultFontList: " QMON_FIXED_FONT_LIST,
+   "Qmon*helpFontList: " QMON_FIXED_FONT_LIST,
+   "Qmon*titleFontList: " QMON_FIXED_FONT_LIST,
+   "Qmon*sectionFontList: " QMON_FIXED_FONT_LIST,
+   "Qmon*tocFontList: " QMON_FIXED_FONT_LIST,
+   "Qmon*indexFontList: " QMON_FIXED_FONT_LIST,
+   "Qmon*entryLabelFontList: " QMON_FIXED_FONT_LIST,
+   "Qmon*defaultEntryLabelFontList: " QMON_FIXED_FONT_LIST,
+   "Qmon*MainTitleLabel.fontList: " QMON_FIXED_FONT_LIST,
+   "Qmon*acceleratorFontTag: R",
+   "Qmon*font: fixed"
+};
+
 XtSignalId sigint_id = 0;
 
 static Widget  MainControl;
@@ -162,6 +188,26 @@ char **argv
    ** SETUP XMT, here qmon_version is checked, 
    ** so here an exit is possible 
    */
+   {
+      int original_argc = argc;
+      int resource_count = sizeof(qmon_font_resources) / sizeof(qmon_font_resources[0]);
+      char **font_argv = (char **)XtMalloc((original_argc + resource_count * 2 + 1) *
+                                          sizeof(*font_argv));
+      int next_arg = 1;
+
+      font_argv[0] = argv[0];
+      for (i = 0; i < resource_count; i++) {
+         font_argv[next_arg++] = "-xrm";
+         font_argv[next_arg++] = (char *)qmon_font_resources[i];
+      }
+      for (i = 1; i < original_argc; i++) {
+         font_argv[next_arg++] = argv[i];
+      }
+      font_argv[next_arg] = NULL;
+      argc = next_arg;
+      argv = font_argv;
+   }
+
    AppShell = XmtInitialize( &AppContext, APP_NAME,
                              NULL, 0,
                              &argc, argv, 
